@@ -15,6 +15,10 @@ class InvoiceList extends Component
     public $search ="";
     public $created_by;
 
+    public function FindCustomer($keywords){
+        $this->search = $keywords;
+    }
+
     public function downloadInvoice($orderId)
     {
         $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
@@ -29,6 +33,14 @@ class InvoiceList extends Component
             echo $pdf->output();
         }, 'invoice_' . $invoice->invoice_no . '.pdf');
     } 
+
+    public function CollectedBy($value){
+        $this->created_by = $value;
+    }
+
+    public function resetForm(){
+        $this->reset(['search','created_by']);
+    }
 
     public function render()
     {
