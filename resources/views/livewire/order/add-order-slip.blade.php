@@ -1,6 +1,6 @@
 <div class="container">
     <section class="admin__title">                
-        <h5>Add Slip</h5>
+        <h5>Confirm Order</h5>
     </section>
     <section>
         <ul class="breadcrumb_menu">
@@ -60,7 +60,7 @@
                             <div class="col-sm-3">
                                 <div class="form-group mb-3">
                                     @if($key==0)
-                                        <label>Required Quantity</label>
+                                        <label>Quantity</label>
                                     @endif
                                     <input type="text" class="form-control form-control-sm" value="{{$order_item->quantity}}" disabled {{$readonly}}>
                                 </div>
@@ -68,21 +68,28 @@
                             <div class="col-sm-3">
                                 <div class="form-group mb-3">
                                     @if($key==0)
-                                        <label for="">Disburse Quantity</label>
+                                        <label for="">Price</label>
                                     @endif
-                                    <input type="text" wire:model="order_item.{{$key}}.quantity" class="form-control form-control-sm" oninput="validateNumber(this)" wire:keyup="updateQuantity($event.target.value, {{$key}}, {{$order_item->piece_price}})">
-                                    @if(isset($errorMessage["order_item.$key.quantity"]))
+                                    <input type="text" class="form-control form-control-sm" value="{{$order_item->piece_price}}" disabled>
+                                    {{-- @if(isset($errorMessage["order_item.$key.quantity"]))
                                         <div class="text-danger">{{ $errorMessage["order_item.$key.quantity"] }}</div>
-                                    @endif
+                                    @endif --}}
                                 </div>
                             </div>
                             @endforeach
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="form-group text-end">
+                        <span>ORDER AMOUNT <span class="text-danger">({{$actual_amount}})</span></span>
+                        <button type="submit" id="submit_btn"
+                            class="btn btn-sm btn-success"><i class="material-icons text-white" style="font-size: 15px;">add</i>Confirm</button>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="card mt-2">
+        {{-- <div class="card mt-2">
             <div class="card-body">
                 <div class="row">
                     <div class="col-sm-4">
@@ -100,18 +107,6 @@
                             </div>
                         </div>
                     </div>
-                    {{-- <div class="col-sm-4">
-                        <div class="form-group mb-3">
-                            <label for="" id="">Collected By <span class="text-danger">*</span></label>
-                            <div class="position-relative">
-                                <input type="text" wire:model="staff_name" 
-                                    class="form-control form-control-sm border border-1 customer_input" {{$readonly}}>
-                                    @if(isset($errorMessage['staff_id']))
-                                        <div class="text-danger">{{ $errorMessage['staff_id'] }}</div>
-                                    @endif
-                            </div>
-                        </div>
-                    </div> --}}
                     <div class="col-sm-4">
                         <div class="form-group mb-3">
                             <label for="">Voucher No</label>
@@ -201,7 +196,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </form>
 </div>
 @push('js')

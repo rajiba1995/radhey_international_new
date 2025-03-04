@@ -50,7 +50,10 @@ class AddOrderSlip extends Component
             $this->staff_id = $this->order->createdBy->id;
             $this->staff_name = $this->order->createdBy->name;
             $this->payment_date = date('Y-m-d');
+        }else{
+            abort(404);
         }
+        
         $this->voucher_no = 'PAYRECEIPT'.time();
         $this->staffs = User::where('user_type', 0)->where('designation', 2)->select('name', 'id')->orderBy('name', 'ASC')->get();
     }
@@ -85,38 +88,38 @@ class AddOrderSlip extends Component
         }
 
         // Validate amount
-        if (empty($this->amount) || !is_numeric($this->amount)) {
-           $this->errorMessage['amount'] = 'Please enter a valid amount.';
-        }
+        // if (empty($this->amount) || !is_numeric($this->amount)) {
+        //    $this->errorMessage['amount'] = 'Please enter a valid amount.';
+        // }
         // Validate amount
-        if (empty($this->actual_amount) || !is_numeric($this->actual_amount)) {
-           $this->errorMessage['actual_amount'] = 'Please enter a valid amount.';
-        }
+        // if (empty($this->actual_amount) || !is_numeric($this->actual_amount)) {
+        //    $this->errorMessage['actual_amount'] = 'Please enter a valid amount.';
+        // }
 
         // Validate voucher no
-        if (empty($this->voucher_no)) {
-           $this->errorMessage['voucher_no'] = 'Please enter a voucher number.';
-        }
+        // if (empty($this->voucher_no)) {
+        //    $this->errorMessage['voucher_no'] = 'Please enter a voucher number.';
+        // }
 
         // Validate payment date
-        if (empty($this->payment_date) || !$this->is_valid_date($this->payment_date)) {
-           $this->errorMessage['payment_date'] = 'Please select a valid payment date.';
-        }
+        // if (empty($this->payment_date) || !$this->is_valid_date($this->payment_date)) {
+        //    $this->errorMessage['payment_date'] = 'Please select a valid payment date.';
+        // }
 
         // Validate payment mode
-        if (empty($this->payment_mode)) {
-           $this->errorMessage['payment_mode'] = 'Please select a payment mode.';
-        }
+        // if (empty($this->payment_mode)) {
+        //    $this->errorMessage['payment_mode'] = 'Please select a payment mode.';
+        // }
 
         // Validate cheque no / UTR no
-        if ($this->payment_mode != 'cash' && empty($this->chq_utr_no)) {
-           $this->errorMessage['chq_utr_no'] = 'Please enter a cheque no / UTR no.';
-        }
+        // if ($this->payment_mode != 'cash' && empty($this->chq_utr_no)) {
+        //    $this->errorMessage['chq_utr_no'] = 'Please enter a cheque no / UTR no.';
+        // }
 
         // Validate bank name
-        if ($this->payment_mode != 'cash' && empty($this->bank_name)) {
-           $this->errorMessage['bank_name'] = 'Please enter a bank name.';
-        }
+        // if ($this->payment_mode != 'cash' && empty($this->bank_name)) {
+        //    $this->errorMessage['bank_name'] = 'Please enter a bank name.';
+        // }
         if(count($this->errorMessage)>0){
             return $this->errorMessage;
         }else{
@@ -128,7 +131,7 @@ class AddOrderSlip extends Component
 
                 $this->createPackingSlip();
 
-                $this->accountingRepository->StorePaymentReceipt($this->all());
+                // $this->accountingRepository->StorePaymentReceipt($this->all());
               
 
                 DB::commit();
@@ -192,8 +195,8 @@ class AddOrderSlip extends Component
                 'order_id' => $this->order->id,
                 'customer_id' => $this->customer_id,
                 'slipno' => $this->order->order_number, 
-                'is_disbursed' => ($remaining_amount == 0) ? 1 : 0,
-                // 'is_disbursed' => 0,
+                // 'is_disbursed' => ($remaining_amount == 0) ? 1 : 0,
+                'is_disbursed' => 0,
                 'created_by' => $this->staff_id,
                 'created_at' => now(),
                 'disbursed_by' => $this->staff_id,
@@ -202,8 +205,11 @@ class AddOrderSlip extends Component
             ]);
 
             
-            $lastInvoice = Invoice::orderBy('id','DESC')->first();
-            $invoice_no = str_pad(optional($lastInvoice)->id + 1, 10, '0', STR_PAD_LEFT);
+            do {
+                $lastInvoice = Invoice::orderBy('id', 'DESC')->first();
+                $invoice_no = str_pad(optional($lastInvoice)->id + 1, 10, '0', STR_PAD_LEFT);
+            } while (Invoice::where('invoice_no', $invoice_no)->exists()); // Ensure unique invoice_no
+            
 
         $invoice = Invoice::create([
                 'order_id' => $this->order->id,

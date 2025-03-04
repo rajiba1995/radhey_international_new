@@ -610,6 +610,8 @@ class AccountingRepository implements AccountingRepositoryInterface
                     'created_at'=> date('Y-m-d H:i:s')
                 ]);
             }
+            $err_msg_bank = "Opening balance for customer added successfully";
+            return ['status' => true, 'message' => $err_msg_bank];
          }else{
              /* Entry in payment */      
             $payment_id = Payment::insertGetId([
@@ -627,25 +629,25 @@ class AccountingRepository implements AccountingRepositoryInterface
                 'created_by'=> Auth::guard('admin')->user()->id,
                 'created_at'=> date('Y-m-d H:i:s')
             ]);
-          
-            /* Entry in ledger */
-           $ledger= Ledger::insert([
-                'user_type'=> $user_type,
-                'customer_id'=> $customer_id,
-                'transaction_id'=> $data['voucher_no'],
-                'transaction_amount'=> $data['amount'],
-                'payment_id'=> $payment_id,
-                'bank_cash'=> ($data['payment_type'] != 'bank') ? 'cash' : $data['payment_type'],
-                'is_credit'=> $is_credit,
-                'is_debit'=> $is_debit,
-                'entry_date'=> $data['date'],
-                'purpose'=> 'opening_balance',
-                'purpose_description'=> $user_type.' opening balance',
-                'created_at'=> date('Y-m-d H:i:s')
-            ]);
-           
-            /* Entry in journal */
-           $journal =Journal::insert([
+            
+                /* Entry in ledger */
+            $ledger= Ledger::insert([
+                    'user_type'=> $user_type,
+                    'customer_id'=> $customer_id,
+                    'transaction_id'=> $data['voucher_no'],
+                    'transaction_amount'=> $data['amount'],
+                    'payment_id'=> $payment_id,
+                    'bank_cash'=> ($data['payment_type'] != 'bank') ? 'cash' : $data['payment_type'],
+                    'is_credit'=> $is_credit,
+                    'is_debit'=> $is_debit,
+                    'entry_date'=> $data['date'],
+                    'purpose'=> 'opening_balance',
+                    'purpose_description'=> $user_type.' opening balance',
+                    'created_at'=> date('Y-m-d H:i:s')
+                ]);
+            
+                /* Entry in journal */
+            $journal =Journal::insert([
                 'transaction_amount'=> $data['amount'],
                 'is_credit'=> $is_credit,
                 'is_debit'=> $is_debit,
@@ -657,9 +659,9 @@ class AccountingRepository implements AccountingRepositoryInterface
                 'purpose_id'=> $data['voucher_no'],
                 'created_at'=> date('Y-m-d H:i:s')
             ]);
+            $err_msg_bank = "Opening balance for customer added successfully";
+            return ['status' => true, 'message' => $err_msg_bank];
          }
         
     }
-
-
 }

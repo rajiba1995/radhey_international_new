@@ -133,7 +133,7 @@ class AddOpeningBalance extends Component
                     session()->flash('error', $data['message']);
                 }else{
                     DB::commit();
-                    session()->flash('success', 'Opening balance for customer added successfully.');
+                    session()->flash('success', $data['message']);
                     return redirect()->route('admin.accounting.list_opening_balance');
                 }
                 
