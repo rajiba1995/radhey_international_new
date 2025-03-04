@@ -99,14 +99,14 @@
                                                 </div>
                                             </td>
                                             <td class="align-middle">
-                                            <a href="{{ route('suppliers.details', $supplier->id) }}" class="btn btn-outline-dark custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="View Details" title="View Details">
-                                                <i class="fas fa-eye"></i>
+                                            <a href="{{ route('suppliers.details', $supplier->id) }}" class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="View Details" title="View Details">
+                                             View
                                             </a>
-                                            <a href="{{ route('suppliers.edit', $supplier->id) }}"  class="btn btn-outline-info custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="Edit supplier" title="Edit Supplier">
-                                                <i class="fas fa-edit"></i>
+                                            <a href="{{ route('suppliers.edit', $supplier->id) }}"  class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="Edit supplier" title="Edit Supplier">
+                                            Edit
                                             </a>
-                                            <button wire:click="deleteSupplier({{ $supplier->id }})" class="btn btn-outline-danger custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="Delete supplier" title="Delete Supplier">
-                                                <i class="fas fa-trash"></i>
+                                            <button wire:click="deleteSupplier({{ $supplier->id }})" class="btn btn-outline-danger select-md btn_outline" data-toggle="tooltip" data-original-title="Delete supplier" title="Delete Supplier">
+                                             Delete
                                             </button>
                                             </td>
                                         </tr>

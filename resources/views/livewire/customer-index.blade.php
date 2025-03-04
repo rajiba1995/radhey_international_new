@@ -133,10 +133,9 @@
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-10">
                                               Status
                                             </th>
-                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-10">
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-10 text-center">
                                                Action
                                             </th>
-                                            <th class="text-secondary opacity-10"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -174,26 +173,28 @@
                                                             @endif>
                                                         </div>
                                                     </td>
-                                                    <td class="align-middle">
-                                                        <a href="{{ route('admin.customers.details', ['id' => $user->id]) }}" class="btn btn-outline-dark custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="View Details" title="View Details">
-                                                            <i class="fas fa-eye"></i>
+                                                    <td class="align-middle text-center">
+                                                        <a href="{{ route('admin.customers.details', ['id' => $user->id]) }}" class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="View Details" title="View Details">
+                                                           View
                                                         </a>
-                                                        <a href="{{ route('admin.customers.edit', ['id' => $user->id]) }}" class="btn btn-outline-info custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="Edit user" title="Edit Customer">
-                                                            <i class="fas fa-edit"></i>
+                                                        <a href="{{ route('admin.customers.edit', ['id' => $user->id]) }}" class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="Edit user" title="Edit Customer">
+                                                          Edit
                                                         </a>
-                                                        <button wire:click="deleteCustomer({{ $user->id }})" class="btn btn-outline-danger custom-btn-sm mb-0" title="Delete Customer"><i class="fas fa-trash"></i></button>
-                                                        <a href="{{route('admin.order.new',['user_id' => $user->id])}}" class="btn btn-outline-primary custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="Place Order" title="Place Order">
-                                                            <i class="fas fa-shopping-cart"></i>
+                                                        <button wire:click="deleteCustomer({{ $user->id }})" class="btn btn-outline-danger select-md btn_outline" title="Delete Customer">
+                                                           Delete
+                                                        </button>
+                                                        <a href="{{route('admin.order.new',['user_id' => $user->id])}}" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip" data-original-title="Place Order" title="Place Order">
+                                                           Place Order
                                                         </a>
                                                           <!-- Purchase History (Ledger) Button -->
-                                                        <a href="{{route('admin.order.index',['customer_id' => $user->id])}}" class="btn btn-outline-secondary custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="Purchase History" title="Purchase History">
-                                                            <i class="fas fa-file-invoice"></i>
+                                                        <a href="{{route('admin.order.index',['customer_id' => $user->id])}}" class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="Purchase History" title="Purchase History">
+                                                            Purchase History
                                                         </a>
     
                                                         <!-- Add Payment Button -->
-                                                        <a href="" class="btn btn-outline-success custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="Add Payment" title="Add Payment">
+                                                        {{-- <a href="" class="btn btn-outline-success custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="Add Payment" title="Add Payment">
                                                             <i class="fas fa-credit-card"></i>
-                                                        </a>
+                                                        </a> --}}
                                                     </td>
                                                 </tr>
                                             @endif
