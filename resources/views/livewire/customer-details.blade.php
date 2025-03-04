@@ -184,20 +184,17 @@
                                 <table class="table table-sm table-hover ledger">
                                     <thead>
                                         <tr>
-                                            <th>Order #</th>
+                                            <th>Order Number</th>
                                             <th>Customer Name</th>
                                             <th>Billing Amount</th>
                                             <th>Remaining Amount</th>
+                                            <th>Updated Date</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach($latestOrders as $latestOrder)
                                         <tr>
                                             <td>
-                                                <span class="badge bg-danger custom_danger_badge">
-                                                    {{ $latestOrder->updated_at }}
-                                                </span>
-                                                <br>
                                                 <a href="{{ route('admin.order.view', $latestOrder->id) }}" class="text-primary">
                                                     {{ $latestOrder->order_number }}
                                                 </a>
@@ -206,6 +203,11 @@
                                             <td>{{ number_format($latestOrder->total_amount, 2) }}</td>
                                             <td class="{{ $latestOrder->remaining_amount > 0 ? 'text-danger' : 'text-success' }}">
                                                 {{ number_format($latestOrder->remaining_amount, 2) }}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-danger custom_danger_badge">
+                                                    {{ $latestOrder->updated_at }}
+                                                </span>
                                             </td>
                                         </tr>
                                         @endforeach
