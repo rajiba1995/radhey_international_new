@@ -27,6 +27,10 @@ class CustomerIndex extends Component
     public $file;
 
     protected $updatesQueryString = ['search'];
+    
+    public function confirmDelete($id){
+        $this->dispatch('showDeleteConfirm',['itemId' => $id]);
+    }
 
     public function deleteCustomer($id)
     {

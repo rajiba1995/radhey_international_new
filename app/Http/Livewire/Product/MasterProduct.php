@@ -31,6 +31,11 @@ class MasterProduct extends Component
     public function mount(){
         $this->collection = Collection::all();
     }
+
+    public function confirmDelete($id){
+        $this->dispatch('showDeleteConfirm',['itemId' => $id]);
+    }
+    
     public function deleteProduct($product_id){
         $product = Product::findOrFail($product_id);
         if($product->product_image && \Storage::disk('public')->exists($product->product_image)){

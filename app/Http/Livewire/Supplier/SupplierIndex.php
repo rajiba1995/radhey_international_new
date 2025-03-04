@@ -15,6 +15,9 @@ class SupplierIndex extends Component
     // {
         
     // }
+    public function confirmDelete($id){
+        $this->dispatch('showDeleteConfirm',['itemId' => $id]);
+    }
 
     public function toggleStatus($id){
         $supplier = Supplier::find($id);

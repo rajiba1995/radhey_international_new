@@ -39,6 +39,10 @@ class MasterCatalogue extends Component
         $this->reloadCatalogues();
     }
 
+    public function confirmDelete($id){
+        $this->dispatch('showDeleteConfirm',['itemId' => $id]);
+    }
+
     public function reloadCatalogues()
     {
         $query = Catalogue::with('catalogueTitle');

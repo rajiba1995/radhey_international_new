@@ -88,9 +88,7 @@
                                             <td class="align-middle text-end px-4">
                                                 <button wire:click="edit({{ $billing->id }})" class="btn btn-outline-primary select-md btn_action btn_outline" title="Edit">Edit
                                                 </button>
-                                                <button wire:click="destroy({{ $billing->id }})" class="btn btn-outline-danger select-md btn_outline" title="Delete">
-                                                    Delete
-                                                </button>
+                                                <a class="btn btn-outline-danger select-md btn_outline" wire:click="confirmDelete({{ $billing->id }})" @click.stop>Delete</a>
                                                 @if ($billing->no_of_used != $billing->total_count )
                                                     <button wire:click="assignToNewSalesman({{ $billing->id }})" class="btn btn-outline-primary select-md btn_action btn_outline" title=" Assigned new Salesman">
                                                         Assigned new Salesman
@@ -242,3 +240,24 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    window.addEventListener('showDeleteConfirm', function (event) {
+        // console.log(event);
+        let itemId = event.detail[0].itemId; // Assign itemId correctly
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This action cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                @this.call('destroy', itemId); // Call Livewire method
+                Swal.fire("Deleted!", "The salesman billing number has been deleted.", "success");
+            }
+        });
+    });
+</script>
