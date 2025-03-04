@@ -56,7 +56,43 @@
                 </a>
             </li>
             @endif
-            {{-- @if ($this->hasPermissionByParent('customer_management')) --}}
+            @if ($this->hasPermissionByParent('order_management'))
+            {{-- Order Management --}}
+            <li class="nav-item">
+                <a class="nav-link text-white {{ Request::is('admin/orders*') ? 'active ' : '' }}"
+                    href="#OrderManagementSubmenu" data-bs-toggle="collapse"
+                    aria-expanded="{{ Request::is('admin/orders*') ? 'true' : 'false' }}">
+                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="material-icons opacity-10">shopping_cart</i>
+                    </div>
+                    <span class="nav-link-text ms-1">Order Management</span>
+                </a>
+            </li>
+
+            <!-- Submenu -->
+            <ul id="OrderManagementSubmenu"
+                class="collapse list-unstyled ms-4 {{ Request::is('admin/orders*') ? 'show' : '' }}">
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ Request::is('admin/orders') ? 'active ' : '' }}"
+                        href="{{route('admin.order.index')}}">
+                        All Orders
+                    </a>
+                </li>
+                <a class="nav-link text-white {{ Request::is('admin/orders/new') ? 'active ' : '' }}"
+                    href="{{route('admin.order.new')}}">
+                    Place Order
+                </a>
+                <a class="nav-link text-white {{ Request::is('admin/orders/invoice') ? 'active ' : '' }}"
+                    href="{{route('admin.order.invoice.index')}}">
+                    Invoices
+                </a>
+                <a class="nav-link text-white {{ Request::is('admin/orders/cancel-order') ? 'active ' : '' }}"
+                    href="{{route('admin.order.cancel-order.index')}}">
+                    Cancel Order
+                </a>
+            </ul>
+            @endif
+            @if ($user->id==1)
             <li class="nav-item mt-3">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs text-white font-weight-bolder opacity-8">Master Modules</h6>
             </li>
@@ -80,7 +116,7 @@
                     </a>
                 </li>
             </ul>
-            {{-- @endif --}}
+            @endif
             @if ($this->hasPermissionByParent('purchase_order_management'))
             {{-- Purchase Order --}}
             <li class="nav-item">
@@ -306,42 +342,7 @@
                 </li>
             </ul>
             @endif
-            @if ($this->hasPermissionByParent('sales_management'))
-            {{-- Order Management --}}
-            <li class="nav-item">
-                <a class="nav-link text-white {{ Request::is('admin/orders*') ? 'active ' : '' }}"
-                    href="#OrderManagementSubmenu" data-bs-toggle="collapse"
-                    aria-expanded="{{ Request::is('admin/orders*') ? 'true' : 'false' }}">
-                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="material-icons opacity-10">shopping_cart</i>
-                    </div>
-                    <span class="nav-link-text ms-1">Sales Management</span>
-                </a>
-            </li>
-
-            <!-- Submenu -->
-            <ul id="OrderManagementSubmenu"
-                class="collapse list-unstyled ms-4 {{ Request::is('admin/orders*') ? 'show' : '' }}">
-                <li class="nav-item">
-                    <a class="nav-link text-white {{ Request::is('admin/orders') ? 'active ' : '' }}"
-                        href="{{route('admin.order.index')}}">
-                        All Orders
-                    </a>
-                </li>
-                <a class="nav-link text-white {{ Request::is('admin/orders/new') ? 'active ' : '' }}"
-                    href="{{route('admin.order.new')}}">
-                    Place Order
-                </a>
-                <a class="nav-link text-white {{ Request::is('admin/orders/invoice') ? 'active ' : '' }}"
-                    href="{{route('admin.order.invoice.index')}}">
-                    Invoices
-                </a>
-                <a class="nav-link text-white {{ Request::is('admin/orders/cancel-order') ? 'active ' : '' }}"
-                    href="{{route('admin.order.cancel-order.index')}}">
-                    Cancel Order
-                </a>
-            </ul>
-            @endif
+            
         </ul>
     </div>
     {{-- <div class="sidenav-footer position-absolute w-100 bottom-0 ">

@@ -73,7 +73,7 @@ Route::get('reset-password/{id}', ResetPassword::class)->middleware('signed')->n
 // Route::group(['middleware' => 'auth'], function () {
 //     Route::get('dashboard', Dashboard::class)->name('dashboard');
 //     Route::get('billing', Billing::class)->name('billing');
-//     Route::get('profile', Profile::class)->name('profile');
+
 //     Route::get('tables', Tables::class)->name('tables');
 //     Route::get('notifications', Notifications::class)->name("notifications");
 //     Route::get('virtual-reality', VirtualReality::class)->name('virtual-reality');
@@ -97,7 +97,7 @@ Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
     
     Route::get('dashboard', Dashboard::class)->name('admin.dashboard');
     Route::get('billing', Billing::class)->name('billing');
-    Route::get('profile', Profile::class)->name('profile');
+    Route::get('profile', Profile::class)->name('admin.profile');
     Route::get('tables', Tables::class)->name('tables');
     Route::get('notifications', Notifications::class)->name("notifications");
     Route::get('virtual-reality', VirtualReality::class)->name('virtual-reality');
