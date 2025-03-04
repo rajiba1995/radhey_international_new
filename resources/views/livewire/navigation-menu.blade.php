@@ -344,11 +344,11 @@
             @endif
         </ul>
     </div>
-    <div class="sidenav-footer position-absolute w-100 bottom-0 ">
+    {{-- <div class="sidenav-footer position-absolute w-100 bottom-0 ">
         <div class="mx-3">
             <a class="btn bg-gradient-secondary w-100" href="javascript:;">
                 <livewire:auth.logout />
             </a>
         </div>
-    </div>
+    </div> --}}
 </aside>

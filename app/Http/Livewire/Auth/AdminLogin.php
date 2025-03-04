@@ -10,6 +10,14 @@ class AdminLogin extends Component
     public $email = '';
     public $password = '';
     
+    public function mount()
+    {
+        $user = Auth::guard('admin')->user();
+        if($user){
+            return redirect()->route('admin.dashboard'); // Middleware will now check authentication
+        }
+        $this->fill(['email' => 'admin@gmail.com', 'password' => 'secret']);
+    }
     // Validation rules
     protected $rules = [
         'email' => 'required|email',
@@ -21,10 +29,7 @@ class AdminLogin extends Component
         return view('livewire.auth.admin-login');
     }
 
-    public function mount()
-    {
-        $this->fill(['email' => 'admin@gmail.com', 'password' => 'secret']);
-    }
+    
 
     // Method for logging in
     public function login()
