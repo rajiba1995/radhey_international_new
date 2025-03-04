@@ -105,9 +105,7 @@
                                             <a href="{{ route('suppliers.edit', $supplier->id) }}"  class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="Edit supplier" title="Edit Supplier">
                                             Edit
                                             </a>
-                                            <button wire:click="deleteSupplier({{ $supplier->id }})" class="btn btn-outline-danger select-md btn_outline" data-toggle="tooltip" data-original-title="Delete supplier" title="Delete Supplier">
-                                             Delete
-                                            </button>
+                                            <a class="btn btn-outline-danger select-md btn_outline" wire:click="confirmDelete({{ $supplier->id }})" @click.stop>Delete</a>
                                             </td>
                                         </tr>
                                 @endforeach
@@ -125,4 +123,24 @@
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    window.addEventListener('showDeleteConfirm', function (event) {
+        // console.log(event);
+        let itemId = event.detail[0].itemId; // Assign itemId correctly
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This action cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                @this.call('deleteSupplier', itemId); // Call Livewire method
+                Swal.fire("Deleted!", "The supplier has been deleted.", "success");
+            }
+        });
+    });
+</script>

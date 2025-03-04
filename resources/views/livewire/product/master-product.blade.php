@@ -164,7 +164,7 @@
                                         <td class="align-middle action_tab">
                                             
                                             <a href="{{route('product.update',$product->id)}}" class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip">Edit</a>
-                                            <button wire:click="deleteProduct({{ $product->id }})" class="btn btn-outline-danger select-md btn_outline" data-toggle="tooltip">Delete</button>
+                                            <a class="btn btn-outline-danger select-md btn_outline" wire:click="confirmDelete({{ $product->id }})" @click.stop>Delete</a>
                                             <!-- <a href="{{route('product.gallery',$product->id)}}" class="btn btn-outline-info btn-sm custom-btn-sm mb-0">Gallery </a> -->
                                             @if($product->collection_id==1)
                                                 <a href="{{ route('measurements.index',$product->id) }}" class="btn btn-outline-primary select-md btn_action btn_outline" title="" data-toggle="tooltip">measurements
@@ -195,5 +195,25 @@
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    window.addEventListener('showDeleteConfirm', function (event) {
+        // console.log(event);
+        let itemId = event.detail[0].itemId; // Assign itemId correctly
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This action cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                @this.call('deleteProduct', itemId); // Call Livewire method
+                Swal.fire("Deleted!", "The product has been deleted.", "success");
+            }
+        });
+    });
+</script>
 
