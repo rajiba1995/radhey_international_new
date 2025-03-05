@@ -8,6 +8,6 @@ class Country extends Model
 {
     protected $table = "countries";
     protected $fillable = [
-        'title'
+       'title', 'country_code', 'mobile_length',
     ];
 }
