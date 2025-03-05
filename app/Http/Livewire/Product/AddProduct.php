@@ -24,6 +24,7 @@ class AddProduct extends Component
     public $fabrics = [];
     public $multipleImages = [];
     public $showAdditionalImageField = false;
+    public $selectAll = false;
 
     public function mount()
     {
@@ -31,6 +32,14 @@ class AddProduct extends Component
         $this->fabrics = Fabric::all();
         $this->Collections = Collection::orderBy('title', 'ASC')->get() ?? collect();
       
+    }
+
+    public function toggleSelectAll(){
+        if($this->selectAll){
+            $this->selectedFabrics = $this->fabrics->pluck('id')->toArray();
+        }else{
+            $this->selectedFabrics = [];
+        }
     }
 
    
