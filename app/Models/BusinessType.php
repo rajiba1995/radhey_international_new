@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BusinessType extends Model
 {
     protected $table = "business_types";
-    protected $fillable = ['title'];
+    protected $fillable = ['title', 'image'];
     // public function products()  
     // {
     //     return $this->belongsToMany(Product::class, 'product_fabrics', 'fabric_id', 'product_id');
