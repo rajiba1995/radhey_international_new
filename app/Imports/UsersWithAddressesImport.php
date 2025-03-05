@@ -11,6 +11,9 @@ use App\Models\Country;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+
 
 class UsersWithAddressesImport implements ToModel, WithHeadingRow
 {
@@ -32,16 +35,19 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
  
          if ($validator->fails()) {
              // Handle validation failure (log it, skip, or throw an error)
-             return null;
+            //  return null;
+            \Log::error('Validation failed for row:', $validator->errors()->toArray());
+            return null;  // Return null to skip this row, not a JsonResponse
          }
         // Create or update user record
+        $dob = Carbon::createFromFormat('m/d/Y', $row['dob'])->format('Y-m-d');
 
 
         $user = User::updateOrCreate(
             ['email' => $row['email']], // Unique identifier
             [
                 'name' => $row['customer_name'],
-                'dob' => $row['dob'] ?? null,
+                'dob' => $dob ?? null,
                 'user_type' => $userType,
                 'company_name' => $row['company_name'] ?? null,
                 'employee_rank' => $row['employee_rank'] ?? null,
@@ -81,14 +87,18 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
             'email'         => 'required|email|unique:users,email',
             'country_code'  => 'required|string|exists:countries,country_code',
             'phone'         => ['required', 'numeric', function ($attribute, $value, $fail) {
-                $country = Country::where('country_code', request()->input('country_code'))->first();
+                // Get country_code from the $row array instead of request
+                $countryCode = request()->input('country_code'); // or pass it as a parameter if required
+                $country = Country::where('country_code', $countryCode)->first();
                 $expectedLength = $country ? $country->mobile_length : 10;
                 if (strlen($value) != $expectedLength) {
                     $fail("The $attribute must be exactly $expectedLength digits long.");
                 }
             }],
             'whatsapp_no'   => ['required', 'numeric', function ($attribute, $value, $fail) {
-                $country = Country::where('country_code', request()->input('country_code'))->first();
+                // Get country_code from the $row array instead of request
+                $countryCode = request()->input('country_code'); // or pass it as a parameter if required
+                $country = Country::where('country_code', $countryCode)->first();
                 $expectedLength = $country ? $country->mobile_length : 10;
                 if (strlen($value) != $expectedLength) {
                     $fail("The $attribute must be exactly $expectedLength digits long.");
@@ -96,5 +106,6 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
             }],
         ];
     }
+     
 }
 
