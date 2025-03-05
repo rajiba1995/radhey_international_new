@@ -99,8 +99,8 @@
                 <div class="row">
                     <div class="mb-3 col-md-3">
                         <label for="emp_code" class="form-label">Code <span class="text-danger">*</span></label>
-                        <input type="text" wire:model="emp_code" id="emp_code"
-                            class="form-control form-control-sm border border-1 p-2" placeholder="Enter Your Code">
+                        <input type="text" wire:model="emp_code" id="emp_code" 
+                            class="form-control form-control-sm border border-1 p-2" placeholder="Enter Your Code" readonly>
                         @error('emp_code')
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -284,7 +284,7 @@
                     <div class="col-md-3">
                         <label for="dob" class="form-label">D.O.B <span class="text-danger">*</span></label>
                         <input type="date" wire:model="dob" id="dob"
-                            class="form-control form-control-sm border border-1 p-2">
+                            class="form-control form-control-sm border border-1 p-2" max="{{now()->format('Y-m-d')}}">
                         @error('dob')
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -512,7 +512,7 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Password <span class="text-danger">*</span></label>
-                        <input type="number" wire:model="password"
+                        <input type="text" wire:model="password"
                             class="form-control form-control-sm border border-1 p-2" placeholder="password">
                         @error('password')
                         <div class="text-danger">{{$message}}</div>

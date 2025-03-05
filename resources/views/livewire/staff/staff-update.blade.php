@@ -22,13 +22,33 @@
                             @enderror
                         </div>
                         <div class="col-5">
-                            <select wire:change="SelectedCountry($event.target.value)" wire:model="selectedCountryId"
+                            {{-- <select wire:change="SelectedCountry($event.target.value)" wire:model="selectedCountryId"
                                 class="form-select form-control me-2" aria-label="Default select example">
                                 <option selected hidden>Select Country</option>
                                 @foreach($Selectcountry as $countries)
                                 <option value="{{$countries->id}}">{{$countries->title}}</option>
                                 @endforeach
-                            </select>
+                            </select> --}}
+                            <div class="position-relative">
+                                <input type="text" wire:keyup="FindCustomer($event.target.value)"
+                                   wire:model.debounce.500ms="searchTerm"
+                                    class="form-control form-control-sm border border-1 customer_input"
+                                    placeholder="Search By Country">
+                                @error('searchTerm')
+                                    <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                               @if(!empty($filteredCountries))
+                                <div id="fetch_customer_details" class="dropdown-menu show w-100"
+                                    style="max-height: 200px; overflow-y: auto;">
+                                    @foreach ($filteredCountries as $countries)
+                                    <button class="dropdown-item" type="button"
+                                        wire:click="selectCountry({{ $countries->id }})">
+                                         {{$countries->title}}({{$countries->country_code}})
+                                    </button>
+                                    @endforeach
+                                </div>
+                                @endif 
+                            </div>
                         </div>
                         <div class="col-3">
                             <a href="{{ route('staff.index') }}" class="btn btn-cta btn-sm">
@@ -138,7 +158,7 @@
                         @enderror
                     </div>
 
-                    <div class="mb-3 col-md-3" @if ($selectedCountryId !=1) style="display: none;" @endif>
+                    <div class="mb-3 col-md-3" @if ($selectedCountryId !=76) style="display: none;" @endif>
                         <label for="aadhaar_number" class="form-label">Aadhaar Number
                             @if($showRequiredFields)
                             <span class="text-danger">*</span>
@@ -219,7 +239,7 @@
                 </div>
 
                 <div class="row mt-3">
-                    <div class="col-md-3" @if ($selectedCountryId !=1) style="display: none;" @endif>
+                    <div class="col-md-3" @if ($selectedCountryId !=76) style="display: none;" @endif>
                         <label for="passport_no" class="form-label">Passport No.
                             @if ($showRequiredFields)
                             <span class="text-danger">*</span>
@@ -251,7 +271,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-3" @if ($selectedCountryId !=1) style="display: none;" @endif>
+                    <div class="col-md-3" @if ($selectedCountryId !=76) style="display: none;" @endif>
                         <label for="visa_no" class="form-label">Visa No.
                             @if ($showRequiredFields)
                             <span class="text-danger">*</span>
@@ -399,7 +419,7 @@
                         <div class="text-danger">{{$message}}</div>
                         @enderror
                     </div>
-                    <div class="col-md-4" @if ($selectedCountryId !=1) style="display: none;" @endif>
+                    <div class="col-md-4" @if ($selectedCountryId !=76) style="display: none;" @endif>
                         <label class="form-label">State
                             @if($showRequiredFields)
                             <span class="text-danger">*</span>

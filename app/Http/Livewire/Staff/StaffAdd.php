@@ -34,6 +34,13 @@ class StaffAdd extends Component
     public $selectedBusinessType ;
     public $showRequiredFields  = false;
     public $emergency_contact_person,$emergency_mobile,$emergency_whatsapp,$emergency_address,$same_as_contact;
+    public $countryCode;
+    public $country_code;
+    public $mobileLength;
+    public $alternative_phone_number_1;
+    public $alternative_phone_number_2;
+    public $password;
+
     public function mount(){
         $this->designations = Designation::where('status',1)->orderBy('name', 'ASC')->where('id', '!=', 1)->get();
         $this->branchNames  = Branch::all();
@@ -41,13 +48,23 @@ class StaffAdd extends Component
         $this->Business_type = BusinessType::all();
         $this->selectedCountryId = null;
         $this->selectedBusinessType  = null;
+        $this->emp_code = $this->generateEmpCode();
     }
-    public $countryCode;
-    public $country_code;
-    public $mobileLength;
-    public $alternative_phone_number_1;
-    public $alternative_phone_number_2;
-    public $password;
+
+    public function generateEmpCode(){
+        $lastUser = User::where('emp_code', 'LIKE', 'RI-%')
+        ->orderBy('emp_code', 'DESC')
+        ->first();
+
+        if ($lastUser && preg_match('/RI-(\d+)/', $lastUser->emp_code, $matches)) {
+            $nextNumber = str_pad($matches[1] + 1, 2, '0', STR_PAD_LEFT); 
+        } else {
+            $nextNumber = '01'; 
+        }
+
+        return 'RI-' . $nextNumber;
+    }
+  
 
     // public function SelectedCountry()
     // {
@@ -90,11 +107,12 @@ class StaffAdd extends Component
             'emp_code' => 'required',
             'person_name' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
-            'dob' => 'required',
+            'dob' => 'required|date|before_or_equal:today',
             'prof_name' => 'required|string|max:255',
             'selectedBusinessType' => 'required|integer',
             'searchTerm' => 'required|string',
             'email' => 'required|email|unique:users,email',
+            'password' => 'required',
             'alternative_phone_number_1' => [
                 'nullable',
                 'regex:/^\d{'. $this->mobileLength .'}$/',

@@ -28,6 +28,9 @@ class StaffUpdate extends Component
     public $selectedBusinessType;
     public $selectedBranchId;
     public $showRequiredFields = false;
+    public $filteredCountries = [];
+    public $searchTerm;
+
 
     public function mount($staff_id){
         $this->staff = User::with(['branch','businessType','bank','address','designationDetails'])->find($staff_id);
@@ -42,6 +45,7 @@ class StaffUpdate extends Component
         $this->designations = Designation::latest()->get();
          // If staff exists, assign the data to the public variables
          if ($this->staff) {
+            $this->searchTerm = Country::where('id',$this->staff->country_id)->pluck('title');
             $this->designation = $this->staff->designationDetails->id;
             $this->person_name = $this->staff->name;
             $this->surname = $this->staff->surname;
@@ -77,6 +81,25 @@ class StaffUpdate extends Component
             $this->pincode = $this->staff->address->zip_code;
             $this->country = $this->staff->address->country;
         }
+
+
+    }
+
+    public function FindCustomer($term)
+    {
+        $this->searchTerm = $term;
+        if (!empty($this->searchTerm)) {
+            $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->searchTerm . '%')->get();
+        } else {
+            $this->filteredCountries = [];
+        }
+    }
+
+    public function selectCountry($countryId)
+    {
+        $this->selectedCountryId = $countryId;
+        $this->searchTerm = Country::where('id', $countryId)->value('title'); // Update input field
+        $this->filteredCountries = []; // Hide dropdown after selection
     }
     
     public function SelectedCountry($value)
