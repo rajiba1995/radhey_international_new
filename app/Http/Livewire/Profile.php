@@ -8,7 +8,14 @@ use App\models\User;
 
 class Profile extends Component
 {
+
     public $user;
+    public $activeTab = 'app';
+
+    public function setActiveTab($tab)
+    {
+        $this->activeTab = $tab;
+    }
     public function mount(){
         $this->user = Auth::guard('admin')->user();
     }

@@ -26,7 +26,7 @@
                     </div>
                     <div class="col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
                         <div class="nav-wrapper position-relative end-0">
-                            <ul class="nav nav-pills nav-fill p-1" role="tablist">
+                            <!-- <ul class="nav nav-pills nav-fill p-1" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link mb-0 px-0 py-1 active " data-bs-toggle="tab" href="javascript:;"
                                         role="tab" aria-selected="true">
@@ -34,13 +34,7 @@
                                         <span class="ms-1">App</span>
                                     </a>
                                 </li>
-                                {{-- <li class="nav-item">
-                                    <a class="nav-link mb-0 px-0 py-1 " data-bs-toggle="tab" href="javascript:;"
-                                        role="tab" aria-selected="false">
-                                        <i class="material-icons text-lg position-relative">email</i>
-                                        <span class="ms-1">Messages</span>
-                                    </a>
-                                </li> --}}
+
                                 <li class="nav-item">
                                     <a class="nav-link mb-0 px-0 py-1 " data-bs-toggle="tab" href="javascript:;"
                                         role="tab" aria-selected="false">
@@ -48,13 +42,30 @@
                                         <span class="ms-1">Settings</span>
                                     </a>
                                 </li>
-                            </ul>
+                            </ul> -->
+                            <div class="d-flex justify-start gap-4 mb-4">
+                                <button
+                                        class="btn btn-outline-denger select-md btn_outline {{ $activeTab === 'app' ? 'btn-primary' : 'btn-outline-secondary' }}"
+                                        wire:click="setActiveTab('app')"
+                                    >
+                                        App
+                                    </button>
+                                    <button
+                                        class="btn btn-outline-success select-md btn_outline {{ $activeTab === 'settings' ? 'btn-primary' : 'btn-outline-secondary' }}"
+                                        wire:click="setActiveTab('settings')"
+                                    >
+                                        Setting
+                                    </button>
+                                    
+
+                                </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="row">
                         <div class="col-12 col-xl-6">
+                        @if ($activeTab === 'app')
                             <div class="card card-plain h-100">
                                 <div class="card-header pb-0 p-3">
                                     <div class="row">
@@ -70,35 +81,24 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body p-3">
+                                <div class="card-body p-3"> 
                                     <ul class="list-group">
                                         <li class="list-group-item border-0 ps-0 pt-0 text-sm"><strong
-                                                class="text-dark">Full Name:</strong> &nbsp; Alec M. Thompson</li>
+                                                class="text-dark">Full Name:</strong> &nbsp; {{$user->name}}</li>
                                         <li class="list-group-item border-0 ps-0 text-sm"><strong
-                                                class="text-dark">Mobile:</strong> &nbsp; (44) 123 1234 123</li>
+                                                class="text-dark">Mobile:</strong> &nbsp; {{$user->phone}}</li>
                                         <li class="list-group-item border-0 ps-0 text-sm"><strong
-                                                class="text-dark">Email:</strong> &nbsp; alecthompson@mail.com</li>
+                                                class="text-dark">Email:</strong> &nbsp; {{$user->email}}</li>
                                         <li class="list-group-item border-0 ps-0 text-sm"><strong
-                                                class="text-dark">Location:</strong> &nbsp; USA</li>
-                                        <li class="list-group-item border-0 ps-0 pb-0">
-                                            <strong class="text-dark text-sm">Social:</strong> &nbsp;
-                                            <a class="btn btn-facebook btn-simple mb-0 ps-1 pe-2 py-0"
-                                                href="javascript:;">
-                                                <i class="fab fa-facebook fa-lg"></i>
-                                            </a>
-                                            <a class="btn btn-twitter btn-simple mb-0 ps-1 pe-2 py-0"
-                                                href="javascript:;">
-                                                <i class="fab fa-twitter fa-lg"></i>
-                                            </a>
-                                            <a class="btn btn-instagram btn-simple mb-0 ps-1 pe-2 py-0"
-                                                href="javascript:;">
-                                                <i class="fab fa-instagram fa-lg"></i>
-                                            </a>
-                                        </li>
+                                                class="text-dark">Location:</strong> &nbsp; {{$user->billingAddressLatest?$user->billingAddressLatest->address:""}}</li>
+                                       
                                     </ul>
                                 </div>
                             </div>
                         </div>
+                        @elseif ($activeTab === 'settings')
+                        <p>Settings section</p>
+                        @endif
                     </div>
                 </div>
             </div>
