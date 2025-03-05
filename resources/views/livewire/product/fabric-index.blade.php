@@ -132,7 +132,7 @@
                                                 <td class="align-middle">
                                                     <button wire:click="edit({{ $fabric->id }})" class="btn btn-outline-primary select-md btn_action btn_outline">Edit
                                                     </button>
-                                                    <button wire:click="destroy({{ $fabric->id }})"  class="btn btn-outline-danger select-md btn_outline">Delete</button>
+                                                    <a class="btn btn-outline-danger select-md btn_outline" wire:click="confirmDelete({{ $fabric->id }})" @click.stop>Delete</a>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -225,3 +225,24 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    window.addEventListener('showDeleteConfirm', function (event) {
+        // console.log(event);
+        let itemId = event.detail[0].itemId; // Assign itemId correctly
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This action cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                @this.call('destroy', itemId); // Call Livewire method
+                Swal.fire("Deleted!", "The fabric has been deleted.", "success");
+            }
+        });
+    });
+</script>

@@ -27,9 +27,6 @@ class Designation extends Model
       {
           return $this->belongsToMany(Permission::class, 'designation_permissions');
       }
-      public function hasPermissionByParent($parentName)
-    {
-        return $this->designation->permissions()->where('parent_name', $parentName)->exists();
-    }
+     
 
 }

@@ -33,6 +33,7 @@
 
                     <ul class="dropdown-menu">
                         <li> <a class="dropdown-item" href="javascript:;"><livewire:auth.logout /></a></li>
+                        <li><a href="{{route('admin.profile')}}" class="dropdown-item">Profile</a></li>
                     </ul>
 
                 </li>

@@ -33,6 +33,7 @@ class InvoiceList extends Component
             echo $pdf->output();
         }, 'invoice_' . $invoice->invoice_no . '.pdf');
     } 
+    
 
     public function CollectedBy($value){
         $this->created_by = $value;

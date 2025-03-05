@@ -27,6 +27,10 @@ class SalesmanBillingIndex extends Component
         }
     }
 
+    public function confirmDelete($id){
+        $this->dispatch('showDeleteConfirm',['itemId' => $id]);
+    }
+
     public function FindBillBook($keywords){
         $this->search = $keywords;
     }
