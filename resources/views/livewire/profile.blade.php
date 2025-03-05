@@ -48,13 +48,13 @@
                                         class="btn btn-outline-denger select-md btn_outline {{ $activeTab === 'app' ? 'btn-primary' : 'btn-outline-secondary' }}"
                                         wire:click="setActiveTab('app')"
                                     >
-                                        App
+                                        Information
                                     </button>
                                     <button
                                         class="btn btn-outline-success select-md btn_outline {{ $activeTab === 'settings' ? 'btn-primary' : 'btn-outline-secondary' }}"
                                         wire:click="setActiveTab('settings')"
                                     >
-                                        Setting
+                                        Change Password
                                     </button>
                                     
 
@@ -72,13 +72,13 @@
                                         <div class="col-md-8 d-flex align-items-center">
                                             <h6 class="mb-0">Profile Information</h6>
                                         </div>
-                                        <div class="col-md-4 text-end">
+                                        <!-- <div class="col-md-4 text-end">
                                             <a href="javascript:;">
                                                 <i class="fas fa-user-edit text-secondary text-sm"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     title="Edit Profile"></i>
                                             </a>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                                 <div class="card-body p-3"> 
@@ -90,18 +90,58 @@
                                         <li class="list-group-item border-0 ps-0 text-sm"><strong
                                                 class="text-dark">Email:</strong> &nbsp; {{$user->email}}</li>
                                         <li class="list-group-item border-0 ps-0 text-sm"><strong
-                                                class="text-dark">Location:</strong> &nbsp; {{$user->billingAddressLatest?$user->billingAddressLatest->address:""}}</li>
+                                                class="text-dark">Location:</strong> &nbsp; {{ implode(', ', array_filter([
+                                                        $user->billingAddressLatest->address ?? '',
+                                                        $user->billingAddressLatest->landmark ?? '',
+                                                        $user->billingAddressLatest->city ?? '',
+                                                        $user->billingAddressLatest->state ?? '',
+                                                        $user->billingAddressLatest->country ?? '',
+                                                        $user->billingAddressLatest->zip_code ?? ''
+                                                    ])) }}
+                                        </li>
                                        
                                     </ul>
                                 </div>
                             </div>
-                        </div>
                         @elseif ($activeTab === 'settings')
-                        <p>Settings section</p>
+                        <div class="row">
+                            <div class="row">
+                                <!-- <div class="col-12"> -->
+                                @if (session()->has('success'))
+                                    <div class="alert alert-success">
+                                        {{ session('success') }}
+                                    </div>
+                                @endif
+
+                                <form wire:submit.prevent="changePassword">
+                                    <div class="mb-3 col-12">
+                                        <label for="new_password" class="form-label">New Password <span class="text-danger">*</span></label>
+                                        <input type="password" wire:model="new_password" id="new_password" class="form-control" placeholder="Enter New Password">
+                                        @error('new_password')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="mb-3 col-12">
+                                        <label for="confirm_password" class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                                        <input type="password" wire:model="confirm_password" id="confirm_password" class="form-control" placeholder="Re-enter New Password">
+                                        @error('confirm_password')
+                                            <div class="text-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit" class="btn btn-sm btn-success">Change Password</button>
+                                </form>
+
+                                <!-- </div> -->
+                            </div>
+                        </div>
                         @endif
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
+</div>
 

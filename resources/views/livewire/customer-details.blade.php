@@ -109,7 +109,14 @@
                         <h6>Shipping Address</h6>
                         <div class="row">
                         @if($customer->shippingAddressLatest)
-                                <p>{{ $customer->shippingAddressLatest->address }},{{ $customer->shippingAddressLatest->landmark }},{{ $customer->shippingAddressLatest->city }}, {{ $customer->shippingAddressLatest->state }},{{ $customer->shippingAddressLatest->country }} - {{ $customer->shippingAddressLatest->zip_code }}</p>
+                                <p>{{ implode(', ', array_filter([
+                                    $customer->shippingAddressLatest->address ?? '',
+                                    $customer->shippingAddressLatest->landmark ?? '',
+                                    $customer->shippingAddressLatest->city ?? '',
+                                    $customer->shippingAddressLatest->state ?? '',
+                                    $customer->shippingAddressLatest->country ?? ''
+                                ])) }}{{ $customer->shippingAddressLatest->zip_code ? ' - ' . $customer->shippingAddressLatest->zip_code : '' }}
+                                </p>
                             @else
                                 <p>No shipping address available.</p>
                             @endif
@@ -118,10 +125,17 @@
                     <div class="form-group mb-3">
                         <h6>Billing Address</h6>
                         <div class="row">
-                        @if($customer->shippingAddressLatest)
-                                <p>{{ $customer->shippingAddressLatest->address }},{{ $customer->shippingAddressLatest->landmark }},{{ $customer->shippingAddressLatest->city }}, {{ $customer->shippingAddressLatest->state }},{{ $customer->shippingAddressLatest->country }} - {{ $customer->shippingAddressLatest->zip_code }}</p>
+                        @if($customer->billingAddressLatest)
+                                <p>{{ implode(', ', array_filter([
+                                        $customer->billingAddressLatest->address ?? '',
+                                        $customer->billingAddressLatest->landmark ?? '',
+                                        $customer->billingAddressLatest->city ?? '',
+                                        $customer->billingAddressLatest->state ?? '',
+                                        $customer->billingAddressLatest->country ?? '',
+                                        $customer->billingAddressLatest->zip_code ?? ''
+                                    ])) }}</p>
                             @else
-                                <p>No shipping address available.</p>
+                                <p>No billing address available.</p>
                             @endif
                         </div>
                       
