@@ -189,8 +189,7 @@
                                             @endif
                                         </div>
                                         <div class="col-3 text-end">
-                                            <label for="billing_pin" class="form-label">Pincode <span
-                                                    class="text-danger">*</span></label>
+                                            <label for="billing_pin" class="form-label">Pincode </label>
                                         </div>
                                         <div class="col-3">
                                             <input type="number" wire:model="billing_pin" id="billing_pin"
@@ -299,8 +298,7 @@
                                             @endif
                                         </div>
                                         <div class="col-3 text-end">
-                                            <label for="shipping_pin" class="form-label">Pincode <span
-                                                    class="text-danger">*</span></label>
+                                            <label for="shipping_pin" class="form-label">Pincode </label>
                                         </div>
                                         <div class="col-3">
                                             <input type="number" wire:model="shipping_pin" id="shipping_pin"

@@ -2,20 +2,72 @@
     <!-- Navbar -->
     <!-- End Navbar -->
     <div class="container-fluid py-2">
-      <div class="row align-items-center my-sm-3">
+        <section class="admin__title">
+            <h5>Staff</h5>
+        </section>
+      {{-- <div class="row align-items-center my-sm-3">
         <div class="col-lg-6 col-md-6 text-start">
             <h4 class="block-heading mb-0">Staff</h4>
         </div>
         <div class="col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
             <div class="nav-wrapper position-relative end text-end">
                 <!-- Single Button -->
-                <a class="btn btn-cta btn-sm mb-0" href="{{route('staff.add')}}" role="button" >
-                    <i class="material-icons text-white" style="font-size: 15px;">add</i>
-                    <span class="ms-1">Add New Staff</span>
+                <a class="btn btn-outline-success select-md" href="{{route('staff.add')}}" role="button" >
+                    {{-- <i class="material-icons text-white" style="font-size: 15px;">add</i> --}}
+                    {{-- <span class="ms-1">Add New Staff</span>
                 </a>
             </div>
         </div>
-      </div>
+      </div> --}} 
+      {{-- search filter --}}
+      <div class="search__filter">
+        <div class="row align-items-center justify-content-end">
+            <div class="col-auto">
+                <div class="col-md-auto mt-3">
+                    <a class="btn btn-outline-success select-md" href="{{route('staff.add')}}" role="button" >
+                        {{-- <i class="material-icons text-white" style="font-size: 15px;">add</i> --}}
+                        <span class="ms-1">Add New Staff</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center justify-content-between">
+            <div class="col-auto">
+                <p class="text-sm font-weight-bold">{{count($staff)}} Staffs</p>
+            </div>
+            <div class="col-auto">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto mt-0">
+                        <input type="text" wire:model="search" class="form-control select-md bg-white" id="customer"
+                            placeholder="Search by customer detail or Order number" value="" style="width: 350px;"
+                            wire:keyup="FindCustomer($event.target.value)">
+                    </div>
+                    <div class="col-auto mt-0">
+                        <select wire:model="branch_name" class="form-control select-md bg-white"
+                            wire:change="SelectBranch($event.target.value)">
+                            <option value="" hidden="" selected="">Branch</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-auto mt-0">
+                        <select wire:model="designation_name" class="form-control select-md bg-white"
+                            wire:change="SelectDesignation($event.target.value)">
+                            <option value="" hidden="" selected="">Designation</option>
+                            @foreach($designationList as $designation)
+                                 <option value="{{ $designation->id }}">{{ $designation->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-auto mt-3">
+                        <button type="button" wire:click="resetForm"
+                            class="btn btn-outline-danger select-md">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
         <div class="row">
             <div class="col-12">
                     <div class="card my-4">

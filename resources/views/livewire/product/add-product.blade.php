@@ -106,7 +106,16 @@
                             <div class="row">
                                 <div class="mb-3">
                                     <h6 class="badge bg-danger custom_danger_badge">Product Fabrics</h6>
-                                        <div class="row">
+                                    <!-- Select All Checkbox -->
+                                        <div class="form-check ps-0 custom-checkbox mb-2 selectBox" >
+                                            <input class="form-check-input" type="checkbox" id="selectAllFabrics"
+                                                wire:click="toggleSelectAll" wire:model="selectAll">
+                                                 <i></i>
+                                            <label class="form-check-label text-uppercase text-sm" for="selectAllFabrics">
+                                                Select All
+                                            </label>
+                                        </div>
+                                        <div class="row mt-2">
                                             @foreach($fabrics as $fabric)
                                                 <div class="col-md-2">
                                                     <div class="form-check ps-0 custom-checkbox">

@@ -13,7 +13,9 @@
                     <div class="row g-3 align-items-center">
                         <div class="col-auto mt-0">
                             <input type="text" wire:model="search" class="form-control select-md bg-white" id="customer"
-                                placeholder="Search by invoice or order number" style="width: 350px;">
+                                placeholder="Search by invoice or order number" style="width: 350px;"
+                                wire:keyup="FindCustomer($event.target.value)"
+                                >
                         </div>
                         <div class="col-auto mt-0">
                             <select wire:model="created_by" class="form-control select-md bg-white"

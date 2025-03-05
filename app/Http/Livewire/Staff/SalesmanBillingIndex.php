@@ -327,7 +327,7 @@ class SalesmanBillingIndex extends Component
 
     public function render()
     {
-        $salesman = User::whereIn('designation',[1,2])->get();
+        $salesman = User::where('user_type',0)->get();
         
         $billings = SalesmanBilling::with('salesman')
         ->when($this->staff_id, function ($query) {
