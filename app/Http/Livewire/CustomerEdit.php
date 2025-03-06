@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\User;
+use App\Models\Country;
 use App\Models\UserAddress;
 use Livewire\WithFileUploads;
 
@@ -11,11 +12,62 @@ class CustomerEdit extends Component
 {
     use WithFileUploads;
 
-    public $id, $name,$dob, $company_name, $employee_rank,$email, $phone, $whatsapp_no, $is_wa_same, $gst_number, $credit_limit, $credit_days, $gst_certificate_image, $image, $verified_video;
+    public $id, $name,$dob, $company_name, $employee_rank,$email, $phone, $whatsapp_no, $is_wa_same, $gst_number, $credit_limit, $credit_days, $gst_certificate_image, $image, $verified_video ,$alternative_phone_number_1, $alternative_phone_number_2;
     public $billing_address, $billing_landmark, $billing_city, $billing_state, $billing_country, $billing_pin;
     public $shipping_address, $shipping_landmark, $shipping_city, $shipping_state, $shipping_country, $shipping_pin;
     public $is_billing_shipping_same;
     public $tempImageUrl;
+    public $filteredCountries = [];
+    public $mobileLength;
+    public $country_id;
+    public $searchTerm;
+    public $country_code;
+
+    public function mount($id)
+    {
+        if ($id) {
+            $user = User::find($id);
+
+            $this->fillUserData($user);
+
+            $billingAddress = $user->address()->where('address_type', 1)->first();
+            $shippingAddress = $user->address()->where('address_type', 2)->first();
+
+            $this->fillAddressData($billingAddress, $shippingAddress);
+            $this->alternative_phone_number_1 = $user->alternative_phone_number_1;
+            $this->alternative_phone_number_2 = $user->alternative_phone_number_2;
+            // $this->searchTerm = Country::find($user->country_id)?->title ?? '';
+            if($user->country_id){
+                $country = Country::find($user->country_id);
+                if ($country) {
+                    $this->country_id = $country->id;
+                    $this->country_code = $country->country_code;
+                    $this->mobileLength = $country->mobile_length;
+                    $this->searchTerm = $country->title; 
+                }
+            }
+        }
+    }
+
+    public function FindCustomer($term){
+        $this->searchTerm = $term;
+        if(!empty($this->searchTerm)){
+            $this->filteredCountries = Country::where('title' , 'LIKE' , '%' . $this->searchTerm . '%')->get();
+        }else{
+            $this->filteredCountries = [];
+        }
+    }
+
+    public function selectCountry($countryId){
+        $country = Country::find($countryId);
+        if($country){
+            $this->country_id = $country->id;
+            $this->country_code = $country->country_code;
+            $this->searchTerm = $country->title;
+            $this->mobileLength = $country->mobile_length;
+            $this->filteredCountries = [];  
+        }
+    }
 
     public function toggleShippingAddress()
     {
@@ -45,19 +97,7 @@ class CustomerEdit extends Component
     }
 
 
-    public function mount($id)
-    {
-        if ($id) {
-            $user = User::find($id);
-
-            $this->fillUserData($user);
-
-            $billingAddress = $user->address()->where('address_type', 1)->first();
-            $shippingAddress = $user->address()->where('address_type', 2)->first();
-
-            $this->fillAddressData($billingAddress, $shippingAddress);
-        }
-    }
+    
 
     private function fillUserData($user)
     {
@@ -68,12 +108,15 @@ class CustomerEdit extends Component
         $this->dob   = $user->dob ?? "";  
         $this->phone = $user->phone ?? "";
         $this->whatsapp_no = $user->whatsapp_no ?? "";
+        $this->is_wa_same =  ($this->phone =  $this->whatsapp_no) ? 1 : 0;
         $this->gst_number = $user->gst_number ?? "";
         $this->credit_limit = $user->credit_limit ?? "";
         $this->credit_days = $user->credit_days ?? "";
         $this->image = $user->profile_image ? asset( $user->profile_image) : "";
         $this->verified_video = $user->verified_video ? asset( $user->verified_video) : "";
         $this->gst_certificate_image = $user->gst_certificate_image ? asset( $user->gst_certificate_image) : "";
+      
+        
     }
 
     private function fillAddressData($billingAddress, $shippingAddress)
@@ -111,11 +154,19 @@ class CustomerEdit extends Component
             'dob'=> 'required|date',
             'phone' => [
                 'required',
-                'regex:/^\+?\d{' . env('VALIDATE_MOBILE', 8) . ',}$/'
+                'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
             'whatsapp_no' => [
                 'required',
-                'regex:/^\+?\d{' . env('VALIDATE_WHATSAPP', 8) . ',}$/'
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
+            'alternative_phone_number_1' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
+            'alternative_phone_number_2' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
             'gst_number' => 'nullable|string|max:15',
             'credit_limit' => 'nullable|numeric|min:0',

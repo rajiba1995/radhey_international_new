@@ -5,6 +5,7 @@ namespace App\Http\Livewire;
 use Livewire\Component;
 use App\Models\User;
 use App\Models\UserAddress;
+use App\Models\Country;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 
@@ -13,14 +14,14 @@ class UserAddressForm extends Component
     use WithFileUploads;
 
     public $id,$name,$dob, $company_name,$employee_rank, $email, $phone, $whatsapp_no,$is_wa_same, $gst_number, $credit_limit, $credit_days,$gst_certificate_image,$image,$verified_video;
-    public $address_type, $address, $landmark, $city, $state, $country, $zip_code;
+    public $address_type, $address, $landmark, $city, $state, $country, $zip_code , $alternative_phone_number_1, $alternative_phone_number_2;
     public $billing_address;
     public $billing_landmark;
     public $billing_city;
     public $billing_state;
     public $billing_country;
     public $billing_pin;
-  
+    
     public $is_billing_shipping_same;
 
     public $shipping_address;
@@ -29,8 +30,12 @@ class UserAddressForm extends Component
     public $shipping_state;
     public $shipping_country;
     public $shipping_pin;
-
+    public $searchTerm;
     public $tempImageUrl;
+    public $country_code;
+    public $country_id;
+    public $filteredCountries = [];
+    public $mobileLength;
 
     // Function to watch for changes in is_billing_shipping_same
     public function toggleShippingAddress()
@@ -54,11 +59,32 @@ class UserAddressForm extends Component
             $this->shipping_pin = '';
         }
     }
+
+    public function FindCustomer($term){
+        $this->searchTerm = $term;
+        if(!empty($this->searchTerm)){
+            $this->filteredCountries = Country::where('title' , 'LIKE' , '%' . $this->searchTerm . '%')->get();
+        }else{
+            $this->filteredCountries = [];
+        }
+    }
+
+    public function selectCountry($countryId){
+        $country = Country::find($countryId);
+        if($country){
+            $this->country_id = $country->id;
+            $this->country_code = $country->country_code;
+            $this->searchTerm = $country->title;
+            $this->mobileLength = $country->mobile_length;
+            $this->filteredCountries = [];
+        }
+    }   
     // public $address_id;
     public function rules()
     {
         // Base rules
         $rules = [
+            'searchTerm'=>'required',
             'name' => 'required|string|max:255',
             'employee_rank' => 'nullable|string',
             'image' => 'nullable|mimes:jpeg,png,jpg,gif',
@@ -68,11 +94,11 @@ class UserAddressForm extends Component
             'dob'=> 'required|date',
              'phone' => [
                 'required',
-                'regex:/^\+?\d{' . env('VALIDATE_MOBILE', 8) . ',}$/',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
             'whatsapp_no' => [
                 'required',
-                'regex:/^\+?\d{' . env('VALIDATE_WHATSAPP', 8) . ',}$/',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
             'gst_number' => 'nullable|string|max:15',
             'credit_limit' => 'nullable|numeric',
@@ -84,6 +110,14 @@ class UserAddressForm extends Component
             'billing_state' => 'nullable|string',
             'billing_country' => 'required|string',
             'billing_pin' => 'nullable|string',
+            'alternative_phone_number_1' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
+            'alternative_phone_number_2' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],  
         ];
     
         // Conditional shipping address rules based on the checkbox
@@ -187,7 +221,12 @@ class UserAddressForm extends Component
                 'gst_number' => $this->gst_number,
                 'credit_limit' => $this->credit_limit === '' ? 0 : $this->credit_limit,
                 'credit_days' => $this->credit_days === '' ? 0 : $this->credit_days,
-                'gst_certificate_image' => $this->gst_certificate_image ? $this->uploadGSTCertificate() : null, // Handle file upload
+                'gst_certificate_image' => $this->gst_certificate_image ? $this->uploadGSTCertificate() : null,
+                'country_id' => $this->country_id,// Handle file upload
+                'country_code' => $this->country_code,
+                'alternative_phone_number_1'=> $this->alternative_phone_number_1,
+                'alternative_phone_number_2' => $this->alternative_phone_number_2
+
             ];
         
             

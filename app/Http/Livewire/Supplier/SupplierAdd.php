@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Supplier;
 
 use App\Models\Supplier;
+use App\Models\Country;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -10,10 +11,36 @@ class SupplierAdd extends Component
 {
     use WithFileUploads;
 
-    public $name, $email, $mobile, $is_wa_same, $whatsapp_no;
+    public $name, $email, $mobile, $is_wa_same, $whatsapp_no ,$alternative_phone_number_1, $alternative_phone_number_2;
     public $billing_address, $billing_landmark, $billing_state, $billing_city, $billing_pin, $billing_country;
     public $gst_number, $gst_file, $credit_limit, $credit_days;
+    public $searchTerm;
     protected $rules=[];
+    public $filteredCountries = [];
+    public $selectedCountryId;
+    public $country_code;
+    public $mobileLength;
+
+    public function FindCustomer($term){
+        $this->searchTerm = $term;
+        if (!empty($this->searchTerm)) {
+            $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->searchTerm . '%')->get();
+        }else{
+            $this->filteredCountries = [];
+        }
+    }
+    public function selectCountry($countryId){
+        $country = Country::find($countryId);
+        if($country){
+            $this->selectedCountryId = $country->id;
+            $this->searchTerm  = $country->title;
+            $this->country_code = $country->country_code;
+            $this->mobileLength = $country->mobile_length;
+        }
+
+        $this->filteredCountries = [];
+        
+    }
 
    public function rules(){
      return [
@@ -21,11 +48,19 @@ class SupplierAdd extends Component
             'email' => 'nullable|email|unique:suppliers,email',
             'mobile' => [
                 'required',
-                'regex:/^\+?\d{' . env('VALIDATE_MOBILE', 8) . ',}$/',
+               'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
             'whatsapp_no' => [
                 'required',
-                'regex:/^\+?\d{' . env('VALIDATE_WHATSAPP', 8) . ',}$/',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
+            'alternative_phone_number_1' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
+            'alternative_phone_number_2' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
             'billing_address' => 'required|string|max:255',
             'billing_landmark' => 'nullable|string|max:255',
@@ -44,7 +79,7 @@ class SupplierAdd extends Component
    
     public function save()
     {   
-        // dd($this->all());
+        dd($this->all());
         $this->validate();
 
         if ($this->gst_file) {
@@ -55,6 +90,9 @@ class SupplierAdd extends Component
         Supplier::create([
             'name' => $this->name,
             'email' => $this->email,
+            'country_code'=> $this->country_code,
+            'alternative_phone_number_1' => $this->alternative_phone_number_1,
+            'alternative_phone_number_2' => $this->alternative_phone_number_2,
             'mobile' => $this->mobile,
             'whatsapp_no' => $this->whatsapp_no,
             'billing_address' => $this->billing_address,
@@ -67,6 +105,7 @@ class SupplierAdd extends Component
            'gst_file' => isset($absoluteAssetPath) ? $absoluteAssetPath : null, 
             'credit_limit' => $this->credit_limit,
             'credit_days' => $this->credit_days,
+
         ]);
 
         session()->flash('success', 'Supplier added successfully!');

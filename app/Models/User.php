@@ -55,7 +55,10 @@ class User extends Authenticatable
         'visa_no',
         'profile_image',
         'verified_video',
-        
+        'country_code',
+        'alternative_phone_number_1',
+        'alternative_phone_number_2',
+
     ];
     
     /**
@@ -68,10 +71,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function setPasswordAttribute($password)
-    {
-        $this->attributes['password'] = bcrypt($password);
-    }
+    // public function setPasswordAttribute($password)
+    // {
+    //     $this->attributes['password'] = bcrypt($password);
+    // }
 
     /**
      * The attributes that should be cast.

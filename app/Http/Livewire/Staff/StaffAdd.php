@@ -85,11 +85,11 @@ class StaffAdd extends Component
         if($country){
             $this->selectedCountryId = $country->id;
             $this->searchTerm  = $country->title;
-            $this->countryCode = $country->country_code;
+            $this->country_code = $country->country_code;
             $this->mobileLength = $country->mobile_length;
         }
 
-        $this->country_code = $this->countryCode;
+        // $this->country_code = $this->countryCode;
 
          // Hide the dropdown after selection
         $this->filteredCountries = [];
@@ -98,7 +98,7 @@ class StaffAdd extends Component
     }
 
     public function save(){
-        
+        // dd($this->all());
         $isIndia = $this->selectedCountryId == 76;
 
        $this->validate([
@@ -158,7 +158,9 @@ class StaffAdd extends Component
             'emergency_whatsapp'=>[
                 'nullable',
                 'regex:/^\d{'. $this->mobileLength .'}$/',
-            ]
+            ],
+            'emergency_contact_person' => 'nullable|string',
+            'emergency_address' => 'nullable|string',
        ],[
             'branch_id.required' => 'Please select branch',
             'designation.required' => 'Designation is required.',
@@ -193,7 +195,9 @@ class StaffAdd extends Component
             'alternative_phone_number_1.regex' => 'Enter a valid alternative mobile number',
             'alternative_phone_number_2.regex' => 'Enter a valid alternative mobile number',
             'emergency_mobile.regex' => 'Enter a valid emergency mobile number.',
-            'emergency_whatsapp.regex' => 'Enter a valid emergency WhatsApp number.'
+            'emergency_whatsapp.regex' => 'Enter a valid emergency WhatsApp number.',
+            'emergency_contact_person.string' => 'Emergency contact person name must be text',
+            'emergency_address.string' => 'Emergency address must be text',
        ]);
        DB::beginTransaction();
 
@@ -226,6 +230,7 @@ class StaffAdd extends Component
                 'designation' => $this->designation ?? "",
                 'name' => ucwords($this->person_name) ?? "",
                 'email' => $this->email ?? "",
+                'country_code' => $this->country_code ?? '',
                 'phone' => $this->mobile ?? "",
                 'aadhar_name' => $this->aadhaar_number ?? "",
                 'whatsapp_no' => $this->whatsapp_no ?? "",
