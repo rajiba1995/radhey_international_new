@@ -381,7 +381,7 @@ class AuthController extends Controller
     //         'status' => true,
     //         'message' => 'OTP verified successfully',
     //         'token' => $token,
-    //         'user' => $user,
+    //         'user' => ,
     //     ]);
     // }
 

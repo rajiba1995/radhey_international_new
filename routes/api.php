@@ -42,6 +42,8 @@ Route::middleware('auth:sanctum', 'token.session')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::get('/dashboard', [AuthController::class, 'dashboard']);
     Route::get('/customer/list', [AuthController::class, 'customer_list']);
+    Route::get('/customer/details/{id}', [AuthController::class, 'customer_details']);
+    Route::get('/customer/filter', [AuthController::class, 'customer_filter']);
 
 
 

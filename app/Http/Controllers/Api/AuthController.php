@@ -21,7 +21,7 @@ use Carbon\Carbon;
 class AuthController extends Controller
 {
     public function CountryList(){
-        $data = Country::select('title', 'country_code', 'mobile_length')->orderBy('title', 'ASC')->get();
+        $data = Country::select('id', 'title', 'country_code', 'mobile_length')->orderBy('title', 'ASC')->where('status', 1)->get();
         return response()->json([
             'status' => true,
             'message' => 'Country list retrieved successfully',
@@ -54,7 +54,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first(),
             ], 422);
         }
 
@@ -77,13 +77,13 @@ class AuthController extends Controller
     public function userLogin(Request $request){
         $validator = Validator::make($request->all(),[
             'country_code' => 'required',
-            'mobile' => 'required|exists:users,phone',
+            'mobile' => 'required|numeric|exists:users,phone',
             'device_id' => 'required'
         ]);
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first(), // Returns only the first error message
             ], 422);
         }
 
@@ -129,7 +129,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first(),
             ], 422);
         }
         
@@ -170,7 +170,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first(),
             ], 422);
         }
 
@@ -185,9 +185,38 @@ class AuthController extends Controller
         $userLogin->mpin = Hash::make($request->mpin);
         $userLogin->save();
 
+            // return response()->json([
+            //     'status'=>true,
+            //     'message' => 'MPIN set successfully',
+            // ], 200);
+
+        if (!$userLogin || !Hash::check($request->mpin, $userLogin->mpin)) {
+            return response()->json([
+                'status'=>false,
+                'message' => 'Invalid MPIN or Device ID'
+            ], 401);
+        }
+
+        $userLogin->device_id = $request->device_id;
+        $userLogin->save();
+        // Generate API token
+        $user = $userLogin->user; // Assuming `user_id` is linked to `users` table
+        $user->tokens()->delete();
+        $token = $user->createToken('Login API')->plainTextToken;
+        $data=[
+            'id' => $user->id,
+            'firstname' => $user->name,
+            'surname' => $user->surname ?? '', // Avoid errors if surname is null
+            'designation' => optional($user->designationDetails)->name ?? 'N/A', // Check if relation exists
+            'email' => $user->email,
+            'mobile' => $user->phone,
+            'country_code' => $user->country_code,
+        ];
         return response()->json([
             'status'=>true,
-            'message' => 'MPIN set successfully',
+            'message' => 'MPIN set with login successful',
+            'token' => $token,
+            'user' => $data
         ], 200);
     }
 
@@ -204,12 +233,11 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first(),
             ], 422);
         }
 
         $userLogin = UserLogin::where('mobile', $request->mobile)
-            ->where('device_id', $request->device_id)
             ->first();
 
         if (!$userLogin || !Hash::check($request->mpin, $userLogin->mpin)) {
@@ -219,7 +247,8 @@ class AuthController extends Controller
             ], 401);
         }
 
-      
+        $userLogin->device_id = $request->device_id;
+        $userLogin->save();
         // Generate API token
         $user = $userLogin->user; // Assuming `user_id` is linked to `users` table
         $user->tokens()->delete();
@@ -250,7 +279,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first(),
             ], 422);
         }
 
@@ -288,7 +317,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first(),
             ], 422);
         }
 
@@ -331,7 +360,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first(),
             ], 422);
         }
 
@@ -371,7 +400,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => false, 
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first(),
             ], 422);
         }
 
@@ -469,6 +498,97 @@ class AuthController extends Controller
             'customers' => $customers
         ], 200);
     }
+    public function customer_details($id){
+        $user = $this->getAuthenticatedUser();
+        if ($user instanceof \Illuminate\Http\JsonResponse) {
+            return $user; // Return the response if the user is not authenticated
+        }
+
+        $details = User::find($id);
+        if (!$details) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Customer details not found',
+            ], 404);
+        }
+        $latest_order = Order::select('id', 'order_number', 'total_amount','created_at')
+        ->where('customer_id', $id)
+        ->where('created_by', $user->id)
+        ->with(['items' => function ($query) {
+            $query->select('order_id', 'product_name'); // Fetch only relevant columns
+        }])
+        ->withCount('items') // Get the count of related items
+        ->latest('id')
+        ->get();
+        $orders = [];
+        foreach($latest_order as $key => $item){
+            $orders[$key]['id'] =$item->id; 
+            $orders[$key]['order_number'] =$item->order_number; 
+            $orders[$key]['total_amount'] =$item->total_amount; 
+            $extra_item = count($item->items)==1?"":" +(".(count($item->items)-1)." Item)";
+            $orders[$key]['products'] =$item->items[0]->product_name.$extra_item; 
+            $orders[$key]['order_date'] = date('d-m-y', strtotime($item->created_at)); 
+        }
+    
+        $data = [];
+        $data['details']=$details;
+        $data['latest_orders']=$orders;
+        return response()->json([
+            'status' => true,
+            'message' => 'Customer data retrieved successfully',
+            'data' => $data,
+        ], 200);
+    }
+
+    public function customer_filter(Request $request)
+    {
+        $user = $this->getAuthenticatedUser();
+        if ($user instanceof \Illuminate\Http\JsonResponse) {
+            return $user; // Return the response if the user is not authenticated
+        }
+        $filter = $request->keyword;
+
+        // Fetch filtered users
+        $users = User::where('user_type', 1)
+            ->where('status', 1)
+            ->when($filter, function ($query) use ($filter) {
+                $query->where(function ($q) use ($filter) {
+                    $q->where('name', 'like', "%{$filter}%")
+                    ->orWhere('phone', 'like', "%{$filter}%")
+                    ->orWhere('whatsapp_no', 'like', "%{$filter}%")
+                    ->orWhere('company_name', 'like', "%{$filter}%")
+                    ->orWhere('email', 'like', "%{$filter}%");
+                });
+            })
+            ->where('created_by', $user->id)
+            ->take(20)
+            ->get();
+
+        // Fetch orders and get the first matching customer's details
+        $order = Order::where('order_number', 'like', "%{$filter}%")
+            ->orWhereHas('customer', function ($query) use ($filter) {
+                $query->where('name', 'like', "%{$filter}%");
+            })
+            ->where('created_by', $user->id)
+            ->latest()
+            ->first(); // Fetch only the first order directly
+        $data = [];
+        if ($order && $order->customer) {
+            $users->prepend($order->customer);
+            $data['id'] = $users[0]->id;
+            $data['name'] = $users[0]->name;
+            $data['email'] = $users[0]->email;
+            $data['phone'] = $users[0]->phone;
+           
+        }
+
+        return response()->json([
+            'status' => $users->isNotEmpty(),
+            'message' => $users->isNotEmpty() ? 'Data fetched successfully!' : 'Sorry, we cannot find any results!',
+            'data' => $data,
+        ],200);
+    }
+
 
     
 
