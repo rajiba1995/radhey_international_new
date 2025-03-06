@@ -15,8 +15,10 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
     public function collection()
     {
         // Fetch users along with their addresses using eager loading
-        $users = User::with('userAddress') // Eager load the user addresses
-            ->where('user_type', 1) // Adjust based on the requirement, assuming 1 means customers
+        $users = User::with(['userAddress' => function ($query) {
+                    $query->where('address_type', 1); // Only Billing Address
+                }])// Eager load the user addresses
+            ->where('user_type', 1) 
             ->limit(2)
             ->get();
 
@@ -26,30 +28,27 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
 
             // Check if user has addresses
             return $user->userAddress->map(function ($address) use ($user, $userType) {
-                $addressType = $address->address_type == 1 ? 'Billing Address' : 'Shipping Address';
+                // $addressType = $address->address_type == 1 ? 'Billing Address' : 'Shipping Address';
 
                 return [
-                    'User Name' => $user->name,
-                    'Company Name' => $user->company_name,
-                    'Email' => $user->email,
-                    'Rank' => $user->employee_rank,
-                    'Phone' => $user->phone,
-                    'Whatsapp Number' => $user->whatsapp_no,
-                    'DOB' => $user->dob,
-                    // 'Profile Image'=> asset('storage/' . $user->profile_image), // Full URL for profile image
-                    // 'Verified Video'=> asset('storage/' . $user->verified_video), // Full URL for profile image
-
-                    // 'Branch' => $branchName,
-                    // 'Country' => $countryName,
-                    'User Type' => $userType,
-                    'Address Type' => $addressType, // Billing or Shipping
-                    'Address' => $address->address,
-                    'Landmark' => $address->landmark,
-                    'City' => $address->city,
-                    'Country' => $address->country,
-                    'State' => $address->state,
-                    'Zip Code' => $address->zip_code,
-                    'Status' => $user->status ? 'Active' : 'Inactive', 
+                   'User Type' => $userType,
+                'Customer Name' => $user->name,
+                'Company Name' => $user->company_name,
+                'Rank' => $user->employee_rank,
+                'Email' => $user->email,
+                'Country Code' => $user->country_code,
+                'Phone' => $user->phone,
+                'Alternet Phone One' => $user->phone_one,
+                'Alternet Phone Two' => $user->phone_two,
+                'Whatsapp Number' => $user->whatsapp_no,
+                'DOB' => $user->dob,
+                'Address Type' => 'Billing Address', // Only Billing Address is included
+                'Address' => $address->address,
+                'Landmark' => $address->landmark,
+                'City' => $address->city,
+                'Country' => $address->country,
+                'State' => $address->state,
+                'Zip Code' => $address->zip_code,
                 ];
             });
         });
@@ -61,18 +60,17 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'User Name',
+           'User Type',
+            'Customer Name',
             'Company Name',
-            'Email',
             'Rank',
+            'Email',
+            'Country Code',
             'Phone',
-             'Whatsapp Number',
-             'DOB',
-            // 'Profile Image',
-            //  'Verified Video',
-            // 'Branch',
-            // 'Country',
-            'User Type',
+            'Alternet Phone One',
+            'Alternet Phone Two',
+            'Whatsapp Number',
+            'DOB',
             'Address Type',
             'Address',
             'Landmark',
@@ -80,7 +78,6 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
             'Country',
             'State',
             'Zip Code',
-            'Status',
             
         ];
     }

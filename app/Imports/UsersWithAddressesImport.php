@@ -7,10 +7,13 @@ use App\Models\User;
 // use App\Models\User;
 use App\Models\UserAddress;
 // use App\Models\Branch;
-// use App\Models\Country;
+use App\Models\Country;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+
 
 class UsersWithAddressesImport implements ToModel, WithHeadingRow
 {
@@ -19,30 +22,42 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         $userType = strtolower(trim($row['user_type'])) == 'staff' ? 0 : 1;
+
+         // Fetch country details for validation
+         $country = Country::where('country_code', $row['country_code'])->first();
+         $mobileLength = $country ? $country->mobile_length : 10; // Default to 10 if country not found
+ 
+         // Validate phone numbers dynamically
+         $validator = Validator::make($row, [
+             'phone'        => "required|numeric|digits:$mobileLength",
+             'whatsapp_no'  => "required|numeric|digits:$mobileLength",
+         ]);
+ 
+         if ($validator->fails()) {
+             // Handle validation failure (log it, skip, or throw an error)
+            //  return null;
+            \Log::error('Validation failed for row:', $validator->errors()->toArray());
+            return null;  // Return null to skip this row, not a JsonResponse
+         }
         // Create or update user record
+        $dob = Carbon::createFromFormat('m/d/Y', $row['dob'])->format('Y-m-d');
+
+
         $user = User::updateOrCreate(
             ['email' => $row['email']], // Unique identifier
             [
-                'emergency_contact_person' => $row['emergency_contact_person'] ?? null,
-                'emergency_mobile' => $row['emergency_mobile'] ?? null,
-                'emergency_whatsapp' => $row['emergency_whatsapp'] ?? null,
-                'emergency_address' => $row['emergency_address'] ?? null,
-                // 'branch_id' => $row['branch_id'] ?? null,
-                'employee_id' => $row['employee_id'] ?? null,
-                // 'country_id' => $row['country_id'] ?? null,
-                'name' => $row['user_name'],
-                'dob' => $row['dob'] ?? null,
+                'name' => $row['customer_name'],
+                'dob' => $dob ?? null,
                 'user_type' => $userType,
-                // 'designation' => $row['designation'] ?? null,
                 'company_name' => $row['company_name'] ?? null,
                 'employee_rank' => $row['employee_rank'] ?? null,
+                'country_code' => $row['country_code'] ?? null,
                 'phone' => $row['phone'] ?? null,
+                'phone_one' => $row['phone_one'] ?? null,
+                'phone_two' => $row['phone_two'] ?? null,
                 'whatsapp_no' => $row['whatsapp_no'] ?? null,
                 'image' => $row['image'] ?? null,
-                'profile_image' => $row['profile_image'] ?? null,
-                'verified_video' => $row['verified_video'] ?? null,
-                'password' => bcrypt($row['password'] ?? 'defaultpassword'),
-            ]
+               ]
         );
 
         // Store or update user address (billing)
@@ -60,22 +75,37 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
             );
         }
 
-        // Store or update user address (shipping)
-        if (!empty($row['shipping_address'])) {
-            UserAddress::updateOrCreate(
-                ['user_id' => $user->id, 'address_type' => 2], // 2 = Shipping
-                [
-                    'address' => $row['shipping_address'],
-                    'landmark' => $row['shipping_landmark'] ?? null,
-                    'city' => $row['shipping_city'] ?? null,
-                    'state' => $row['shipping_state'] ?? null,
-                    'country' => $row['shipping_country'] ?? null,
-                    'zip_code' => $row['shipping_zip'] ?? null,
-                ]
-            );
-        }
-
+      
         return $user;
     }
+
+
+    public function rules(): array
+    {
+        return [
+            'user_name'     => 'required|string|max:255',
+            'email'         => 'required|email|unique:users,email',
+            'country_code'  => 'required|string|exists:countries,country_code',
+            'phone'         => ['required', 'numeric', function ($attribute, $value, $fail) {
+                // Get country_code from the $row array instead of request
+                $countryCode = request()->input('country_code'); // or pass it as a parameter if required
+                $country = Country::where('country_code', $countryCode)->first();
+                $expectedLength = $country ? $country->mobile_length : 10;
+                if (strlen($value) != $expectedLength) {
+                    $fail("The $attribute must be exactly $expectedLength digits long.");
+                }
+            }],
+            'whatsapp_no'   => ['required', 'numeric', function ($attribute, $value, $fail) {
+                // Get country_code from the $row array instead of request
+                $countryCode = request()->input('country_code'); // or pass it as a parameter if required
+                $country = Country::where('country_code', $countryCode)->first();
+                $expectedLength = $country ? $country->mobile_length : 10;
+                if (strlen($value) != $expectedLength) {
+                    $fail("The $attribute must be exactly $expectedLength digits long.");
+                }
+            }],
+        ];
+    }
+     
 }
 

@@ -95,13 +95,13 @@ class CustomerIndex extends Component
     public function export()
     {
         // return Excel::download(new UsersExport, 'users.xlsx');
-        return Excel::download(new UsersAndAddressesExport(), 'customers_and_addresses.xlsx');
+        return Excel::download(new UsersAndAddressesExport(), 'customers_and_addresses.csv');
     }
 
     public function sampleExport()
     {
         // return Excel::download(new UsersExport, 'users.xlsx');
-        return Excel::download(new SampleUserAndAddressExport(), 'customers_and_addresses.xlsx');
+        return Excel::download(new SampleUserAndAddressExport(), 'customers_and_addresses.csv');
     }
     public function exportAddresses()
     {

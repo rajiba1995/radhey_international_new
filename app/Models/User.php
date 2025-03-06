@@ -40,6 +40,8 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
+        'phone_one',
+        'phone_two',
         'whatsapp_no',
         'aadhar_name',
         'gst_number',
@@ -55,6 +57,7 @@ class User extends Authenticatable
         'visa_no',
         'profile_image',
         'verified_video',
+        'country_code',
         
     ];
     
