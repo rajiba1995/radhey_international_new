@@ -151,7 +151,7 @@
                         <div class="extention-group">
                             <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
                             <input type="text" wire:model="mobile" id="mobile"
-                            class="form-control form-control-sm border border-1 p-2" placeholder="Staff Mobile No" maxlength="{{ $mobileLength }}">
+                            class="form-control form-control-sm border border-1 p-2" placeholder="Staff Mobile No" maxLength={{ $mobileLength }}>
                         </div>
                         @error('mobile')
                         <div class="text-danger">{{ $message }}</div>
@@ -182,7 +182,7 @@
                             <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
                                 <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
                                 class="form-control form-control-sm border border-1 p-2 me-2"
-                                placeholder="Staff WhatsApp No" @if($is_wa_same) disabled @endif maxlength="{{ $mobileLength }}">
+                                placeholder="Staff WhatsApp No" @if($is_wa_same) disabled @endif maxLength={{ $mobileLength }}>
                             </div>
 
                             <div class="custon-input-group">
@@ -199,15 +199,21 @@
                         <label for="mobile" class="form-label">alternative phone number 1 </label>
                         <div class="extention-group">
                             <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
-                            <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxlength="{{ $mobileLength }}">
+                            <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
                         </div>
+                        @error('alternative_phone_number_1')
+                        <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3 col-md-3">
                         <label for="mobile" class="form-label">alternative phone number 2 </label>
                         <div class="extention-group">
                             <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
-                            <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxlength="{{ $mobileLength }}">
+                            <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
                         </div>
+                        @error('alternative_phone_number_2')
+                        <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 
@@ -336,7 +342,7 @@
                         <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
                         <input type="text" wire:model="emergency_mobile"
                             class="form-control form-control-sm border border-1 p-2"
-                            placeholder="Enter Emergency Mobile Number" maxlength="{{ $mobileLength }}">
+                            placeholder="Enter Emergency Mobile Number" maxLength={{ $mobileLength }}>
                         </div>
                         @error('emergency_mobile')
                         <div class="text-danger">{{ $message }}</div>
@@ -356,7 +362,7 @@
                             <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
                             <input type="text" wire:model="emergency_whatsapp"
                                 class="form-control form-control-sm border border-1 p-2"
-                                placeholder="Enter Emergency WhatsApp Number" @if($same_as_contact) disabled @endif maxlength="{{ $mobileLength }}">
+                                placeholder="Enter Emergency WhatsApp Number" @if($same_as_contact) disabled @endif maxLength={{ $mobileLength }}>
                             </div>
                             <div class="custon-input-group">
                                 <input type="checkbox" wire:change="SameAsContact" id="same_as_contact" value="0"
@@ -405,7 +411,7 @@
                         @enderror
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Branch Name</label>
+                        <label class="form-label">Bank Branch Name</label>
                         <input type="text" wire:model="branch_name"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Branch Name">
                         @error('branch_name')

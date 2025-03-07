@@ -18,10 +18,32 @@
         <!-- <h4 class="m-0">Create Supplier</h4> -->
         <div class="card card-plain h-100">
             <div class="card-header pb-0 p-3">
-                <div class="row">
+                <div class="row justify-content-between">
                     {{-- Supplier Information --}}
-                    <div class="col-md-8 d-flex align-items-center">
+                    <div class="col-md-8">
                         <h6 class="badge bg-danger custom_danger_badge">Basic Information</h6>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="position-relative">
+                            <input type="text" wire:keyup="FindCustomer($event.target.value)"
+                               wire:model.debounce.500ms="searchTerm"
+                                class="form-control form-control-sm border border-1 customer_input"
+                                placeholder="Search By Country">
+                            @error('searchTerm')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                           @if(!empty($filteredCountries))
+                            <div id="fetch_customer_details" class="dropdown-menu show w-100"
+                                style="max-height: 200px; overflow-y: auto;">
+                                @foreach ($filteredCountries as $countries)
+                                <button class="dropdown-item" type="button"
+                                    wire:click="selectCountry({{ $countries->id }})">
+                                     {{$countries->title}}({{$countries->country_code}})
+                                </button>
+                                @endforeach
+                            </div>
+                            @endif 
+                        </div>
                     </div>
                 </div>
             </div>
@@ -46,31 +68,56 @@
                             @enderror
                         </div>
                         
-                        <div class="mb-3 col-md-6">
+                        <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" id="mobile" wire:model="mobile" class="form-control form-control-sm border border-1 p-2" placeholder="Enter Phone Number">
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                              <input type="text" id="mobile" wire:model="mobile" class="form-control form-control-sm border border-1 p-2" placeholder="Enter Phone Number" maxLength={{$mobileLength}}>
+                            </div>
                             @error('mobile')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                         
-                        <div class="mb-3 col-md-6">
+                        <div class="mb-3 col-md-3">
                             <label for="is_wa_same" class="form-label">WhatsApp Number <span class="text-danger">*</span></label>
                                 <div class="align-items-center">
-                                <input type="text" wire:model="whatsapp_no" id="whatsapp_no" class="form-control form-control-sm border border-1 p-2 me-2" placeholder="Enter WhatsApp Number" @if ($is_wa_same) disabled @endif>
-                                
+                                    <div class="extention-group">
+                                        <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly >
+                                        <input type="text" wire:model="whatsapp_no" id="whatsapp_no" class="form-control form-control-sm border border-1 p-2 me-2" placeholder="Enter WhatsApp Number" @if ($is_wa_same) disabled @endif maxLength={{$mobileLength}}>
+                                    </div>
                                 <div class="custon-input-group">
                                     <input type="checkbox" id="is_wa_same" wire:change="SameAsMobile" value="0" @if ($is_wa_same) checked @endif>
                                     <label for="is_wa_same" class="form-check-label ms-2" >Same as Mobile</label>
                                 </div>
-                                <!-- <input type="checkbox" wire:model="is_wa_same" id="isWaSame" class="form-check-input">
-                                <label for="isWaSame" class="form-check-label">WhatsApp number same as mobile</label> -->
+                               
                             </div>
                             @error('whatsapp_no')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror        
                         </div>
-                        
+
+                        <div class="mb-3 col-md-3">
+                            <label for="mobile" class="form-label">alternative phone number 1 </label>
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                            </div>
+                            @error('alternative_phone_number_1')
+                            <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3 col-md-3">
+                            <label for="mobile" class="form-label">alternative phone number 2 </label>
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                            </div>
+                            @error('alternative_phone_number_2')
+                            <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
 
                         <!-- Billing Address -->
                         <div class="col-md-8 mb-2 d-flex align-items-center">
