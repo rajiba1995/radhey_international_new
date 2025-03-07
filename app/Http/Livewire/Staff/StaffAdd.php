@@ -27,11 +27,20 @@ class StaffAdd extends Component
     public $designations = [];
     public $branchNames = [];
     public $Selectcountry;
+    public $filteredCountries = []; 
+    public $selectedCountryId;
+    public $searchTerm;
     public $Business_type;
     public $selectedBusinessType ;
-    public $selectedCountryId;
     public $showRequiredFields  = false;
     public $emergency_contact_person,$emergency_mobile,$emergency_whatsapp,$emergency_address,$same_as_contact;
+    public $countryCode;
+    public $country_code;
+    public $mobileLength;
+    public $alternative_phone_number_1;
+    public $alternative_phone_number_2;
+    public $password;
+
     public function mount(){
         $this->designations = Designation::where('status',1)->orderBy('name', 'ASC')->where('id', '!=', 1)->get();
         $this->branchNames  = Branch::all();
@@ -39,16 +48,58 @@ class StaffAdd extends Component
         $this->Business_type = BusinessType::all();
         $this->selectedCountryId = null;
         $this->selectedBusinessType  = null;
+        $this->emp_code = $this->generateEmpCode();
     }
 
-    public function SelectedCountry()
-    {
-        $this->showRequiredFields  = $this->selectedCountryId == 1;
+    public function generateEmpCode(){
+        $lastUser = User::where('emp_code', 'LIKE', 'RI-%')
+        ->orderBy('emp_code', 'DESC')
+        ->first();
+
+        if ($lastUser && preg_match('/RI-(\d+)/', $lastUser->emp_code, $matches)) {
+            $nextNumber = str_pad($matches[1] + 1, 2, '0', STR_PAD_LEFT); 
+        } else {
+            $nextNumber = '01'; 
+        }
+
+        return 'RI-' . $nextNumber;
+    }
+  
+
+    // public function SelectedCountry()
+    // {
+    //     $this->showRequiredFields  = $this->selectedCountryId == 1;
+    // }
+
+    public function FindCustomer($term){
+        $this->searchTerm = $term;
+        if (!empty($this->searchTerm)) {
+            $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->searchTerm . '%')->get();
+        }else{
+            $this->filteredCountries = [];
+        }
+    }
+
+    public function selectCountry($countryId){
+        $country = Country::find($countryId);
+        if($country){
+            $this->selectedCountryId = $country->id;
+            $this->searchTerm  = $country->title;
+            $this->country_code = $country->country_code;
+            $this->mobileLength = $country->mobile_length;
+        }
+
+        // $this->country_code = $this->countryCode;
+
+         // Hide the dropdown after selection
+        $this->filteredCountries = [];
+        $this->showRequiredFields  = $this->selectedCountryId == 76;
+
     }
 
     public function save(){
-        
-        $isIndia = $this->selectedCountryId == 1;
+        // dd($this->all());
+        $isIndia = $this->selectedCountryId == 76;
 
        $this->validate([
             'branch_id'   => 'required',
@@ -56,20 +107,27 @@ class StaffAdd extends Component
             'emp_code' => 'required',
             'person_name' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
-            'dob' => 'required',
+            'dob' => 'required|date|before_or_equal:today',
             'prof_name' => 'required|string|max:255',
             'selectedBusinessType' => 'required|integer',
-            'selectedCountryId' => 'required|integer',
-            'email' => 'nullable|email|unique:users,email',
-            
+            'searchTerm' => 'required|string',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required',
+            'alternative_phone_number_1' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
+            'alternative_phone_number_2' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
           'mobile' => [
                 'required',
-                'regex:/^\+?\d{' . env('VALIDATE_MOBILE', 8) . ',}$/', // At least VALIDATE_MOBILE digits
-                'unique:users,phone,' . ($this->user_id ?? 'null'),
+                'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
             'whatsapp_no' => [
-                'required',
-                'regex:/^\+?\d{' . env('VALIDATE_WHATSAPP', 8) . ',}$/', // At least VALIDATE_WHATSAPP digits
+                'required', // At least VALIDATE_WHATSAPP digits
+                'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
             'passport_no'=> $isIndia ?  'required|numeric' : 'nullable|numeric',
             'visa_no'=> $isIndia ?  'required|numeric' : 'nullable|numeric',
@@ -95,14 +153,51 @@ class StaffAdd extends Component
             'country' => 'nullable|string|max:255',
             'emergency_mobile'=> [
                 'nullable',
-                'regex:/^\+?\d{' . env('VALIDATE_MOBILE', 8) . ',}$/', // At least VALIDATE_MOBILE digits
+                'regex:/^\d{'. $this->mobileLength .'}$/', // At least VALIDATE_MOBILE digits
             ],
             'emergency_whatsapp'=>[
                 'nullable',
-                'regex:/^\+?\d{' . env('VALIDATE_WHATSAPP', 8) . ',}$/',
-            ]
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
+            'emergency_contact_person' => 'nullable|string',
+            'emergency_address' => 'nullable|string',
        ],[
             'branch_id.required' => 'Please select branch',
+            'designation.required' => 'Designation is required.',
+            'emp_code.required' => 'Employee code is required.',
+            'person_name.required' => 'Person name is required.',
+            'surname.required' => 'Surname is required.',
+            'dob.required' => 'Date of birth is required.',
+            'prof_name.required' => 'Professional name is required.',
+            'selectedBusinessType.required' => 'Business type selection is required.',
+            'searchTerm.required' => 'Please search a country name',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email is already registered.',
+            
+            'mobile.required' => 'Mobile number is required.',
+            'mobile.regex' => 'Enter a valid mobile number.',
+            'mobile.unique' => 'This mobile number is already registered.',
+            
+            'whatsapp_no.required' => 'WhatsApp number is required.',
+            'whatsapp_no.regex' => 'Enter a valid WhatsApp number.',
+            
+            'passport_no.required' => 'Passport number is required.',
+            'visa_no.required' => 'Visa number is required.',
+            'aadhaar_number.required' => 'Aadhaar number is required.',
+            
+            'image.image' => 'Only image files are allowed.',
+            'image.max' => 'Image size must be less than 2MB.',
+            
+            'monthly_salary.required' => 'Monthly salary is required.',
+            'monthly_salary.numeric' => 'Enter a valid salary amount.',
+            
+            'state.required' => 'State is required.',
+            'alternative_phone_number_1.regex' => 'Enter a valid alternative mobile number',
+            'alternative_phone_number_2.regex' => 'Enter a valid alternative mobile number',
+            'emergency_mobile.regex' => 'Enter a valid emergency mobile number.',
+            'emergency_whatsapp.regex' => 'Enter a valid emergency WhatsApp number.',
+            'emergency_contact_person.string' => 'Emergency contact person name must be text',
+            'emergency_address.string' => 'Emergency address must be text',
        ]);
        DB::beginTransaction();
 
@@ -135,6 +230,7 @@ class StaffAdd extends Component
                 'designation' => $this->designation ?? "",
                 'name' => ucwords($this->person_name) ?? "",
                 'email' => $this->email ?? "",
+                'country_code' => $this->country_code ?? '',
                 'phone' => $this->mobile ?? "",
                 'aadhar_name' => $this->aadhaar_number ?? "",
                 'whatsapp_no' => $this->whatsapp_no ?? "",
@@ -145,11 +241,13 @@ class StaffAdd extends Component
                 'passport_issued_date' => !empty($this->passport_issued_date) ? $this->passport_issued_date : null,
                 'passport_no' => $this->passport_no,
                 'visa_no' => $this->visa_no,
-                'password'=>'secret',
+                'password'=> $this->password,
                 'emergency_contact_person' => $this->emergency_contact_person ?? "",
                 'emergency_mobile' => $this->emergency_mobile ?? "",
                 'emergency_whatsapp' => $this->emergency_whatsapp ?? "",
                 'emergency_address' => $this->emergency_address ?? "",
+                'alternative_phone_number_1,' => $this->alternative_phone_number_1,
+                'alternative_phone_number_2' => $this->alternative_phone_number_2
             ]);
             
 

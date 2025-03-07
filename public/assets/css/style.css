@@ -1065,3 +1065,22 @@ table td h6.text-sm {
     text-align: left;
 }
 
+
+.selectBox.custom-checkbox i {
+    right: 100%;
+}
+
+/*--- 05-03-25 joy----*/
+
+.extention-group {
+    display: flex;
+    align-items: center;
+}
+
+.extention-group .input__prefix {
+    max-width: 45px;
+    margin-right: 4px;
+} 
+
+
+

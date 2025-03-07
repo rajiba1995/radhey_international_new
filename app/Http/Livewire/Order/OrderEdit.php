@@ -594,13 +594,13 @@ class OrderEdit extends Component
                 $this->errorMessage['billing_country'] = null;
             }
       
-             if (strlen($this->billing_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
-                $this->errorClass['billing_pin'] = 'border-danger';
-                $this->errorMessage['billing_pin'] = 'Billing pin must be '.env('VALIDATE_PIN', 6).' digits';
-            } else {
-                $this->errorClass['billing_pin'] = null;
-                $this->errorMessage['billing_pin'] = null;
-            }
+            //  if (strlen($this->billing_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
+            //     $this->errorClass['billing_pin'] = 'border-danger';
+            //     $this->errorMessage['billing_pin'] = 'Billing pin must be '.env('VALIDATE_PIN', 6).' digits';
+            // } else {
+            //     $this->errorClass['billing_pin'] = null;
+            //     $this->errorMessage['billing_pin'] = null;
+            // }
     
             // Validate Shipping Information
             if (empty($this->shipping_address)) {
@@ -629,13 +629,13 @@ class OrderEdit extends Component
                 $this->errorMessage['shipping_country'] = null;
             }
     
-            if (strlen($this->shipping_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
-                $this->errorClass['shipping_pin'] = 'border-danger';
-                $this->errorMessage['shipping_pin'] = 'Shipping pin must be '.env('VALIDATE_PIN', 6).' digits';
-            } else {
-                $this->errorClass['shipping_pin'] = null;
-                $this->errorMessage['shipping_pin'] = null;
-            }
+            // if (strlen($this->shipping_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
+            //     $this->errorClass['shipping_pin'] = 'border-danger';
+            //     $this->errorMessage['shipping_pin'] = 'Shipping pin must be '.env('VALIDATE_PIN', 6).' digits';
+            // } else {
+            //     $this->errorClass['shipping_pin'] = null;
+            //     $this->errorMessage['shipping_pin'] = null;
+            // }
     
            
             // Check if both errorClass and errorMessage arrays are empty

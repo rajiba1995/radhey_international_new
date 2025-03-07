@@ -18,9 +18,7 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['status' => false,'message' => 'No data found']);
         }
-    
-    
-    
+
         return response()->json([
             'status' => true,
             'message' => 'User details',
@@ -185,7 +183,6 @@ class UserController extends Controller
                 'data' => $users,
             ]);
         }
-       
     }
  
     public function search(Request $request)

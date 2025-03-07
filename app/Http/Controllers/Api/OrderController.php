@@ -21,7 +21,6 @@ class OrderController extends Controller
     public function index(){
        $data=Order::where('created_by',auth()->guard('admin')->user()->id)->get();
 
-     
         if($data){
             return response()->json([
                 'status' => 'success',
@@ -37,8 +36,7 @@ class OrderController extends Controller
        
 
     }
-    public function createOrder(Request $request)
-    {
+    public function createOrder(Request $request){
         // Validation rules
         $rules = [
             'items.*.collection' => 'required|string',

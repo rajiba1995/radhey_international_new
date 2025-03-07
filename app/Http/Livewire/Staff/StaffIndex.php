@@ -4,13 +4,20 @@ namespace App\Http\Livewire\Staff;
 
 use Livewire\Component;
 use App\Models\User;
+use App\Models\Branch;
+use App\Models\Designation;
 
 class StaffIndex extends Component
 {
     public $staff,$user_id;
+    public $search, $branch_name, $designation_name;
+    public $branches, $designationList;
     public function mount(){
     // Fetch all users with their bank and address information
-        $this->staff = User::with(['bank','address','designationDetails'])->orderBy('name', 'ASC')->where('designation', '!=', 1)->where('user_type',0)->get();
+        // $this->staff = User::with(['bank','address','designationDetails'])->orderBy('name', 'ASC')->where('designation', '!=', 1)->where('user_type',0)->get();
+        $this->branches = Branch::orderBy('name','ASC')->get();
+        $this->designationList = Designation::orderBy('name','ASC')->get();
+
     }
 
     public function toggleStatus($user_id){
@@ -22,8 +29,59 @@ class StaffIndex extends Component
         }
 
     }
+
+
+    public function SelectBranch($value){
+        $this->branch_name = $value;
+    }
+
+    public function SelectDesignation($value){
+        $this->designation_name = $value;
+    }
+
+    // public
+
+    public function FindCustomer($keywords){
+        $this->search = $keywords;
+    }
+
+    
+
+    public function resetForm()
+    {
+        $this->reset(['search','branch_name','designation_name']);
+    }
     public function render()
     {
-        return view('livewire.staff.staff-index',['staff'=>$this->staff]);
+        $query = User::with(['branch','bank', 'address', 'designationDetails'])
+            ->where('designation', '!=', 1)
+            ->where('user_type', 0)
+            ->orderBy('name', 'ASC');
+
+        // Apply search filter (Search by name, email, phone)
+        if (!empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%')
+                  ->orWhere('phone', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        // dd($this->branch_name);
+        if(!empty($this->branch_name)){
+            $query->where('branch_id',$this->branch_name);
+        }
+
+        if(!empty($this->designation_name)){
+            $query->where('designation',$this->designation_name);
+        }
+
+        $this->staff = $query->get();
+
+        return view('livewire.staff.staff-index', [
+            'staff' => $this->staff,
+            'branches' => $this->branches,
+            'designationList' => $this->designationList
+        ]);
     }
 }

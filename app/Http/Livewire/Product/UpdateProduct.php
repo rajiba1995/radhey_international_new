@@ -41,6 +41,7 @@ class UpdateProduct extends Component
     public $showAdditionalImageField = false; // To control visibility of the additional image field
     public $additionalImage; // For storing the uploaded additional image
     public $existingAdditionalImage; // For displaying the current additional image (if any)
+    public $selectAll = false;
 
 // Modified mount function
 public function mount($product_id)
@@ -74,6 +75,8 @@ public function mount($product_id)
     $this->Collections = Collection::orderBy('title', 'ASC')->get();
     $this->fabrics = Fabric::all();
     $this->selectedFabrics = $product->fabrics->pluck('id')->toArray();
+      // Check if all fabrics are selected
+    $this->selectAll = count($this->selectedFabrics) === $this->fabrics->count();
 }
 
 // Modified GetCollection function
@@ -88,6 +91,14 @@ public function mount($product_id)
 //     $collection = Collection::find($id);
 //     $this->showAdditionalImageField = $collection && strtolower($collection->title) === 'garment';
 // }
+
+    public function toggleSelectAll(){
+        if($this->selectAll){
+            $this->selectedFabrics = $this->fabrics->pluck('id')->toArray();
+        }else{
+            $this->selectedFabrics = [];
+        }
+    }
   
     public function GetCollection($id){
         $selectedCollection = Collection::find($id);

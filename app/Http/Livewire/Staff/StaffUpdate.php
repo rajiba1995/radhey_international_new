@@ -16,7 +16,7 @@ class StaffUpdate extends Component
 {
     use WithFileUploads;
 
-    public $staff,$branchNames, $designation, $person_name, $surname, $emp_code, $prof_name, $email, $mobile, $aadhaar_number, $whatsapp_no , $passport_no , $dob, $passport_issued_date , $visa_no;
+    public $staff,$branchNames, $designation, $person_name, $surname, $emp_code, $prof_name, $email, $mobile, $aadhaar_number, $whatsapp_no , $passport_no , $dob, $passport_issued_date , $visa_no, $emergency_contact_person, $emergency_whatsapp ,$emergency_mobile , $emergency_address, $same_as_contact, $password , $alternative_phone_number_1, $alternative_phone_number_2;
     public $image, $passport_id_front, $passport_id_back , $passport_expiry_date;
     public $account_holder_name, $bank_name, $branch_name, $account_no, $ifsc;
     public $monthly_salary, $daily_salary, $travel_allowance;
@@ -28,20 +28,32 @@ class StaffUpdate extends Component
     public $selectedBusinessType;
     public $selectedBranchId;
     public $showRequiredFields = false;
+    public $filteredCountries = [];
+    public $searchTerm;
+    public $country_code;
+    public $mobileLength;
+
 
     public function mount($staff_id){
         $this->staff = User::with(['branch','businessType','bank','address','designationDetails'])->find($staff_id);
         $this->Selectcountry = Country::all();
         $this->Business_type = BusinessType::all();
         $this->branchNames = Branch::all();
-        $this->selectedCountryId = $this->staff->country_id;
-        $this->selectedBusinessType = $this->staff->business_type;
-        $this->selectedBranchId = $this->staff->branch_id;
-        $this->showRequiredFields = $this->selectedCountryId == 1;
+       
         // dd( $this->staff->designationDetails->id);
         $this->designations = Designation::latest()->get();
          // If staff exists, assign the data to the public variables
          if ($this->staff) {
+            $this->selectedCountryId = $this->staff->country_id;
+            $this->selectedBusinessType = $this->staff->business_type;
+            $this->selectedBranchId = $this->staff->branch_id;
+            $this->showRequiredFields = $this->selectedCountryId == 76;
+            $this->searchTerm = Country::where('id',$this->staff->country_id)->pluck('title');
+            $country = Country::find($this->selectedCountryId);
+            if($country){
+                $this->country_code = $country->country_code;
+                $this->mobileLength  = $country->mobile_length;
+            }
             $this->designation = $this->staff->designationDetails->id;
             $this->person_name = $this->staff->name;
             $this->surname = $this->staff->surname;
@@ -60,6 +72,14 @@ class StaffUpdate extends Component
             $this->dob = $this->staff->dob;
             $this->passport_issued_date = $this->staff->passport_issued_date;
             $this->visa_no = $this->staff->visa_no;
+            $this->alternative_phone_number_1 = $this->staff->alternative_phone_number_1;
+            $this->alternative_phone_number_2 = $this->staff->alternative_phone_number_2;
+            $this->emergency_contact_person  = $this->staff->emergency_contact_person;
+            $this->emergency_mobile  = $this->staff->emergency_mobile;
+            $this->emergency_whatsapp  = $this->staff->emergency_whatsapp;
+            $this->emergency_address  = $this->staff->emergency_address;
+            $this->same_as_contact = ($this->staff->emergency_mobile == $this->staff->emergency_whatsapp) ? 1:0;
+            $this->password = $this->staff->password;
             // Bank Information
             $this->account_holder_name = $this->staff->bank->account_holder_name;
             $this->bank_name = $this->staff->bank->bank_name;
@@ -77,28 +97,75 @@ class StaffUpdate extends Component
             $this->pincode = $this->staff->address->zip_code;
             $this->country = $this->staff->address->country;
         }
-    }
-    
-    public function SelectedCountry($value)
-    {
-        $this->selectedCountryId = $value;
-        $this->showRequiredFields = $value == 1;
+
+
     }
 
+    public function FindCustomer($term)
+    {
+        $this->searchTerm = $term;
+        if (!empty($this->searchTerm)) {
+            $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->searchTerm . '%')->get();
+        } else {
+            $this->filteredCountries = [];
+        }
+    }
+
+    public function selectCountry($countryId)
+    {
+        $country = Country::find($countryId);
+        if($country){
+            $this->selectedCountryId = $country->id;
+            $this->searchTerm  = $country->title;
+            $this->country_code = $country->country_code;
+            $this->mobileLength = $country->mobile_length;
+        }
+
+        $this->filteredCountries = [];
+        $this->showRequiredFields  = $this->selectedCountryId == 76;
+
+    }
+    
+    // public function SelectedCountry($value)
+    // {
+    //     $this->selectedCountryId = $value;
+    //     $this->showRequiredFields = $value == 1;
+    // }
+
     public function update(){
-        $isIndia = $this->selectedCountryId == 1;
+        // dd($this->all());
+        $isIndia = $this->selectedCountryId == 76;
         $this->validate([
             'designation' => 'required',
             'person_name' => 'required|string|max:255',
             'email' => 'nullable|email',
+            'password' => 'required',
+            'alternative_phone_number_1' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
+            'alternative_phone_number_2' => [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
             'mobile' => [
                 'required',
-                'regex:/^\+?\d{' . env('VALIDATE_MOBILE', 8) . ',}$/',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
             'whatsapp_no' => [
                 'required',
-                'regex:/^\+?\d{' . env('VALIDATE_WHATSAPP', 8) . ',}$/',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
             ],
+            'emergency_mobile'=> [
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/', // At least VALIDATE_MOBILE digits
+            ],
+            'emergency_whatsapp'=>[
+                'nullable',
+                'regex:/^\d{'. $this->mobileLength .'}$/',
+            ],
+            'emergency_contact_person' => 'nullable|string',
+            'emergency_address' => 'nullable|string',
             'aadhaar_number' => $isIndia ? 'required|numeric' : 'nullable|numeric',
             'passport_no'=> $isIndia ?  'required|numeric' : 'nullable|numeric',
             'visa_no'=> $isIndia ?  'required|numeric' : 'nullable|numeric',
@@ -150,6 +217,15 @@ class StaffUpdate extends Component
             'visa_no' => $this->visa_no ?? '',
             'passport_expiry_date' => !empty($this->passport_expiry_date) ? $this->passport_expiry_date : null,
             'passport_issued_date' => !empty($this->passport_issued_date) ? $this->passport_issued_date : null,
+            'emergency_contact_person'=> $this->emergency_contact_person,
+            'emergency_mobile' => $this->emergency_mobile,
+            'emergency_whatsapp' => $this->emergency_whatsapp,
+            'emergency_address' => $this->emergency_address,
+            'password' => $this->password,
+            'country_code' => $this->country_code,
+            'alternative_phone_number_1' => $this->alternative_phone_number_1,
+            'alternative_phone_number_2' => $this->alternative_phone_number_2,
+            
         ]);
         // Update bank details
         if ($this->staff->bank) {
@@ -220,6 +296,16 @@ class StaffUpdate extends Component
         }else{
             $this->whatsapp_no = '';
             $this->is_wa_same = 0;
+        }
+    }
+
+    public function sameAsContact(){
+        if($this->same_as_contact){
+            $this->emergency_whatsapp = $this->emergency_mobile;
+            $this->same_as_contact = 1;
+        }else{
+            $this->emergency_whatsapp = '';
+            $this->same_as_contact = 0;
         }
     }
 

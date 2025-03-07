@@ -21,19 +21,33 @@ use App\Http\Controllers\Api\OrderController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('/generate-otp', [AuthController::class, 'generateOtp']);
+Route::get('/country-list', [AuthController::class, 'CountryList']);
+Route::get('/country/details/{id}', [AuthController::class, 'CountryDetailsByID']);
+Route::post('/check-device', [AuthController::class, 'checkDevice']);
+Route::post('/user-login', [AuthController::class, 'userLogin']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
-Route::post('/password-recover', [AuthController::class, 'sendResetLink']);
-Route::post('/mpin-login', [AuthController::class, 'loginWithMpin']);
+Route::post('/set-mpin', [AuthController::class, 'setMpin']);
+Route::post('/mpin-login', [AuthController::class, 'mpinLogin']);
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-    
+Route::post('/forgot-mpin', [AuthController::class, 'forgotMpin']);
+Route::post('/verify-otp-mpin', [AuthController::class, 'verifyOtpMpin']);
+Route::post('/reset-mpin', [AuthController::class, 'resetMpin']);
 
-// });
+
 // Route::middleware('auth:sanctum', 'token.expiry')->group(function () {
 Route::middleware('auth:sanctum', 'token.session')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // profile
+    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::get('/dashboard', [AuthController::class, 'dashboard']);
+    Route::get('/customer/list', [AuthController::class, 'customer_list']);
+    Route::get('/customer/details/{id}', [AuthController::class, 'customer_details']);
+    Route::get('/customer/filter', [AuthController::class, 'customer_filter']);
+
+
+
+
 
     Route::prefix('user')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user.index');

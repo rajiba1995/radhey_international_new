@@ -69,4 +69,9 @@ class Kernel extends HttpKernel
         'check.permission' => \App\Http\Middleware\CheckPermission::class,
 
     ];
+
+    protected $middlewareAliases = [
+        'auth:sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        'token.session' => \App\Http\Middleware\TokenSession::class, // If using custom middleware
+    ];
 }

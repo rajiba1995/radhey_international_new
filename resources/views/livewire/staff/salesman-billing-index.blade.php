@@ -1,11 +1,11 @@
 <div class="container">
     <section class="admin__title">
-        <h5>Salesman Bill Book
+        <h5>Staff Bill Book
         </h5>
     </section>
     <section>
         <ul class="breadcrumb_menu">
-            <li>Salesman Bill Book
+            <li>Staff Bill Book
             </li>
             <li></li>
             <!-- <li>Create Customer</li> -->
@@ -57,7 +57,7 @@
                                             Date & Time
                                         </th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
-                                            Salesman
+                                            Staff
                                         </th>
                                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 align-middle">
                                             Bill Book Info
@@ -91,7 +91,7 @@
                                                 <a class="btn btn-outline-danger select-md btn_outline" wire:click="confirmDelete({{ $billing->id }})" @click.stop>Delete</a>
                                                 @if ($billing->no_of_used != $billing->total_count )
                                                     <button wire:click="assignToNewSalesman({{ $billing->id }})" class="btn btn-outline-primary select-md btn_action btn_outline" title=" Assigned new Salesman">
-                                                        Assigned new Salesman
+                                                        Assigned new Staff
                                                     </button>
                                                 @endif
                                                 
@@ -121,16 +121,16 @@
                         @if ($assign_new_salesman)
                         <div class="card-body px-0 pb-2 mx-4">
                             <div class="d-flex justify-content-between mb-3">
-                                <h5>{{$assign_new_salesman ? "Assigned New Salesman" : ""}}</h5>  
+                                <h5>{{$assign_new_salesman ? "Assigned New Staff" : ""}}</h5>  
                             </div>
                             <form wire:submit.prevent="SubmitNewSalesman">
                                 <div class="row">
 
-                                    <label class="form-label mt-3">Salesman</label>
+                                    <label class="form-label mt-3">Staff</label>
                                     <div class="ms-md-auto pe-md-3 d-flex align-items-center mb-2">
                                     
                                             <select wire:model="salesman_id" class="form-control border border-2 p-2">
-                                                <option value="" selected hidden>Select Salesman</option>
+                                                <option value="" selected hidden>Select Staff</option>
                                                 @foreach ($salesmans as $salesman)
                                                 @if ($salesman->id != $salesman_id)
                                                 <option value="{{$salesman->id}}">{{$salesman->name}}</option> 
@@ -180,14 +180,14 @@
                             <form wire:submit.prevent="{{$billing_id ? "update" : "submit"}}">
                                 <div class="row">
 
-                                    <label class="form-label mt-3">Salesman</label>
+                                    <label class="form-label mt-3">Staff</label>
                                     <div class="ms-md-auto pe-md-3 d-flex align-items-center mb-2">
                                         @if($assign_new_salesman && $salesman_id) 
                                             <!-- Show the assigned salesman's name -->
                                             <span class="form-control border border-2 p-2">{{ $salesmans->find($salesman_id)->name }}</span>
                                         @else
                                             <select wire:model="salesman_id" class="form-control border border-2 p-2">
-                                                <option value="" selected hidden>Select Salesman</option>
+                                                <option value="" selected hidden>Select Staff</option>
                                                 @foreach ($salesmans as $salesman)
                                                     <option value="{{$salesman->id}}">{{$salesman->name}}</option>
                                                 @endforeach
