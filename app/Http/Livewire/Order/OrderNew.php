@@ -32,7 +32,7 @@ class OrderNew extends Component
     public $collections = [];
     public $errorMessage = [];
     public $activeTab = 1;
-    public $items = [];
+    // public $items = [];
     public $FetchProduct = 1;
 
     public $customers = null;
@@ -72,6 +72,10 @@ class OrderNew extends Component
     // public $searchResults = [];
     public $selectedFabric = null;
 
+    public $items = [
+        // Example item structure
+        // ['measurements' => [['id' => 1, 'title' => 'Measurement 1', 'value' => '']]],
+    ];
 
     
 
@@ -213,7 +217,10 @@ class OrderNew extends Component
         'items.*.price' => 'required|numeric|min:1',  // Ensuring that price is a valid number (and greater than or equal to 0).
         // 'paid_amount' => 'required|numeric|min:1',   // Ensuring that price is a valid number (and greater than or equal to 0).
         // 'payment_mode' => 'required|string',  // Ensuring that price is a valid number (and greater than or equal to 0).
-        'items.*.measurements.*' => 'nullable|string',
+        // 'items.*.measurements.*' => 'nullable|string',
+        // 'items.*.measurements' => 'nullable|array', // Ensure measurements exist as an array
+        // 'items.*.get_measurements.*.value' => 'required|string',
+        // 'items.*.get_measurements.*.value' => 'required|string|min:1',
         'items.*.searchTerm' => 'required_if:items.*.collection,1',
         // 'order_number' => 'required|numeric|unique:orders,order_number|min:1',
         'order_number' => 'required|string|not_in:000|unique:orders,order_number',
@@ -233,8 +240,10 @@ class OrderNew extends Component
              'order_number.required' => 'Order number is required.',
              'order_number.not_in' => 'Order number "000" is not allowed.',
              'order_number.unique' => 'Order number already exists, please try again.',
+             'items.*.get_measurements.*.value.required' => 'Each measurement value is required.',
         ];
     }
+
     public function FindCustomer($term)
     {
         $this->searchTerm = $term;
@@ -839,11 +848,13 @@ class OrderNew extends Component
                 $orderItem->quantity = 1;
                 $orderItem->fabrics = $fabric_data ? $fabric_data->id : "";
                 $orderItem->save();
-
                 if (isset($item['get_measurements']) && count($item['get_measurements']) > 0) {
+                    $get_all_measurment_field = [];
+                    $get_all_field_measurment_id = [];
                     foreach ($item['get_measurements'] as $mindex => $measurement) {
+                        $get_all_field_measurment_id[]= $mindex;
                         $measurement_data = Measurement::find($mindex);
-
+                        $get_all_measurment_field = Measurement::where('product_id', $measurement_data->product_id)->pluck('id')->toArray();
                         $orderMeasurement = new OrderMeasurement();
                         $orderMeasurement->order_item_id = $orderItem->id;
                         $orderMeasurement->measurement_name = $measurement_data ? $measurement_data->title : "";
@@ -851,6 +862,16 @@ class OrderNew extends Component
                         $orderMeasurement->measurement_value = $measurement['value'];
                         $orderMeasurement->save();
                     }
+                    $missing_measurements = array_diff($get_all_measurment_field, $get_all_field_measurment_id);
+
+                    if (!empty($missing_measurements)) {
+                        session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
+                        return;
+                    }
+                    
+                }else{
+                    session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
+                    return;
                 }
             }
 

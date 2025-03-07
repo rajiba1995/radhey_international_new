@@ -38,7 +38,7 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
             ]);
 
             if ($validator->fails()) {
-                \Log::error('Validation failed for row:', $validator->errors()->toArray());
+                \Log::error('Validation failed for row: ' . json_encode($row) . ' Errors: ' . json_encode($validator->errors()->all()));
                 return null; // Skip this row
             }
 

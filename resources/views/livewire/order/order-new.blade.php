@@ -486,10 +486,10 @@
                                                     value="{{ $measurement['title'] }}">
                                                 <input type="text"
                                                     class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
-                                                    wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
-                                                @error('items.' . $index . '.get_measurements.' .$measurement['id'])
-                                                <div class="text-danger">{{ $message }}</div>
-                                                @enderror
+                                                    wire:model.defer="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
+                                                    @error('items.' . $index . '.get_measurements.' . $measurement['id'] . '.value')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                    @enderror
                                             </div>
                                             @endforeach
                                             @endif
@@ -583,7 +583,7 @@
                                     @enderror
                                 </div>
                             @endif
-                        @endforeach
+                            @endforeach
                         <!-- Add Item Button -->
                         <div class="row align-items-end my-4">
                             <div class="col-md-8 col-12"></div>
