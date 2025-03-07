@@ -79,7 +79,7 @@
                                             <td>
                                                 <div class="d-flex py-1">
                                                     <div class="d-flex flex-column justify-content-center">
-                                                        <h6 class="mb-0 text-sm">{{ $supplier->name }}</h6>
+                                                        <h6 class="mb-0 text-sm">{{ $supplier->prefix." ". $supplier->name }}</h6>
                                                     </div>
                                                 </div>
                                             </td>

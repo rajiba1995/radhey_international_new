@@ -26,7 +26,7 @@
                         {{-- country --}}
                     <div class="col-md-4">
                         <div class="position-relative ms-3">
-                            <input type="text" wire:keyup="FindCustomer($event.target.value)"
+                            <input type="text" wire:keyup="FindCountry($event.target.value)"
                                 wire:model.debounce.500ms="searchTerm"
                                 class="form-control form-control-sm border border-1 customer_input"
                                 placeholder="Search By Country">
@@ -52,10 +52,29 @@
             <div class="card-body p-3">
                 <form wire:submit.prevent="save">
                     <div class="row mb-3">
+                        {{-- <div class="mt-4 col-md-1">
+                            <select name="" id="" class="form-control form-control-sm border border-1">
+                                <option value="">Select Prefix</option>
+                                @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
+                                    <option value="{{$prefix}}">{{ $prefix }}</option>
+                                @endforeach
+                            </select>
+                        </div> --}}
                         <!-- Customer Details -->
                         <div class="mb-3 col-md-3">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="name" id="name" class="form-control form-control-sm border border-1 p-2" placeholder="Enter Customer Name">
+                            <div class="input-group">
+                                <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                    <option value="" selected hidden>Prefix</option>
+                                    @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
+                                        <option value="{{$prefix}}">{{ $prefix }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="text" wire:model="name" id="name" class="form-control form-control-sm border border-1 p-2" placeholder="Enter Customer Name">
+                            </div>
+                            @error('prefix')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                             @error('name')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror

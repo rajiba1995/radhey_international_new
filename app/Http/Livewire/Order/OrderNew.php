@@ -18,6 +18,7 @@ use App\Models\Catalogue;
 use App\Models\SalesmanBilling;
 use App\Models\OrderMeasurement;
 use App\Models\Payment;
+use App\Models\Country;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
@@ -26,6 +27,7 @@ use Illuminate\Validation\Rule;
 class OrderNew extends Component
 {
     public $searchTerm = '';
+    public $prefix;
     public $searchResults = [];
     public $errorClass = [];
     // public $collectionsType = [];
@@ -69,8 +71,12 @@ class OrderNew extends Component
     public $salesmanBill;
 
     // public $searchTerm = '';
-    // public $searchResults = [];
     public $selectedFabric = null;
+    public $filteredCountries = [];
+    public $search;
+    public $mobileLength;
+    public $country_code;
+    public $country_id;
 
 
     
@@ -158,6 +164,27 @@ class OrderNew extends Component
 
         // Fetch Salesman Billing if exists
         $this->salesmanBill = SalesmanBilling::where('salesman_id', auth()->guard('admin')->user()->id)->first();
+    }
+
+    public function FindCountry($term){
+        $this->search = $term;
+        if (!empty($this->search)) {
+            $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->search . '%')->get();
+        }else{
+            $this->filteredCountries = [];
+        }
+    }
+
+    public function selectCountry($countryId){
+        $country = Country::find($countryId);
+        if($country){
+            $this->country_id = $country->id;
+            $this->search  = $country->title;
+            $this->country_code = $country->country_code;
+            $this->mobileLength = $country->mobile_length;
+        }
+
+        $this->filteredCountries = [];
     }
 
     
@@ -268,6 +295,11 @@ class OrderNew extends Component
 
                 // Extract customer from the first order
                 $customerFromOrder = $orders->first()->customer;
+                if($customerFromOrder){
+                    $this->prefix = $customerFromOrder->prefix ?? '';
+                    $this->name = $customerFromOrder->name ?? '';
+                    
+                }
 
                 // Add the customer to search results
                 $users->prepend($customerFromOrder);
@@ -285,6 +317,8 @@ class OrderNew extends Component
             // Reset results when the search term is empty
             $this->searchResults = [];
             $this->orders = collect();
+            $this->prefix = '';
+            $this->name = '';
         }
 
       }
@@ -793,6 +827,7 @@ class OrderNew extends Component
             $order = new Order();
             $order->order_number = $order_number;
             $order->customer_id = $user->id;
+            $order->prefix = $this->prefix;
             $order->customer_name = $this->name;
             $order->customer_email = $this->email;
             $order->billing_address = $this->billing_address . ', ' . $this->billing_landmark . ', ' . $this->billing_city . ', ' . $this->billing_state . ', ' . $this->billing_country . ' - ' . $this->billing_pin;
@@ -1027,19 +1062,19 @@ class OrderNew extends Component
                 $this->errorMessage['billing_country'] = null;
             }
             
-            if(!empty($this->billing_pin)){
-                if (strlen($this->billing_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
-                    $this->errorClass['billing_pin'] = 'border-danger';
-                    $this->errorMessage['billing_pin'] = 'Billing pin must be '.env('VALIDATE_PIN', 6).' digits';
-                } else {
-                    $this->errorClass['billing_pin'] = null;
-                    $this->errorMessage['billing_pin'] = null;
-                }
-            }else {
-                // No error for an empty shipping_pin
-                $this->errorClass['billing_pin'] = null;
-                $this->errorMessage['billing_pin'] = null;
-            }
+            // if(!empty($this->billing_pin)){
+            //     if (strlen($this->billing_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
+            //         $this->errorClass['billing_pin'] = 'border-danger';
+            //         $this->errorMessage['billing_pin'] = 'Billing pin must be '.env('VALIDATE_PIN', 6).' digits';
+            //     } else {
+            //         $this->errorClass['billing_pin'] = null;
+            //         $this->errorMessage['billing_pin'] = null;
+            //     }
+            // }else {
+            //     // No error for an empty shipping_pin
+            //     $this->errorClass['billing_pin'] = null;
+            //     $this->errorMessage['billing_pin'] = null;
+            // }
             
     
             // Validate Shipping Information
@@ -1068,19 +1103,19 @@ class OrderNew extends Component
                 $this->errorMessage['shipping_country'] = null;
             }
     
-            if (!empty($this->shipping_pin)) { // Only validate if shipping_pin is not empty
-                if (strlen($this->shipping_pin) != env('VALIDATE_PIN', 6)) { // Validate length
-                    $this->errorClass['shipping_pin'] = 'border-danger';
-                    $this->errorMessage['shipping_pin'] = 'Shipping pin must be ' . env('VALIDATE_PIN', 6) . ' digits';
-                } else {
-                    $this->errorClass['shipping_pin'] = null;
-                    $this->errorMessage['shipping_pin'] = null;
-                }
-            } else {
-                // No error for an empty shipping_pin
-                $this->errorClass['shipping_pin'] = null;
-                $this->errorMessage['shipping_pin'] = null;
-            }
+            // if (!empty($this->shipping_pin)) { // Only validate if shipping_pin is not empty
+            //     if (strlen($this->shipping_pin) != env('VALIDATE_PIN', 6)) { // Validate length
+            //         $this->errorClass['shipping_pin'] = 'border-danger';
+            //         $this->errorMessage['shipping_pin'] = 'Shipping pin must be ' . env('VALIDATE_PIN', 6) . ' digits';
+            //     } else {
+            //         $this->errorClass['shipping_pin'] = null;
+            //         $this->errorMessage['shipping_pin'] = null;
+            //     }
+            // } else {
+            //     // No error for an empty shipping_pin
+            //     $this->errorClass['shipping_pin'] = null;
+            //     $this->errorMessage['shipping_pin'] = null;
+            // }
             
     
            

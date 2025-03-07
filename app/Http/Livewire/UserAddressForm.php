@@ -13,7 +13,7 @@ class UserAddressForm extends Component
 {
     use WithFileUploads;
 
-    public $id,$name,$dob, $company_name,$employee_rank, $email, $phone, $whatsapp_no,$is_wa_same, $gst_number, $credit_limit, $credit_days,$gst_certificate_image,$image,$verified_video;
+    public $id,$prefix, $name,$dob, $company_name,$employee_rank, $email, $phone, $whatsapp_no,$is_wa_same, $gst_number, $credit_limit, $credit_days,$gst_certificate_image,$image,$verified_video;
     public $address_type, $address, $landmark, $city, $state, $country, $zip_code , $alternative_phone_number_1, $alternative_phone_number_2;
     public $billing_address;
     public $billing_landmark;
@@ -60,7 +60,7 @@ class UserAddressForm extends Component
         }
     }
 
-    public function FindCustomer($term){
+    public function FindCountry($term){
         $this->searchTerm = $term;
         if(!empty($this->searchTerm)){
             $this->filteredCountries = Country::where('title' , 'LIKE' , '%' . $this->searchTerm . '%')->get();
@@ -84,6 +84,7 @@ class UserAddressForm extends Component
     {
         // Base rules
         $rules = [
+            'prefix'=> 'required',
             'searchTerm'=>'required',
             'name' => 'required|string|max:255',
             'employee_rank' => 'nullable|string',
@@ -209,6 +210,7 @@ class UserAddressForm extends Component
             $videoPath = $this->verified_video ? $this->uploadVideo() : null;
         
             $userData = [
+                'prefix' => $this->prefix,
                 'name' => $this->name,
                 'profile_image' => $imagePath,
                 'verified_video' =>  $videoPath,

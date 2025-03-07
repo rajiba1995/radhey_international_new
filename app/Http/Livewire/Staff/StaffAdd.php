@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Hash;
 class StaffAdd extends Component
 {
     use WithFileUploads;
-    public $employee_id,$emp_code,$dob,$branch_id,$passport_issued_date,$designation, $person_name, $prof_name, $surname, $email, $mobile, $aadhaar_number, $whatsapp_no,$is_wa_same,$user_id,$passport_no,$visa_no;
+    public $employee_id,$emp_code,$dob,$branch_id,$passport_issued_date,$designation, $prefix, $person_name, $prof_name, $surname, $email, $mobile, $aadhaar_number, $whatsapp_no,$is_wa_same,$user_id,$passport_no,$visa_no;
     public $image, $passport_id_front, $passport_id_back, $passport_expiry_date;
     public $account_holder_name, $bank_name, $branch_name, $account_no, $ifsc, $monthly_salary, $daily_salary, $travel_allowance;
     public $address, $landmark, $state, $city, $pincode, $country;
@@ -71,7 +71,7 @@ class StaffAdd extends Component
     //     $this->showRequiredFields  = $this->selectedCountryId == 1;
     // }
 
-    public function FindCustomer($term){
+    public function FindCountry($term){
         $this->searchTerm = $term;
         if (!empty($this->searchTerm)) {
             $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->searchTerm . '%')->get();
@@ -105,6 +105,7 @@ class StaffAdd extends Component
             'branch_id'   => 'required',
             'designation' => 'required',
             'emp_code' => 'required',
+            'prefix' => 'required',
             'person_name' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
             'dob' => 'required|date|before_or_equal:today',
@@ -228,6 +229,7 @@ class StaffAdd extends Component
                 'country_id'=> $this->selectedCountryId,
                 'user_type' => 0, //for Staff
                 'designation' => $this->designation ?? "",
+                'prefix'    => $this->prefix,
                 'name' => ucwords($this->person_name) ?? "",
                 'email' => $this->email ?? "",
                 'country_code' => $this->country_code ?? '',
@@ -246,8 +248,8 @@ class StaffAdd extends Component
                 'emergency_mobile' => $this->emergency_mobile ?? "",
                 'emergency_whatsapp' => $this->emergency_whatsapp ?? "",
                 'emergency_address' => $this->emergency_address ?? "",
-                'alternative_phone_number_1,' => $this->alternative_phone_number_1,
-                'alternative_phone_number_2' => $this->alternative_phone_number_2
+                'alternative_phone_number_1' => $this->alternative_phone_number_1 ?? "",
+                'alternative_phone_number_2' => $this->alternative_phone_number_2 ?? ""
             ]);
             
 

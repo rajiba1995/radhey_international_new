@@ -110,8 +110,16 @@
                     <div class="mb-3 col-md-3">
                         <label for="person_name" class="form-label">Person Name <span
                                 class="text-danger">*</span></label>
-                        <input type="text" wire:model="person_name" id="person_name"
-                            class="form-control form-control-sm border border-1 p-2" placeholder="Enter Person Name">
+                        <div class="input-group">
+                            <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                <option value="" selected hidden>Prefix</option>
+                                @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
+                                    <option value="{{$prefix}}">{{ $prefix }}</option>
+                                @endforeach
+                            </select>
+                            <input type="text" wire:model="person_name" id="person_name"
+                                class="form-control form-control-sm border border-1 p-2" placeholder="Enter Person Name">
+                        </div>
                         @error('person_name')
                         <div class="text-danger">{{ $message }}</div>
                         @enderror

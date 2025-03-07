@@ -80,7 +80,7 @@
                                         <td>{{ $purchaseOrder->total_price }}
                                         </td>
                                         <td>
-                                            {{ $purchaseOrder->supplier->name }}
+                                            {{ $purchaseOrder->supplier? $purchaseOrder->supplier->name : "" }}
                                         </td>
                                         <td>
                                             @if ($purchaseOrder->status == 0)

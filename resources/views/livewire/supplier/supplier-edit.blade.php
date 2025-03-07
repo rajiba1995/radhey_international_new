@@ -17,12 +17,33 @@
     <div class="card card-body">
         <div class="card card-plain h-100">
             <div class="card-header pb-0 p-3">
-                <div class="row mt-2">
+                <div class="row mt-2 justify-content-between">
                      {{-- Supplier Information --}}
-                     <div class="col-md-8 d-flex align-items-center">
+                     <div class="col-md-8">
                         <h6 class="badge bg-danger custom_danger_badge">Basic Information</h6>
                     </div>
-                    
+                    <div class="col-md-4">
+                        <div class="position-relative">
+                            <input type="text" wire:keyup="FindCountry($event.target.value)"
+                               wire:model.debounce.500ms="searchTerm"
+                                class="form-control form-control-sm border border-1 customer_input"
+                                placeholder="Search By Country">
+                            @error('searchTerm')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                           @if(!empty($filteredCountries))
+                            <div id="fetch_customer_details" class="dropdown-menu show w-100"
+                                style="max-height: 200px; overflow-y: auto;">
+                                @foreach ($filteredCountries as $countries)
+                                <button class="dropdown-item" type="button"
+                                    wire:click="selectCountry({{ $countries->id }})">
+                                     {{$countries->title}}({{$countries->country_code}})
+                                </button>
+                                @endforeach
+                            </div>
+                            @endif 
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -32,7 +53,18 @@
                         <!-- Supplier Details -->
                         <div class="mb-3 col-md-6">
                             <label for="name" class="form-label">Supplier Name <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="name" id="name" class="form-control form-control-sm border border-2 p-2" placeholder="Enter supplier name">
+                            <div class="input-group">
+                                <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                    <option value="" selected hidden>Prefix</option>
+                                    @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
+                                        <option value="{{$prefix}}">{{ $prefix }}</option>
+                                    @endforeach
+                                </select>
+                               <input type="text" wire:model="name" id="name" class="form-control form-control-sm border border-2 p-2" placeholder="Enter supplier name">
+                            </div>
+                            @error('prefix')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                             @error('name')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
@@ -45,18 +77,23 @@
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="mb-3 col-md-6">
+                        <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">Phone Number <span class="text-danger">*</span></label>
-                            <input type="text" id="mobile" wire:model="mobile" class="form-control form-control-sm border border-2 p-2" placeholder="Enter mobile number">
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly >
+                                <input type="text" id="mobile" wire:model="mobile" class="form-control form-control-sm border border-2 p-2" placeholder="Enter mobile number" maxLength={{$mobileLength}}>
+                            </div>
                             @error('mobile')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="mb-3 col-md-6">
+                        <div class="mb-3 col-md-3">
                             <label for="is_wa_same" class="form-label">WhatsApp number <span class="text-danger">*</span></label>
                                 <div class="align-items-center">
-                                <input type="text" wire:model="whatsapp_no" id="whatsapp_no" class="form-control form-control-sm border border-2 p-2 me-2" placeholder="Enter WhatsApp number" @if ($is_wa_same) disabled @endif>
-
+                                    <div class="extention-group">
+                                        <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly >
+                                        <input type="text" wire:model="whatsapp_no" id="whatsapp_no" class="form-control form-control-sm border border-2 p-2 me-2" placeholder="Enter WhatsApp number" @if ($is_wa_same) disabled @endif maxLength={{$mobileLength}}>
+                                    </div>
                                 <div class="custon-input-group">
                                     <input type="checkbox" id="is_wa_same" wire:change="SameAsMobile" value="0" @if ($is_wa_same) checked @endif>
                                     <label for="is_wa_same" class="form-check-label ms-2" >Same as Mobile</label>
@@ -64,6 +101,28 @@
                             </div>
                             @error('whatsapp_no')
                                 <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3 col-md-3">
+                            <label for="mobile" class="form-label">alternative phone number 1 </label>
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                            </div>
+                            @error('alternative_phone_number_1')
+                            <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3 col-md-3">
+                            <label for="mobile" class="form-label">alternative phone number 2 </label>
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                            </div>
+                            @error('alternative_phone_number_2')
+                            <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
