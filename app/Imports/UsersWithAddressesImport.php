@@ -56,8 +56,8 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
                     'employee_rank' => $row['employee_rank'] ?? null,
                     'country_code' => $row['country_code'] ?? null,
                     'phone' => $row['phone'] ?? null,
-                    'phone_one' => $row['phone_one'] ?? null,
-                    'phone_two' => $row['phone_two'] ?? null,
+                    'alternative_phone_number_1' => $row['alternative_phone_number_1'] ?? null,
+                    'alternative_phone_number_2' => $row['alternative_phone_number_2'] ?? null,
                     'whatsapp_no' => $row['whatsapp_no'] ?? null,
                     'image' => $row['image'] ?? null,
                 ]
