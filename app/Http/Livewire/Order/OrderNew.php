@@ -19,6 +19,7 @@ use App\Models\SalesmanBilling;
 use App\Models\OrderMeasurement;
 use App\Models\Payment;
 use App\Models\Country;
+use App\Models\BusinessType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
@@ -39,7 +40,7 @@ class OrderNew extends Component
 
     public $customers = null;
     public $orders = null;
-    public $is_wa_same, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone;
+    public $is_wa_same, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1,$alternative_phone_number_2;
     public $billing_address,$billing_landmark,$billing_city,$billing_state,$billing_country,$billing_pin;
 
     public $is_billing_shipping_same;
@@ -77,9 +78,9 @@ class OrderNew extends Component
     public $mobileLength;
     public $country_code;
     public $country_id;
+    public $Business_type;
+    public $selectedBusinessType;
 
-
-    
 
     public function mount()
     {
@@ -130,7 +131,8 @@ class OrderNew extends Component
                 }
 
                 // Fetch latest order
-                $this->orders = Order::where('customer_id', $customer->id)
+                $this->orders = Order::with(['customer:id,prefix,name'])
+                    ->where('customer_id', $customer->id)
                     ->latest()
                     ->take(1)
                     ->get();
@@ -164,6 +166,8 @@ class OrderNew extends Component
 
         // Fetch Salesman Billing if exists
         $this->salesmanBill = SalesmanBilling::where('salesman_id', auth()->guard('admin')->user()->id)->first();
+        $this->Business_type = BusinessType::all();
+        $this->selectedBusinessType = null;
     }
 
     public function FindCountry($term){
@@ -232,7 +236,7 @@ class OrderNew extends Component
     }
 
     // Define rules for validation
-    protected $rules = [
+    protected $rules = [        
         'items.*.collection' => 'required|string',
         'items.*.category' => 'required|string',
         'items.*.searchproduct' => 'required|string',
@@ -296,14 +300,11 @@ class OrderNew extends Component
                 // Extract customer from the first order
                 $customerFromOrder = $orders->first()->customer;
                 if($customerFromOrder){
-                    $this->prefix = $customerFromOrder->prefix ?? '';
-                    $this->name = $customerFromOrder->name ?? '';
-                    
+                    $this->prefix = $customerFromOrder->prefix ?? '';  
                 }
 
                 // Add the customer to search results
                 $users->prepend($customerFromOrder);
-
                 session()->flash('orders-found', 'Orders found for this customer.');
             } else {
                 $this->orders = collect(); // No orders found
@@ -318,7 +319,7 @@ class OrderNew extends Component
             $this->searchResults = [];
             $this->orders = collect();
             $this->prefix = '';
-            $this->name = '';
+           
         }
 
       }
@@ -668,6 +669,7 @@ class OrderNew extends Component
 
     public function save()
     {
+        
         $this->validate();
         DB::beginTransaction(); // Begin transaction
         
@@ -686,13 +688,19 @@ class OrderNew extends Component
              // If customer does not exist, create a new user
             if (!$user) {
                 $user = User::create([
+                    'prefix' => $this->prefix,
                     'name' => $this->name,
+                    'business_type' => $this->selectedBusinessType,
                     'company_name' => $this->company_name,
                     'employee_rank' => $this->employee_rank,
                     'email' => $this->email,
                     'dob' => $this->dob,
+                    'country_id' => $this->country_id,
                     'phone' => $this->phone,
                     'whatsapp_no' => $this->whatsapp_no,
+                    'country_code' => $this->country_code,
+                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    'alternative_phone_number_2' => $this->alternative_phone_number_2,
                     'user_type' => 1, // Customer
                 ]);
              } 
@@ -929,6 +937,7 @@ class OrderNew extends Component
         if ($customer) {
             // Populate customer details
             $this->customer_id = $customer->id;
+            $this->prefix = $customer->prefix;
             $this->name = $customer->name;
             $this->company_name = $customer->company_name;
             $this->employee_rank = $customer->employee_rank;
@@ -989,7 +998,36 @@ class OrderNew extends Component
             $this->activeTab = $value;
         }
         if ($value > 1) {
-            // Validate Name
+
+            // Validate Business type
+            if(empty($this->selectedBusinessType)){
+                $this->errorClass['selectedBusinessType'] = 'border-danger';
+                $this->errorMessage['selectedBusinessType'] = 'Please select your business type';
+
+            }else{
+                $this->errorClass['selectedBusinessType'] = null;
+                $this->errorMessage['selectedBusinessType'] = null;
+            }
+
+            // validate country
+            if(empty($this->search)){
+                $this->errorClass['search'] = 'border-danger';
+                $this->errorMessage['search'] = 'Please Search a country first';
+            }else{
+                $this->errorClass['search']  = null;
+                $this->errorMessage['search']  = null;
+            }
+
+            // Validate prefix
+            if (empty($this->prefix)) {
+                $this->errorClass['prefix'] = 'border-danger';
+                $this->errorMessage['prefix'] = 'Please choose a prefix';
+            } else {
+                $this->errorClass['prefix'] = null;
+                $this->errorMessage['prefix'] = null;
+            }
+
+            //validate name
             if (empty($this->name)) {
                 $this->errorClass['name'] = 'border-danger';
                 $this->errorMessage['name'] = 'Please enter customer name';
@@ -1014,9 +1052,9 @@ class OrderNew extends Component
             if (empty($this->phone)) {
                 $this->errorClass['phone'] = 'border-danger';
                 $this->errorMessage['phone'] = 'Please enter customer phone number';
-            } elseif (!preg_match('/^\+?\d{' . env('VALIDATE_MOBILE', 8) . ',}$/', $this->phone)) {
+            } elseif (!preg_match('/^\d{'. $this->mobileLength .'}$/', $this->phone)) {
                 $this->errorClass['phone'] = 'border-danger';
-                $this->errorMessage['phone'] = 'Phone number must be ' . env('VALIDATE_MOBILE', 8) . ' or more digits long';
+                $this->errorMessage['phone'] = "Phone number must be exactly ".$this->mobileLength." digits";
             } else {
                 $this->errorClass['phone'] = null;
                 $this->errorMessage['phone'] = null;
@@ -1026,12 +1064,31 @@ class OrderNew extends Component
            if (empty($this->whatsapp_no)) {
                 $this->errorClass['whatsapp_no'] = 'border-danger';
                 $this->errorMessage['whatsapp_no'] = 'Please enter WhatsApp number';
-            } elseif (!preg_match('/^\+?\d{' . env('VALIDATE_WHATSAPP', 8) . ',}$/', $this->whatsapp_no)) {
+            } elseif (!preg_match('/^\d{'. $this->mobileLength .'}$/', $this->whatsapp_no)) {
                 $this->errorClass['whatsapp_no'] = 'border-danger';
-                $this->errorMessage['whatsapp_no'] = 'WhatsApp number must be ' . env('VALIDATE_WHATSAPP', 8) . ' or more digits long';
+                $this->errorMessage['whatsapp_no'] = 'WhatsApp number must be exactly ' . $this->mobileLength . ' digits';
             } else {
                 $this->errorClass['whatsapp_no'] = null;
                 $this->errorMessage['whatsapp_no'] = null;
+            }
+
+            // validate alternative number 1
+          if (!empty($this->alternative_phone_number_1) &&  !preg_match('/^\d{'. $this->mobileLength .'}$/', $this->alternative_phone_number_1)) {
+                $this->errorClass['alternative_phone_number_1'] = 'border-danger';
+                $this->errorMessage['alternative_phone_number_1'] = 'Alternative number 1 must be exactly ' . $this->mobileLength . ' digits';
+            } else {
+                $this->errorClass['alternative_phone_number_1'] = null;
+                $this->errorMessage['alternative_phone_number_1'] = null;
+            }
+
+            // validate alternative number 2
+           
+            if (!empty($this->alternative_phone_number_2) &&  !preg_match('/^\d{'. $this->mobileLength .'}$/', $this->alternative_phone_number_2)) {
+                $this->errorClass['alternative_phone_number_2'] = 'border-danger';
+                $this->errorMessage['alternative_phone_number_2'] = 'Alternative number 2 must be exactly ' . $this->mobileLength . ' digits';
+            } else {
+                $this->errorClass['alternative_phone_number_2'] = null;
+                $this->errorMessage['alternative_phone_number_2'] = null;
             }
 
     

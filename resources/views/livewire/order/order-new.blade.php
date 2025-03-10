@@ -75,9 +75,9 @@
                                    wire:model.debounce.500ms="search"
                                     class="form-control form-control-sm border border-1 customer_input"
                                     placeholder="Search By Country">
-                                @error('search')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
+                                    @if(isset($errorMessage['search']))
+                                    <div class="text-danger">{{ $errorMessage['search'] }}</div>
+                                    @endif
                                @if(!empty($filteredCountries))
                                 <div id="fetch_customer_details" class="dropdown-menu show w-100"
                                     style="max-height: 200px; overflow-y: auto;">
@@ -99,13 +99,13 @@
                             <select wire:model="selectedBusinessType" class="form-select me-2 form-control"
                                 aria-label="Default select example">
                                 <option selected hidden>Select Domain</option>
-                                {{-- @foreach ($Business_type as $domain)
+                                @foreach ($Business_type as $domain)
                                 <option value="{{$domain->id}}">{{$domain->title}}</option>
-                                @endforeach --}}
+                                @endforeach
                             </select>
-                            @error('selectedBusinessType')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                            @if(isset($errorMessage['selectedBusinessType']))
+                            <div class="text-danger">{{ $errorMessage['selectedBusinessType'] }}</div>
+                            @endif
                         </div>
                     </div>
 
@@ -137,7 +137,9 @@
                             @foreach ($orders as $order)
                             <tr class="text-center">
                                 <td>{{ $order->order_number }}</td>
-                                <td>{{ $order->customer->name }}</td>
+                                <td>
+                                    {{ $order->customer ? $order->customer->prefix ." ".$order->customer->name : "" }}
+                                </td>
                                 <td>{{ $order->total_amount }}</td>
                                 <td>{{ $order->last_payment_date }}</td>
                                 <td>
@@ -160,7 +162,7 @@
                         <div class="mb-2 col-md-6">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <select wire:model.defer="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
                                     <option value="" selected hidden>Prefix</option>
                                     @foreach (App\Helpers\Helper::getNamePrefixes() as $prefixOption)
                                         <option value="{{$prefixOption}}">{{ $prefixOption }}</option>
@@ -170,6 +172,9 @@
                                     class="form-control form-control-sm border border-1 p-2 {{ $errorClass['name'] ?? '' }}"
                                     placeholder="Enter customer name">
                             </div>
+                            @if(isset($errorMessage['prefix']))
+                            <div class="text-danger">{{ $errorMessage['prefix'] }}</div>
+                            @endif
                             @if(isset($errorMessage['name']))
                             <div class="text-danger">{{ $errorMessage['name'] }}</div>
                             @endif
@@ -245,9 +250,9 @@
                                 <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
                                 <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
                             </div>
-                            @error('alternative_phone_number_1')
-                            <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                            @if(isset($errorMessage['alternative_phone_number_1']))
+                            <div class="text-danger">{{ $errorMessage['alternative_phone_number_1'] }}</div>
+                            @endif
                         </div>
 
                         <div class="mb-3 col-md-3">
@@ -256,9 +261,9 @@
                                 <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
                                 <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
                             </div>
-                            @error('alternative_phone_number_2')
-                            <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                            @if(isset($errorMessage['alternative_phone_number_2']))
+                            <div class="text-danger">{{ $errorMessage['alternative_phone_number_2'] }}</div>
+                            @endif
                         </div>
                     </div>
 

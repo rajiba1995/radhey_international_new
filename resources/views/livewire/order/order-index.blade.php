@@ -28,6 +28,7 @@
                 <div class="col-auto">
                     <p class="text-sm font-weight-bold">{{count($orders)}} Items</p>
                 </div>
+                
                 <div class="col-auto">
                     <div class="row g-3 align-items-center">
                         <div class="col-auto mt-0">
@@ -97,7 +98,7 @@
                                 </td>
                                 <td>
                                     <p class="small text-muted mb-1">
-                                        <span>Name: <strong>{{$order->customer_name}}</strong> </span>
+                                        <span>Name: <strong>{{$order->prefix ." ". $order->customer_name}}</strong> </span>
                                         <br>
                                         <span>Mobile : <strong>{{$order->customer?$order->customer->phone:""}}</strong> </span> <br>
                                         <span>WhatsApp : <strong>{{$order->customer?$order->customer->whatsapp_no:""}}</strong> </span>

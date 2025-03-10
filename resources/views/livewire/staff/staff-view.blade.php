@@ -33,19 +33,44 @@
                                 <img src="{{ asset('assets') }}/img/dumy_user.png" alt="Profile Image" class="rounded-circle me-3" style="width: 100px; height: 100px; object-fit: cover;">
                                 @endif
                                 <div class="d-flex flex-column">
-                                    <h6 class="mb-0">{{ $staff->name }}</h6>
+                                    <h6 class="mb-0">{{ $staff->prefix ." ".$staff->name }}</h6>
+                                    <p class="mb-1"><strong>Branch:</strong> {{ ucwords($staff->branch->name ?? 'N/A') }}</p>
                                     <p class="mb-1"><strong>Designation:</strong> {{ ucwords($staff->designationDetails->name ?? 'N/A') }}</p>
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between">
+                            {{-- <div class="d-flex justify-content-between">
                                 <h6 class="mb-1">Contact Info</h6>
+                            </div> --}}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-1"> Contact Info</h6>
+                                    <p class="mb-1"><i class="fas fa-phone" style="font-size: 14px; color: #6c757d;"></i> {{ $staff->phone }}</p>
+                                    <p class="mb-1"><i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i> {{ $staff->whatsapp_no }}</p>
+                                    <p class="mb-1"> <i class="fas fa-mobile-alt"></i> {{ $staff->alternative_phone_number_1 }}</p>
+                                    <p class="mb-1"> <i class="fas fa-mobile-alt"></i> {{ $staff->alternative_phone_number_2 }}</p>
+                                    @if (isset($staff->address) && ($staff->address->address || $staff->address->city))
+                                      <p class="mb-1"><i class="fas fa-map-marker-alt" style="font-size: 14px; color: #6c757d;"></i> {{ $staff->address->address ?? 'N/A' }}, {{ $staff->address->city ?? 'N/A' }}</p>  
+                                    @endif
+                                    <p class="mb-1">  <i class="fas fa-calendar-alt"></i> {{ $staff->dob }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="mb-1">Emergency Contact Info</h6>
+                                    <p class="mb-1"><i class="fas fa-user-circle" style="font-size: 14px; color: #007bff;"></i> 
+                                        <strong>Name:</strong> {{ $staff->emergency_contact_person ?? 'N/A' }}</p>
+                                    
+                                    <p class="mb-1"><i class="fas fa-phone-alt" style="font-size: 14px; color: #dc3545;"></i> 
+                                        <strong>Contact:</strong> {{ $staff->emergency_mobile ?? 'N/A' }}</p>
+                                    
+                                    <p class="mb-1"><i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i> 
+                                        <strong>WhatsApp:</strong> {{ $staff->emergency_whatsapp ?? 'N/A' }}</p>
+                    
+                                    <p class="mb-1"><i class="fas fa-map-marker-alt" style="font-size: 14px; color: #6c757d;"></i> 
+                                        <strong>Address:</strong> {{ $staff->emergency_address ?? 'N/A' }}</p>
+
+                                </div>
                             </div>
-                            <p class="mb-1"><i class="fas fa-phone" style="font-size: 14px; color: #6c757d;"></i> {{ $staff->phone }}</p>
-                            <p class="mb-1"><i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i> {{ $staff->whatsapp_no }}</p>
-                            @if (isset($staff->address) && ($staff->address->address || $staff->address->city))
-                              <p class="mb-1"><i class="fas fa-map-marker-alt" style="font-size: 14px; color: #6c757d;"></i> {{ $staff->address->address ?? 'N/A' }}, {{ $staff->address->city ?? 'N/A' }}</p>  
-                            @endif
+                            
                         </div>
                     </div>
 

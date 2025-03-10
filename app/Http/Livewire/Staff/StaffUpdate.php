@@ -79,7 +79,7 @@ class StaffUpdate extends Component
             $this->emergency_mobile  = $this->staff->emergency_mobile;
             $this->emergency_whatsapp  = $this->staff->emergency_whatsapp;
             $this->emergency_address  = $this->staff->emergency_address;
-            $this->same_as_contact = ($this->staff->emergency_mobile == $this->staff->emergency_whatsapp) ? 1:0;
+            $this->same_as_contact = (!empty($this->staff->emergency_mobile) && !empty($this->staff->emergency_whatsapp) && $this->staff->emergency_mobile == $this->staff->emergency_whatsapp) ? 1 : 0;
             $this->password = $this->staff->password;
             // Bank Information
             $this->account_holder_name = $this->staff->bank->account_holder_name;
@@ -138,6 +138,9 @@ class StaffUpdate extends Component
         $isIndia = $this->selectedCountryId == 76;
         $this->validate([
             'designation' => 'required',
+            'prof_name' => 'required',
+            'surname'  => 'required',
+            'dob'  => 'required',
             'person_name' => 'required|string|max:255',
             'email' => 'nullable|email',
             'password' => 'required',
@@ -283,7 +286,7 @@ class StaffUpdate extends Component
     } catch (\Exception $e) {
         // If any error occurs, catch it and flash an error message
         session()->flash('error', 'There was an error while updating the staff: ' . $e->getMessage());
-        // dd($e->getMessage());
+        dd($e->getMessage());
         // Optionally log the error for debugging purposes
         \Log::error('Staff update failed: ' . $e->getMessage());
 

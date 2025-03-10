@@ -16,6 +16,7 @@ use App\Models\Ledger;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\SalesmanBilling;
+use App\Models\Country;
 use Illuminate\Support\Facades\DB;
 use Auth;
 
@@ -36,7 +37,8 @@ class OrderEdit extends Component
     
     public $customers = null;
     public $orders;
-    public $is_wa_same, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone;
+    public $is_wa_same, $prefix, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1, $alternative_phone_number_2;
+    
     public $order_number, $billing_address,$billing_landmark,$billing_city,$billing_state,$billing_country,$billing_pin;
 
     public $is_billing_shipping_same;
@@ -54,9 +56,14 @@ class OrderEdit extends Component
 
     // salesmanBill
     public $salesmanBill;
+    public $mobileLength;
+    public $selectedCountryId;
+    public $filteredCountries;
+    public $Business_type;
+    public $search;
 
 
-    
+
 
     public function mount($id)
     {
@@ -164,7 +171,9 @@ class OrderEdit extends Component
             }
         }
 
+        $this->search = Country::where('id',$this->orders->customer->country_id)->pluck('title');
         $this->customer_id = $this->orders->customer_id;
+        $this->prefix = $this->orders->prefix;
         $this->name = $this->orders->customer_name;
         $this->company_name = $this->orders->customer->company_name;
         $this->employee_rank = $this->orders->customer->employee_rank;
@@ -172,7 +181,7 @@ class OrderEdit extends Component
         $this->dob = $this->orders->customer->dob;
         $this->phone = $this->orders->customer->phone;
         $this->whatsapp_no = $this->orders->customer->whatsapp_no;
-       
+        $this->selectedCountryId = $this->orders->customer->country_id;
 
         $this->customers = User::where('user_type', 1)->where('status', 1)->orderBy('name', 'ASC')->get();
         $this->categories = Category::where('status', 1)->orderBy('title', 'ASC')->get();
@@ -718,6 +727,8 @@ class OrderEdit extends Component
                     'phone' => $this->phone,
                     'whatsapp_no' => $this->whatsapp_no,
                     'user_type' => 1, // Customer
+                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    'alternative_phone_number_2' => $this->alternative_phone_number_2
                 ]);
             } else {
                 // Update existing user
@@ -729,6 +740,8 @@ class OrderEdit extends Component
                     'dob' => $this->dob,
                     'phone' => $this->phone,
                     'whatsapp_no' => $this->whatsapp_no,
+                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    'alternative_phone_number_2' => $this->alternative_phone_number_2,
                     'user_type' => 1, // Customer (if needed, or update as appropriate)
                 ]);
             }
@@ -787,6 +800,7 @@ class OrderEdit extends Component
             }else{
                 $previousPaidAmount = $order->paid_amount;
                 $order->customer_id = $user->id;
+                $order->prefix = $this->prefix;
                 $order->customer_name = $this->name;
                 $order->customer_email = $this->email;
                 $order->billing_address = $billingadd . ', ' . $billingLandmark . ', ' . $billingCity . ', ' . $billingState . ', ' . $billingCountry . ' - ' . $billingPin;
@@ -880,7 +894,7 @@ class OrderEdit extends Component
             DB::rollBack();
             \Log::error('Error updating order: ' . $e->getMessage());
             session()->flash('error', $e->getMessage());
-            // dd($e->getMessage());
+            dd($e->getMessage());
             session()->flash('error', '🚨 Something went wrong. The operation has been rolled back.');
         }
     }

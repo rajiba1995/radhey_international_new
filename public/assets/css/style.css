@@ -1082,5 +1082,9 @@ table td h6.text-sm {
     margin-right: 4px;
 } 
 
+.checkbox-label-container{
+    pointer-events: none;
+}
+
 
 

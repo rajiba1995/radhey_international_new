@@ -152,7 +152,7 @@ class CustomerEdit extends Component
             'image' => $this->image instanceof \Illuminate\Http\UploadedFile ? 'nullable|mimes:jpg,jpeg,png,gif' : 'nullable',
             'verified_video' => $this->verified_video instanceof \Illuminate\Http\UploadedFile ? 'nullable|mimes:mp4,mov,avi,wmv' : 'nullable',
             'company_name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:users,email,' . $this->id,
+            'email' => 'nullable',
             'dob'=> 'required|date',
             'phone' => [
                 'required',
