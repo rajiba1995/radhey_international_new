@@ -476,9 +476,10 @@
                                         <div class="row">
                                             @if(isset($items[$index]['measurements']) &&
                                             count($items[$index]['measurements']) > 0)
+                                            @dd($existing_measurements);
                                             @foreach ($items[$index]['measurements'] as $measurement)
+
                                             <div class="col-md-3">
-                                                {{-- {{dd($measurement)}} --}}
                                                 <label>{{ $measurement['title'] }}
                                                     <strong>[{{$measurement['short_code']}}]</strong></label>
                                                 <input type="hidden"
@@ -486,7 +487,7 @@
                                                     value="{{ $measurement['title'] }}">
                                                 <input type="text"
                                                     class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
-                                                    wire:model.defer="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
+                                                    wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value" value="{{ $measurement['title'] }}">
                                                     @error('items.' . $index . '.get_measurements.' . $measurement['id'] . '.value')
                                                         <div class="text-danger">{{ $message }}</div>
                                                     @enderror
