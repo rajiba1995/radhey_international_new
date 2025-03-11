@@ -208,8 +208,8 @@ class OrderNew extends Component
         $this->filteredCountries = [];
     }
 
-    
-    // public function searchFabrics($index)
+      
+    // public function searchFabrics($index) 
     // {
     //     // Ensure product_id exists for the given index
     //     if (!isset($this->items[$index]['product_id'])) {

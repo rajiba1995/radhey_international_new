@@ -26,10 +26,10 @@
                 </div>
                 @endif
                 {{-- @if ($activeTab==1 && $salesmanBill == null)
-                    <div class="badge bg-primary">
-                        <a href="{{ route('salesman.index') }}"> <strong>Error:</strong> Please add a bill for this user
-                            before placing the order.</a>
-                    </div>
+                <div class="badge bg-primary">
+                    <a href="{{ route('salesman.index') }}"> <strong>Error:</strong> Please add a bill for this user
+                        before placing the order.</a>
+                </div>
                 @endif --}}
             </div>
         </div>
@@ -37,7 +37,44 @@
         <div class="card-body" id="sales_order_data">
             <form wire:submit.prevent="save">
                 <div class="{{$activeTab==1?" d-block":"d-none"}}" id="tab1">
-                    <div class="row d-flex justify-content-end align-items-center mb-2">
+                    <div class="row align-items-center mb-3">
+                        {{-- Display Order by and order number --}}
+                          <!-- Ordered By Section -->
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Ordered By</strong></label>
+                            <select
+                                class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
+                                wire:change="changeSalesman($event.target.value)" wire:model="salesman">
+                                <option value="" selected hidden>Choose one..</option>
+                                <!-- Set authenticated user as default -->
+
+                                <option value="{{auth()->guard('admin')->user()->id}}" selected>
+                                    {{auth()->guard('admin')->user()->name}}
+                                </option>
+                                <!-- Fetch all salesme  n from the database -->
+                                @foreach ($salesmen as $salesmans)
+                                @if($salesmans->id != auth()->guard('admin')->user()->id)
+                                <option value="{{$salesmans->id}}">{{$salesmans->name}}</option>
+                                @endif
+                                @endforeach
+                            </select>
+                            @if(isset($errorMessage['salesman']))
+                            <div class="text-danger">{{ $errorMessage['salesman'] }}</div>
+                            @endif
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Bill Number</strong></label>
+                            <!-- Remaining Amount -->
+                            <input type="text" class="form-control form-control-sm text-center border border-1" disabled
+                                wire:model="order_number" value="{{$order_number}}">
+                            @if(isset($errorMessage['order_number']))
+                            <div class="text-danger">{{ $errorMessage['order_number'] }}</div>
+                            @endif
+                            {{-- @error('order_number')
+                               <div class="text-danger">{{ $message }}</div>
+                            @enderror --}}
+                        </div>
+
                         <!-- Search Label and Select2 -->
                         <div class="col-md-4">
                             <div class="d-flex justify-content-between">
@@ -58,7 +95,8 @@
                                     <button class="dropdown-item" type="button"
                                         wire:click="selectCustomer({{ $customer->id }})">
                                         <img src="{{ $customer->profile_image ? asset($customer->profile_image) : asset('assets/img/user.png') }}"
-                                            alt=""> {{$customer->prefix . " ". $customer->name }} ({{ $customer->phone }})
+                                            alt=""> {{$customer->prefix . " ". $customer->name }} ({{ $customer->phone
+                                        }})
                                     </button>
                                     @endforeach
                                 </div>
@@ -72,23 +110,23 @@
                             </div>
                             <div class="position-relative">
                                 <input type="text" wire:keyup="FindCountry($event.target.value)"
-                                   wire:model.debounce.500ms="search"
+                                    wire:model.debounce.500ms="search"
                                     class="form-control form-control-sm border border-1 customer_input"
                                     placeholder="Search By Country">
-                                    @if(isset($errorMessage['search']))
-                                    <div class="text-danger">{{ $errorMessage['search'] }}</div>
-                                    @endif
-                               @if(!empty($filteredCountries))
+                                @if(isset($errorMessage['search']))
+                                <div class="text-danger">{{ $errorMessage['search'] }}</div>
+                                @endif
+                                @if(!empty($filteredCountries))
                                 <div id="fetch_customer_details" class="dropdown-menu show w-100"
                                     style="max-height: 200px; overflow-y: auto;">
                                     @foreach ($filteredCountries as $countries)
                                     <button class="dropdown-item" type="button"
                                         wire:click="selectCountry({{ $countries->id }})">
-                                         {{$countries->title}}({{$countries->country_code}})
+                                        {{$countries->title}}({{$countries->country_code}})
                                     </button>
                                     @endforeach
                                 </div>
-                                @endif 
+                                @endif
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -162,10 +200,11 @@
                         <div class="mb-2 col-md-6">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                <select wire:model="prefix" class="form-control form-control-sm border border-1"
+                                    style="max-width: 60px;">
                                     <option value="" selected hidden>Prefix</option>
                                     @foreach (App\Helpers\Helper::getNamePrefixes() as $prefixOption)
-                                        <option value="{{$prefixOption}}">{{ $prefixOption }}</option>
+                                    <option value="{{$prefixOption}}">{{ $prefixOption }}</option>
                                     @endforeach
                                 </select>
                                 <input type="text" wire:model="name" id="name"
@@ -204,7 +243,8 @@
 
                         <div class="mb-2 col-md-3">
                             <label for="dob" class="form-label">Date Of Birth <span class="text-danger">*</span></label>
-                            <input type="date" autocomplete="bday" wire:model="dob" id="dob" max="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
+                            <input type="date" autocomplete="bday" wire:model="dob" id="dob"
+                                max="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
                                 class="form-control form-control-sm border border-1 p-2 {{ $errorClass['dob'] ?? '' }}">
                             @if(isset($errorMessage['dob']))
                             <div class="text-danger">{{ $errorMessage['dob'] }}</div>
@@ -213,7 +253,9 @@
                         <div class="mb-2 col-md-3">
                             <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
                             <div class="extention-group">
-                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input class="input__prefix form-control form-control-sm border border-1"
+                                    wire:model="country_code" type="text" name="country_code" id="country_code"
+                                    readonly>
                                 <input type="text" wire:model="phone" id="phone"
                                     class="form-control form-control-sm border border-1 p-2 {{ $errorClass['phone'] ?? '' }}"
                                     placeholder="Enter phone number" maxLength={{ $mobileLength }}>
@@ -227,17 +269,21 @@
                             <label for="whatsapp_no" class="form-label">WhatsApp Number <span
                                     class="text-danger">*</span></label>
                             <div class="extention-group">
-                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input class="input__prefix form-control form-control-sm border border-1"
+                                    wire:model="country_code" type="text" name="country_code" id="country_code"
+                                    readonly>
                                 <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
-                                class="form-control form-control-sm border border-1 p-2 {{ $errorClass['whatsapp_no'] ?? '' }}"
-                                placeholder="Enter whatsapp number" @if($whatsapp_no)disabled @endif maxLength={{ $mobileLength }}>
+                                    class="form-control form-control-sm border border-1 p-2 {{ $errorClass['whatsapp_no'] ?? '' }}"
+                                    placeholder="Enter whatsapp number" @if($whatsapp_no)disabled @endif maxLength={{
+                                    $mobileLength }}>
                             </div>
                             @if(isset($errorMessage['whatsapp_no']))
                             <div class="text-danger">{{ $errorMessage['whatsapp_no'] }}</div>
                             @endif
                             <div class="form-check ps-0">
                                 <input type="checkbox" id="is_wa_same" wire:change="SameAsMobile"
-                                    class="form-check-input" value="0" wire:model="is_wa_same" @if($is_wa_same) checked @endif>
+                                    class="form-check-input" value="0" wire:model="is_wa_same" @if($is_wa_same) checked
+                                    @endif>
                                 <label for="is_wa_same" class="form-check-label font-sm text-danger"><small>Same as
                                         Phone Number</small></label>
                             </div>
@@ -247,8 +293,12 @@
                         <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">alternative phone number 1 </label>
                             <div class="extention-group">
-                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
-                                <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                                <input class="input__prefix form-control form-control-sm border border-1"
+                                    wire:model="country_code" type="text" name="country_code" id="country_code"
+                                    readonly>
+                                <input type="text" wire:model="alternative_phone_number_1"
+                                    class="form-control form-control-sm border border-1 p-2"
+                                    placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
                             </div>
                             @if(isset($errorMessage['alternative_phone_number_1']))
                             <div class="text-danger">{{ $errorMessage['alternative_phone_number_1'] }}</div>
@@ -258,8 +308,12 @@
                         <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">alternative phone number 2 </label>
                             <div class="extention-group">
-                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
-                                <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                                <input class="input__prefix form-control form-control-sm border border-1"
+                                    wire:model="country_code" type="text" name="country_code" id="country_code"
+                                    readonly>
+                                <input type="text" wire:model="alternative_phone_number_2"
+                                    class="form-control form-control-sm border border-1 p-2"
+                                    placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
                             </div>
                             @if(isset($errorMessage['alternative_phone_number_2']))
                             <div class="text-danger">{{ $errorMessage['alternative_phone_number_2'] }}</div>
@@ -551,122 +605,120 @@
                             @endif
                             <!-- Catalogue end -->
                         </div>
-                            {{-- Append Measurements data --}}
-                            @if(isset($this->items[$index]['product_id']) && $items[$index]['collection'] == 1)
+                        {{-- Append Measurements data --}}
+                        @if(isset($this->items[$index]['product_id']) && $items[$index]['collection'] == 1)
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
+                                <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
                                 <div class="row">
-                                    <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
-                                        <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
-                                        <div class="row">
-                                            @if(isset($items[$index]['measurements']) &&
-                                            count($items[$index]['measurements']) > 0)
-                                            @foreach ($items[$index]['measurements'] as $measurement)
-
-                                            <div class="col-md-3">
-                                                <label>{{ $measurement['title'] }}
-                                                    <strong>[{{$measurement['short_code']}}]</strong></label>
-                                                <input type="hidden"
-                                                    wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.title"
-                                                    value="{{ $measurement['title'] }}">
-                                                <input type="text"
-                                                    class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
-                                                    wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value" value="{{ $measurement['title'] }}">
-                                                    @error('items.' . $index . '.get_measurements.' . $measurement['id'] . '.value')
-                                                        <div class="text-danger">{{ $message }}</div>
-                                                    @enderror
-                                            </div>
-                                            @endforeach
-                                            @endif
-                                            @if (session()->has('measurements_error.' . $index))
-                                            <div class="alert alert-danger">
-                                                {{ session('measurements_error.' . $index) }}
-                                            </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-2">
-                                        <label class="form-label"><strong>Fabric</strong></label>
-                                        <input type="text" wire:model="items.{{ $index }}.searchTerm"
-                                            wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"
-                                            placeholder="Search by fabric name" id="searchFabric_{{ $index }}">
-                                        @error("items.". $index .".searchTerm")
-                                            <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-
-                                        @if(!empty($items[$index]['searchResults']))
-                                        <div class="dropdown-menu show w-100" style="max-height: 187px; overflow-y: auto;">
-                                            @foreach ($items[$index]['searchResults'] as $fabric)
-                                            <button class="dropdown-item fabric_dropdown_item" type="button"
-                                                wire:click="selectFabric({{ $fabric->id }}, {{ $index }})">
-                                                {{ $fabric->title }}
-                                            </button>
-                                            @endforeach
-                                        </div>
-                                        @endif
-                                    </div>
-                                    <div class="col-12 col-md-2"></div>
-                                    <div class="col-12 col-md-2">
-                                        <div class="d-flex align-items-center gap-2 justify-content-end">
-                                            <!-- Price Input -->
-                                            <div>
-                                                <label class="form-label"><strong>Price</strong></label>
-                                                <input type="text"
-                                                    wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
-                                                    wire:model="items.{{ $index }}.price" class="form-control form-control-sm border border-1 customer_input text-center 
-                                                            @if(session()->has('errorPrice.' . $index)) border-danger @endif 
-                                                            @error('items.' . $index . '.price') border-danger  @enderror"
-                                                    placeholder="Enter Price">
-                                            </div>
-                                            <div>
-                                                <!-- Delete Button -->
-                                                <button type="button" class="btn btn-danger btn-sm danger_btn"
-                                                    wire:click="removeItem({{ $index }})">
-                                                    <span class="material-icons">delete</span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Error Messages -->
-                                        @if(session()->has('errorPrice.' . $index))
-                                        <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
-                                        @endif
-
-                                        @error('items.' . $index . '.price')
+                                    @if(isset($items[$index]['measurements']) &&
+                                    count($items[$index]['measurements']) > 0)
+                                    @foreach ($items[$index]['measurements'] as $measurement)
+                                    <div class="col-md-3">
+                                        {{-- {{dd($measurement)}} --}}
+                                        <label>{{ $measurement['title'] }}
+                                            <strong>[{{$measurement['short_code']}}]</strong></label>
+                                        <input type="hidden"
+                                            wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.title"
+                                            value="{{ $measurement['title'] }}">
+                                        <input type="text"
+                                            class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
+                                            wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
+                                        @error('items.' . $index . '.get_measurements.' .$measurement['id'])
                                         <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                     </div>
+                                    @endforeach
+                                    @endif
+                                    @if (session()->has('measurements_error.' . $index))
+                                    <div class="alert alert-danger">
+                                        {{ session('measurements_error.' . $index) }}
+                                    </div>
+                                    @endif
                                 </div>
-                            @else
-                                <div class="col-12 col-md-2 offset-md-10 mb-2">
-                                    <div class="d-flex align-items-center gap-2 justify-content-end">
-                                        <div>
-                                            <!-- Price Input -->
-                                            <label class="form-label"><strong>Price</strong></label>
-                                            <input type="text"
-                                                wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
-                                                wire:model="items.{{ $index }}.price" class="form-control form-control-sm border border-1 customer_input text-center 
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <label class="form-label"><strong>Fabric</strong></label>
+                                <input type="text" wire:model="items.{{ $index }}.searchTerm"
+                                    wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"
+                                    placeholder="Search by fabric name" id="searchFabric_{{ $index }}">
+                                @error("items.". $index .".searchTerm")
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
+
+                                @if(!empty($items[$index]['searchResults']))
+                                <div class="dropdown-menu show w-100" style="max-height: 187px; overflow-y: auto;">
+                                    @foreach ($items[$index]['searchResults'] as $fabric)
+                                    <button class="dropdown-item fabric_dropdown_item" type="button"
+                                        wire:click="selectFabric({{ $fabric->id }}, {{ $index }})">
+                                        {{ $fabric->title }}
+                                    </button>
+                                    @endforeach
+                                </div>
+                                @endif
+                            </div>
+                            <div class="col-12 col-md-2"></div>
+                            <div class="col-12 col-md-2">
+                                <div class="d-flex align-items-center gap-2 justify-content-end">
+                                    <!-- Price Input -->
+                                    <div>
+                                        <label class="form-label"><strong>Price</strong></label>
+                                        <input type="text"
+                                            wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
+                                            wire:model="items.{{ $index }}.price"
+                                            class="form-control form-control-sm border border-1 customer_input text-center 
+                                                            @if(session()->has('errorPrice.' . $index)) border-danger @endif 
+                                                            @error('items.' . $index . '.price') border-danger  @enderror" placeholder="Enter Price">
+                                    </div>
+                                    <div>
+                                        <!-- Delete Button -->
+                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                            wire:click="removeItem({{ $index }})">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Error Messages -->
+                                @if(session()->has('errorPrice.' . $index))
+                                <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
+                                @endif
+
+                                @error('items.' . $index . '.price')
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        @else
+                        <div class="col-12 col-md-2 offset-md-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 justify-content-end">
+                                <div>
+                                    <!-- Price Input -->
+                                    <label class="form-label"><strong>Price</strong></label>
+                                    <input type="text" wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
+                                        wire:model="items.{{ $index }}.price" class="form-control form-control-sm border border-1 customer_input text-center 
                                                     @if(session()->has('errorPrice.' . $index)) border-danger @endif 
                                                     @error('items.' . $index . '.price') border-danger  @enderror"
-                                                placeholder="Enter Price">
-                                        </div>
-                                        <div>
-                                            <!-- Delete Button -->
-                                            <button type="button" class="btn btn-danger btn-sm danger_btn"
-                                                wire:click="removeItem({{ $index }})"><span
-                                                    class="material-icons">delete</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <!-- Error Messages -->
-                                    @if(session()->has('errorPrice.' . $index))
-                                    <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
-                                    @endif
-
-                                    @error('items.' . $index . '.price')
-                                    <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                        placeholder="Enter Price">
                                 </div>
+                                <div>
+                                    <!-- Delete Button -->
+                                    <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                        wire:click="removeItem({{ $index }})"><span class="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Error Messages -->
+                            @if(session()->has('errorPrice.' . $index))
+                            <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
                             @endif
-                            @endforeach
+
+                            @error('items.' . $index . '.price')
+                            <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        @endif
+                        @endforeach
                         <!-- Add Item Button -->
                         <div class="row align-items-end my-4">
                             <div class="col-md-8 col-12"></div>
@@ -709,8 +761,8 @@
                                                 value="{{ number_format($billing_amount, 2) }}">
                                         </td>
                                     </tr>
-                                    
-                                    <tr>
+
+                                    {{-- <tr>
                                         <td><label class="form-label"><strong>Ordered By</strong></label></td>
                                         <td>
                                             <select
@@ -719,13 +771,14 @@
                                                 <option value="" selected hidden>Choose one..</option>
                                                 <!-- Set authenticated user as default -->
 
-                                                <option value="{{auth()->guard('admin')->user()->id}}" selected>{{auth()->guard('admin')->user()->name}}
+                                                <option value="{{auth()->guard('admin')->user()->id}}" selected>
+                                                    {{auth()->guard('admin')->user()->name}}
                                                 </option>
                                                 <!-- Fetch all salesme  n from the database -->
                                                 @foreach ($salesmen as $salesmans)
-                                                    @if($salesmans->id != auth()->guard('admin')->user()->id)
-                                                    <option value="{{$salesmans->id}}">{{$salesmans->name}}</option>
-                                                    @endif
+                                                @if($salesmans->id != auth()->guard('admin')->user()->id)
+                                                <option value="{{$salesmans->id}}">{{$salesmans->name}}</option>
+                                                @endif
                                                 @endforeach
                                             </select>
                                         </td>
@@ -746,7 +799,7 @@
                                             <div class="text-danger">{{ $message }}</div>
                                         </td>
                                     </tr>
-                                    @enderror
+                                    @enderror --}}
                                 </table>
                             </div>
                             <div class="col-md-4 col-12"></div>
@@ -755,15 +808,18 @@
 
                     <div class="d-flex justify-content-end align-items-center mb-3">
                         @if($activeTab>1)
-                        <button type="button" class="btn btn-dark mx-2 btn-sm" wire:click="TabChange({{$activeTab-1}})"><i
+                        <button type="button" class="btn btn-dark mx-2 btn-sm"
+                            wire:click="TabChange({{$activeTab-1}})"><i
                                 class="material-icons text-white">chevron_left</i>Previous</button>
                         <button type="submit" class="btn btn-primary mx-2 btn-sm"><i
                                 class="material-icons text-white">add</i>Generate Order</button>
                         @endif
                         @if($activeTab==1)
-                        <button type="button" class="btn btn-sm btn-cta mx-2" wire:click="TabChange({{$activeTab+1}})">Next<i
+                        <button type="button" class="btn btn-sm btn-cta mx-2"
+                            wire:click="TabChange({{$activeTab+1}})">Next<i
                                 class="material-icons text-white">chevron_right</i></button>
                         @endif
+
                     </div>
             </form>
             <!-- Tabs content -->
@@ -772,5 +828,5 @@
     {{-- <div class="loader-container" wire:target="!FindCustomer" wire:loading>
         <div class="loader"></div>
     </div> --}}
-    
+
 </div>
