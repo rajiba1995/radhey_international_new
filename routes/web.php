@@ -20,7 +20,7 @@ use App\Http\Livewire\Tables;
 use App\Http\Livewire\{VirtualReality,CustomerIndex,DesignationWisePermissions};
 use GuzzleHttp\Middleware;
 use App\Http\Livewire\Order\{OrderIndex, OrderNew, OrderInvoice,OrderEdit,OrderView,LedgerView,AddOrderSlip,InvoiceList,CancelOrderList,InvoiceEdit};
-use App\Http\Livewire\Product\{MasterProduct,AddProduct,UpdateProduct,MasterCategory,MasterSubCategory,FabricIndex,CollectionIndex,GalleryIndex,MasterCatalogue};
+use App\Http\Livewire\Product\{MasterProduct,AddProduct,UpdateProduct,MasterCategory,MasterSubCategory,FabricIndex,CollectionIndex,GalleryIndex,MasterCatalogue,CataloguePages};
 use App\Http\Livewire\Staff\{DesignationIndex,StaffIndex,StaffAdd,StaffUpdate,StaffView,StaffTask,StaffTaskAdd,StaffCities,SalesmanBillingIndex,MasterBranch};
 use App\Http\Livewire\Expense\{ExpenseIndex,DepotExpanse,DailyExpenses,DailyCollection};
 use App\Http\Livewire\UserAddressForm; 
@@ -122,6 +122,7 @@ Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
         Route::get('/collections', CollectionIndex::class)->name('admin.collections.index')->middleware('check.permission');
         Route::get('/gallery/{product_id}', GalleryIndex::class)->name('product.gallery');
         Route::get('/catalogue', MasterCatalogue::class)->name('product.catalogue')->middleware('check.permission');
+        Route::get('/catalogue-pages/{catalogue_id}', CataloguePages::class)->name('product.catalogue.pages');
 
     });
 

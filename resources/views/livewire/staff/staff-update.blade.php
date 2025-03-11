@@ -30,7 +30,7 @@
                                 @endforeach
                             </select> --}}
                             <div class="position-relative">
-                                <input type="text" wire:keyup="FindCustomer($event.target.value)"
+                                <input type="text" wire:keyup="FindCountry($event.target.value)"
                                    wire:model.debounce.500ms="searchTerm"
                                     class="form-control form-control-sm border border-1 customer_input"
                                     placeholder="Search By Country">

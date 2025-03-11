@@ -54,7 +54,7 @@
                                     @if(isset($errorMessage['search']))
                                     <div class="text-danger">{{ $errorMessage['search'] }}</div>
                                     @endif
-                                    {{-- @if(!empty($filteredCountries))
+                                    @if(!empty($filteredCountries))
                                     <div id="fetch_customer_details" class="dropdown-menu show w-100"
                                         style="max-height: 200px; overflow-y: auto;">
                                         @foreach ($filteredCountries as $countries)
@@ -64,7 +64,7 @@
                                         </button>
                                         @endforeach
                                     </div>
-                                    @endif --}}
+                                    @endif
                                 </div>
                             </div>
                             <div>
@@ -73,9 +73,9 @@
                                 <select wire:model="selectedBusinessType" class="form-select me-2 form-control"
                                     aria-label="Default select example">
                                     <option selected hidden>Select Domain</option>
-                                    {{-- @foreach ($Business_type as $domain)
+                                    @foreach ($Business_type as $domain)
                                     <option value="{{$domain->id}}">{{$domain->title}}</option>
-                                    @endforeach --}}
+                                    @endforeach
                                 </select>
                                 @if(isset($errorMessage['selectedBusinessType']))
                                 <div class="text-danger">{{ $errorMessage['selectedBusinessType'] }}</div>
