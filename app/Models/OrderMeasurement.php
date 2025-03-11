@@ -17,5 +17,9 @@ class OrderMeasurement extends Model
     {
         return $this->belongsTo(OrderItem::class);
     }
+    public function measurement()
+{
+    return $this->belongsTo(Measurement::class, 'measurement_name', 'title'); // Ensure you use the correct foreign key
+}
 
 }

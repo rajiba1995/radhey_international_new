@@ -12,4 +12,5 @@ class Measurement extends Model
     {
         return $this->belongsTo(Subcategory::class);
     }
+   
 }
