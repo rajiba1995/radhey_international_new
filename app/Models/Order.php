@@ -37,7 +37,10 @@ class Order extends Model
     {
         return $this->hasMany(OrderMeasurement::class);
     }
-    
+    public function measurement()
+    {
+        return $this->belongsTo(Measurement::class, 'measurement_id');
+    }
     public function customer()
     {
         return $this->belongsTo(User::class, 'customer_id');

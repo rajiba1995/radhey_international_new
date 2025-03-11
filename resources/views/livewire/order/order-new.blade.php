@@ -605,46 +605,46 @@
                             @endif
                             <!-- Catalogue end -->
                         </div>
-                        {{-- Append Measurements data --}}
-                        @if(isset($this->items[$index]['product_id']) && $items[$index]['collection'] == 1)
-                        <div class="row">
-                            <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
-                                <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
+                            {{-- Append Measurements data --}}
+                            @if(isset($this->items[$index]['product_id']) && $items[$index]['collection'] == 1)
                                 <div class="row">
-                                    @if(isset($items[$index]['measurements']) &&
-                                    count($items[$index]['measurements']) > 0)
-                                    @foreach ($items[$index]['measurements'] as $measurement)
-                                    <div class="col-md-3">
-                                        {{-- {{dd($measurement)}} --}}
-                                        <label>{{ $measurement['title'] }}
-                                            <strong>[{{$measurement['short_code']}}]</strong></label>
-                                        <input type="hidden"
-                                            wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.title"
-                                            value="{{ $measurement['title'] }}">
-                                        <input type="text"
-                                            class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
-                                            wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
-                                        @error('items.' . $index . '.get_measurements.' .$measurement['id'])
-                                        <div class="text-danger">{{ $message }}</div>
+                                    <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
+                                        <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
+                                        <div class="row">
+                                            @if(isset($items[$index]['measurements']) &&
+                                            count($items[$index]['measurements']) > 0)
+                                            @foreach ($items[$index]['measurements'] as $measurement)
+                                            <div class="col-md-3">
+                                                {{-- {{dd($measurement)}} --}}
+                                                <label>{{ $measurement['title'] }}
+                                                    <strong>[{{$measurement['short_code']}}]</strong></label>
+                                                <input type="hidden"
+                                                    wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.title"
+                                                    value="{{ $measurement['title'] }}">
+                                                <input type="text"
+                                                    class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
+                                                    wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
+                                                @error('items.' . $index . '.get_measurements.' .$measurement['id'])
+                                                <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            @endforeach
+                                            @endif
+                                            @if (session()->has('measurements_error.' . $index))
+                                            <div class="alert alert-danger">
+                                                {{ session('measurements_error.' . $index) }}
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <label class="form-label"><strong>Fabric</strong></label>
+                                        <input type="text" wire:model="items.{{ $index }}.searchTerm"
+                                            wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"
+                                            placeholder="Search by fabric name" id="searchFabric_{{ $index }}">
+                                        @error("items.". $index .".searchTerm")
+                                            <div class="text-danger">{{ $message }}</div>
                                         @enderror
-                                    </div>
-                                    @endforeach
-                                    @endif
-                                    @if (session()->has('measurements_error.' . $index))
-                                    <div class="alert alert-danger">
-                                        {{ session('measurements_error.' . $index) }}
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-2">
-                                <label class="form-label"><strong>Fabric</strong></label>
-                                <input type="text" wire:model="items.{{ $index }}.searchTerm"
-                                    wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"
-                                    placeholder="Search by fabric name" id="searchFabric_{{ $index }}">
-                                @error("items.". $index .".searchTerm")
-                                <div class="text-danger">{{ $message }}</div>
-                                @enderror
 
                                 @if(!empty($items[$index]['searchResults']))
                                 <div class="dropdown-menu show w-100" style="max-height: 187px; overflow-y: auto;">
@@ -713,11 +713,11 @@
                             <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
                             @endif
 
-                            @error('items.' . $index . '.price')
-                            <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        @endif
+                                    @error('items.' . $index . '.price')
+                                    <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @endif
                         @endforeach
                         <!-- Add Item Button -->
                         <div class="row align-items-end my-4">

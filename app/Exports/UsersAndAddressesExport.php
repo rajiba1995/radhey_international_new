@@ -91,33 +91,58 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
         ->where('user_type', 1) // Adjust based on the requirement, assuming 1 means customers
         ->get();
 
-    $data = $users->flatMap(function ($user) {
-        $userType = $user->user_type == 0 ? 'Staff' : 'Customer';
-
-        return $user->userAddress->map(function ($address) use ($user, $userType) {
-            return [
-                'User Type' => $userType,
-                'Customer Name' => $user->name,
-                'Company Name' => $user->company_name,
-                'Rank' => $user->employee_rank,
-                'Email' => $user->email,
-                'Country Code' => $user->country_code,
-                'Phone' => $user->phone,
-                'Alternet Phone One' => $user->phone_one,
-                'Alternet Phone Two' => $user->phone_two,
-                'Whatsapp Number' => $user->whatsapp_no,
-                'DOB' => $user->dob,
-                'Address Type' => 'Billing Address', // Only Billing Address is included
-                'Address' => $address->address,
-                'Landmark' => $address->landmark,
-                'City' => $address->city,
-                'Country' => $address->country,
-                'State' => $address->state,
-                'Zip Code' => $address->zip_code,
-                // 'Status' => $user->status ? 'Active' : 'Inactive', 
-            ];
-        });
-    });
+        $data = $users->map(function ($user) {
+            $userType = $user->user_type == 0 ? 'Staff' : 'Customer';
+        
+            // If no address exists, use empty values
+            if ($user->userAddress->isEmpty()) {
+                return [[
+                    'User Type' => $userType,
+                    'Customer Name' => $user->name,
+                    'Company Name' => $user->company_name,
+                    'Rank' => $user->employee_rank,
+                    'Email' => $user->email,
+                    'Country Code' => $user->country_code,
+                    'Phone' => $user->phone,
+                    'Alternet Phone One' => $user->alternative_phone_number_1,
+                    'Alternet Phone Two' => $user->alternative_phone_number_2,
+                    'Whatsapp Number' => $user->whatsapp_no,
+                    'DOB' => $user->dob,
+                    'Address Type' => 'N/A', // No address
+                    'Address' => '',
+                    'Landmark' => '',
+                    'City' => '',
+                    'Country' => '',
+                    'State' => '',
+                    'Zip Code' => '',
+                ]];
+            }
+        
+            // If user has an address, return mapped data
+            return $user->userAddress->map(function ($address) use ($user, $userType) {
+                return [
+                    'User Type' => $userType,
+                    'Customer Name' => $user->name,
+                    'Company Name' => $user->company_name,
+                    'Rank' => $user->employee_rank,
+                    'Email' => $user->email,
+                    'Country Code' => $user->country_code,
+                    'Phone' => $user->phone,
+                    'Alternet Phone One' => $user->alternative_phone_number_1,
+                    'Alternet Phone Two' => $user->alternative_phone_number_2,
+                    'Whatsapp Number' => $user->whatsapp_no,
+                    'DOB' => $user->dob,
+                    'Address Type' => 'Billing Address',
+                    'Address' => $address->address,
+                    'Landmark' => $address->landmark,
+                    'City' => $address->city,
+                    'Country' => $address->country,
+                    'State' => $address->state,
+                    'Zip Code' => $address->zip_code,
+                ];
+            });
+        })->flatten(1);
+        
 
     // Return the collected data
     return $data;
