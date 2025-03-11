@@ -186,6 +186,7 @@
                         Catalogue
                     </a>
                 </li>
+               
                 <li class="nav-item">
                     <a class="nav-link text-white {{ Request::is('admin/products/collections') ? 'active ' : '' }}"
                         href="{{route('admin.collections.index')}}">

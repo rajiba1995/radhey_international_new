@@ -102,7 +102,7 @@ class StaffUpdate extends Component
 
     }
 
-    public function FindCustomer($term)
+    public function FindCountry($term)
     {
         $this->searchTerm = $term;
         if (!empty($this->searchTerm)) {

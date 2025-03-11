@@ -1018,6 +1018,24 @@ class OrderNew extends Component
                 $this->errorMessage['search']  = null;
             }
 
+            // validate Salesman
+            if(empty($this->salesman)){
+                $this->errorClass['salesman'] = 'border-danger';
+                $this->errorMessage['salesman'] = 'Please select a salesmana first';
+            }else{
+                $this->errorClass['salesman']  = null;
+                $this->errorMessage['salesman']  = null;
+            }
+
+            // validate order number
+            if(($this->order_number == 000)){
+                $this->errorClass['order_number'] = 'border-danger';
+                $this->errorMessage['order_number'] = 'Please Choose a another salesman';
+            }else{
+                $this->errorClass['order_number']  = null;
+                $this->errorMessage['order_number']  = null;
+            }
+
             // Validate prefix
             if (empty($this->prefix)) {
                 $this->errorClass['prefix'] = 'border-danger';

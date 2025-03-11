@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Catalogue;
 use App\Models\CatalogueTitle;
+use App\Models\Page;
 use Illuminate\Support\Facades\Storage; 
 
 class MasterCatalogue extends Component
@@ -22,7 +23,7 @@ class MasterCatalogue extends Component
     protected $rules = [
         'catalogue_title_id'=>'required|string|max:255|exists:catalogue_titles,id',
         'page_number'=> 'required|numeric',
-        'image'=>'required|mimes:pdf',
+        'image'=>'nullable|mimes:pdf',
     ];  
 
     protected $messages = [
@@ -32,6 +33,7 @@ class MasterCatalogue extends Component
         
         'page_number.required' => 'The page number is required.',
         'page_number.numeric' => 'The page number must be a number.',
+        
     ];
 
     public function mount(){
@@ -78,13 +80,21 @@ class MasterCatalogue extends Component
             $pdfPath =  $this->image->storeAs('catalogue_pdfs', $pdfName, 'public');
         }
 
-        Catalogue::create([
+       $catalogue = Catalogue::create([
             'catalogue_title_id' => $this->catalogue_title_id,
             'page_number' => $this->page_number,
             'image' => $pdfPath
         ]);
 
-        session()->flash('message','Catalogue Created Successfully');
+        // Insert Pages for this Catalogue
+        for($i=1; $i<=$this->page_number ; $i++){
+            Page::create([
+                'catalogue_id' => $catalogue->id,
+                'page_number'  => $i
+            ]);
+        }
+
+        session()->flash('message','Catalogue Created Successfully with '.$this->page_number. ' pages');
         $this->resetFields();
         $this->reloadCatalogues();
     }

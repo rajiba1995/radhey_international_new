@@ -17,4 +17,8 @@ class Catalogue extends Model
     {
         return $this->belongsTo(CatalogueTitle::class, 'catalogue_title_id');
     }
+
+    public function pages(){
+        return $this->hasMany(Page::class,'catalogue_id');
+    }
 }
