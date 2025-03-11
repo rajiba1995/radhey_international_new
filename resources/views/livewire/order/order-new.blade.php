@@ -476,7 +476,6 @@
                                         <div class="row">
                                             @if(isset($items[$index]['measurements']) &&
                                             count($items[$index]['measurements']) > 0)
-                                            @dd($existing_measurements);
                                             @foreach ($items[$index]['measurements'] as $measurement)
 
                                             <div class="col-md-3">

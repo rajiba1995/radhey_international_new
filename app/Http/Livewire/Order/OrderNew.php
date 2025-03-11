@@ -168,13 +168,8 @@ class OrderNew extends Component
             if (isset($item['measurements'])) {
                 foreach ($item['measurements'] as $measurement) {
                     foreach ($this->existing_measurements as $existing) {
-                        if ($existing['short_code'] == $measurement['short_code']) {
-                            $this->items[$index]['get_measurements'][$measurement['id']] = [
-                                'value' => $existing['value'],
-                                'title' => $measurement['title'],
-                                'short_code' => $measurement['short_code'],
-                            ];
-                            break; // Stop looping once a match is found
+                        if (trim($existing['short_code']) === trim($measurement['short_code'])) {
+                            $this->items[$index]['get_measurements'][$measurement['id']]['value'] = $existing['value'];
                         }
                     }
                 }
@@ -715,6 +710,38 @@ class OrderNew extends Component
     }
 }
  
+// public function populatePreviousOrderMeasurements($index, $productId)
+// {
+//     // Find the most recent order for this customer that includes the selected product
+//     $previousOrderItem = OrderItem::where('product_id', $productId)
+//                                   ->whereHas('order', function ($query) {
+//                                       $query->where('customer_id', $this->customer_id); // Ensure the same customer
+//                                   })
+//                                   ->latest()
+//                                   ->first(); // Get the most recent order for the product
+
+//     if ($previousOrderItem) {
+//         // Get the measurements related to this previous order's product
+//         $previousMeasurements = OrderMeasurement::where('order_item_id', $previousOrderItem->id)->get();
+
+//         foreach ($previousMeasurements as $key=> $previousMeasurement) {
+//             // Query the Measurement model using the 'measurement_name' field from OrderMeasurement
+//             $measurement = Measurement::where('title', $previousMeasurement->measurement_name)->first();
+
+//             if ($measurement) {
+//                 // Auto-populate measurement values
+//                 $this->existing_measurements[$key] = [
+//                     'short_code' => trim($previousMeasurement->measurement_title_prefix),
+//                     'value' => trim($previousMeasurement->measurement_value)
+//                 ];
+//             }
+//         }
+//     } else {
+//         // If no previous measurements exist, set empty values
+//         $this->items[$index]['existing_measurements'] = [];
+//     }
+// }
+
 public function populatePreviousOrderMeasurements($index, $productId)
 {
     // Find the most recent order for this customer that includes the selected product
@@ -729,16 +756,30 @@ public function populatePreviousOrderMeasurements($index, $productId)
         // Get the measurements related to this previous order's product
         $previousMeasurements = OrderMeasurement::where('order_item_id', $previousOrderItem->id)->get();
 
-        foreach ($previousMeasurements as $key=> $previousMeasurement) {
+        foreach ($previousMeasurements as $previousMeasurement) {
             // Query the Measurement model using the 'measurement_name' field from OrderMeasurement
             $measurement = Measurement::where('title', $previousMeasurement->measurement_name)->first();
 
             if ($measurement) {
                 // Auto-populate measurement values
-                $this->existing_measurements[$key] = [
+                $this->existing_measurements[] = [
                     'short_code' => trim($previousMeasurement->measurement_title_prefix),
                     'value' => trim($previousMeasurement->measurement_value)
                 ];
+            }
+        }
+
+        // Ensure values are appended into `items[$index]['get_measurements']`
+        foreach ($this->items[$index]['measurements'] as &$measurement) {
+            foreach ($this->existing_measurements as $existing) {
+                if ($existing['short_code'] == $measurement['short_code']) {
+                    // Ensure `get_measurements` array exists
+                    if (!isset($this->items[$index]['get_measurements'])) {
+                        $this->items[$index]['get_measurements'] = [];
+                    }
+                    $this->items[$index]['get_measurements'][$measurement['id']]['value'] = $existing['value'];
+                    // dd($existing['value']);
+                }
             }
         }
     } else {
@@ -746,6 +787,7 @@ public function populatePreviousOrderMeasurements($index, $productId)
         $this->items[$index]['existing_measurements'] = [];
     }
 }
+
 
 // public function populatePreviousOrderMeasurements($index, $productId)
 // {
