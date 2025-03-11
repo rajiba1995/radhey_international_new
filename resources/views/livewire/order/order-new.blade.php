@@ -39,7 +39,7 @@
                 <div class="{{$activeTab==1?" d-block":"d-none"}}" id="tab1">
                     <div class="row d-flex justify-content-end align-items-center mb-2">
                         <!-- Search Label and Select2 -->
-                        <div class="col-12 col-md-6">
+                        <div class="col-md-4">
                             <div class="d-flex justify-content-between">
                                 <!-- Search Label -->
                                 <label for="searchCustomer" class="form-label mb-0">Customer</label>
@@ -58,12 +58,54 @@
                                     <button class="dropdown-item" type="button"
                                         wire:click="selectCustomer({{ $customer->id }})">
                                         <img src="{{ $customer->profile_image ? asset($customer->profile_image) : asset('assets/img/user.png') }}"
-                                            alt=""> {{ $customer->name }} ({{ $customer->phone }})
+                                            alt=""> {{$customer->prefix . " ". $customer->name }} ({{ $customer->phone }})
                                     </button>
                                     @endforeach
                                 </div>
                                 @endif
                             </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-between">
+                                <!-- Search Label -->
+                                <label for="searchCustomer" class="form-label mb-0">Country</label>
+                            </div>
+                            <div class="position-relative">
+                                <input type="text" wire:keyup="FindCountry($event.target.value)"
+                                   wire:model.debounce.500ms="search"
+                                    class="form-control form-control-sm border border-1 customer_input"
+                                    placeholder="Search By Country">
+                                    @if(isset($errorMessage['search']))
+                                    <div class="text-danger">{{ $errorMessage['search'] }}</div>
+                                    @endif
+                               @if(!empty($filteredCountries))
+                                <div id="fetch_customer_details" class="dropdown-menu show w-100"
+                                    style="max-height: 200px; overflow-y: auto;">
+                                    @foreach ($filteredCountries as $countries)
+                                    <button class="dropdown-item" type="button"
+                                        wire:click="selectCountry({{ $countries->id }})">
+                                         {{$countries->title}}({{$countries->country_code}})
+                                    </button>
+                                    @endforeach
+                                </div>
+                                @endif 
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-between">
+                                <!-- Search Label -->
+                                <label for="searchCustomer" class="form-label mb-0">Business Type</label>
+                            </div>
+                            <select wire:model="selectedBusinessType" class="form-select me-2 form-control"
+                                aria-label="Default select example">
+                                <option selected hidden>Select Domain</option>
+                                @foreach ($Business_type as $domain)
+                                <option value="{{$domain->id}}">{{$domain->title}}</option>
+                                @endforeach
+                            </select>
+                            @if(isset($errorMessage['selectedBusinessType']))
+                            <div class="text-danger">{{ $errorMessage['selectedBusinessType'] }}</div>
+                            @endif
                         </div>
                     </div>
 
@@ -95,7 +137,9 @@
                             @foreach ($orders as $order)
                             <tr class="text-center">
                                 <td>{{ $order->order_number }}</td>
-                                <td>{{ $order->customer->name }}</td>
+                                <td>
+                                    {{ $order->customer ? $order->customer->prefix ." ".$order->customer->name : "" }}
+                                </td>
                                 <td>{{ $order->total_amount }}</td>
                                 <td>{{ $order->last_payment_date }}</td>
                                 <td>
@@ -117,9 +161,20 @@
                     <div class="row">
                         <div class="mb-2 col-md-6">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="name" id="name"
-                                class="form-control form-control-sm border border-1 p-2 {{ $errorClass['name'] ?? '' }}"
-                                placeholder="Enter customer name">
+                            <div class="input-group">
+                                <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                    <option value="" selected hidden>Prefix</option>
+                                    @foreach (App\Helpers\Helper::getNamePrefixes() as $prefixOption)
+                                        <option value="{{$prefixOption}}">{{ $prefixOption }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="text" wire:model="name" id="name"
+                                    class="form-control form-control-sm border border-1 p-2 {{ $errorClass['name'] ?? '' }}"
+                                    placeholder="Enter customer name">
+                            </div>
+                            @if(isset($errorMessage['prefix']))
+                            <div class="text-danger">{{ $errorMessage['prefix'] }}</div>
+                            @endif
                             @if(isset($errorMessage['name']))
                             <div class="text-danger">{{ $errorMessage['name'] }}</div>
                             @endif
@@ -157,9 +212,12 @@
                         </div>
                         <div class="mb-2 col-md-3">
                             <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="phone" id="phone"
-                                class="form-control form-control-sm border border-1 p-2 {{ $errorClass['phone'] ?? '' }}"
-                                placeholder="Enter phone number">
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input type="text" wire:model="phone" id="phone"
+                                    class="form-control form-control-sm border border-1 p-2 {{ $errorClass['phone'] ?? '' }}"
+                                    placeholder="Enter phone number" maxLength={{ $mobileLength }}>
+                            </div>
                             @if(isset($errorMessage['phone']))
                             <div class="text-danger">{{ $errorMessage['phone'] }}</div>
                             @endif
@@ -168,9 +226,12 @@
                         <div class="mb-2 col-md-3">
                             <label for="whatsapp_no" class="form-label">WhatsApp Number <span
                                     class="text-danger">*</span></label>
-                            <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
                                 class="form-control form-control-sm border border-1 p-2 {{ $errorClass['whatsapp_no'] ?? '' }}"
-                                placeholder="Enter whatsapp number" @if($whatsapp_no)disabled @endif>
+                                placeholder="Enter whatsapp number" @if($whatsapp_no)disabled @endif maxLength={{ $mobileLength }}>
+                            </div>
                             @if(isset($errorMessage['whatsapp_no']))
                             <div class="text-danger">{{ $errorMessage['whatsapp_no'] }}</div>
                             @endif
@@ -181,6 +242,28 @@
                                         Phone Number</small></label>
                             </div>
 
+                        </div>
+
+                        <div class="mb-3 col-md-3">
+                            <label for="mobile" class="form-label">alternative phone number 1 </label>
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                            </div>
+                            @if(isset($errorMessage['alternative_phone_number_1']))
+                            <div class="text-danger">{{ $errorMessage['alternative_phone_number_1'] }}</div>
+                            @endif
+                        </div>
+
+                        <div class="mb-3 col-md-3">
+                            <label for="mobile" class="form-label">alternative phone number 2 </label>
+                            <div class="extention-group">
+                                <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                                <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                            </div>
+                            @if(isset($errorMessage['alternative_phone_number_2']))
+                            <div class="text-danger">{{ $errorMessage['alternative_phone_number_2'] }}</div>
+                            @endif
                         </div>
                     </div>
 
@@ -690,4 +773,5 @@
     {{-- <div class="loader-container" wire:target="!FindCustomer" wire:loading>
         <div class="loader"></div>
     </div> --}}
+    
 </div>

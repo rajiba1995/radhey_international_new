@@ -110,8 +110,16 @@
                     <div class="mb-3 col-md-3">
                         <label for="person_name" class="form-label">Person Name <span
                                 class="text-danger">*</span></label>
-                        <input type="text" wire:model="person_name" id="person_name"
-                            class="form-control form-control-sm border border-1 p-2" placeholder="Enter Person Name">
+                        <div class="input-group">
+                            <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                <option value="" selected hidden>Prefix</option>
+                                @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
+                                    <option value="{{$prefix}}">{{ $prefix }}</option>
+                                @endforeach
+                            </select>
+                            <input type="text" wire:model="person_name" id="person_name"
+                                class="form-control form-control-sm border border-1 p-2" placeholder="Enter Person Name">
+                        </div>
                         @error('person_name')
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
@@ -321,6 +329,9 @@
                         <label class="form-label"> Contact Name</label>
                         <input type="text" wire:model="emergency_contact_person" id="emergency_contact_person"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Enter Contact Name">
+                        @error('emergency_contact_person')
+                          <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Contact Number</label>
@@ -329,6 +340,9 @@
                         <input type="text" wire:model="emergency_mobile" id="emergency_mobile"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Enter Mobile Number" maxLength={{$mobileLength}}>
                         </div>
+                        @error('emergency_mobile')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="col-md-4">
@@ -347,6 +361,9 @@
                                 <label for="same_as_contact" class="form-check-label">Same as Contact Number</label>
                             </div>
                         </div>
+                        @error('emergency_whatsapp')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="col-md-3">
@@ -354,6 +371,9 @@
                         <textarea type="text" wire:model="emergency_address" id="emergency_address"
                             class="form-control form-control-sm border border-1 p-2"
                             placeholder="Enter Contact Address"></textarea>
+                        @error('emergency_address')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <!-- Other Details -->

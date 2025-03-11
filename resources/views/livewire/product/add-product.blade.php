@@ -243,6 +243,8 @@ $("#multiple").select2({
           allowClear: true
       });
 
+      
+
 </script>
 
 </div>

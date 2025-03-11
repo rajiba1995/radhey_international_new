@@ -16,7 +16,7 @@ class StaffUpdate extends Component
 {
     use WithFileUploads;
 
-    public $staff,$branchNames, $designation, $person_name, $surname, $emp_code, $prof_name, $email, $mobile, $aadhaar_number, $whatsapp_no , $passport_no , $dob, $passport_issued_date , $visa_no, $emergency_contact_person, $emergency_whatsapp ,$emergency_mobile , $emergency_address, $same_as_contact, $password , $alternative_phone_number_1, $alternative_phone_number_2;
+    public $staff,$branchNames, $designation, $prefix, $person_name, $surname, $emp_code, $prof_name, $email, $mobile, $aadhaar_number, $whatsapp_no , $passport_no , $dob, $passport_issued_date , $visa_no, $emergency_contact_person, $emergency_whatsapp ,$emergency_mobile , $emergency_address, $same_as_contact, $password , $alternative_phone_number_1, $alternative_phone_number_2;
     public $image, $passport_id_front, $passport_id_back , $passport_expiry_date;
     public $account_holder_name, $bank_name, $branch_name, $account_no, $ifsc;
     public $monthly_salary, $daily_salary, $travel_allowance;
@@ -55,6 +55,7 @@ class StaffUpdate extends Component
                 $this->mobileLength  = $country->mobile_length;
             }
             $this->designation = $this->staff->designationDetails->id;
+            $this->prefix = $this->staff->prefix;
             $this->person_name = $this->staff->name;
             $this->surname = $this->staff->surname;
             $this->emp_code = $this->staff->emp_code;
@@ -78,7 +79,7 @@ class StaffUpdate extends Component
             $this->emergency_mobile  = $this->staff->emergency_mobile;
             $this->emergency_whatsapp  = $this->staff->emergency_whatsapp;
             $this->emergency_address  = $this->staff->emergency_address;
-            $this->same_as_contact = ($this->staff->emergency_mobile == $this->staff->emergency_whatsapp) ? 1:0;
+            $this->same_as_contact = (!empty($this->staff->emergency_mobile) && !empty($this->staff->emergency_whatsapp) && $this->staff->emergency_mobile == $this->staff->emergency_whatsapp) ? 1 : 0;
             $this->password = $this->staff->password;
             // Bank Information
             $this->account_holder_name = $this->staff->bank->account_holder_name;
@@ -137,6 +138,9 @@ class StaffUpdate extends Component
         $isIndia = $this->selectedCountryId == 76;
         $this->validate([
             'designation' => 'required',
+            'prof_name' => 'required',
+            'surname'  => 'required',
+            'dob'  => 'required',
             'person_name' => 'required|string|max:255',
             'email' => 'nullable|email',
             'password' => 'required',
@@ -200,6 +204,7 @@ class StaffUpdate extends Component
             'country_id'=> $this->selectedCountryId,
             'branch_id'=> $this->selectedBranchId,
             'designation'=> $this->designation,
+            'prefix'   => $this->prefix,
             'name' => $this->person_name ?? '',
             'emp_code' => $this->emp_code ?? '',
             'surname' => $this->surname ?? '',
@@ -281,7 +286,7 @@ class StaffUpdate extends Component
     } catch (\Exception $e) {
         // If any error occurs, catch it and flash an error message
         session()->flash('error', 'There was an error while updating the staff: ' . $e->getMessage());
-        // dd($e->getMessage());
+        dd($e->getMessage());
         // Optionally log the error for debugging purposes
         \Log::error('Staff update failed: ' . $e->getMessage());
 

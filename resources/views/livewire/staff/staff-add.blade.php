@@ -16,7 +16,6 @@
                                 @foreach ($Business_type as $domain)
                                 <option value="{{$domain->id}}">{{$domain->title}}</option>
                                 @endforeach
-                                
                             </select>
                             @error('selectedBusinessType')
                                 <div class="text-danger">{{ $message }}</div>
@@ -32,7 +31,7 @@
                                 
                             </select> --}}
                             <div class="position-relative">
-                                <input type="text" wire:keyup="FindCustomer($event.target.value)"
+                                <input type="text" wire:keyup="FindCountry($event.target.value)"
                                    wire:model.debounce.500ms="searchTerm"
                                     class="form-control form-control-sm border border-1 customer_input"
                                     placeholder="Search By Country">
@@ -109,8 +108,19 @@
                     <div class="mb-3 col-md-3">
                         <label for="person_name" class="form-label">Person Name <span
                                 class="text-danger">*</span></label>
-                        <input type="text" wire:model="person_name" id="person_name"
+                        <div class="input-group">
+                            <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                <option value="" selected hidden>Prefix</option>
+                                @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
+                                    <option value="{{$prefix}}">{{ $prefix }}</option>
+                                @endforeach
+                            </select>
+                            <input type="text" wire:model="person_name" id="person_name"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Enter Person Name">
+                        </div>
+                        @error('prefix')
+                        <div class="text-danger">{{ $message }}</div>
+                        @enderror
                         @error('person_name')
                         <div class="text-danger">{{ $message }}</div>
                         @enderror

@@ -11,7 +11,7 @@ class StaffView extends Component
 
     public function mount($staff_id){
          // Fetch all users with their bank and address information
-         $this->staff = User::with(['bank','address','designationDetails'])->find($staff_id);
+         $this->staff = User::with(['branch','bank','address','designationDetails'])->find($staff_id);
         //  dd($this->staff);
     }
     public function render()

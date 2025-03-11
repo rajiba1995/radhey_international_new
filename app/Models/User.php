@@ -27,6 +27,7 @@ class User extends Authenticatable
         'branch_id',
         'employee_id',
         'country_id',
+        'prefix',
         'name',
         'surname',
         'prof_name',

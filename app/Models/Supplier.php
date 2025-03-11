@@ -12,8 +12,11 @@ class Supplier extends Model
     protected $table = "suppliers";
     
     protected $fillable = [
+        'prefix',
         'name',
         'email',
+        'country_code',
+        'country_id',
         'mobile',
         'is_wa_same',
         'whatsapp_no',
@@ -35,6 +38,8 @@ class Supplier extends Model
         'credit_limit',
         'credit_days',
         'status',
+        'alternative_phone_number_1',
+        'alternative_phone_number_2'
     ];
 }
 

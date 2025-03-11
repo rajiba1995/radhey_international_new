@@ -25,7 +25,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="position-relative">
-                            <input type="text" wire:keyup="FindCustomer($event.target.value)"
+                            <input type="text" wire:keyup="FindCountry($event.target.value)"
                                wire:model.debounce.500ms="searchTerm"
                                 class="form-control form-control-sm border border-1 customer_input"
                                 placeholder="Search By Country">
@@ -54,7 +54,15 @@
                         <!-- Supplier Details -->
                         <div class="mb-3 col-md-6">
                             <label for="name" class="form-label">Supplier Name <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="name" id="name" class="form-control form-control-sm border border-1 p-2" placeholder="Enter supplier name">
+                            <div class="input-group">
+                                <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                    <option value="" selected hidden>Prefix</option>
+                                    @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
+                                        <option value="{{$prefix}}">{{ $prefix }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="text" wire:model="name" id="name" class="form-control form-control-sm border border-1 p-2" placeholder="Enter supplier name">
+                            </div>
                             @error('name')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror

@@ -22,6 +22,7 @@ class CustomerEdit extends Component
     public $country_id;
     public $searchTerm;
     public $country_code;
+    public $prefix;
 
     public function mount($id)
     {
@@ -49,7 +50,7 @@ class CustomerEdit extends Component
         }
     }
 
-    public function FindCustomer($term){
+    public function FindCountry($term){
         $this->searchTerm = $term;
         if(!empty($this->searchTerm)){
             $this->filteredCountries = Country::where('title' , 'LIKE' , '%' . $this->searchTerm . '%')->get();
@@ -101,6 +102,7 @@ class CustomerEdit extends Component
 
     private function fillUserData($user)
     {
+        $this->prefix = $user->prefix ?? "";
         $this->name = $user->name ?? "";
         $this->company_name = $user->company_name ?? "";
         $this->employee_rank = $user->employee_rank ?? "";
@@ -150,7 +152,7 @@ class CustomerEdit extends Component
             'image' => $this->image instanceof \Illuminate\Http\UploadedFile ? 'nullable|mimes:jpg,jpeg,png,gif' : 'nullable',
             'verified_video' => $this->verified_video instanceof \Illuminate\Http\UploadedFile ? 'nullable|mimes:mp4,mov,avi,wmv' : 'nullable',
             'company_name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:users,email,' . $this->id,
+            'email' => 'nullable',
             'dob'=> 'required|date',
             'phone' => [
                 'required',
@@ -255,6 +257,7 @@ class CustomerEdit extends Component
     private function prepareUserData()
     {
         return [
+            'prefix' => $this->prefix,
             'name' => $this->name,
             'company_name' => $this->company_name,
             'employee_rank' => $this->employee_rank,
@@ -265,6 +268,10 @@ class CustomerEdit extends Component
             'gst_number' => $this->gst_number,
             'credit_limit' => $this->credit_limit === '' ? 0 : $this->credit_limit,
             'credit_days' => $this->credit_days === '' ? 0 : $this->credit_days,
+            'country_id' => $this->country_id,
+            'country_code' => $this->country_code,
+            'alternative_phone_number_1' => $this->alternative_phone_number_1,
+            'alternative_phone_number_2' => $this->alternative_phone_number_2
         ];
     }
 

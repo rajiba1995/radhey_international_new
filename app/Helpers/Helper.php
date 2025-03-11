@@ -137,6 +137,7 @@ class Helper
             return [];
         }
     }
+    
     public static function getCrDr($amount){
         if($amount > 0){
             return "Cr"; # if postive +
@@ -151,6 +152,8 @@ class Helper
         return str_replace("-","",$number);
     }
 
-    
+    public static function getNamePrefixes(){
+        return ['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Adv.', 'Me.'];
+    }
 
 }
