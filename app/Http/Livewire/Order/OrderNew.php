@@ -744,7 +744,6 @@ class OrderNew extends Component
 
 public function populatePreviousOrderMeasurements($index, $productId)
 {
-    // Find the most recent order for this customer that includes the selected product
     $previousOrderItem = OrderItem::where('product_id', $productId)
                                   ->whereHas('order', function ($query) {
                                       $query->where('customer_id', $this->customer_id); // Ensure the same customer
@@ -778,7 +777,6 @@ public function populatePreviousOrderMeasurements($index, $productId)
                         $this->items[$index]['get_measurements'] = [];
                     }
                     $this->items[$index]['get_measurements'][$measurement['id']]['value'] = $existing['value'];
-                    // dd($existing['value']);
                 }
             }
         }
