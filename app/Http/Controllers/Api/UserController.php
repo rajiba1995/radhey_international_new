@@ -93,9 +93,6 @@ class UserController extends Controller
                 ? 'storage/' . $request->file('verified_video')->store('verified_videos', 'public')
                 : null;
 
-            $gstCertificatePath = $request->hasFile('gst_certificate_image')
-                ? 'storage/' . $request->file('gst_certificate_image')->store('gst_certificates', 'public')
-                : null;
 
             // Create the user
             $user = User::create([

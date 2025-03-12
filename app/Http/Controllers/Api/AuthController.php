@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\UserAddress;
 use App\Models\Otp;
 use App\Models\Order;
 use App\Models\UserLogin;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 
 class AuthController extends Controller
@@ -505,6 +507,7 @@ class AuthController extends Controller
         }
 
         $details = User::find($id);
+      
         if (!$details) {
             return response()->json([
                 'status' => false,
@@ -521,15 +524,18 @@ class AuthController extends Controller
         ->latest('id')
         ->get();
         $orders = [];
-        foreach($latest_order as $key => $item){
-            $orders[$key]['id'] =$item->id; 
-            $orders[$key]['order_number'] =$item->order_number; 
-            $orders[$key]['total_amount'] =$item->total_amount; 
-            $extra_item = count($item->items)==1?"":" +(".(count($item->items)-1)." Item)";
-            $orders[$key]['products'] =$item->items[0]->product_name.$extra_item; 
-            $orders[$key]['order_date'] = date('d-m-y', strtotime($item->created_at)); 
+      
+        if(count($latest_order)>0){
+            foreach($latest_order as $key => $item){
+                $orders[$key]['id'] =$item->id; 
+                $orders[$key]['order_number'] =$item->order_number; 
+                $orders[$key]['total_amount'] =$item->total_amount;
+                $extra_item = count($item->items)==1?"":" +(".(count($item->items)-1)." Item)";
+                $orders[$key]['products'] =count($item->items)==1?$item->items[0]->product_name.$extra_item:"N/A"; 
+                $orders[$key]['order_date'] = date('d-m-y', strtotime($item->created_at)); 
+            }
         }
-    
+       
         $data = [];
         $data['details']=$details;
         $data['latest_orders']=$orders;
@@ -588,11 +594,271 @@ class AuthController extends Controller
             'data' => $data,
         ],200);
     }
+    public function customer_store(Request $request){
+        $phone_code_length = $request->phone_code_length;
+        $whatsapp_code_length = $request->whatsapp_code_length;
+        $rules = [
+            'prefix' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone_code' => 'required|string|max:255',
+            'phone' => [
+                'required',
+                'regex:/^\d{'. $phone_code_length .'}$/',
+            ],
+            'whatsapp_code' => 'required|string|max:255',
+            'whatsapp_no' => [
+                'required',
+                'regex:/^\d{'. $whatsapp_code_length .'}$/',
+            ],
+            
+            'dob' => 'required|date',
+            'company_name' => 'nullable|string|max:255',
+            'employee_rank' => 'nullable|string|max:255',
+           
+            'billing_address' => 'required|string',
+            'billing_landmark' => 'nullable|string|max:255',
+            'billing_city' => 'required|string|max:255',
+            'billing_country' => 'required|string|max:255',
+            'billing_pin' => 'nullable|string|max:10',
+            'profile_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'verified_video' => 'nullable|file|mimes:mp4,avi,mkv|max:10240',
+        ];
 
+        // Validate the request
+        $validator = Validator::make($request->all(), $rules);
 
-    
+        // Return error response if validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+        
+        DB::beginTransaction();
 
-    
-    
+        try {
+            $profileImagePath = $request->hasFile('profile_image')
+                ? 'storage/' . $request->file('profile_image')->store('profile_images', 'public')
+                : null;
+
+            $verifiedVideoPath = $request->hasFile('verified_video')
+                ? 'storage/' . $request->file('verified_video')->store('verified_videos', 'public')
+                : null;
+            // Create the user
+            $user = User::create([
+                'name' => $request->prefix,
+                'name' => $request->name,
+                'email' => $request->email,
+                'country_code' => $request->phone_code,
+                'phone' => $request->phone,
+                'whatsapp_no' => $request->whatsapp_no,
+                'dob' => $request->dob,
+                'company_name' => $request->company_name,
+                'employee_rank' => $request->employee_rank,
+                'profile_image' => $profileImagePath,
+                'user_type' => 1,
+                'country_id' => 1,
+                'verified_video' => $verifiedVideoPath,
+            ]);
+            // Save billing address
+            UserAddress::create([
+                'user_id' => $user->id,
+                'address_type' => 1, // Billing address
+                'address' => $request->billing_address,
+                'landmark' => $request->billing_landmark,
+                'city' => $request->billing_city,
+                'country' => $request->billing_country,
+                'pin' => $request->billing_pin,
+            ]);
+            DB::commit();
+            // Return success response
+            return response()->json([
+                'status' => true,
+                'message' => 'Customer information saved successfully!',
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            // Log error and return response
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+    public function customer_update($id, Request $request){
+        $phone_code_length = $request->phone_code_length;
+        $whatsapp_code_length = $request->whatsapp_code_length;
+
+        // Validation Rules
+        $rules = [
+            'prefix' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'phone_code' => 'required|string|max:10',
+            'phone' => [
+                'required',
+                "regex:/^\d{{$phone_code_length}}$/",
+            ],
+            'whatsapp_code' => 'required|string|max:10',
+            'whatsapp_no' => [
+                'required',
+                "regex:/^\d{{$whatsapp_code_length}}$/",
+            ],
+            'dob' => 'required|date',
+            'company_name' => 'nullable|string|max:255',
+            'employee_rank' => 'nullable|string|max:255',
+            'billing_address' => 'required|string',
+            'billing_landmark' => 'nullable|string|max:255',
+            'billing_city' => 'required|string|max:255',
+            'billing_country' => 'required|string|max:255',
+            'billing_pin' => 'nullable|string|max:10',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'verified_video' => 'nullable|file|mimes:mp4,avi,mkv|max:10240',
+        ];
+
+        // Validate input data
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Find user by ID
+            $user = User::find($id);
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'User not found!',
+                ], 404);
+            }
+
+            // Handle Profile Image Upload
+            if ($request->hasFile('profile_image')) {
+                // Delete the old profile image if exists
+                if ($user->profile_image && Storage::exists($user->profile_image)) {
+                    Storage::delete($user->profile_image);
+                }
+                $profileImagePath = 'storage/' . $request->file('profile_image')->store('profile_images', 'public');
+            } else {
+                $profileImagePath = $user->profile_image;
+            }
+
+            // Handle Verified Video Upload
+            if ($request->hasFile('verified_video')) {
+                if ($user->verified_video && Storage::exists($user->verified_video)) {
+                    Storage::delete($user->verified_video);
+                }
+                $verifiedVideoPath = 'storage/' . $request->file('verified_video')->store('verified_videos', 'public');
+            } else {
+                $verifiedVideoPath = $user->verified_video;
+            }
+
+            // Update user information
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'country_code' => $request->phone_code,
+                'phone' => $request->phone,
+                'whatsapp_no' => $request->whatsapp_no,
+                'dob' => $request->dob,
+                'company_name' => $request->company_name,
+                'employee_rank' => $request->employee_rank,
+                'profile_image' => $profileImagePath,
+                'verified_video' => $verifiedVideoPath,
+            ]);
+
+            // Update or Create Billing Address
+            UserAddress::updateOrCreate(
+                ['user_id' => $user->id, 'address_type' => 1], // Billing Address Type
+                [
+                    'address' => $request->billing_address,
+                    'landmark' => $request->billing_landmark,
+                    'city' => $request->billing_city,
+                    'country' => $request->billing_country,
+                    'pin' => $request->billing_pin,
+                ]
+            );
+
+            DB::commit();
+
+            // Return Success Response
+            return response()->json([
+                'status' => true,
+                'message' => 'Customer information updated successfully!',
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Update failed: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function order_list(Request $request){
+        $filter = $request->filter;
+        $start_date = !empty($request->start_date) ? $request->start_date . ' 00:00:00' : null;
+        $end_date = !empty($request->end_date) ? $request->end_date . ' 23:59:59' : null;
+        $user = $this->getAuthenticatedUser();
+        // dd($filter);
+        if ($user instanceof \Illuminate\Http\JsonResponse) {
+            return $user; // Return the response if the user is not authenticated
+        }
+         // Start Query
+        $ordersQuery = Order::where('created_by', $user->id);
+
+        // Apply keyword search filter (on order_number or customer name)
+        if (!empty($filter)) {
+            
+            $ordersQuery->where(function ($query) use ($filter) {
+                $query->where('order_number', 'like', "%{$filter}%")
+                ->orWhere('customer_name', 'like', "%{$filter}%");
+            });
+        }
+
+        // Apply date filter (only if both start & end dates are provided)
+        if (!empty($start_date) && !empty($end_date)) {
+            $ordersQuery->whereBetween('created_at', [$start_date, $end_date]);
+        }
+
+        // Fetch the filtered orders
+        $orders = $ordersQuery->orderBy('id', 'DESC')->get();
+
+        $data = [];
+        if(count($orders)>0){
+            foreach($orders as $key=>$item){
+                // Convert order time to Carbon instance
+                $orderTime = Carbon::parse($item->created_at);
+                
+                // Determine the formatted order time
+                if ($orderTime->isToday()) {
+                    $formattedOrderTime = "Today " . $orderTime->format('h:i A');
+                } elseif ($orderTime->isYesterday()) {
+                    $formattedOrderTime = "Yesterday " . $orderTime->format('h:i A');
+                } else {
+                    $formattedOrderTime = $orderTime->format('d M y h:i A'); // Example: "12 Jan 25 14:25"
+                }
+                $data[$key]['order_id'] = $item->id;
+                $data[$key]['customer_name'] = $item->prefix.' '.$item->customer_name;
+                $data[$key]['order_number'] = $item->order_number;
+                $data[$key]['order_amount'] = $item->total_amount;
+                $data[$key]['order_time'] = $formattedOrderTime;
+            }
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'order information fetch successfully!',
+            'orders' => $data,
+        ]);
+    }
 
 }
