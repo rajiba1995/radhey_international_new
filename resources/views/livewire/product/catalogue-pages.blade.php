@@ -59,7 +59,7 @@
                                                 <td><p class="text-xs font-weight-bold mb-0">{{ $page->page_number }}</p></td>
                                                 <td class="align-middle">
                                                     <button wire:click="setCatalogueAndPage({{ $page->catalogue_id }} , {{$page->page_number}})" class="btn btn-outline-primary select-md btn_action btn_outline" title="Edit">
-                                                        add
+                                                        Click
                                                     </button>
                                                    
                                                 </td>
@@ -82,16 +82,16 @@
                     <div class="card my-4">
                         <div class="card-body px-0 pb-2 mx-4">
                             <div class="d-flex justify-content-between mb-3">
-                                <h5></h5>  
+                                <h5>Catalogue Page Item</h5>  
                             </div>
                             <form wire:submit.prevent="store">
                                 <div class="row">
                                     <!-- Title -->
                                     <label class="form-label">Catalogue</label>
                                     <div class="ms-md-auto pe-md-3 d-flex align-items-center mb-2">
-                                        <input type="text" wire:model="catalogue_id" readonly class="form-control">
+                                        <input type="text" wire:model="catalogue_name" readonly class="form-control">
                                     </div>
-                                    @error('catalogue_id')
+                                    @error('catalogue_name')
                                         <p class="text-danger inputerror">{{ $message }}</p>
                                     @enderror
     
@@ -106,13 +106,21 @@
 
 
                                     <label class="form-label">Page Item</label>
-                                    <div class="ms-md-auto pe-md-3 d-flex align-items-center mb-2">
-                                       <input type="number" wire:model="catalog_item" placeholder="Enter Page Item" class="form-control">
+                                    @foreach($catalog_items as $index => $item)
+                                        <div class="ms-md-auto pe-md-3 d-flex align-items-center mb-2">
+                                        <input type="text" wire:model="catalog_items.{{$index}}" placeholder="Enter Page Item" class="form-control">
+                                        @if($index > 0)
+                                         <button type="button" class="btn btn-danger btn-sm ms-2 mt-2" wire:click="removeItem({{ $index }})"><span class="material-icons">delete</span></button>
+                                        @endif
+                                        </div>
+                                        @error("catalog_items.{$index}")
+                                            <p class="text-danger inputerror">{{ $message }}</p>
+                                        @enderror
+                                    @endforeach
+                                    <!-- Add More Button -->
+                                    <div class="mb-3">
+                                        <button type="button" class="btn btn-outline-success select-md" wire:click="addItem"><i class="material-icons me-1">add</i>Add More</button>
                                     </div>
-                                    @error('catalog_item')
-                                        <p class="text-danger inputerror">{{ $message }}</p>
-                                    @enderror
-    
                                     <!-- Submit Button -->
                                     <div class="mb-2 text-end mt-4">
                                         {{-- @if($cataloguePageId)

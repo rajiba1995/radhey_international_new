@@ -108,11 +108,17 @@
                 </a>
             </li>
             <ul id="businessTypeSubmenu"
-                class="collapse list-unstyled ms-4 {{ in_array(Route::currentRouteName(), ['business_type.index']) ? 'show' : '' }}">
+                class="collapse list-unstyled ms-4 {{ in_array(Route::currentRouteName(), ['business_type.index','country.index']) ? 'show' : '' }}">
                 <li class="nav-item">
                     <a class="nav-link text-white {{ Route::currentRouteName() == 'business_type.index' ? 'active ' : '' }}"
                         href="{{route('business_type.index')}}">
                         Business Type
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ Route::currentRouteName() == 'country.index' ? 'active ' : '' }}"
+                        href="{{route('country.index')}}">
+                        Country
                     </a>
                 </li>
             </ul>
