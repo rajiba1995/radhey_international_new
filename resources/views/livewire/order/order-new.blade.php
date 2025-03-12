@@ -40,6 +40,7 @@
                     <div class="row align-items-center mb-3">
                         {{-- Display Order by and order number --}}
                           <!-- Ordered By Section -->
+                           
                         <div class="col-md-6">
                             <label class="form-label"><strong>Ordered By</strong></label>
                             <select
@@ -502,6 +503,22 @@
                                 {{ $errors->first('items') }}
                             </div>
                         @endif
+                        {{-- Display Order by and order number --}}
+                          <!-- Ordered By Section -->
+                        <div class="row align-items-center mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Ordered By</strong></label>
+                            <input type="text" 
+                                class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
+                               value="{{$salesmans->name}}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>Bill Number</strong></label>
+                            <!-- Remaining Amount -->
+                            <input type="text" class="form-control form-control-sm text-center border border-1" disabled
+                                value="{{$order_number}}" readonly>
+                        </div>
+                        </div>
 
                         <!-- Loop through items -->
                         @foreach($items as $index => $item)
