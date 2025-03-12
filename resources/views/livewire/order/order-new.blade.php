@@ -41,7 +41,7 @@
                         {{-- Display Order by and order number --}}
                           <!-- Ordered By Section -->
                            
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label"><strong>Ordered By</strong></label>
                             <select
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
@@ -63,7 +63,7 @@
                             <div class="text-danger">{{ $errorMessage['salesman'] }}</div>
                             @endif
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label"><strong>Bill Number</strong></label>
                             <!-- Remaining Amount -->
                             <input type="text" class="form-control form-control-sm text-center border border-1" disabled
@@ -77,7 +77,7 @@
                         </div>
 
                         <!-- Search Label and Select2 -->
-                        <div class="col-md-4">
+                        <div class="col-md-4 mt-2">
                             <div class="d-flex justify-content-between">
                                 <!-- Search Label -->
                                 <label for="searchCustomer" class="form-label mb-0">Customer</label>
@@ -104,7 +104,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="d-flex justify-content-between">
                                 <!-- Search Label -->
                                 <label for="searchCustomer" class="form-label mb-0">Country</label>
@@ -130,12 +130,12 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="d-flex justify-content-between">
                                 <!-- Search Label -->
                                 <label for="searchCustomer" class="form-label mb-0">Business Type</label>
                             </div>
-                            <select wire:model="selectedBusinessType" class="form-select me-2 form-control"
+                            <select wire:model="selectedBusinessType" class="form-select me-2 form-control form-control-sm border border-1 customer_input"
                                 aria-label="Default select example">
                                 <option selected hidden>Select Domain</option>
                                 @foreach ($Business_type as $domain)
