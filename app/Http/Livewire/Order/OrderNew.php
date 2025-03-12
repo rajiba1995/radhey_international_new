@@ -99,7 +99,7 @@ class OrderNew extends Component
                     ['status', 1]
                 ])
                 ->first();
-
+            // dd($customer);
             if ($customer) {
                 $this->customer_id = $customer->id;
                 $this->name = $customer->name;
@@ -114,6 +114,7 @@ class OrderNew extends Component
                     $this->whatsapp_no = $this->phone;
                 }else{
                     $this->is_wa_same = 0;
+                      $this->whatsapp_no = $customer->whatsapp_no;
                 }
                 // Assign Billing Address (if exists)
                 if ($billing = $customer->billingAddress) {
@@ -149,7 +150,7 @@ class OrderNew extends Component
             ['user_type', 1],
             ['status', 1]
         ])->orderBy('name')->get();
-
+// dd($this->customers);
         $this->categories = Category::where('status', 1)
             ->orderBy('title')
             ->get();
@@ -797,8 +798,10 @@ public function populatePreviousOrderMeasurements($index, $productId)
             if ($measurement) {
                 // Auto-populate measurement values
                 $this->existing_measurements[] = [
-                    'short_code' => trim($previousMeasurement->measurement_title_prefix),
-                    'value' => trim($previousMeasurement->measurement_value)
+                    // 'short_code' => trim($previousMeasurement->measurement_title_prefix),
+                    // 'value' => trim($previousMeasurement->measurement_value)
+                    'short_code' => $previousMeasurement->measurement_title_prefix,
+                    'value' => $previousMeasurement->measurement_value
                 ];
             }
         }
@@ -826,7 +829,7 @@ public function populatePreviousOrderMeasurements($index, $productId)
 // {
 //     // Get the most recent order item for this customer & product
 //     $previousOrderItem = OrderItem::where('product_id', $productId)
-//         ->whereHas('order', function ($query) {
+//         ->whereHas('order', function ($query ) {
 //             $query->where('customer_id', $this->customer_id);
 //         })
 //         ->latest()
@@ -936,6 +939,23 @@ public function populatePreviousOrderMeasurements($index, $productId)
 
 
             if ($user) {
+
+                $user->update([
+                    'prefix' => $this->prefix,
+                    'name' => $this->name,
+                    'business_type' => $this->selectedBusinessType,
+                    'company_name' => $this->company_name,
+                    'employee_rank' => $this->employee_rank,
+                    'email' => $this->email,
+                    'dob' => $this->dob,
+                    'country_id' => $this->country_id,
+                    'phone' => $this->phone,
+                    'whatsapp_no' => $this->whatsapp_no,
+                    'country_code' => $this->country_code,
+                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    'alternative_phone_number_2' => $this->alternative_phone_number_2,
+                    'user_type' => 1, // Customer
+                ]);
                 // Retrieve existing billing address
                 $existingBillingAddress = $user->address()->where('address_type', 1)->first();
                 // dd($existingBillingAddress);
@@ -1146,7 +1166,7 @@ public function populatePreviousOrderMeasurements($index, $productId)
         $this->resetForm(); // Reset form to default values
 
         $customer = User::find($customerId);
-
+        // dd($customer);
         if ($customer) {
             // Populate customer details
             $this->customer_id = $customer->id;
