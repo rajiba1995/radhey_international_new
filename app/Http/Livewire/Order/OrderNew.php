@@ -284,7 +284,8 @@ class OrderNew extends Component
     }
 
     // Define rules for validation
-    protected $rules = [        
+    protected $rules = [   
+        'items' => 'required|min:1',     
         'items.*.collection' => 'required|string',
         'items.*.category' => 'required|string',
         'items.*.searchproduct' => 'required|string',
@@ -305,6 +306,7 @@ class OrderNew extends Component
 
     protected function messages(){
         return [
+            'items.required' => 'Please add at least one item to the order.',
              'items.*.category.required' => 'Please select a category for the item.',
              'items.*.searchproduct.required' => 'Please select a product for the item.',
              'items.*.selectedCatalogue.required_if' => 'Please select a catalogue for the item.',
