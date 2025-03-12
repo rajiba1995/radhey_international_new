@@ -41,40 +41,42 @@
                         {{-- Display Order by and order number --}}
                           <!-- Ordered By Section -->
                            
-                        <div class="col-md-4">
-                            <label class="form-label"><strong>Ordered By</strong></label>
-                            <select
-                                class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
-                                wire:change="changeSalesman($event.target.value)" wire:model="salesman">
-                                <option value="" selected hidden>Choose one..</option>
-                                <!-- Set authenticated user as default -->
+                    <!-- Ordered By -->
+                    <div class="col-md-4">
+                        <label class="form-label"><strong>Ordered By</strong></label>
+                        <select class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger @enderror"
+                            wire:change="changeSalesman($event.target.value)" wire:model="salesman">
+                            <option value="" hidden>Choose one..</option>
 
-                                <option value="{{auth()->guard('admin')->user()->id}}" selected>
-                                    {{auth()->guard('admin')->user()->name}}
+                            <!-- Default Selected Salesman (Logged-in User) -->
+                            @if(auth()->guard('admin')->check())
+                                <option value="{{ auth()->guard('admin')->user()->id }}" selected>
+                                    {{ auth()->guard('admin')->user()->name }}
                                 </option>
-                                <!-- Fetch all salesme  n from the database -->
-                                @foreach ($salesmen as $salesmans)
-                                @if($salesmans->id != auth()->guard('admin')->user()->id)
-                                <option value="{{$salesmans->id}}">{{$salesmans->name}}</option>
+                            @endif
+
+                            <!-- Other Salesmen -->
+                            @foreach ($salesmen as $salesmans)
+                                @if ($salesmans->id != auth()->guard('admin')->user()->id)
+                                    <option value="{{ $salesmans->id }}">{{ $salesmans->name }}</option>
                                 @endif
-                                @endforeach
-                            </select>
-                            @if(isset($errorMessage['salesman']))
+                            @endforeach
+                        </select>
+                        @if(isset($errorMessage['salesman']))
                             <div class="text-danger">{{ $errorMessage['salesman'] }}</div>
-                            @endif
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label"><strong>Bill Number</strong></label>
-                            <!-- Remaining Amount -->
-                            <input type="text" class="form-control form-control-sm text-center border border-1" disabled
-                                wire:model="order_number" value="{{$order_number}}">
-                            @if(isset($errorMessage['order_number']))
+                        @endif
+                    </div>
+
+                    <!-- Bill Number -->
+                    <div class="col-md-4">
+                        <label class="form-label"><strong>Bill Number</strong></label>
+                        <input type="text" class="form-control form-control-sm text-center border border-1" 
+                            disabled wire:model="order_number" value="{{ $order_number }}">
+                        @if(isset($errorMessage['order_number']))
                             <div class="text-danger">{{ $errorMessage['order_number'] }}</div>
-                            @endif
-                            {{-- @error('order_number')
-                               <div class="text-danger">{{ $message }}</div>
-                            @enderror --}}
-                        </div>
+                        @endif
+                    </div>
+
 
                         <!-- Search Label and Select2 -->
                         <div class="col-md-4 mt-2">
