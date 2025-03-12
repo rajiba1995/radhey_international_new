@@ -36,6 +36,7 @@ use App\Http\Livewire\PurchaseOrder\{PurchaseOrderIndex,PurchaseOrderCreate,Purc
 use App\Http\Livewire\Stock\{StockIndex,UserLedger};
 use App\Http\Livewire\Report\{UserLedgerReport};
 use App\Http\Livewire\BusinessType\BusinessTypeIndex;
+use App\Http\Livewire\Country\CountryIndex;
 use App\Http\Livewire\Accounting\{AddPaymentReceipt,PaymentCollectionIndex,AddOpeningBalance,ListOpeningBalance,IndexExpense,AddExpense,EditExpense};
 // purchase Order pdf
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -143,6 +144,11 @@ Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
     // Business Type
     Route::group(['prefix'=> 'business-type'], function (){
        Route::get('/',BusinessTypeIndex::class)->name('business_type.index');
+    });
+
+    // Country
+    Route::group(['prefix' => 'country'], function(){
+        Route::get('/', CountryIndex::class)->name('country.index');
     });
 
     // Stock Report
