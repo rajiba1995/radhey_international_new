@@ -88,104 +88,103 @@ class OrderNew extends Component
     ];
 
     public function mount()
-    {
-        $user_id = request()->query('user_id');
+{
+    $user_id = request()->query('user_id');
 
-        if ($user_id) {
-            $customer = User::with(['billingAddress', 'shippingAddress'])
-                ->where([
-                    ['id', $user_id],
-                    ['user_type', 1],
-                    ['status', 1]
-                ])
-                ->first();
+    if ($user_id) {
+        $customer = User::with(['billingAddress', 'shippingAddress'])
+            ->where([
+                ['id', $user_id],
+                ['user_type', 1],
+                ['status', 1]
+            ])
+            ->first();
 
-            if ($customer) {
-                $this->customer_id = $customer->id;
-                $this->name = $customer->name;
-                $this->company_name = $customer->company_name;
-                $this->employee_rank = $customer->employee_rank;
-                $this->email = $customer->email;
-                $this->dob = $customer->dob;
-                $this->phone = $customer->phone;
-                $this->whatsapp_no = $customer->whatsapp_no;
-                if($customer->phone == $customer->whatsapp_no){
-                    $this->is_wa_same = 1;
-                    $this->whatsapp_no = $this->phone;
-                }else{
-                    $this->is_wa_same = 0;
-                }
-                // Assign Billing Address (if exists)
-                if ($billing = $customer->billingAddress) {
-                    $this->billing_address = $billing->address;
-                    $this->billing_landmark = $billing->landmark;
-                    $this->billing_city = $billing->city;
-                    $this->billing_state = $billing->state;
-                    $this->billing_country = $billing->country;
-                    $this->billing_pin = $billing->zip_code;
-                }
+        if ($customer) {
+            $this->customer_id = $customer->id;
+            $this->name = $customer->name;
+            $this->company_name = $customer->company_name;
+            $this->employee_rank = $customer->employee_rank;
+            $this->email = $customer->email;
+            $this->dob = $customer->dob;
+            $this->phone = $customer->phone;
+            $this->whatsapp_no = $customer->whatsapp_no;
+            $this->is_wa_same = ($customer->phone == $customer->whatsapp_no) ? 1 : 0;
 
-                // Assign Shipping Address (if exists)
-                if ($shipping = $customer->shippingAddress) {
-                    $this->shipping_address = $shipping->address;
-                    $this->shipping_landmark = $shipping->landmark;
-                    $this->shipping_city = $shipping->city;
-                    $this->shipping_state = $shipping->state;
-                    $this->shipping_country = $shipping->country;
-                    $this->shipping_pin = $shipping->zip_code;
-                }
-
-                // Fetch latest order
-                $this->orders = Order::with(['customer:id,prefix,name'])
-                    ->where('customer_id', $customer->id)
-                    ->latest()
-                    ->take(1)
-                    ->get();
+            // Assign Billing Address (if exists)
+            if ($billing = $customer->billingAddress) {
+                $this->billing_address = $billing->address;
+                $this->billing_landmark = $billing->landmark;
+                $this->billing_city = $billing->city;
+                $this->billing_state = $billing->state;
+                $this->billing_country = $billing->country;
+                $this->billing_pin = $billing->zip_code;
             }
+
+            // Assign Shipping Address (if exists)
+            if ($shipping = $customer->shippingAddress) {
+                $this->shipping_address = $shipping->address;
+                $this->shipping_landmark = $shipping->landmark;
+                $this->shipping_city = $shipping->city;
+                $this->shipping_state = $shipping->state;
+                $this->shipping_country = $shipping->country;
+                $this->shipping_pin = $shipping->zip_code;
+            }
+
+            // Fetch latest order
+            $this->orders = Order::with(['customer:id,prefix,name'])
+                ->where('customer_id', $customer->id)
+                ->latest()
+                ->take(1)
+                ->get();
         }
+    }
 
-        // Load common dropdowns
-        $this->customers = User::where([
-            ['user_type', 1],
-            ['status', 1]
-        ])->orderBy('name')->get();
+    // Load common dropdowns
+    $this->customers = User::where([
+        ['user_type', 1],
+        ['status', 1]
+    ])->orderBy('name')->get();
 
-        $this->categories = Category::where('status', 1)
-            ->orderBy('title')
-            ->get();
+    $this->categories = Category::where('status', 1)->orderBy('title')->get();
+    $this->collections = Collection::whereIn('id', [1, 2])->orderBy('title')->get();
+    $this->salesmen = User::where([
+        ['user_type', 0],
+        ['designation', 2]
+    ])->get();
 
-        $this->collections = Collection::whereIn('id', [1, 2])
-            ->orderBy('title')
-            ->get();
+    // Auto-select the logged-in Salesman
+    $this->salesman = auth()->guard('admin')->user()->id ?? null;
 
-        // Load salesmen list & assign logged-in salesman
-        $this->salesmen = User::where([
-            ['user_type', 0],
-            ['designation', 2]
-        ])->get();
+    // Auto-fetch bill book number for the salesman
+    if ($this->salesman) {
+        $this->changeSalesman($this->salesman);
+    }
 
-        $this->salesman = Auth::id();
-
-        // Add initial order item
-        $this->addItem();
-
-        // Fetch Salesman Billing if exists
+    // Fetch Salesman Billing if exists
+    if (auth()->guard('admin')->check()) {
         $this->salesmanBill = SalesmanBilling::where('salesman_id', auth()->guard('admin')->user()->id)->first();
+    }
 
-        foreach ($this->items as $index => $item) {
-            if (isset($item['measurements'])) {
-                foreach ($item['measurements'] as $measurement) {
-                    foreach ($this->existing_measurements as $existing) {
-                        if (trim($existing['short_code']) === trim($measurement['short_code'])) {
-                            $this->items[$index]['get_measurements'][$measurement['id']]['value'] = $existing['value'];
-                        }
+    // Add initial order item
+    $this->addItem();
+
+    foreach ($this->items as $index => $item) {
+        if (isset($item['measurements'])) {
+            foreach ($item['measurements'] as $measurement) {
+                foreach ($this->existing_measurements as $existing) {
+                    if (trim($existing['short_code']) === trim($measurement['short_code'])) {
+                        $this->items[$index]['get_measurements'][$measurement['id']]['value'] = $existing['value'];
                     }
                 }
             }
         }
-        $this->Business_type = BusinessType::all();
-        $this->selectedBusinessType = null;
     }
+
+    $this->Business_type = BusinessType::all();
+    $this->selectedBusinessType = null;
+}
+
 
     public function FindCountry($term){
         $this->search = $term;
@@ -283,7 +282,8 @@ class OrderNew extends Component
     }
 
     // Define rules for validation
-    protected $rules = [        
+    protected $rules = [   
+        'items' => 'required|min:1',     
         'items.*.collection' => 'required|string',
         'items.*.category' => 'required|string',
         'items.*.searchproduct' => 'required|string',
@@ -304,6 +304,7 @@ class OrderNew extends Component
 
     protected function messages(){
         return [
+            'items.required' => 'Please add at least one item to the order.',
              'items.*.category.required' => 'Please select a category for the item.',
              'items.*.searchproduct.required' => 'Please select a product for the item.',
              'items.*.selectedCatalogue.required_if' => 'Please select a catalogue for the item.',
@@ -797,8 +798,10 @@ public function populatePreviousOrderMeasurements($index, $productId)
             if ($measurement) {
                 // Auto-populate measurement values
                 $this->existing_measurements[] = [
-                    'short_code' => trim($previousMeasurement->measurement_title_prefix),
-                    'value' => trim($previousMeasurement->measurement_value)
+                    // 'short_code' => trim($previousMeasurement->measurement_title_prefix),
+                    // 'value' => trim($previousMeasurement->measurement_value)
+                    'short_code' => $previousMeasurement->measurement_title_prefix,
+                    'value' => $previousMeasurement->measurement_value
                 ];
             }
         }
@@ -826,7 +829,7 @@ public function populatePreviousOrderMeasurements($index, $productId)
 // {
 //     // Get the most recent order item for this customer & product
 //     $previousOrderItem = OrderItem::where('product_id', $productId)
-//         ->whereHas('order', function ($query) {
+//         ->whereHas('order', function ($query ) {
 //             $query->where('customer_id', $this->customer_id);
 //         })
 //         ->latest()
@@ -936,6 +939,23 @@ public function populatePreviousOrderMeasurements($index, $productId)
 
 
             if ($user) {
+
+                $user->update([
+                    'prefix' => $this->prefix,
+                    'name' => $this->name,
+                    'business_type' => $this->selectedBusinessType,
+                    'company_name' => $this->company_name,
+                    'employee_rank' => $this->employee_rank,
+                    'email' => $this->email,
+                    'dob' => $this->dob,
+                    'country_id' => $this->country_id,
+                    'phone' => $this->phone,
+                    'whatsapp_no' => $this->whatsapp_no,
+                    'country_code' => $this->country_code,
+                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    'alternative_phone_number_2' => $this->alternative_phone_number_2,
+                    'user_type' => 1, // Customer
+                ]);
                 // Retrieve existing billing address
                 $existingBillingAddress = $user->address()->where('address_type', 1)->first();
                 // dd($existingBillingAddress);
@@ -1146,7 +1166,7 @@ public function populatePreviousOrderMeasurements($index, $productId)
         $this->resetForm(); // Reset form to default values
 
         $customer = User::find($customerId);
-
+        // dd($customer);
         if ($customer) {
             // Populate customer details
             $this->customer_id = $customer->id;
