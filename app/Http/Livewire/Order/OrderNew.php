@@ -991,6 +991,7 @@ class OrderNew extends Component
             session()->flash('success', 'Order has been generated successfully.');
             return redirect()->route('admin.order.index');
         } catch (\Exception $e) {
+            dd($e);
             DB::rollBack();
             \Log::error('Error saving order: ' . $e->getMessage());
             dd($e->getMessage());
