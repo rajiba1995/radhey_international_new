@@ -41,6 +41,7 @@ class User extends Authenticatable
         'email',
         'password',
         'phone',
+        'status',
         'alternative_phone_number_1',
         'alternative_phone_number_2',
         'whatsapp_no',
@@ -59,6 +60,7 @@ class User extends Authenticatable
         'profile_image',
         'verified_video',
         'country_code',
+        'created_by',
         'alternative_phone_number_1',
         'alternative_phone_number_2',
     ];

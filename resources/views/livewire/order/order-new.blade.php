@@ -40,8 +40,7 @@
                     <div class="row align-items-center mb-3">
                         {{-- Display Order by and order number --}}
                           <!-- Ordered By Section -->
-                           
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label"><strong>Ordered By</strong></label>
                             <select
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
@@ -52,27 +51,30 @@
                                 <option value="{{auth()->guard('admin')->user()->id}}" selected>
                                     {{auth()->guard('admin')->user()->name}}
                                 </option>
-                                <!-- Fetch all salesme  n from the database -->
-                                @foreach ($salesmen as $salesmans)
-                                @if($salesmans->id != auth()->guard('admin')->user()->id)
-                                <option value="{{$salesmans->id}}">{{$salesmans->name}}</option>
-                                @endif
-                                @endforeach
-                            </select>
-                            @if(isset($errorMessage['salesman']))
-                            <div class="text-danger">{{ $errorMessage['salesman'] }}</div>
                             @endif
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label"><strong>Bill Number</strong></label>
-                            <!-- Remaining Amount -->
-                            <input type="text" class="form-control form-control-sm text-center border border-1" disabled
-                                wire:model="order_number" value="{{$order_number}}">
-                            @if(isset($errorMessage['order_number']))
+
+                            <!-- Other Salesmen -->
+                            @foreach ($salesmen as $salesmans)
+                                @if ($salesmans->id != auth()->guard('admin')->user()->id)
+                                    <option value="{{ $salesmans->id }}">{{ $salesmans->name }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                        @if(isset($errorMessage['salesman']))
+                            <div class="text-danger">{{ $errorMessage['salesman'] }}</div>
+                        @endif
+                    </div>
+
+                    <!-- Bill Number -->
+                    <div class="col-md-4">
+                        <label class="form-label"><strong>Bill Number</strong></label>
+                        <input type="text" class="form-control form-control-sm text-center border border-1" 
+                            disabled wire:model="order_number" value="{{ $order_number }}">
+                        @if(isset($errorMessage['order_number']))
                             <div class="text-danger">{{ $errorMessage['order_number'] }}</div>
                             @endif
                             {{-- @error('order_number')
-                            <div class="text-danger">{{ $message }}</div>
+                               <div class="text-danger">{{ $message }}</div>
                             @enderror --}}
                         </div>
 
@@ -668,72 +670,72 @@
                                     <div class="text-danger">{{ $message }}</div>
                                     @enderror
 
-                                    @if(!empty($items[$index]['searchResults']))
-                                    <div class="dropdown-menu show w-100" style="max-height: 187px; overflow-y: auto;">
-                                        @foreach ($items[$index]['searchResults'] as $fabric)
-                                        <button class="dropdown-item fabric_dropdown_item" type="button"
-                                            wire:click="selectFabric({{ $fabric->id }}, {{ $index }})">
-                                            {{ $fabric->title }}
-                                        </button>
-                                        @endforeach
-                                    </div>
-                                    @endif
+                                @if(!empty($items[$index]['searchResults']))
+                                <div class="dropdown-menu show w-100" style="max-height: 187px; overflow-y: auto;">
+                                    @foreach ($items[$index]['searchResults'] as $fabric)
+                                    <button class="dropdown-item fabric_dropdown_item" type="button"
+                                        wire:click="selectFabric({{ $fabric->id }}, {{ $index }})">
+                                        {{ $fabric->title }}
+                                    </button>
+                                    @endforeach
                                 </div>
-                                <div class="col-12 col-md-2"></div>
-                                <div class="col-12 col-md-2">
-                                    <div class="d-flex align-items-center gap-2 justify-content-end">
-                                        <!-- Price Input -->
-                                        <div>
-                                            <label class="form-label"><strong>Price</strong></label>
-                                            <input type="text"
-                                                wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
-                                                wire:model="items.{{ $index }}.price"
-                                                class="form-control form-control-sm border border-1 customer_input text-center 
-                                                                @if(session()->has('errorPrice.' . $index)) border-danger @endif 
-                                                                @error('items.' . $index . '.price') border-danger  @enderror" placeholder="Enter Price">
-                                        </div>
-                                        <div>
-                                            <!-- Delete Button -->
-                                            <button type="button" class="btn btn-danger btn-sm danger_btn"
-                                                wire:click="removeItem({{ $index }})">
-                                                <span class="material-icons">delete</span>
-                                            </button>
-                                        </div>
+                                @endif
+                            </div>
+                            <div class="col-12 col-md-2"></div>
+                            <div class="col-12 col-md-2">
+                                <div class="d-flex align-items-center gap-2 justify-content-end">
+                                    <!-- Price Input -->
+                                    <div>
+                                        <label class="form-label"><strong>Price</strong></label>
+                                        <input type="text"
+                                            wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
+                                            wire:model="items.{{ $index }}.price"
+                                            class="form-control form-control-sm border border-1 customer_input text-center 
+                                                            @if(session()->has('errorPrice.' . $index)) border-danger @endif 
+                                                            @error('items.' . $index . '.price') border-danger  @enderror" placeholder="Enter Price">
                                     </div>
+                                    <div>
+                                        <!-- Delete Button -->
+                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                            wire:click="removeItem({{ $index }})">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
 
                                     <!-- Error Messages -->
                                     @if(session()->has('errorPrice.' . $index))
                                     <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
                                     @endif
 
-                                    @error('items.' . $index . '.price')
-                                    <div class="text-danger">{{ $message }}</div>
-                                    @enderror
+                                @error('items.' . $index . '.price')
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        @else
+                        <div class="col-12 col-md-2 offset-md-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 justify-content-end">
+                                <div>
+                                    <!-- Price Input -->
+                                    <label class="form-label"><strong>Price</strong></label>
+                                    <input type="text" wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
+                                        wire:model="items.{{ $index }}.price" class="form-control form-control-sm border border-1 customer_input text-center 
+                                                    @if(session()->has('errorPrice.' . $index)) border-danger @endif 
+                                                    @error('items.' . $index . '.price') border-danger  @enderror"
+                                        placeholder="Enter Price">
+                                </div>
+                                <div>
+                                    <!-- Delete Button -->
+                                    <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                        wire:click="removeItem({{ $index }})"><span class="material-icons">delete</span>
+                                    </button>
                                 </div>
                             </div>
-                            @else
-                            <div class="col-12 col-md-2 offset-md-10 mb-2">
-                                <div class="d-flex align-items-center gap-2 justify-content-end">
-                                    <div>
-                                        <!-- Price Input -->
-                                        <label class="form-label"><strong>Price</strong></label>
-                                        <input type="text" wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
-                                            wire:model="items.{{ $index }}.price" class="form-control form-control-sm border border-1 customer_input text-center 
-                                                        @if(session()->has('errorPrice.' . $index)) border-danger @endif 
-                                                        @error('items.' . $index . '.price') border-danger  @enderror"
-                                            placeholder="Enter Price">
-                                    </div>
-                                    <div>
-                                        <!-- Delete Button -->
-                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
-                                            wire:click="removeItem({{ $index }})"><span class="material-icons">delete</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- Error Messages -->
-                                @if(session()->has('errorPrice.' . $index))
-                                <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
-                                @endif
+                            <!-- Error Messages -->
+                            @if(session()->has('errorPrice.' . $index))
+                            <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
+                            @endif
 
                                 @error('items.' . $index . '.price')
                                 <div class="text-danger">{{ $message }}</div>
