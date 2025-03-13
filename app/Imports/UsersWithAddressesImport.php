@@ -36,13 +36,15 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
     
             $countryCodeAlt2 = Country::where('country_code', $row['country_code_alternet_phone_two'])->first();
             $mobileLength2 = $countryCodeAlt2->mobile_length ?? 10;
-    
+
+            $countryCodeWhats = Country::where('country_code', $row['country_code_whatsapp'])->first();
+            $mobileLengthWhats = $countryCodeWhats->mobile_length ?? 10;
             // Perform validation
             $validator = Validator::make($row, [
                 'phone' => "nullable|numeric|digits:$mobileLength",
                 'alternet_phone_one' => "nullable|numeric|digits:$mobileLength1",
                 'alternet_phone_two' => "nullable|numeric|digits:$mobileLength2",
-                'whatsapp_number' => "nullable|numeric|digits:$mobileLength",
+                'whatsapp_number' => "nullable|numeric|digits:$mobileLengthWhats",
                 'email' => [
                     'required',
                     'email',
@@ -77,6 +79,8 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
                     'alternative_phone_number_1' => $row['alternet_phone_one'] ?? null,
                     'country_code_alt_2' => $row['country_code_alternet_phone_two'] ?? null,
                     'alternative_phone_number_2' => $row['alternet_phone_two'] ?? null,
+                    
+                    'country_code_whatsapp' => $row['country_code_whatsapp'] ?? null,
                     'whatsapp_no' => $row['whatsapp_number'] ?? null,
                 ]
             );

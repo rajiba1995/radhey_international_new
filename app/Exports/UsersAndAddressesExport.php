@@ -83,14 +83,14 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
     // }
 
     public function collection()
-{
-    // Fetch users along with their addresses using eager loading
-    $users = User::with(['userAddress' => function ($query) {
-            $query->where('address_type', 1); // Only Billing Address
-        }])
-        ->where('user_type', 1) // Adjust based on the requirement, assuming 1 means customers
-        ->get();
-
+    {
+        // Fetch users along with their addresses using eager loading
+        $users = User::with(['userAddress' => function ($query) {
+                $query->where('address_type', 1); // Only Billing Address
+            }])
+            ->where('user_type', 1) // Adjust based on the requirement, assuming 1 means customers
+            ->get();
+    
         $data = $users->map(function ($user) {
             $userType = $user->user_type == 0 ? 'Staff' : 'Customer';
         
@@ -108,6 +108,8 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
                     'Alternet Phone One' => $user->alternative_phone_number_1,
                     'Country Code Alternet Phone Two' => $user->country_code_alt_2,
                     'Alternet Phone Two' => $user->alternative_phone_number_2,
+                    'Country Code Whatsapp' => $user->country_code_whatsapp, // Added here
+
                     'Whatsapp Number' => $user->whatsapp_no,
                     'DOB' => $user->dob,
                     'Address Type' => 'N/A', // No address
@@ -134,6 +136,8 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
                     'Alternet Phone One' => $user->alternative_phone_number_1,
                     'Country Code Alternet Phone Two' => $user->country_code_alt_2,
                     'Alternet Phone Two' => $user->alternative_phone_number_2,
+                    'Country Code Whatsapp' => $user->country_code_whatsapp, // Added here
+
                     'Whatsapp Number' => $user->whatsapp_no,
                     'DOB' => $user->dob,
                     'Address Type' => 'Billing Address',
@@ -146,12 +150,11 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
                 ];
             });
         })->flatten(1);
-        
-
-    // Return the collected data
-    return $data;
-}
-
+    
+        // Return the collected data
+        return $data;
+    }
+    
 
     public function headings(): array
     {
@@ -167,6 +170,8 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
             'Alternet Phone One',
             'Country Code Alternet Phone Two',
             'Alternet Phone Two',
+            'Country Code Whatsapp', // Added here
+
             'Whatsapp Number',
             'DOB',
             'Address Type',
@@ -176,9 +181,8 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
             'Country',
             'State',
             'Zip Code',
-
-            
         ];
     }
+    
 }
 
