@@ -349,7 +349,16 @@ class OrderNew extends Component
                 // Extract customer from the first order
                 $customerFromOrder = $orders->first()->customer;
                 if($customerFromOrder){
-                    $this->prefix = $customerFromOrder->prefix ?? '';  
+                    $this->prefix = $customerFromOrder->prefix ?? ''; 
+                    $this->selectedBusinessType = $customerFromOrder->business_type;
+
+                    $country = Country::find($customerFromOrder->country_id);
+                    if($country){
+                        $this->search = $country->title;
+                        $this->country_code = $country->country_code;
+                        $this->mobileLength = $country->mobile_length;
+                    } 
+                    // $this->search = $customerFromOrder->
                 }
 
                 // Add the customer to search results
@@ -368,7 +377,10 @@ class OrderNew extends Component
             $this->searchResults = [];
             $this->orders = collect();
             $this->prefix = '';
-           
+            $this->search = '';
+            $this->country_code = '';
+            $this->selectedBusinessType = '';
+            $this->mobileLength = '';
         }
 
       }
@@ -727,10 +739,10 @@ class OrderNew extends Component
     public function save()
     {
         
-        $this->validate();
         DB::beginTransaction(); // Begin transaction
         
         try{ 
+            $this->validate();
           
             // Calculate the total amount
             $total_amount = array_sum(array_column($this->items, 'price'));
