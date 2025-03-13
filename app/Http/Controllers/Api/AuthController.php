@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\Otp;
 use App\Models\Order;
+use App\Models\UserWhatsapp;
 use App\Models\UserLogin;
 use App\Models\Country;
 use App\Models\BusinessType;
@@ -608,7 +609,7 @@ class AuthController extends Controller
             ],
             'whatsapp_code' => 'required|string|max:255',
             'whatsapp_no' => [
-                'required',
+                'required|unique:user_whatsapps,whatsapp_number',
                 'regex:/^\d{'. $whatsapp_code_length .'}$/',
             ],
             
@@ -661,6 +662,12 @@ class AuthController extends Controller
                 'user_type' => 1,
                 'country_id' => 1,
                 'verified_video' => $verifiedVideoPath,
+            ]);
+
+            UserWhatsapp::create([
+                'user_id'=>$user->id,
+                'country_code'=>$request->whatsapp_code,
+                'whatsapp_number'=>$request->whatsapp_no
             ]);
             // Save billing address
             UserAddress::create([
@@ -774,6 +781,7 @@ class AuthController extends Controller
                 'profile_image' => $profileImagePath,
                 'verified_video' => $verifiedVideoPath,
             ]);
+
 
             // Update or Create Billing Address
             UserAddress::updateOrCreate(
