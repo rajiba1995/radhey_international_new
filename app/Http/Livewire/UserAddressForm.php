@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\Country;
+use App\Models\UserWhatsapp;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +14,7 @@ class UserAddressForm extends Component
 {
     use WithFileUploads;
 
-    public $id,$prefix, $name,$dob, $company_name,$employee_rank, $email, $phone, $whatsapp_no,$is_wa_same, $gst_number, $credit_limit, $credit_days,$gst_certificate_image,$image,$verified_video;
+    public $id,$prefix, $name,$dob, $company_name,$employee_rank, $email, $phone, $whatsapp_no, $gst_number, $credit_limit, $credit_days,$gst_certificate_image,$image,$verified_video,$isWhatsappPhone,$isWhatsappAlt1,$isWhatsappAlt2;
     public $address_type, $address, $landmark, $city, $state, $country, $zip_code , $alternative_phone_number_1, $alternative_phone_number_2;
     public $billing_address;
     public $billing_landmark;
@@ -30,12 +31,40 @@ class UserAddressForm extends Component
     public $shipping_state;
     public $shipping_country;
     public $shipping_pin;
-    public $searchTerm;
     public $tempImageUrl;
     public $country_code;
     public $country_id;
-    public $filteredCountries = [];
-    public $mobileLength;
+    // public $filteredCountries = [];
+    public $countries = [];
+    public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
+    public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
+
+
+    public function mount(){
+        $this->countries = Country::all();
+    }
+
+    public function GetCountryDetails($mobileLength, $field){
+        switch($field){
+            case 'phone':
+                $this->mobileLengthPhone  = $mobileLength;
+                break;
+
+            case 'whatsapp':
+                $this->mobileLengthWhatsapp = $mobileLength;
+                break;
+
+            case 'alt_phone_1':
+                $this->mobileLengthAlt1 = $mobileLength;
+                break;
+            
+            case 'alt_phone_2':
+                $this->mobileLengthAlt2 = $mobileLength;
+                break;
+            
+                
+        }
+    }
 
     // Function to watch for changes in is_billing_shipping_same
     public function toggleShippingAddress()
@@ -60,32 +89,31 @@ class UserAddressForm extends Component
         }
     }
 
-    public function FindCountry($term){
-        $this->searchTerm = $term;
-        if(!empty($this->searchTerm)){
-            $this->filteredCountries = Country::where('title' , 'LIKE' , '%' . $this->searchTerm . '%')->get();
-        }else{
-            $this->filteredCountries = [];
-        }
-    }
+    // public function FindCountry($term){
+    //     $this->searchTerm = $term;
+    //     if(!empty($this->searchTerm)){
+    //         $this->filteredCountries = Country::where('title' , 'LIKE' , '%' . $this->searchTerm . '%')->get();
+    //     }else{
+    //         $this->filteredCountries = [];
+    //     }
+    // }
 
-    public function selectCountry($countryId){
-        $country = Country::find($countryId);
-        if($country){
-            $this->country_id = $country->id;
-            $this->country_code = $country->country_code;
-            $this->searchTerm = $country->title;
-            $this->mobileLength = $country->mobile_length;
-            $this->filteredCountries = [];
-        }
-    }   
+    // public function selectCountry($countryId){
+    //     $country = Country::find($countryId);
+    //     if($country){
+    //         $this->country_id = $country->id;
+    //         $this->country_code = $country->country_code;
+    //         $this->searchTerm = $country->title;
+    //         $this->mobileLength = $country->mobile_length;
+    //         $this->filteredCountries = [];
+    //     }
+    // }   
     // public $address_id;
     public function rules()
     {
         // Base rules
         $rules = [
             'prefix'=> 'required',
-            'searchTerm'=>'required',
             'name' => 'required|string|max:255',
             'employee_rank' => 'nullable|string',
             'image' => 'nullable|mimes:jpeg,png,jpg,gif',
@@ -95,11 +123,11 @@ class UserAddressForm extends Component
             'dob'=> 'required|date',
              'phone' => [
                 'required',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthPhone .'}$/',
             ],
             'whatsapp_no' => [
                 'required',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
             ],
             'gst_number' => 'nullable|string|max:15',
             'credit_limit' => 'nullable|numeric',
@@ -113,11 +141,11 @@ class UserAddressForm extends Component
             'billing_pin' => 'nullable|string',
             'alternative_phone_number_1' => [
                 'nullable',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthAlt1 .'}$/',
             ],
             'alternative_phone_number_2' => [
                 'nullable',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthAlt2 .'}$/',
             ],  
         ];
     
@@ -191,11 +219,11 @@ class UserAddressForm extends Component
     public function save()
     {
         // dd($this->all());
-        $this->validate();
         // Start the transaction
         DB::beginTransaction();
-
+        
         try {
+            $this->validate();
             // Check if a user already exists and delete the old image if necessary
             if ($this->id) { 
                 $existingUser = User::find($this->id);
@@ -218,7 +246,9 @@ class UserAddressForm extends Component
                 'employee_rank' => $this->employee_rank,
                 'email' => $this->email,
                 'dob'=>$this->dob,
+                'country_code_phone' => $this->selectedCountryPhone,
                 'phone' => $this->phone,
+                'country_code_whatsapp' => $this->selectedCountryWhatsapp,
                 'whatsapp_no' => $this->whatsapp_no,
                 'gst_number' => $this->gst_number,
                 'credit_limit' => $this->credit_limit === '' ? 0 : $this->credit_limit,
@@ -226,13 +256,46 @@ class UserAddressForm extends Component
                 'gst_certificate_image' => $this->gst_certificate_image ? $this->uploadGSTCertificate() : null,
                 'country_id' => $this->country_id,// Handle file upload
                 'country_code' => $this->country_code,
+                'country_code_alt_1'  => $this->selectedCountryAlt1,
                 'alternative_phone_number_1'=> $this->alternative_phone_number_1,
+                'country_code_alt_2'  => $this->selectedCountryAlt2,
                 'alternative_phone_number_2' => $this->alternative_phone_number_2
 
             ];
         
             
             $user = User::create($userData);
+
+            if($this->isWhatsappPhone){
+                UserWhatsapp::create([
+                    'user_id' => $user->id,
+                    'country_code' => $this->selectedCountryPhone,
+                    'whatsapp_number' => $this->phone,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            if ($this->isWhatsappAlt1) {
+                UserWhatsapp::create([
+                    'user_id' => $user->id,
+                    'country_code' => $this->selectedCountryAlt1,
+                    'whatsapp_number' => $this->alternative_phone_number_1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+    
+            if ($this->isWhatsappAlt2) {
+                UserWhatsapp::create([
+                    'user_id' => $user->id,
+                    'country_code' => $this->selectedCountryAlt2,
+                    'whatsapp_number' => $this->alternative_phone_number_2,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
             // Store billing address
             $this->storeAddress($user->id, 1, $this->billing_address, $this->billing_landmark, $this->billing_city, $this->billing_state, $this->billing_country, $this->billing_pin);
 
@@ -255,7 +318,7 @@ class UserAddressForm extends Component
 
             // Log the exception
             \Log::error('Error saving customer information: ' . $e->getMessage());
-        
+            dd($e->getMessage());
             // Flash error message
             session()->flash('error', 'An error occurred while saving the customer information. Please try again.');
 
@@ -265,15 +328,15 @@ class UserAddressForm extends Component
 
     }
 
-    public function SameAsMobile(){
-        if($this->is_wa_same == 0){
-            $this->whatsapp_no = $this->phone;
-            $this->is_wa_same =1;
-        }else{
-            $this->whatsapp_no = '';
-            $this->is_wa_same = 0;
-        }
-    }
+    // public function SameAsMobile(){
+    //     if($this->is_wa_same == 0){
+    //         $this->whatsapp_no = $this->phone;
+    //         $this->is_wa_same =1;
+    //     }else{
+    //         $this->whatsapp_no = '';
+    //         $this->is_wa_same = 0;
+    //     }
+    // }
 
     private function storeAddress($userId,$addressType,$address,$landmark,$city,$state,$country,$zipCode){
         // Store address in the user_address table
