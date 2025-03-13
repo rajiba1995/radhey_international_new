@@ -501,14 +501,6 @@
                         <div class="text-danger">{{$message}}</div>
                         @enderror
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Password <span class="text-danger">*</span></label>
-                        <input type="text" wire:model="password" class="form-control form-control-sm border border-1 p-2"
-                            placeholder="Enter your Password">
-                        @error('password')
-                        <div class="text-danger">{{$message}}</div>
-                        @enderror
-                    </div>
                 </div>
                 <button type="submit" class="btn btn-cta mt-4">Save</button>
             </form>

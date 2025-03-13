@@ -16,7 +16,7 @@ class StaffUpdate extends Component
 {
     use WithFileUploads;
 
-    public $staff,$branchNames, $designation, $prefix, $person_name, $surname, $emp_code, $prof_name, $email, $mobile, $aadhaar_number, $whatsapp_no , $passport_no , $dob, $passport_issued_date , $visa_no, $emergency_contact_person, $emergency_whatsapp ,$emergency_mobile , $emergency_address, $same_as_contact, $password , $alternative_phone_number_1, $alternative_phone_number_2;
+    public $staff,$branchNames, $designation, $prefix, $person_name, $surname, $emp_code, $prof_name, $email, $mobile, $aadhaar_number, $whatsapp_no , $passport_no , $dob, $passport_issued_date , $visa_no, $emergency_contact_person, $emergency_whatsapp ,$emergency_mobile , $emergency_address, $same_as_contact , $alternative_phone_number_1, $alternative_phone_number_2;
     public $image, $passport_id_front, $passport_id_back , $passport_expiry_date;
     public $account_holder_name, $bank_name, $branch_name, $account_no, $ifsc;
     public $monthly_salary, $daily_salary, $travel_allowance;
@@ -80,7 +80,7 @@ class StaffUpdate extends Component
             $this->emergency_whatsapp  = $this->staff->emergency_whatsapp;
             $this->emergency_address  = $this->staff->emergency_address;
             $this->same_as_contact = (!empty($this->staff->emergency_mobile) && !empty($this->staff->emergency_whatsapp) && $this->staff->emergency_mobile == $this->staff->emergency_whatsapp) ? 1 : 0;
-            $this->password = $this->staff->password;
+           
             // Bank Information
             $this->account_holder_name = $this->staff->bank->account_holder_name;
             $this->bank_name = $this->staff->bank->bank_name;
@@ -143,7 +143,6 @@ class StaffUpdate extends Component
             'dob'  => 'required',
             'person_name' => 'required|string|max:255',
             'email' => 'nullable|email',
-            'password' => 'required',
             'alternative_phone_number_1' => [
                 'nullable',
                 'regex:/^\d{'. $this->mobileLength .'}$/',
@@ -226,7 +225,6 @@ class StaffUpdate extends Component
             'emergency_mobile' => $this->emergency_mobile,
             'emergency_whatsapp' => $this->emergency_whatsapp,
             'emergency_address' => $this->emergency_address,
-            'password' => $this->password,
             'country_code' => $this->country_code,
             'alternative_phone_number_1' => $this->alternative_phone_number_1,
             'alternative_phone_number_2' => $this->alternative_phone_number_2,

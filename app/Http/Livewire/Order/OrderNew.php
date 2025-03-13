@@ -886,10 +886,10 @@ public function populatePreviousOrderMeasurements($index, $productId)
     public function save()
     {
         
-        $this->validate();
         DB::beginTransaction(); // Begin transaction
         
         try{ 
+            $this->validate();
           
             // Calculate the total amount
             $total_amount = array_sum(array_column($this->items, 'price'));
