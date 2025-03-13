@@ -128,7 +128,7 @@
                                 <select wire:model="selectedCountryPhone"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
                                     class="form-control form-control-sm">
-                                    <option value="">Select Country</option>
+                                    <option value="" selected hidden>Select Country</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}"
                                         data-length="{{$country->mobile_length}}">{{
@@ -158,7 +158,7 @@
                                 <select wire:model="selectedCountryWhatsapp"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'whatsapp')"
                                     class="form-control form-control-sm">
-                                    <option value="">Select Country</option>
+                                    <option value="" selected hidden>Select Country</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}" data-length="{{$country->mobile_length}}">{{
                                         $country->title }} ({{ $country->country_code }})</option>
@@ -183,7 +183,7 @@
                                 <select wire:model="selectedCountryAlt1"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_1')"
                                     class="form-control form-control-sm">
-                                    <option value="">Select Country</option>
+                                    <option value="" selected hidden>Select Country</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}" data-length="{{$country->mobile_length}}">{{
                                         $country->title }} ({{ $country->country_code
@@ -210,7 +210,7 @@
                                 <select wire:model="selectedCountryAlt2"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_2')"
                                     class="form-control form-control-sm">
-                                    <option value="">Select Country</option>
+                                    <option value="" selected hidden>Select Country</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}" data-length="{{$country->mobile_length}}">{{
                                         $country->title }} (+{{ $country->country_code
@@ -232,7 +232,7 @@
                         </div>
 
                         <div class="mb-3 col-md-4">
-                            <label for="image" class="form-label">Profile Image </label>
+                            <label for="image" class="form-label">Profile Image <span class="text-danger">*</span></label>
                             <input type="file" wire:model="image" id="image"
                                 class="form-control form-control-sm border border-1 p-2">
                             @if($tempImageUrl)

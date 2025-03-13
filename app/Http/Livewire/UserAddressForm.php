@@ -116,7 +116,7 @@ class UserAddressForm extends Component
             'prefix'=> 'required',
             'name' => 'required|string|max:255',
             'employee_rank' => 'nullable|string',
-            'image' => 'nullable|mimes:jpeg,png,jpg,gif',
+            'image' => 'required|mimes:jpeg,png,jpg,gif',
             'verified_video' => 'nullable|mimes:mp4,mov,avi,wmv',
             'company_name'=>'nullable|string|max:255',
             'email' => 'nullable|email|unique:users,email',
@@ -220,10 +220,10 @@ class UserAddressForm extends Component
     {
         // dd($this->all());
         // Start the transaction
+        $this->validate();
         DB::beginTransaction();
         
         try {
-            $this->validate();
             // Check if a user already exists and delete the old image if necessary
             if ($this->id) { 
                 $existingUser = User::find($this->id);

@@ -11,12 +11,12 @@ class SupplierAdd extends Component
 {
     use WithFileUploads;
 
-    public $prefix, $name, $email, $mobile, $is_wa_same, $whatsapp_no ,$alternative_phone_number_1, $alternative_phone_number_2;
+    public $prefix, $name, $email, $mobile, $whatsapp_no ,$alternative_phone_number_1, $alternative_phone_number_2;
     public $billing_address, $billing_landmark, $billing_state, $billing_city, $billing_pin, $billing_country;
     public $gst_number, $gst_file, $credit_limit, $credit_days;
     public $searchTerm;
     protected $rules=[];
-    public $filteredCountries = [];
+    public $countries = [];
     public $selectedCountryId;
     public $country_code;
     public $mobileLength;
@@ -24,6 +24,7 @@ class SupplierAdd extends Component
     public function mount(){
         $this->selectedCountryId = null;
         $this->country_code = '';
+        $this->countries = Country::all();
     }
 
     public function FindCountry($term){
@@ -142,15 +143,15 @@ class SupplierAdd extends Component
         return redirect()->route('suppliers.index');
     }
 
-    public function SameAsMobile(){
-        if($this->is_wa_same == 0){
-            $this->whatsapp_no = $this->mobile;
-            $this->is_wa_same = 1;
-        }else{
-            $this->whatsapp_no = '';
-            $this->is_wa_same = 0;
-        }
-    }
+    // public function SameAsMobile(){
+    //     if($this->is_wa_same == 0){
+    //         $this->whatsapp_no = $this->mobile;
+    //         $this->is_wa_same = 1;
+    //     }else{
+    //         $this->whatsapp_no = '';
+    //         $this->is_wa_same = 0;
+    //     }
+    // }
 
     public function render()
     {

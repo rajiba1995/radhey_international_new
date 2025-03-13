@@ -167,34 +167,34 @@
                             <td><span>{{number_format($item['price']*$item['quantity'], 2)}}</span></td>
                         </tr>
                         @if($item['collection_id']==1)
-                        <tr>
-                            <td colspan="2">
-                                <div class="col-12 mb-2 measurement_div" style="background: #fdfdfd !important;">
-                                    <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
-                                    <div class="row">
+                            <tr>
+                                <td colspan="2">
+                                    <div class="col-12 mb-2 measurement_div" style="background: #fdfdfd !important;">
+                                        <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
+                                        <div class="row">
+                                            
+                                            @foreach ($item['measurements'] as $index => $measurement)
+                                            <div class="col-md-3">
+                                                <label>
+                                                    {{$measurement['measurement_name']}}
+                                                    <strong>[{{$measurement['measurement_title_prefix']}}]</strong>
+                                                </label>
+                                                <input type="text"
+                                                    class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
+                                                    value="{{ $measurement['measurement_value'] }}">
+                                            </div>
+                                            @endforeach
                                         
-                                        @foreach ($item['measurements'] as $index => $measurement)
-                                        <div class="col-md-3">
-                                            <label>
-                                                {{$measurement['measurement_name']}}
-                                                <strong>[{{$measurement['measurement_title_prefix']}}]</strong>
-                                            </label>
-                                            <input type="text"
-                                                class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
-                                                value="{{ $measurement['measurement_value'] }}">
                                         </div>
-                                        @endforeach
-                                       
                                     </div>
-                                </div>
-                            </td>
-                            <td colspan="3" class="pt-4" style="vertical-align: text-top !important;">
-                                <p>FABRIC : <strong>{{$item['fabrics']->title}}</strong></p>
-                                <p>CATLOGUE : <strong>{{$item['catalogue']->catalogueTitle->title}}</strong> (PAGE:
-                                    <strong>{{$item['cat_page_number']}}</strong>)
-                                </p>
-                            </td>
-                        </tr>
+                                </td>
+                                <td colspan="3" class="pt-4" style="vertical-align: text-top !important;">
+                                    <p>FABRIC : <strong>{{$item['fabrics']->title}}</strong></p>
+                                    <p>CATLOGUE : <strong>{{$item['catalogue']->catalogueTitle->title}}</strong> (PAGE:
+                                        <strong>{{$item['cat_page_number']}}</strong>)
+                                    </p>
+                                </td>
+                            </tr>
                         @endif
                         @endforeach
                         @else
