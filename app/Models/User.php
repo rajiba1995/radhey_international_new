@@ -59,10 +59,10 @@ class User extends Authenticatable
         'visa_no',
         'profile_image',
         'verified_video',
-        'country_code',
+        'country_code_phone',
         'created_by',
-        'alternative_phone_number_1',
-        'alternative_phone_number_2',
+        'country_code_alt_1',
+        'country_code_alt_2',
     ];
     
     /**

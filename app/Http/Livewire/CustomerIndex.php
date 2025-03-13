@@ -92,30 +92,30 @@ class CustomerIndex extends Component
     // }
 
     public function import()
-{
-    $this->validate(); // Validate the file input
+    {
+        $this->validate(); // Validate the file input
 
-    // Store the uploaded file
-    $path = $this->file->store('imports');
+        // Store the uploaded file
+        $path = $this->file->store('imports');
 
-    try {
-        // Perform the import
-        Excel::import(new UsersWithAddressesImport, storage_path('app/' . $path));
+        try {
+            // Perform the import
+            Excel::import(new UsersWithAddressesImport, storage_path('app/' . $path));
 
-        // Reset file input
-        $this->reset('file');
+            // Reset file input
+            $this->reset('file');
 
-        // Check if any validation errors occurred during import
-        if (session()->has('import_errors')) {
-            return;
+            // Check if any validation errors occurred during import
+            if (session()->has('import_errors')) {
+                return;
+            }
+
+            // Send success message
+            session()->flash('success', 'Users imported successfully!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Import failed: ' . $e->getMessage());
         }
-
-        // Send success message
-        session()->flash('success', 'Users imported successfully!');
-    } catch (\Exception $e) {
-        session()->flash('error', 'Import failed: ' . $e->getMessage());
     }
-}
 
     
     // Export Function

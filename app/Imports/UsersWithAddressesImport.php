@@ -13,6 +13,9 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+
 
 
 class UsersWithAddressesImport implements ToModel, WithHeadingRow
@@ -21,75 +24,90 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
     
     public function model(array $row)
     {
+        
         try {
-            // Determine user type (staff = 0, others = 1)
-            $userType = isset($row['user_type']) && strtolower(trim($row['user_type'])) == 'staff' ? 0 : 1;
+        DB::beginTransaction(); // Start transaction
+            
+            $country = Country::where('country_code', $row['country_code_phone'])->first();
+            $mobileLength = $country->mobile_length ?? 10;
     
-            // Fetch country details for validation
-            $country = Country::where('country_code', $row['country_code'])->first();
-            $mobileLength = $country ? $country->mobile_length : 10; // Default to 10 if country not found
+            $countryCodeAlt1 = Country::where('country_code', $row['country_code_alternet_phone_one'])->first();
+            $mobileLength1 = $countryCodeAlt1->mobile_length ?? 10;
     
-            // Validation rules
+            $countryCodeAlt2 = Country::where('country_code', $row['country_code_alternet_phone_two'])->first();
+            $mobileLength2 = $countryCodeAlt2->mobile_length ?? 10;
+    
+            // Perform validation
             $validator = Validator::make($row, [
-                'phone'        => "nullable|numeric|digits:$mobileLength",
-                'whatsapp_no'  => "nullable|numeric|digits:$mobileLength",
-                'email'        => "required|email|unique:users,email",
+                'phone' => "nullable|numeric|digits:$mobileLength",
+                'alternet_phone_one' => "nullable|numeric|digits:$mobileLength1",
+                'alternet_phone_two' => "nullable|numeric|digits:$mobileLength2",
+                'whatsapp_number' => "nullable|numeric|digits:$mobileLength",
+                'email' => [
+                    'required',
+                    'email',
+                    Rule::unique('users', 'email')->whereNull('deleted_at'),
+                ],
             ]);
     
             if ($validator->fails()) {
-                $errorMessages = $validator->errors()->first(); // Get only the first error message
                 session()->push('import_errors', [
                     'row' => $row,
-                    'errors' => [$errorMessages] // Wrap the first error in an array
+                    'errors' => $validator->errors()->all()
                 ]);
-                return null; // Skip this row
+                DB::rollBack(); // Rollback transaction if validation fails
+                return null;
             }
     
-            // Format date of birth
+            // Convert DOB format
             $dob = isset($row['dob']) ? Carbon::createFromFormat('m/d/Y', $row['dob'])->format('Y-m-d') : null;
     
             // Create or update user
             $user = User::updateOrCreate(
-                ['email' => $row['email']], // Unique identifier
+                ['email' => $row['email']],
                 [
                     'name' => $row['customer_name'] ?? null,
                     'dob' => $dob,
-                    'user_type' => $userType,
+                    'user_type' => strtolower(trim($row['user_type'])) == 'staff' ? 0 : 1,
                     'company_name' => $row['company_name'] ?? null,
-                    'employee_rank' => $row['employee_rank'] ?? null,
-                    'country_code' => $row['country_code'] ?? null,
+                    'employee_rank' => $row['rank'] ?? null,
+                    'country_code_phone' => $row['country_code_phone'] ?? null,
                     'phone' => $row['phone'] ?? null,
-                    'alternative_phone_number_1' => $row['alternative_phone_number_1'] ?? null,
-                    'alternative_phone_number_2' => $row['alternative_phone_number_2'] ?? null,
-                    'whatsapp_no' => $row['whatsapp_no'] ?? null,
-                    'image' => $row['image'] ?? null,
+                    'country_code_alt_1' => $row['country_code_alternet_phone_one'] ?? null,
+                    'alternative_phone_number_1' => $row['alternet_phone_one'] ?? null,
+                    'country_code_alt_2' => $row['country_code_alternet_phone_two'] ?? null,
+                    'alternative_phone_number_2' => $row['alternet_phone_two'] ?? null,
+                    'whatsapp_no' => $row['whatsapp_number'] ?? null,
                 ]
             );
     
-            // Store or update user address (billing)
-            if (!empty($row['billing_address'])) {
+            // Save billing address
+            if (!empty($row['address'])) {
                 UserAddress::updateOrCreate(
                     ['user_id' => $user->id, 'address_type' => 1], // 1 = Billing
                     [
-                        'address' => $row['billing_address'],
-                        'landmark' => $row['billing_landmark'] ?? null,
-                        'city' => $row['billing_city'] ?? null,
-                        'state' => $row['billing_state'] ?? null,
-                        'country' => $row['billing_country'] ?? null,
-                        'zip_code' => $row['billing_zip'] ?? null,
+                        'address' => $row['address'],
+                        'landmark' => $row['landmark'] ?? null,
+                        'city' => $row['city'] ?? null,
+                        'state' => $row['state'] ?? null,
+                        'country' => $row['country'] ?? null,
+                        'zip_code' => $row['zip_code'] ?? null,
                     ]
                 );
             }
     
+            DB::commit(); // Commit transaction if everything is successful
             return $user;
         } catch (\Exception $e) {
-            session()->push('import_errors', [
-                'row' => $row,
-                'errors' => [$e->getMessage()]
-            ]);
-            return null; // Skip row on error
+            DB::rollBack(); // Rollback transaction if any exception occurs
+          
+            session()->flash('error', '🚨 Something went wrong. The operation has been rolled back.');
         }
     }
+    
+
+    
+
     
 
 
