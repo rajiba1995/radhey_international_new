@@ -183,4 +183,8 @@ class User extends Authenticatable
 
         return $this->designationDetails->permissions()->where('route', $route)->exists();
     }
+    public function userWhatsapp()
+    {
+        return $this->hasMany(UserWhatsapp::class, 'user_id', 'id');
+    }
 }

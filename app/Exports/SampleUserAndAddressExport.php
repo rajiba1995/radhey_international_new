@@ -33,9 +33,11 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
                         'Company Name' => $user->company_name,
                         'Rank' => $user->employee_rank,
                         'Email' => $user->email,
-                        'Country Code' => $user->country_code,
+                        'Country Code Phone' => $user->country_code,
                         'Phone' => $user->phone,
+                        'Country Code Alternet Phone One' => $user->country_code_alt_1,
                         'Alternet Phone One' => $user->alternative_phone_number_1,
+                        'Country Code Alternet Phone Two' => $user->country_code_alt_2,
                         'Alternet Phone Two' => $user->alternative_phone_number_2,
                         'Whatsapp Number' => $user->whatsapp_no,
                         'DOB' => $user->dob,
@@ -57,9 +59,11 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
                         'Company Name' => $user->company_name,
                         'Rank' => $user->employee_rank,
                         'Email' => $user->email,
-                        'Country Code' => $user->country_code,
+                        'Country Code Phone' => $user->country_code,
                         'Phone' => $user->phone,
+                        'Country Code Alternet Phone One' => $user->country_code_alt_1,
                         'Alternet Phone One' => $user->alternative_phone_number_1,
+                        'Country Code Alternet Phone Two' => $user->country_code_alt_2,
                         'Alternet Phone Two' => $user->alternative_phone_number_2,
                         'Whatsapp Number' => $user->whatsapp_no,
                         'DOB' => $user->dob,
@@ -82,14 +86,16 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-           'User Type',
+            'User Type',
             'Customer Name',
             'Company Name',
             'Rank',
             'Email',
-            'Country Code',
+            'Country Code Phone',
             'Phone',
+            'Country Code Alternet Phone One',
             'Alternet Phone One',
+            'Country Code Alternet Phone Two',
             'Alternet Phone Two',
             'Whatsapp Number',
             'DOB',
@@ -100,6 +106,7 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
             'Country',
             'State',
             'Zip Code',
+
             
         ];
     }
