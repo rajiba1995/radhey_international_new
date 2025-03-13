@@ -74,22 +74,49 @@ class CustomerIndex extends Component
         'file' => 'required|mimes:xlsx,csv|max:2048', // Validate file type and size
     ];
 
+    // public function import()
+    // {
+    //     $this->validate(); // Validate the file input
+
+    //     // Store the uploaded file in storage
+    //     $path = $this->file->store('imports');
+
+    //     // Perform the import
+    //     Excel::import(new UsersWithAddressesImport, storage_path('app/' . $path));
+
+    //     // Reset file input
+    //     $this->reset('file');
+
+    //     // Send success message
+    //     session()->flash('success', 'Users imported successfully!');
+    // }
+
     public function import()
-    {
-        $this->validate(); // Validate the file input
+{
+    $this->validate(); // Validate the file input
 
-        // Store the uploaded file in storage
-        $path = $this->file->store('imports');
+    // Store the uploaded file
+    $path = $this->file->store('imports');
 
+    try {
         // Perform the import
         Excel::import(new UsersWithAddressesImport, storage_path('app/' . $path));
 
         // Reset file input
         $this->reset('file');
 
+        // Check if any validation errors occurred during import
+        if (session()->has('import_errors')) {
+            return;
+        }
+
         // Send success message
         session()->flash('success', 'Users imported successfully!');
+    } catch (\Exception $e) {
+        session()->flash('error', 'Import failed: ' . $e->getMessage());
     }
+}
+
     
     // Export Function
     public function export()

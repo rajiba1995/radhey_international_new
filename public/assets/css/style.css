@@ -1087,4 +1087,23 @@ table td h6.text-sm {
 }
 
 
+/* Ensure the error message container has a fixed height with scrolling */
+.error-container {
+    max-height: 200px; /* Fixed height for errors */
+    overflow-y: auto; /* Enable scrolling for long error lists */
+    border: 1px solid #dc3545; /* Red border to indicate error */
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8d7da; /* Light red background */
+}
+
+/* Adjust modal width for better layout */
+.modal-lg {
+    max-width: 700px; /* Set a reasonable max width */
+}
+
+/* Button spacing */
+.btn-sm {
+    padding: 5px 10px;
+}
 

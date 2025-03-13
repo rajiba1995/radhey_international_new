@@ -24,27 +24,30 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
         try {
             // Determine user type (staff = 0, others = 1)
             $userType = isset($row['user_type']) && strtolower(trim($row['user_type'])) == 'staff' ? 0 : 1;
-
+    
             // Fetch country details for validation
             $country = Country::where('country_code', $row['country_code'])->first();
             $mobileLength = $country ? $country->mobile_length : 10; // Default to 10 if country not found
-
+    
             // Validation rules
             $validator = Validator::make($row, [
                 'phone'        => "nullable|numeric|digits:$mobileLength",
                 'whatsapp_no'  => "nullable|numeric|digits:$mobileLength",
-                // 'dob'          => "nullable|date_format:m/d/Y",
-                'email'        => "required|email|unique:users,email", 
+                'email'        => "required|email|unique:users,email",
             ]);
-
+    
             if ($validator->fails()) {
-                \Log::error('Validation failed for row: ' . json_encode($row) . ' Errors: ' . json_encode($validator->errors()->all()));
+                $errorMessages = $validator->errors()->first(); // Get only the first error message
+                session()->push('import_errors', [
+                    'row' => $row,
+                    'errors' => [$errorMessages] // Wrap the first error in an array
+                ]);
                 return null; // Skip this row
             }
-
+    
             // Format date of birth
             $dob = isset($row['dob']) ? Carbon::createFromFormat('m/d/Y', $row['dob'])->format('Y-m-d') : null;
-
+    
             // Create or update user
             $user = User::updateOrCreate(
                 ['email' => $row['email']], // Unique identifier
@@ -62,7 +65,7 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
                     'image' => $row['image'] ?? null,
                 ]
             );
-
+    
             // Store or update user address (billing)
             if (!empty($row['billing_address'])) {
                 UserAddress::updateOrCreate(
@@ -77,13 +80,17 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
                     ]
                 );
             }
-
+    
             return $user;
         } catch (\Exception $e) {
-            \Log::error('Import Error: ' . $e->getMessage());
+            session()->push('import_errors', [
+                'row' => $row,
+                'errors' => [$e->getMessage()]
+            ]);
             return null; // Skip row on error
         }
     }
+    
 
 
     // public function rules(): array
