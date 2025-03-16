@@ -243,7 +243,7 @@ class StaffAdd extends Component
                 'passport_issued_date' => !empty($this->passport_issued_date) ? $this->passport_issued_date : null,
                 'passport_no' => $this->passport_no,
                 'visa_no' => $this->visa_no,
-                'password'=> $this->password,
+                'password'=> Hash::make($this->password),
                 'emergency_contact_person' => $this->emergency_contact_person ?? "",
                 'emergency_mobile' => $this->emergency_mobile ?? "",
                 'emergency_whatsapp' => $this->emergency_whatsapp ?? "",

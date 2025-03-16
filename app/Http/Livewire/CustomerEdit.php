@@ -6,13 +6,17 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\Country;
 use App\Models\UserAddress;
+use App\Models\UserWhatsapp;
 use Livewire\WithFileUploads;
 
 class CustomerEdit extends Component
 {
     use WithFileUploads;
 
-    public $id, $name,$dob, $company_name, $employee_rank,$email, $phone, $whatsapp_no, $is_wa_same, $gst_number, $credit_limit, $credit_days, $gst_certificate_image, $image, $verified_video ,$alternative_phone_number_1, $alternative_phone_number_2;
+    public $id, $name,$dob, $company_name, $employee_rank,$email, $phone, $whatsapp_no, $gst_number, $credit_limit, $credit_days, $gst_certificate_image, $image, $verified_video ,$alternative_phone_number_1, $alternative_phone_number_2,
+    $selectedCountryPhone, $selectedCountryWhatsapp, $selectedCountryAlt1 , $selectedCountryAlt2 ,$mobileLengthPhone, $mobileLengthWhatsapp, $mobileLengthAlt1, $mobileLengthAlt2,
+    $countries,
+     $isWhatsappPhone, $isWhatsappAlt1 , $isWhatsappAlt2;
     public $billing_address, $billing_landmark, $billing_city, $billing_state, $billing_country, $billing_pin;
     public $shipping_address, $shipping_landmark, $shipping_city, $shipping_state, $shipping_country, $shipping_pin;
     public $is_billing_shipping_same;
@@ -37,38 +41,68 @@ class CustomerEdit extends Component
             $this->fillAddressData($billingAddress, $shippingAddress);
             $this->alternative_phone_number_1 = $user->alternative_phone_number_1;
             $this->alternative_phone_number_2 = $user->alternative_phone_number_2;
-            // $this->searchTerm = Country::find($user->country_id)?->title ?? '';
-            if($user->country_id){
-                $country = Country::find($user->country_id);
-                if ($country) {
-                    $this->country_id = $country->id;
-                    $this->country_code = $country->country_code;
-                    $this->mobileLength = $country->mobile_length;
-                    $this->searchTerm = $country->title; 
-                }
-            }
+            $this->phone = $user->phone;
+            $this->countries = Country::all();
+            $this->selectedCountryPhone = $user->country_code_phone;
+            $this->selectedCountryWhatsapp = $user->country_code_whatsapp;
+            $this->selectedCountryAlt1 = $user->country_code_alt_1;
+            $this->selectedCountryAlt2 = $user->country_code_alt_2;
+
+            // Set mobile lengths based on selected countries
+            $this->mobileLengthPhone = Country::where('country_code', $this->selectedCountryPhone)->value('mobile_length') ?? '';
+            $this->mobileLengthWhatsapp = Country::where('country_code', $this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
+            $this->mobileLengthAlt1 = Country::where('country_code', $this->selectedCountryAlt1)->value('mobile_length') ?? '';
+            $this->mobileLengthAlt2 = Country::where('country_code', $this->selectedCountryAlt2)->value('mobile_length') ?? '';
+            
+            $this->isWhatsappPhone = UserWhatsapp::where('user_id',$user->id)->where('whatsapp_number',$this->phone)->exists();
+
+            $this->isWhatsappAlt1 = UserWhatsapp::where('user_id',$user->id)->where('whatsapp_number',$this->alternative_phone_number_1)->exists();
+
+            $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$user->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
+
         }
     }
 
-    public function FindCountry($term){
-        $this->searchTerm = $term;
-        if(!empty($this->searchTerm)){
-            $this->filteredCountries = Country::where('title' , 'LIKE' , '%' . $this->searchTerm . '%')->get();
-        }else{
-            $this->filteredCountries = [];
-        }
-    }
+    public function GetCountryDetails($mobileLength, $field){
+        switch($field){
+            case 'phone':
+                $this->mobileLengthPhone  = $mobileLength;
+                break;
 
-    public function selectCountry($countryId){
-        $country = Country::find($countryId);
-        if($country){
-            $this->country_id = $country->id;
-            $this->country_code = $country->country_code;
-            $this->searchTerm = $country->title;
-            $this->mobileLength = $country->mobile_length;
-            $this->filteredCountries = [];  
+            case 'whatsapp':
+                $this->mobileLengthWhatsapp = $mobileLength;
+                break;
+
+            case 'alt_phone_1':
+                $this->mobileLengthAlt1 = $mobileLength;
+                break;
+            
+            case 'alt_phone_2':
+                $this->mobileLengthAlt2 = $mobileLength;
+                break;
+            
+                
         }
     }
+    // public function FindCountry($term){
+    //     $this->searchTerm = $term;
+    //     if(!empty($this->searchTerm)){
+    //         $this->filteredCountries = Country::where('title' , 'LIKE' , '%' . $this->searchTerm . '%')->get();
+    //     }else{
+    //         $this->filteredCountries = [];
+    //     }
+    // }
+
+    // public function selectCountry($countryId){
+    //     $country = Country::find($countryId);
+    //     if($country){
+    //         $this->country_id = $country->id;
+    //         $this->country_code = $country->country_code;
+    //         $this->searchTerm = $country->title;
+    //         $this->mobileLength = $country->mobile_length;
+    //         $this->filteredCountries = [];  
+    //     }
+    // }
 
     public function toggleShippingAddress()
     {
@@ -108,7 +142,7 @@ class CustomerEdit extends Component
         $this->employee_rank = $user->employee_rank ?? "";
         $this->email = $user->email ?? "";
         $this->dob   = $user->dob ?? "";  
-        $this->phone = $user->phone ?? "";
+        // $this->phone = $user->phone ?? "";
         $this->whatsapp_no = $user->whatsapp_no ?? "";
         $this->is_wa_same =  ($this->phone =  $this->whatsapp_no) ? 1 : 0;
         $this->gst_number = $user->gst_number ?? "";
@@ -117,8 +151,7 @@ class CustomerEdit extends Component
         $this->image = $user->profile_image ? asset( $user->profile_image) : "";
         $this->verified_video = $user->verified_video ? asset( $user->verified_video) : "";
         $this->gst_certificate_image = $user->gst_certificate_image ? asset( $user->gst_certificate_image) : "";
-      
-        
+
     }
 
     private function fillAddressData($billingAddress, $shippingAddress)
@@ -143,6 +176,7 @@ class CustomerEdit extends Component
 
         $this->is_billing_shipping_same = $billingAddress && $shippingAddress && ($billingAddress->address == $shippingAddress->address);
     }
+    
 
     public function rules()
     {
@@ -156,19 +190,19 @@ class CustomerEdit extends Component
             'dob'=> 'required|date',
             'phone' => [
                 'required',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthPhone .'}$/',
             ],
             'whatsapp_no' => [
                 'required',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
             ],
             'alternative_phone_number_1' => [
                 'nullable',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthAlt1 .'}$/',
             ],
             'alternative_phone_number_2' => [
                 'nullable',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthAlt2 .'}$/',
             ],
             'gst_number' => 'nullable|string|max:15',
             'credit_limit' => 'nullable|numeric|min:0',
@@ -180,6 +214,8 @@ class CustomerEdit extends Component
             'billing_country' => 'required|string',
             'billing_pin' => 'nullable|string',
         ];
+
+        
 
         if (!$this->is_billing_shipping_same) {
             $rules = array_merge($rules, [
@@ -219,6 +255,28 @@ class CustomerEdit extends Component
       
         $user = User::find($this->id);
         $user->fill($this->prepareUserData());
+
+        if ($this->isWhatsappPhone) {
+            UserWhatsapp::updateOrCreate(
+                ['user_id' => $user->id, 'whatsapp_number' => $this->phone],
+                ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
+            ); 
+        }
+        
+        if ($this->isWhatsappAlt1) {
+            UserWhatsapp::updateOrCreate(
+                ['user_id' => $user->id, 'whatsapp_number' => $this->alternative_phone_number_1],
+                ['country_code' => $this->selectedCountryAlt1, 'updated_at' => now()]
+            );
+        }
+        
+        if ($this->isWhatsappAlt2) {
+            UserWhatsapp::updateOrCreate(
+                ['user_id' => $user->id, 'whatsapp_number' => $this->alternative_phone_number_2],
+                ['country_code' => $this->selectedCountryAlt2, 'updated_at' => now()]
+            );
+        }
+        
         
         // Handle image upload only if a new image is provided
         if ($this->image && $this->image instanceof \Illuminate\Http\UploadedFile) {
@@ -263,14 +321,18 @@ class CustomerEdit extends Component
             'employee_rank' => $this->employee_rank,
             'email' => $this->email,
             'dob'=>$this->dob,
+            'country_code_phone' => $this->selectedCountryPhone,
             'phone' => $this->phone,
+            'country_code_whatsapp' => $this->selectedCountryWhatsapp,
             'whatsapp_no' => $this->whatsapp_no,
             'gst_number' => $this->gst_number,
             'credit_limit' => $this->credit_limit === '' ? 0 : $this->credit_limit,
             'credit_days' => $this->credit_days === '' ? 0 : $this->credit_days,
             'country_id' => $this->country_id,
             'country_code' => $this->country_code,
+            'country_code_alt_1'  => $this->selectedCountryAlt1,
             'alternative_phone_number_1' => $this->alternative_phone_number_1,
+            'country_code_alt_2'  => $this->selectedCountryAlt2,
             'alternative_phone_number_2' => $this->alternative_phone_number_2
         ];
     }
@@ -309,16 +371,16 @@ class CustomerEdit extends Component
         return null;
     }
 
-    public function SameAsMobile()
-    {
-        if ($this->is_wa_same == 0) {
-            $this->whatsapp_no = $this->phone;
-            $this->is_wa_same = 1;
-        } else {
-            $this->whatsapp_no = '';
-            $this->is_wa_same = 0;
-        }
-    }
+    // public function SameAsMobile()
+    // {
+    //     if ($this->is_wa_same == 0) {
+    //         $this->whatsapp_no = $this->phone;
+    //         $this->is_wa_same = 1;
+    //     } else {
+    //         $this->whatsapp_no = '';
+    //         $this->is_wa_same = 0;
+    //     }
+    // }
 
     public function render()
     {
