@@ -98,7 +98,7 @@ class CustomerIndex extends Component
         // Store the uploaded file
         $path = $this->file->store('imports');
 
-        try {
+        // try {
             // Perform the import
             Excel::import(new UsersWithAddressesImport, storage_path('app/' . $path));
 
@@ -111,10 +111,11 @@ class CustomerIndex extends Component
             }
 
             // Send success message
+            $this->dispatch('close-import-modal');
             session()->flash('success', 'Users imported successfully!');
-        } catch (\Exception $e) {
-            session()->flash('error', 'Import failed: ' . $e->getMessage());
-        }
+        // } catch (\Exception $e) {
+        //     session()->flash('error', 'Import failed: ' . $e->getMessage());
+        // }
     }
 
     

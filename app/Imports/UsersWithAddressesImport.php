@@ -24,7 +24,7 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
     
     public function model(array $row)
     {
-        
+       
         try {
         DB::beginTransaction(); // Start transaction
             
@@ -60,10 +60,10 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
                 DB::rollBack(); // Rollback transaction if validation fails
                 return null;
             }
-    
+           
             // Convert DOB format
-            $dob = isset($row['dob']) ? Carbon::createFromFormat('m/d/Y', $row['dob'])->format('Y-m-d') : null;
-    
+            // $dob = isset($row['dob']) ? Carbon::createFromFormat('m/d/Y', $row['dob'])->format('Y-m-d') : null;
+            $dob = isset($row['dob']) ? Carbon::createFromFormat('d-m-Y', $row['dob'])->format('Y-m-d') : null;
             // Create or update user
             $user = User::updateOrCreate(
                 ['email' => $row['email']],
@@ -84,6 +84,7 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
                     'whatsapp_no' => $row['whatsapp_number'] ?? null,
                 ]
             );
+           
     
             // Save billing address
             if (!empty($row['address'])) {
@@ -105,7 +106,7 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
         } catch (\Exception $e) {
             DB::rollBack(); // Rollback transaction if any exception occurs
           
-            session()->flash('error', '🚨 Something went wrong. The operation has been rolled back.');
+            session()->flash('error', '🚨 Something went wrong.'.$e->getMessage());
         }
     }
     
