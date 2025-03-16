@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Models\UserAddress;
 use App\Models\Otp;
 use App\Models\Order;
-use App\Models\UserWhatsapp;
 use App\Models\UserLogin;
 use App\Models\Country;
 use App\Models\BusinessType;
@@ -609,7 +608,7 @@ class AuthController extends Controller
             ],
             'whatsapp_code' => 'required|string|max:255',
             'whatsapp_no' => [
-                'required|unique:user_whatsapps,whatsapp_number',
+                'required',
                 'regex:/^\d{'. $whatsapp_code_length .'}$/',
             ],
             
@@ -649,7 +648,7 @@ class AuthController extends Controller
                 : null;
             // Create the user
             $user = User::create([
-                'name' => $request->prefix,
+                'prefix' => $request->prefix,
                 'name' => $request->name,
                 'email' => $request->email,
                 'country_code' => $request->phone_code,
@@ -660,14 +659,8 @@ class AuthController extends Controller
                 'employee_rank' => $request->employee_rank,
                 'profile_image' => $profileImagePath,
                 'user_type' => 1,
-                'country_id' => 1,
+                'created_by' => $request->created_by,
                 'verified_video' => $verifiedVideoPath,
-            ]);
-
-            UserWhatsapp::create([
-                'user_id'=>$user->id,
-                'country_code'=>$request->whatsapp_code,
-                'whatsapp_number'=>$request->whatsapp_no
             ]);
             // Save billing address
             UserAddress::create([
@@ -770,6 +763,7 @@ class AuthController extends Controller
 
             // Update user information
             $user->update([
+                'prefix' => $request->prefix,
                 'name' => $request->name,
                 'email' => $request->email,
                 'country_code' => $request->phone_code,
@@ -781,7 +775,6 @@ class AuthController extends Controller
                 'profile_image' => $profileImagePath,
                 'verified_video' => $verifiedVideoPath,
             ]);
-
 
             // Update or Create Billing Address
             UserAddress::updateOrCreate(
@@ -868,5 +861,4 @@ class AuthController extends Controller
             'orders' => $data,
         ]);
     }
-
 }
