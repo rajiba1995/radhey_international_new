@@ -57,13 +57,29 @@
                                             </div>
                                             <div class="modal-body">
                                                 <!-- Display Success/Error Messages -->
-                                                @if (session()->has('success'))
-                                                    <div class="alert alert-success">{{ session('success') }}</div>
-                                                @endif
-                                                @if (session()->has('error'))
-                                                    <div class="alert alert-danger">{{ session('error') }}</div>
-                                                @endif
                                                 
+                                                @if (session()->has('import_errors'))
+                                                    @php
+                                                        $firstError = session('import_errors')[0]; // Get the first error row
+                                                    @endphp
+                                                    <div class="alert alert-danger error-container">
+                                                        <h6 class="text-danger"><i class="fas fa-times-circle"></i> Import Error:</h6>
+                                                        <div class="error-content">
+                                                            <ul class="mb-0">
+                                                                <li>
+                                                                    <strong>Row Data:</strong> {{ json_encode($firstError['row']) }}
+                                                                    <ul>
+                                                                        <!-- Display only the first error message for the first row -->
+                                                                        <li class="text-danger">{{ $firstError['errors'][0] }}</li> 
+                                                                    </ul>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    {{ session()->forget('import_errors') }} {{-- Clear errors after displaying --}}
+                                                @endif
+
+
                                                 <form wire:submit.prevent="import" enctype="multipart/form-data">
                                                     <div class="mb-3">
                                                         <label for="file" class="form-label">Upload CSV File</label>
