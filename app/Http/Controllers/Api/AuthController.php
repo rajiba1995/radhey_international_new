@@ -93,7 +93,7 @@ class AuthController extends Controller
         $userLogin = UserLogin::where('country_code', $request->country_code)
          ->where('mobile', $request->mobile)
          ->first();
-         $user = User::where('country_code', $request->country_code)
+         $user = User::where('country_code_phone', $request->country_code)
          ->where('phone', $request->mobile)
          ->first();
 
@@ -212,7 +212,7 @@ class AuthController extends Controller
             'designation' => optional($user->designationDetails)->name ?? 'N/A', // Check if relation exists
             'email' => $user->email,
             'mobile' => $user->phone,
-            'country_code' => $user->country_code,
+            'country_code' => $user->country_code_phone,
         ];
         return response()->json([
             'status'=>true,
@@ -262,7 +262,7 @@ class AuthController extends Controller
             'designation' => optional($user->designationDetails)->name ?? 'N/A', // Check if relation exists
             'email' => $user->email,
             'mobile' => $user->phone,
-            'country_code' => $user->country_code,
+            'country_code' => $user->country_code_phone,
         ];
         return response()->json([
             'status'=>true,
@@ -449,7 +449,7 @@ class AuthController extends Controller
                 'designation' => optional($user->designationDetails)->name ?? 'N/A', // Check if relation exists
                 'email' => $user->email,
                 'mobile' => $user->phone,
-                'country_code' => $user->country_code,
+                'country_code' => $user->country_code_phone,
                 'created_at' => $user->created_at->format('Y-m-d H:i:s'),
             ]
         ], 200);
@@ -651,7 +651,7 @@ class AuthController extends Controller
                 'prefix' => $request->prefix,
                 'name' => $request->name,
                 'email' => $request->email,
-                'country_code' => $request->phone_code,
+                'country_code_phone' => $request->phone_code,
                 'phone' => $request->phone,
                 'whatsapp_no' => $request->whatsapp_no,
                 'dob' => $request->dob,
@@ -766,7 +766,7 @@ class AuthController extends Controller
                 'prefix' => $request->prefix,
                 'name' => $request->name,
                 'email' => $request->email,
-                'country_code' => $request->phone_code,
+                'country_code_phone' => $request->phone_code,
                 'phone' => $request->phone,
                 'whatsapp_no' => $request->whatsapp_no,
                 'dob' => $request->dob,
