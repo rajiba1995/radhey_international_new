@@ -39,6 +39,8 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
                         'Alternet Phone One' => $user->alternative_phone_number_1,
                         'Country Code Alternet Phone Two' => $user->country_code_alt_2,
                         'Alternet Phone Two' => $user->alternative_phone_number_2,
+                        'Country Code Whatsapp' => $user->country_code_whatsapp, // Added here
+    
                         'Whatsapp Number' => $user->whatsapp_no,
                         'DOB' => $user->dob,
                         'Address Type' => 'N/A', // No address
@@ -65,6 +67,8 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
                         'Alternet Phone One' => $user->alternative_phone_number_1,
                         'Country Code Alternet Phone Two' => $user->country_code_alt_2,
                         'Alternet Phone Two' => $user->alternative_phone_number_2,
+                        'Country Code Whatsapp' => $user->country_code_whatsapp, // Added here
+    
                         'Whatsapp Number' => $user->whatsapp_no,
                         'DOB' => $user->dob,
                         'Address Type' => 'Billing Address',
@@ -97,6 +101,8 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
             'Alternet Phone One',
             'Country Code Alternet Phone Two',
             'Alternet Phone Two',
+            'Country Code Whatsapp', // Added here
+
             'Whatsapp Number',
             'DOB',
             'Address Type',
@@ -106,8 +112,6 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
             'Country',
             'State',
             'Zip Code',
-
-            
         ];
     }
 }
