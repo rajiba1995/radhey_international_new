@@ -71,7 +71,7 @@
                                 <p class="small m-0"><strong>Phone :</strong></p>
                             </div>
                             <div class="col-sm-8">
-                                <p class="small m-0"> {{$customer->phone}}</p>
+                                <p class="small m-0">{{ $customer->country_code_phone.' '. $customer->phone }}</p>
                             </div>
                         </div>
                         @if($customer->whatsapp_no)
@@ -80,7 +80,7 @@
                                 <p class="small m-0"><strong>Whatsapp No :</strong></p>
                             </div>
                             <div class="col-sm-8">
-                                <p class="small m-0"> {{$customer->whatsapp_no}}</p>
+                                <p class="small m-0"> {{$customer->country_code_whatsapp.' '.$customer->whatsapp_no}}</p>
                             </div>
                         </div>
                         @endif
