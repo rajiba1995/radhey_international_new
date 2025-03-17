@@ -114,7 +114,7 @@
                                     <button class="dropdown-item" type="button"
                                         wire:click="selectCustomer({{ $customer->id }})">
                                         <img src="{{ $customer->profile_image ? asset($customer->profile_image) : asset('assets/img/user.png') }}"
-                                            alt=""> {{$customer->prefix . " ". $customer->name }} ({{ $customer->phone
+                                            alt=""> {{$customer->prefix . " ". $customer->name }} ({{ $customer->country_code_phone .' '.$customer->phone
                                         }})
                                     </button>
                                     @endforeach
@@ -229,39 +229,46 @@
                             <div class="text-danger">{{ $errorMessage['dob'] }}</div>
                             @endif
                         </div>
-                        <div class="mb-2 col-md-3">
-                            <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                        <div class="mb-3 col-md-3">
+                            <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
                             <div class="extention-group">
-                            <select wire:model=" "
-                                    wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
-                                    class="form-control form-control-sm">
+                                <select wire:model="selectedCountryPhone"
+                                        wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
+                                        class="form-control form-control-sm">
                                     <option value="" selected hidden>Select Country</option>
                                     @foreach($countries as $country)
-                                    <option value="{{ $country->country_code }}"
-                                        data-length="{{$country->mobile_length}}">{{
-                                        $country->title }} ({{ $country->country_code
-                                        }})</option>
+                                        <option value="{{ $country->country_code }}" data-length="{{ $country->mobile_length }}">
+                                            {{ $country->title }} ({{ $country->country_code }})
+                                        </option>
                                     @endforeach
                                 </select>
-                                <!-- <input class="input__prefix form-control form-control-sm border border-1"
-                                    wire:model="country_code" type="text" name="country_code" id="country_code"
-                                    readonly> -->
                                 <input type="text" wire:model="phone" id="phone"
-                                    class="form-control form-control-sm border border-1 p-2 {{ $errorClass['phone'] ?? '' }}"
-                                    placeholder="Enter phone number" maxLength={{ $mobileLength }}>
+                                    class="form-control form-control-sm border border-1 p-2"
+                                    placeholder="Enter Phone Number" maxLength="{{ $mobileLengthPhone }}">
                             </div>
-                            @if(isset($errorMessage['phone']))
-                            <div class="text-danger">{{ $errorMessage['phone'] }}</div>
-                            @endif
+                            @error('phone')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </div>
+
 
                         <div class="mb-2 col-md-3">
                             <label for="whatsapp_no" class="form-label">WhatsApp Number <span
                                     class="text-danger">*</span></label>
                             <div class="extention-group">
-                                <input class="input__prefix form-control form-control-sm border border-1"
+                                <!-- <input class="input__prefix form-control form-control-sm border border-1"
                                     wire:model="country_code" type="text" name="country_code" id="country_code"
-                                    readonly>
+                                    readonly> -->
+                                <select wire:model="selectedCountryPhone"
+                                        wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
+                                        class="form-control form-control-sm">
+                                    <option value="" selected hidden>Select Country</option>
+                                    @foreach($countries as $country)
+                                        <option value="{{ $country->country_code }}" data-length="{{ $country->mobile_length }}">
+                                            {{ $country->title }} ({{ $country->country_code }})
+                                        </option>
+                                    @endforeach
+                                </select>
                                 <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
                                     class="form-control form-control-sm border border-1 p-2 {{ $errorClass['whatsapp_no'] ?? '' }}"
                                     placeholder="Enter whatsapp number" @if($whatsapp_no)disabled @endif maxLength={{
@@ -283,9 +290,19 @@
                         <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">alternative phone number 1 </label>
                             <div class="extention-group">
-                                <input class="input__prefix form-control form-control-sm border border-1"
+                                <!-- <input class="input__prefix form-control form-control-sm border border-1"
                                     wire:model="country_code" type="text" name="country_code" id="country_code"
-                                    readonly>
+                                    readonly> -->
+                                <select wire:model="selectedCountryPhone"
+                                        wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
+                                        class="form-control form-control-sm">
+                                    <option value="" selected hidden>Select Country</option>
+                                    @foreach($countries as $country)
+                                        <option value="{{ $country->country_code }}" data-length="{{ $country->mobile_length }}">
+                                            {{ $country->title }} ({{ $country->country_code }})
+                                        </option>
+                                    @endforeach
+                                </select>    
                                 <input type="text" wire:model="alternative_phone_number_1"
                                     class="form-control form-control-sm border border-1 p-2"
                                     placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
@@ -298,9 +315,19 @@
                         <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">alternative phone number 2 </label>
                             <div class="extention-group">
-                                <input class="input__prefix form-control form-control-sm border border-1"
+                                <!-- <input class="input__prefix form-control form-control-sm border border-1"
                                     wire:model="country_code" type="text" name="country_code" id="country_code"
-                                    readonly>
+                                    readonly> -->
+                                <select wire:model="selectedCountryPhone"
+                                        wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
+                                        class="form-control form-control-sm">
+                                    <option value="" selected hidden>Select Country</option>
+                                    @foreach($countries as $country)
+                                        <option value="{{ $country->country_code }}" data-length="{{ $country->mobile_length }}">
+                                            {{ $country->title }} ({{ $country->country_code }})
+                                        </option>
+                                    @endforeach
+                                </select>
                                 <input type="text" wire:model="alternative_phone_number_2"
                                     class="form-control form-control-sm border border-1 p-2"
                                     placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
