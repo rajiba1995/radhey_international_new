@@ -193,66 +193,24 @@ class OrderNew extends Component
     $this->countries = Country::all();
 }
 
-// public function GetCountryDetails($mobileLength, $field)
-// {
-//     switch($field){
-//         case 'phone':
-//             $this->mobileLengthPhone = $mobileLength;
-//             break;
+public function GetCountryDetails($mobileLength, $field)
+{
+    switch($field){
+        case 'phone':
+            $this->mobileLengthPhone = $mobileLength;
+            break;
 
-//         case 'whatsapp':
-//             $this->mobileLengthWhatsapp = $mobileLength;
-//             break;
+        case 'whatsapp':
+            $this->mobileLengthWhatsapp = $mobileLength;
+            break;
 
-//         case 'alt_phone_1':
-//             $this->mobileLengthAlt1 = $mobileLength;
-//             break;
+        case 'alt_phone_1':
+            $this->mobileLengthAlt1 = $mobileLength;
+            break;
         
-//         case 'alt_phone_2':
-//             $this->mobileLengthAlt2 = $mobileLength;
-//             break;
-//     }
-// }
-
-public function GetCountryDetails($mobileLength, $type)
-{
-    if ($type == 'phone') {
-        $this->mobileLengthPhone = $mobileLength;
-    } elseif ($type == 'whatsapp') {
-        $this->mobileLengthWhatsapp = $mobileLength;
-    } elseif ($type == 'alt_phone_1') {
-        $this->mobileLengthAlt1 = $mobileLength;
-    } elseif ($type == 'alt_phone_2') {
-        $this->mobileLengthAlt2 = $mobileLength;
-    }
-}
-
-public function updated($propertyName)
-{
-    if ($propertyName == 'phone') {
-        $this->validatePhoneNumber($this->phone, 'phone', $this->mobileLengthPhone);
-    }
-    if ($propertyName == 'whatsapp_no') {
-        $this->validatePhoneNumber($this->whatsapp_no, 'whatsapp_no', $this->mobileLengthWhatsapp);
-    }
-    if ($propertyName == 'alternative_phone_number_1') {
-        $this->validatePhoneNumber($this->alternative_phone_number_1, 'alternative_phone_number_1', $this->mobileLengthAlt1);
-    }
-    if ($propertyName == 'alternative_phone_number_2') {
-        $this->validatePhoneNumber($this->alternative_phone_number_2, 'alternative_phone_number_2', $this->mobileLengthAlt2);
-    }
-}
-public function validatePhoneNumber($number, $field, $requiredLength)
-{
-    if (empty($number)) {
-        $this->errorClass[$field] = 'border-danger';
-        $this->errorMessage[$field] = 'This field is required.';
-    } elseif (!preg_match('/^\d{'.$requiredLength.'}$/', $number)) {
-        $this->errorClass[$field] = 'border-danger';
-        $this->errorMessage[$field] = "Number must be exactly $requiredLength digits.";
-    } else {
-        $this->errorClass[$field] = null;
-        $this->errorMessage[$field] = null;
+        case 'alt_phone_2':
+            $this->mobileLengthAlt2 = $mobileLength;
+            break;
     }
 }
 
@@ -461,7 +419,7 @@ public function validatePhoneNumber($number, $field, $requiredLength)
                         // Append the country information
                         $this->search = $country->title;
                         $this->country_code = $country->country_code;
-                        // $this->mobileLength = $country->mobile_length;
+                        $this->mobileLength = $country->mobile_length;
 
                         // Optionally, if you need to display the country code and other country-related data
                         // in the customer form, you can also bind them to the input fields.
@@ -847,8 +805,9 @@ public function validatePhoneNumber($number, $field, $requiredLength)
     {
         
         DB::beginTransaction(); // Begin transaction
-        $this->validate();
+        
         try{ 
+            $this->validate();
           
             // Calculate the total amount
             $total_amount = array_sum(array_column($this->items, 'price'));
