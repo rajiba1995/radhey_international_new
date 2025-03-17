@@ -53,6 +53,26 @@ class StaffAdd extends Component
         $this->emp_code = $this->generateEmpCode();
     }
 
+    public function GetCountryDetails($mobileLength, $field){
+        switch($field){
+            case 'phone':
+                $this->mobileLengthPhone  = $mobileLength;
+                break;
+
+            case 'whatsapp':
+                $this->mobileLengthWhatsapp = $mobileLength;
+                break;
+
+            case 'alt_phone_1':
+                $this->mobileLengthAlt1 = $mobileLength;
+                break;
+            
+            case 'alt_phone_2':
+                $this->mobileLengthAlt2 = $mobileLength;
+                break;
+        }
+    }
+
     public function generateEmpCode(){
         $lastUser = User::where('emp_code', 'LIKE', 'RI-%')
         ->orderBy('emp_code', 'DESC')
@@ -118,19 +138,19 @@ class StaffAdd extends Component
             'password' => 'required',
             'alternative_phone_number_1' => [
                 'nullable',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthPhone .'}$/',
             ],
             'alternative_phone_number_2' => [
                 'nullable',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
             ],
           'mobile' => [
                 'required',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthAlt1 .'}$/',
             ],
             'whatsapp_no' => [
                 'required', // At least VALIDATE_WHATSAPP digits
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthAlt2 .'}$/',
             ],
             'passport_no'=> $isIndia ?  'required|numeric' : 'nullable|numeric',
             'visa_no'=> $isIndia ?  'required|numeric' : 'nullable|numeric',

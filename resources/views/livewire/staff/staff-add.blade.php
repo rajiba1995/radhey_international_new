@@ -171,7 +171,7 @@
                                 @endforeach
                             </select>
                             <input type="text" wire:model="mobile" id="mobile"
-                            class="form-control form-control-sm border border-1 p-2" placeholder="Staff Mobile No" maxLength={{ $mobileLength }}>
+                            class="form-control form-control-sm border border-1 p-2" placeholder="Staff Mobile No" maxLength={{ $mobileLengthPhone }}>
                         </div>
                         @error('mobile')
                         <div class="text-danger">{{ $message }}</div>
@@ -214,7 +214,7 @@
                                 </select>
                                 <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
                                 class="form-control form-control-sm border border-1 p-2 me-2"
-                                placeholder="Staff WhatsApp No" @if($is_wa_same) disabled @endif maxLength={{ $mobileLength }}>
+                                placeholder="Staff WhatsApp No" @if($is_wa_same) disabled @endif maxLength={{ $mobileLengthWhatsapp }}>
                             </div>
                         </div>
                         @error('whatsapp_no')
@@ -234,7 +234,7 @@
                                         }})</option>
                                     @endforeach
                                 </select>
-                            <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                            <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLengthAlt1 }}>
                         </div>
                         @error('alternative_phone_number_1')
                         <div class="text-danger">{{ $message }}</div>
@@ -256,8 +256,8 @@
                                         $country->title }} ({{ $country->country_code
                                         }})</option>
                                     @endforeach
-                                </select>
-                            <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLength }}>
+                            </select>
+                            <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLengthAlt2 }}>
                         </div>
                         @error('alternative_phone_number_2')
                         <div class="text-danger">{{ $message }}</div>
