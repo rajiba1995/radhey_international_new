@@ -44,10 +44,10 @@
                             </p>
                             
                             <p class="mb-0"><i class="fas fa-phone" style="font-size: 14px; color: #6c757d;"></i>
-                            {{ $supplier->mobile }}
+                            {{$supplier->country_code_mobile .' '. $supplier->mobile }}
                             </p>
                             <p class="mb-0"> <i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i>
-                            {{ $supplier->is_wa_same ? $supplier->mobile : $supplier->whatsapp_no }}
+                            {{ $supplier->is_wa_same ?$supplier->country_code_mobile .' '. $supplier->mobile : $supplier->country_code_whatsapp .' '.$supplier->whatsapp_no }}
                             </p>
                         </div>
                     </div>

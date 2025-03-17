@@ -38,9 +38,25 @@
             <form wire:submit.prevent="save">
                 <div class="{{$activeTab==1?" d-block":"d-none"}}" id="tab1">
                     <div class="row align-items-center mb-3">
+                    <div class="col-md-4">
+                            <div class="d-flex justify-content-between">
+                                <!-- Search Label -->
+                                <label for="searchCustomer" class="form-label mb-0">Business Type</label>
+                            </div>
+                            <select wire:model="selectedBusinessType" class="form-select me-2 form-control form-control-sm border border-1 customer_input"
+                                aria-label="Default select example">
+                                <option selected hidden>Select Domain</option>
+                                @foreach ($Business_type as $domain)
+                                <option value="{{$domain->id}}">{{$domain->title}}</option>
+                                @endforeach
+                            </select>
+                            @if(isset($errorMessage['selectedBusinessType']))
+                            <div class="text-danger">{{ $errorMessage['selectedBusinessType'] }}</div>
+                            @endif
+                        </div>
                         {{-- Display Order by and order number --}}
                           <!-- Ordered By Section -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label"><strong>Ordered By</strong></label>
                             <select
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
@@ -79,7 +95,7 @@
                         </div>
 
                         <!-- Search Label and Select2 -->
-                        <div class="col-md-4 mt-2">
+                        <div class="col-md-6 mt-2">
                             <div class="d-flex justify-content-between">
                                 <!-- Search Label -->
                                 <label for="searchCustomer" class="form-label mb-0">Customer</label>
@@ -106,48 +122,8 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="d-flex justify-content-between">
-                                <!-- Search Label -->
-                                <label for="searchCustomer" class="form-label mb-0">Country</label>
-                            </div>
-                            <div class="position-relative">
-                                <input type="text" wire:keyup="FindCountry($event.target.value)"
-                                    wire:model.debounce.500ms="search"
-                                    class="form-control form-control-sm border border-1 customer_input"
-                                    placeholder="Search By Country">
-                                @if(isset($errorMessage['search']))
-                                <div class="text-danger">{{ $errorMessage['search'] }}</div>
-                                @endif
-                                @if(!empty($filteredCountries))
-                                <div id="fetch_customer_details" class="dropdown-menu show w-100"
-                                    style="max-height: 200px; overflow-y: auto;">
-                                    @foreach ($filteredCountries as $countries)
-                                    <button class="dropdown-item" type="button"
-                                        wire:click="selectCountry({{ $countries->id }})">
-                                        {{$countries->title}}({{$countries->country_code}})
-                                    </button>
-                                    @endforeach
-                                </div>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex justify-content-between">
-                                <!-- Search Label -->
-                                <label for="searchCustomer" class="form-label mb-0">Business Type</label>
-                            </div>
-                            <select wire:model="selectedBusinessType" class="form-select me-2 form-control form-control-sm border border-1 customer_input"
-                                aria-label="Default select example">
-                                <option selected hidden>Select Domain</option>
-                                @foreach ($Business_type as $domain)
-                                <option value="{{$domain->id}}">{{$domain->title}}</option>
-                                @endforeach
-                            </select>
-                            @if(isset($errorMessage['selectedBusinessType']))
-                            <div class="text-danger">{{ $errorMessage['selectedBusinessType'] }}</div>
-                            @endif
-                        </div>
+                        
+                       
                     </div>
 
                     <!-- Order Customer Fields... -->
@@ -256,9 +232,20 @@
                         <div class="mb-2 col-md-3">
                             <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
                             <div class="extention-group">
-                                <input class="input__prefix form-control form-control-sm border border-1"
+                            <select wire:model=" "
+                                    wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
+                                    class="form-control form-control-sm">
+                                    <option value="" selected hidden>Select Country</option>
+                                    @foreach($countries as $country)
+                                    <option value="{{ $country->country_code }}"
+                                        data-length="{{$country->mobile_length}}">{{
+                                        $country->title }} ({{ $country->country_code
+                                        }})</option>
+                                    @endforeach
+                                </select>
+                                <!-- <input class="input__prefix form-control form-control-sm border border-1"
                                     wire:model="country_code" type="text" name="country_code" id="country_code"
-                                    readonly>
+                                    readonly> -->
                                 <input type="text" wire:model="phone" id="phone"
                                     class="form-control form-control-sm border border-1 p-2 {{ $errorClass['phone'] ?? '' }}"
                                     placeholder="Enter phone number" maxLength={{ $mobileLength }}>

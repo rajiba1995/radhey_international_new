@@ -176,7 +176,7 @@
                                                         <!--</div>-->
                                                     </td>
                                                     <td>
-                                                        <p class="text-xs font-weight-bold mb-0">{{ $user->phone }}</p>
+                                                        <p class="text-xs font-weight-bold mb-0">{{ $user->country_code_phone.' '. $user->phone }}</p>
                                                     </td>
                                                     <td>
                                                         <p class="text-xs font-weight-bold mb-0">{{ $user->company_name ?? 'N/A'}}</p>
