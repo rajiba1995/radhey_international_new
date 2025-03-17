@@ -41,7 +41,7 @@ class UserAddressForm extends Component
 
 
     public function mount(){
-        $this->countries = Country::all();
+        $this->countries = Country::where('status',1)->get();
     }
 
     public function GetCountryDetails($mobileLength, $field){
@@ -61,8 +61,6 @@ class UserAddressForm extends Component
             case 'alt_phone_2':
                 $this->mobileLengthAlt2 = $mobileLength;
                 break;
-            
-                
         }
     }
 

@@ -26,7 +26,7 @@ class StaffAdd extends Component
     public $address, $landmark, $state, $city, $pincode, $country;
     public $designations = [];
     public $branchNames = [];
-    public $Selectcountry;
+    public $countries;
     public $filteredCountries = []; 
     public $selectedCountryId;
     public $searchTerm;
@@ -40,11 +40,13 @@ class StaffAdd extends Component
     public $alternative_phone_number_1;
     public $alternative_phone_number_2;
     public $password;
+    public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
+    public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
 
     public function mount(){
         $this->designations = Designation::where('status',1)->orderBy('name', 'ASC')->where('id', '!=', 1)->get();
         $this->branchNames  = Branch::all();
-        $this->Selectcountry = Country::all();
+        $this->countries = Country::where('status',1)->get();
         $this->Business_type = BusinessType::all();
         $this->selectedCountryId = null;
         $this->selectedBusinessType  = null;
@@ -294,26 +296,26 @@ class StaffAdd extends Component
         }
     }
 
-    public function SameAsMobile(){
-        if($this->is_wa_same == 0){
-            $this->whatsapp_no = $this->mobile;
-            $this->is_wa_same =1;
-        }else{
-            $this->whatsapp_no = '';
-            $this->is_wa_same = 0;
-        }
-    }
+    // public function SameAsMobile(){
+    //     if($this->is_wa_same == 0){
+    //         $this->whatsapp_no = $this->mobile;
+    //         $this->is_wa_same =1;
+    //     }else{
+    //         $this->whatsapp_no = '';
+    //         $this->is_wa_same = 0;
+    //     }
+    // }
 
-    public function SameAsContact(){
-        if($this->same_as_contact == 0){
-            $this->emergency_whatsapp = $this->emergency_mobile;
-            $this->same_as_contact = 1;
-        }else{
-            $this->emergency_whatsapp = '';
-            $this->same_as_contact = 0;
-        }
+    // public function SameAsContact(){
+    //     if($this->same_as_contact == 0){
+    //         $this->emergency_whatsapp = $this->emergency_mobile;
+    //         $this->same_as_contact = 1;
+    //     }else{
+    //         $this->emergency_whatsapp = '';
+    //         $this->same_as_contact = 0;
+    //     }
 
-    }
+    // }
 
 
     public function render()

@@ -12,8 +12,11 @@ class CountryIndex extends Component
     // public $country;
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
+    public $search = '';
 
-   
+    public function FindCountry($keyword){
+        $this->search = $keyword;
+    }
     public function toggleStatus($id){
         $country_status = Country::find($id);
         $country_status->status = !$country_status->status;
@@ -23,8 +26,9 @@ class CountryIndex extends Component
 
     public function render()
     {
+        $countries = Country::where('title' , 'like' , '%' . $this->search . '%')->paginate(10);
         return view('livewire.country.country-index',[
-            'country'=> Country::paginate(10)
+            'country'=> $countries
         ]);
     }
 }

@@ -155,11 +155,7 @@
                                 <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
                                     class="form-control form-control-sm border border-1 p-2"  placeholder="Enter Whatsapp Number" maxLength={{$mobileLengthWhatsapp}}>
                             </div>
-                            {{-- <div class="custon-input-group">
-                                <input type="checkbox" id="is_wa_same" wire:change="SameAsMobile" value="0"
-                                    @if($is_wa_same) checked @endif>
-                                <label for="is_wa_same" class="form-check-label ms-2">Same as Phone Number</label>
-                            </div> --}}
+                           
                             @error('whatsapp_no')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror

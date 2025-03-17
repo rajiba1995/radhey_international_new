@@ -21,7 +21,7 @@ class CustomerEdit extends Component
     public $shipping_address, $shipping_landmark, $shipping_city, $shipping_state, $shipping_country, $shipping_pin;
     public $is_billing_shipping_same;
     public $tempImageUrl;
-    public $filteredCountries = [];
+    // public $filteredCountries = [];
     public $mobileLength;
     public $country_id;
     public $searchTerm;
@@ -42,7 +42,7 @@ class CustomerEdit extends Component
             $this->alternative_phone_number_1 = $user->alternative_phone_number_1;
             $this->alternative_phone_number_2 = $user->alternative_phone_number_2;
             $this->phone = $user->phone;
-            $this->countries = Country::all();
+            $this->countries = Country::where('status',1)->get();
             $this->selectedCountryPhone = $user->country_code_phone;
             $this->selectedCountryWhatsapp = $user->country_code_whatsapp;
             $this->selectedCountryAlt1 = $user->country_code_alt_1;
@@ -144,7 +144,6 @@ class CustomerEdit extends Component
         $this->dob   = $user->dob ?? "";  
         // $this->phone = $user->phone ?? "";
         $this->whatsapp_no = $user->whatsapp_no ?? "";
-        $this->is_wa_same =  ($this->phone =  $this->whatsapp_no) ? 1 : 0;
         $this->gst_number = $user->gst_number ?? "";
         $this->credit_limit = $user->credit_limit ?? "";
         $this->credit_days = $user->credit_days ?? "";
@@ -261,6 +260,8 @@ class CustomerEdit extends Component
                 ['user_id' => $user->id, 'whatsapp_number' => $this->phone],
                 ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
             ); 
+        }else {
+            UserWhatsapp::where('user_id', $user->id)->where('whatsapp_number', $this->phone)->delete();
         }
         
         if ($this->isWhatsappAlt1) {
@@ -268,6 +269,8 @@ class CustomerEdit extends Component
                 ['user_id' => $user->id, 'whatsapp_number' => $this->alternative_phone_number_1],
                 ['country_code' => $this->selectedCountryAlt1, 'updated_at' => now()]
             );
+        }else {
+            UserWhatsapp::where('user_id', $user->id)->where('whatsapp_number', $this->alternative_phone_number_1)->delete();
         }
         
         if ($this->isWhatsappAlt2) {
@@ -275,6 +278,8 @@ class CustomerEdit extends Component
                 ['user_id' => $user->id, 'whatsapp_number' => $this->alternative_phone_number_2],
                 ['country_code' => $this->selectedCountryAlt2, 'updated_at' => now()]
             );
+        }else {
+            UserWhatsapp::where('user_id', $user->id)->where('whatsapp_number', $this->alternative_phone_number_2)->delete();
         }
         
         
@@ -371,16 +376,6 @@ class CustomerEdit extends Component
         return null;
     }
 
-    // public function SameAsMobile()
-    // {
-    //     if ($this->is_wa_same == 0) {
-    //         $this->whatsapp_no = $this->phone;
-    //         $this->is_wa_same = 1;
-    //     } else {
-    //         $this->whatsapp_no = '';
-    //         $this->is_wa_same = 0;
-    //     }
-    // }
 
     public function render()
     {
