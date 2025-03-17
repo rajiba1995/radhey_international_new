@@ -64,10 +64,12 @@ class OrderEdit extends Component
     public $selectedBusinessType;
     public $search;
     public $country_code;
-
-
-
-
+    public $countries;
+    public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
+    // public $selectedCountryPhone;
+    // public $mobileLengthPhone;
+    public $isWhatsappPhone;
+    public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
     public function mount($id)
     {
         $this->orders = Order::with(['items.measurements'])->findOrFail($id); // Fetch the order by ID
@@ -85,6 +87,13 @@ class OrderEdit extends Component
             $this->whatsapp_no = $this->orders->customer->whatsapp_no;
             $this->is_wa_same  = ($this->phone == $this->whatsapp_no);
             $this->catalogues = Catalogue::with('catalogueTitle')->get()->toArray();
+            $country = Country::find($this->orders->customer->country_id);
+            // $country = Country::find($customer->country_id);
+            if ($country) {
+                $this->selectedCountryPhone = $country->country_code;
+                $this->mobileLengthPhone = $country->mobile_length;
+            }
+
             $this->items = $this->orders->items->map(function ($item) {
                
                 $selected_titles = OrderMeasurement::where('order_item_id', $item->id)->pluck('measurement_name')->toArray();
@@ -204,9 +213,29 @@ class OrderEdit extends Component
         $this->remaining_amount =  $this->orders->remaining_amount;
         $this->payment_mode = $this->orders->payment_mode;
         // $this->addItem();
+        $this->countries = Country::all();
         $this->salesmanBill = SalesmanBilling::where('salesman_id',auth()->guard('admin')->user()->id)->first();
     }
-
+    public function GetCountryDetails($mobileLength, $field)
+    {
+        switch($field){
+            case 'phone':
+                $this->mobileLengthPhone = $mobileLength;
+                break;
+    
+            case 'whatsapp':
+                $this->mobileLengthWhatsapp = $mobileLength;
+                break;
+    
+            case 'alt_phone_1':
+                $this->mobileLengthAlt1 = $mobileLength;
+                break;
+            
+            case 'alt_phone_2':
+                $this->mobileLengthAlt2 = $mobileLength;
+                break;
+        }
+    }
 
     public function addItem()
     {

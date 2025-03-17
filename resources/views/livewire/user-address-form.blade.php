@@ -180,7 +180,7 @@
                         <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">alternative phone number 1 </label>
                             <div class="extention-group">
-                                <select wire:model="selectedCountryAlt1"
+                                <select wire:model="selectedCountryAlt2"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_1')"
                                     class="form-control form-control-sm">
                                     <option value="" selected hidden>Select Country</option>

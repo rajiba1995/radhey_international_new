@@ -27,7 +27,13 @@ class Order extends Model
         'payment_mode',
         'status',
         'business_type',
-        'created_by' 
+        'created_by' ,
+        'country_code_alt_1',
+        'alternative_phone_number_1',
+        'country_code_alt_2',
+        'alternative_phone_number_2',
+        'country_code_whatsapp',
+        'country_code_phone',
     ];
     public function items()
     {
