@@ -105,8 +105,8 @@
                                             <td><p class="text-xs font-weight-bold mb-0">{{$member->prefix. " ".ucwords($member->name)}}</p></td>
                                             <td><p class="text-xs font-weight-bold mb-0">{{ ucwords($member->designationDetails->name ?? 'N/A')  }}</p></td>
                                             <td>
-                                                <p class="text-xs font-weight-bold mb-0"><span>Mobile:</span><strong>{{ $member->phone ?? 'N/A' }}</strong> <br>
-                                                <span>WhatsApp:</span><strong>{{ $member->whatsapp_no ?? 'N/A' }}</strong></p> 
+                                                <p class="text-xs font-weight-bold mb-0"><span>Mobile:</span><strong> {{ $member->country_code_phone.' '.$member->phone ?? 'N/A' }}</strong> <br>
+                                                <span>WhatsApp:</span><strong> {{ $member->country_code_whatsapp.' '.$member->whatsapp_no ?? 'N/A' }}</strong></p> 
                                             </td>
                                             <td>
                                                 <div class="form-check form-switch">

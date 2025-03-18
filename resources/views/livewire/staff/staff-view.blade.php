@@ -45,10 +45,10 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <h6 class="mb-1"> Contact Info</h6>
-                                    <p class="mb-1"><i class="fas fa-phone" style="font-size: 14px; color: #6c757d;"></i> {{ $staff->phone }}</p>
-                                    <p class="mb-1"><i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i> {{ $staff->whatsapp_no }}</p>
-                                    <p class="mb-1"> <i class="fas fa-mobile-alt"></i> {{ $staff->alternative_phone_number_1 }}</p>
-                                    <p class="mb-1"> <i class="fas fa-mobile-alt"></i> {{ $staff->alternative_phone_number_2 }}</p>
+                                    <p class="mb-1"><i class="fas fa-phone" style="font-size: 14px; color: #6c757d;"></i> {{$staff->country_code_phone.' '. $staff->phone }}</p>
+                                    <p class="mb-1"><i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i> {{$staff->country_code_whatsapp.' '. $staff->whatsapp_no }}</p>
+                                    <p class="mb-1"> <i class="fas fa-mobile-alt"></i> {{$staff->country_code_alt_1.' '. $staff->alternative_phone_number_1 }}</p>
+                                    <p class="mb-1"> <i class="fas fa-mobile-alt"></i> {{$staff->country_code_alt_2.' '. $staff->alternative_phone_number_2 }}</p>
                                     @if (isset($staff->address) && ($staff->address->address || $staff->address->city))
                                       <p class="mb-1"><i class="fas fa-map-marker-alt" style="font-size: 14px; color: #6c757d;"></i> {{ $staff->address->address ?? 'N/A' }}, {{ $staff->address->city ?? 'N/A' }}</p>  
                                     @endif
@@ -60,10 +60,10 @@
                                         <strong>Name:</strong> {{ $staff->emergency_contact_person ?? 'N/A' }}</p>
                                     
                                     <p class="mb-1"><i class="fas fa-phone-alt" style="font-size: 14px; color: #dc3545;"></i> 
-                                        <strong>Contact:</strong> {{ $staff->emergency_mobile ?? 'N/A' }}</p>
+                                        <strong>Contact:</strong> {{$staff->country_code_emergency_mobile.' '. $staff->emergency_mobile ?? 'N/A' }}</p>
                                     
                                     <p class="mb-1"><i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i> 
-                                        <strong>WhatsApp:</strong> {{ $staff->emergency_whatsapp ?? 'N/A' }}</p>
+                                        <strong>WhatsApp:</strong> {{$staff->country_code_emergency_whatsapp.' '. $staff->emergency_whatsapp ?? 'N/A' }}</p>
                     
                                     <p class="mb-1"><i class="fas fa-map-marker-alt" style="font-size: 14px; color: #6c757d;"></i> 
                                         <strong>Address:</strong> {{ $staff->emergency_address ?? 'N/A' }}</p>

@@ -183,9 +183,7 @@
                     </div>
 
 
-                    <div class="mb-3 col-md-3"  @if ($selectedCountryId !=76)
-                        style="display: none;"
-                    @endif>
+                    <div class="mb-3 col-md-3" >
                         <label for="aadhaar_number" class="form-label">Aadhaar Number
                             @if($showRequiredFields)
                             <span class="text-danger">*</span>
@@ -323,9 +321,7 @@
                     </div>
                 </div>
                 <div class="row mt-4">
-                    <div class="col-md-3" @if ($selectedCountryId !=76)
-                        style="display: none;"
-                    @endif>
+                    <div class="col-md-3" >
                         <label for="passport_no" class="form-label">Passport No.
                             @if ($showRequiredFields)
                              <span class="text-danger">*</span>  
@@ -357,9 +353,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-md-3"  @if ($selectedCountryId !=76)
-                            style="display: none;"
-                     @endif>
+                    <div class="col-md-3"  >
                         <label for="visa_no" class="form-label">Visa No. 
                             @if ($showRequiredFields)
                             <span class="text-danger">*</span>  
@@ -391,14 +385,28 @@
                     <div class="col-md-4">
                         <label class="form-label">Contact Number</label>
                         <div class="extention-group">
-                        <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                        <select wire:model="selectedCountryEmergencyContact"
+                                wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'emergency_contact')"
+                                class="form-control form-control-sm">
+                                <option value="" selected hidden>Select Country</option>
+                                @foreach($countries as $country)
+                                <option value="{{ $country->country_code }}" data-length="{{$country->mobile_length}}">{{
+                                    $country->title }} ({{ $country->country_code
+                                    }})
+                                </option>
+                                @endforeach
+                        </select>
                         <input type="text" wire:model="emergency_mobile"
                             class="form-control form-control-sm border border-1 p-2"
-                            placeholder="Enter Emergency Mobile Number" maxLength={{ $mobileLength }}>
+                            placeholder="Enter Emergency Mobile Number" maxLength={{ $mobileLengthEmergencyContact }}>
                         </div>
                         @error('emergency_mobile')
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
+                        <div>
+                            <input type="checkbox" id="is_whatsapp4" wire:model="isWhatsappEmergency">
+                            <label for="is_whatsapp4" class="form-check-label ms-2">Is Whatsapp</label>
+                        </div>
                     </div>
 
                     <!-- Checkbox to Copy Contact Number to WhatsApp Number -->
@@ -411,18 +419,20 @@
                         <label class="form-label">WhatsApp Number</label>
                         <div class=" align-items-center">
                             <div class="extention-group">
-                            <input class="input__prefix form-control form-control-sm border border-1" wire:model="country_code" type="text" name="country_code" id="country_code"  readonly>
+                            <select wire:model="selectedCountryEmergencyWhatsapp"
+                                    wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'emergency_whatsapp')"
+                                    class="form-control form-control-sm">
+                                    <option value="" selected hidden>Select Country</option>
+                                    @foreach($countries as $country)
+                                    <option value="{{ $country->country_code }}" data-length="{{$country->mobile_length}}">{{
+                                        $country->title }} ({{ $country->country_code
+                                        }})</option>
+                                    @endforeach
+                            </select>
                             <input type="text" wire:model="emergency_whatsapp"
                                 class="form-control form-control-sm border border-1 p-2"
-                                placeholder="Enter Emergency WhatsApp Number" @if($same_as_contact) disabled @endif maxLength={{ $mobileLength }}>
+                                placeholder="Enter Emergency WhatsApp Number" maxLength={{ $mobileLengthEmergencyWhatsapp }}>
                             </div>
-                            <div class="custon-input-group">
-                                <input type="checkbox" wire:change="SameAsContact" id="same_as_contact" value="0"
-                                    @if($same_as_contact) checked @endif>
-                                <label for="same_as_contact" class="form-check-label ms-2">Same as Contact
-                                    Number</label>
-                            </div>
-
                         </div>
                         @error('emergency_whatsapp')
                         <div class="text-danger">{{ $message }}</div>
@@ -537,9 +547,7 @@
                         <div class="text-danger">{{$message}}</div>
                         @enderror
                     </div>
-                    <div class="col-md-4" @if ($selectedCountryId !=76)
-                         style="display: none;"
-                     @endif>
+                    <div class="col-md-4">
                         <label class="form-label">State 
                             @if ($showRequiredFields)
                             <span class="text-danger">*</span>

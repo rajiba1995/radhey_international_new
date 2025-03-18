@@ -21,7 +21,9 @@ class User extends Authenticatable
     protected $table = 'users';
     protected $fillable = [
         'emergency_contact_person',
+        'country_code_emergency_mobile',
         'emergency_mobile',
+        'country_code_emergency_whatsapp',
         'emergency_whatsapp',
         'emergency_address',
         'branch_id',
