@@ -96,7 +96,7 @@
                             </x-table-td>
                             <x-table-td>
                                 <p class="small text-muted mb-1">
-                                    <span><strong>{{$item->customer->name}}</strong> </span>
+                                    <span><strong>{{$item->customer?$item->customer->name:""}}</strong> </span>
                                 </p>
                             </x-table-td>
                             <x-table-td>
@@ -107,7 +107,7 @@
                             <x-table-td>{{number_format($item->net_price,2)}} </x-table-td>
                             <x-table-td>
                                 {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Edit</a> --}}
-                                <button wire:click="downloadInvoice({{ $item->order_id }})" class="btn select-md btn-outline-success btn_outline">Download</button>
+                                <button wire:click="downloadOrderInvoice({{ $item->order_id }})" class="btn select-md btn-outline-success btn_outline">Download</button>
                                 {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Download Slip</a> --}}
                                 {{-- <a href="#" class="btn select-md btn-outline-warning btn_outline"
                                     onclick="return confirm('Are you sure want to revoke?');">Revoke</a> --}}

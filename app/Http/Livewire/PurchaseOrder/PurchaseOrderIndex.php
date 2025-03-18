@@ -5,6 +5,7 @@ namespace App\Http\Livewire\PurchaseOrder;
 use Livewire\Component;
 use App\Models\PurchaseOrder;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PurchaseOrderIndex extends Component
 {
@@ -21,7 +22,24 @@ class PurchaseOrderIndex extends Component
     public function resetForm(){
         $this->reset(['search']);
     }
-    
+    // $purchaseOrder = PurchaseOrder::with('supplier', 'orderproducts')->findOrFail($purchase_order_id);
+    // $pdf = Pdf::loadView('livewire.purchase-order.generate-pdf', compact('purchaseOrder'));
+    // return $pdf->download('purchase_order_' . $purchase_order_id . '.pdf');
+    public function downloadPdf($purchase_order_id)
+    {
+        // $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
+        //             ->where('order_id', $orderId)
+        //             ->firstOrFail();
+        $purchaseOrder = PurchaseOrder::with('supplier', 'orderproducts')->findOrFail($purchase_order_id);
+        // Generate PDF
+        $pdf =  Pdf::loadView('livewire.purchase-order.generate-pdf', compact('purchaseOrder'));
+        $pdf->setPaper('A4', 'portrait');
+        // Download the PDF
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, 'purchase_order_' . $purchase_order_id . '.pdf');
+        // return $pdf->download('purchase_order_' . $purchase_order_id . '.pdf');
+    }
     public function render()
     {
         $query = PurchaseOrder::with(['orderproducts.product', 'orderproducts.fabric', 'orderproducts.collection'])

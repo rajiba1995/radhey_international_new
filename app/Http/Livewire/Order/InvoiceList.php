@@ -19,14 +19,14 @@ class InvoiceList extends Component
         $this->search = $keywords;
     }
 
-    public function downloadInvoice($orderId)
+    public function downloadOrderInvoice($orderId)
     {
         $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
                     ->where('order_id', $orderId)
                     ->firstOrFail();
     
         // Generate PDF
-        $pdf = PDF::loadView('invoice.pdf', compact('invoice'));
+        $pdf = PDF::loadView('invoice.order_pdf', compact('invoice'));
     
         // Download the PDF
         return response()->streamDownload(function () use ($pdf) {
