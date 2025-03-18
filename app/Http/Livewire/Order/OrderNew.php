@@ -20,6 +20,7 @@ use App\Models\OrderMeasurement;
 use App\Models\Payment;
 use App\Models\Country;
 use App\Models\BusinessType;
+use App\Models\UserWhatsapp;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
@@ -41,7 +42,7 @@ class OrderNew extends Component
 
     public $customers = null;
     public $orders = null;
-    public $is_wa_same, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1,$alternative_phone_number_2;
+    public $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1,$alternative_phone_number_2;
     public $billing_address,$billing_landmark,$billing_city,$billing_state,$billing_country,$billing_pin;
 
     public $is_billing_shipping_same;
@@ -71,23 +72,18 @@ class OrderNew extends Component
 
     // for checking salesman billing exists or not
     public $salesmanBill;
-
-    // public $searchTerm = '';
     public $selectedFabric = null;
-    public $filteredCountries = [];
+    // public $filteredCountries = [];
     public $search;
     public $mobileLength;
     public $country_code;
     public $country_id;
     public $Business_type;
     public $selectedBusinessType;
-
-
     public $countries;
+
     public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
-    // public $selectedCountryPhone;
-    // public $mobileLengthPhone;
-    public $isWhatsappPhone;
+    public $isWhatsappPhone, $isWhatsappAlt1, $isWhatsappAlt2;
     public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
     public $items = [
         // Example item structure
@@ -116,7 +112,7 @@ class OrderNew extends Component
             $this->dob = $customer->dob;
             $this->phone = $customer->phone;
             $this->whatsapp_no = $customer->whatsapp_no;
-            $this->is_wa_same = ($customer->phone == $customer->whatsapp_no) ? 1 : 0;
+            
 
             // Assign Billing Address (if exists)
             if ($billing = $customer->billingAddress) {
@@ -190,152 +186,30 @@ class OrderNew extends Component
 
     $this->Business_type = BusinessType::all();
     $this->selectedBusinessType = null;
-    $this->countries = Country::all();
+    $this->countries = Country::where('status',1)->get();
 }
 
-// public function GetCountryDetails($mobileLength, $field)
-// {
-//     switch($field){
-//         case 'phone':
-//             $this->mobileLengthPhone = $mobileLength;
-//             break;
+    public function GetCountryDetails($mobileLength, $field)
+    {
+        switch($field){
+            case 'phone':
+                $this->mobileLengthPhone = $mobileLength;
+                break;
 
-//         case 'whatsapp':
-//             $this->mobileLengthWhatsapp = $mobileLength;
-//             break;
+            case 'whatsapp':
+                $this->mobileLengthWhatsapp = $mobileLength;
+                break;
 
-//         case 'alt_phone_1':
-//             $this->mobileLengthAlt1 = $mobileLength;
-//             break;
-        
-//         case 'alt_phone_2':
-//             $this->mobileLengthAlt2 = $mobileLength;
-//             break;
-//     }
-// }
-
-public function GetCountryDetails($mobileLength, $type)
-{
-    if ($type == 'phone') {
-        $this->mobileLengthPhone = $mobileLength;
-    } elseif ($type == 'whatsapp') {
-        $this->mobileLengthWhatsapp = $mobileLength;
-    } elseif ($type == 'alt_phone_1') {
-        $this->mobileLengthAlt1 = $mobileLength;
-    } elseif ($type == 'alt_phone_2') {
-        $this->mobileLengthAlt2 = $mobileLength;
-    }
-}
-
-public function updated($propertyName)
-{
-    if ($propertyName == 'phone') {
-        $this->validatePhoneNumber($this->phone, 'phone', $this->mobileLengthPhone);
-    }
-    if ($propertyName == 'whatsapp_no') {
-        $this->validatePhoneNumber($this->whatsapp_no, 'whatsapp_no', $this->mobileLengthWhatsapp);
-    }
-    if ($propertyName == 'alternative_phone_number_1') {
-        $this->validatePhoneNumber($this->alternative_phone_number_1, 'alternative_phone_number_1', $this->mobileLengthAlt1);
-    }
-    if ($propertyName == 'alternative_phone_number_2') {
-        $this->validatePhoneNumber($this->alternative_phone_number_2, 'alternative_phone_number_2', $this->mobileLengthAlt2);
-    }
-}
-public function validatePhoneNumber($number, $field, $requiredLength)
-{
-    if (empty($number)) {
-        $this->errorClass[$field] = 'border-danger';
-        $this->errorMessage[$field] = 'This field is required.';
-    } elseif (!preg_match('/^\d{'.$requiredLength.'}$/', $number)) {
-        $this->errorClass[$field] = 'border-danger';
-        $this->errorMessage[$field] = "Number must be exactly $requiredLength digits.";
-    } else {
-        $this->errorClass[$field] = null;
-        $this->errorMessage[$field] = null;
-    }
-}
-
-// public function updatedSelectedCountryPhone($countryCode)
-// {
-//     $country = Country::where('country_code', $countryCode)->first();
-//     if ($country) {
-//         $this->mobileLengthPhone = $country->mobile_length;
-//     }
-// }
-
-// public function updatedSelectedCountryWhatsapp($countryCode)
-// {
-//     $country = Country::where('country_code', $countryCode)->first();
-//     if ($country) {
-//         $this->mobileLengthWhatsapp = $country->whatsapp_length;
-//     }
-// }
-
-// public function updatedSelectedCountryAlt1($countryCode)
-// {
-//     $country = Country::where('country_code', $countryCode)->first();
-//     if ($country) {
-//         $this->mobileLengthAlt1 = $country->mobile_length_alt_1;
-//     }
-// }
-
-// public function updatedSelectedCountryAlt2($countryCode)
-// {
-//     $country = Country::where('country_code', $countryCode)->first();
-//     if ($country) {
-//         $this->mobileLengthAlt2 = $country->mobile_length_alt_2;
-//     }
-// }
-
-
-    public function FindCountry($term){
-        $this->search = $term;
-        if (!empty($this->search)) {
-            $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->search . '%')->get();
-        }else{
-            $this->filteredCountries = [];
+            case 'alt_phone_1':
+                $this->mobileLengthAlt1 = $mobileLength;
+                break;
+            
+            case 'alt_phone_2':
+                $this->mobileLengthAlt2 = $mobileLength;
+                break;
         }
     }
 
-    public function selectCountry($countryId){
-        $country = Country::find($countryId);
-        if($country){
-            $this->country_id = $country->id;
-            $this->search  = $country->title;
-            $this->country_code = $country->country_code;
-            $this->mobileLength = $country->mobile_length;
-        }
-
-        $this->filteredCountries = [];
-    }
-
-      
-    // public function searchFabrics($index) 
-    // {
-    //     // Ensure product_id exists for the given index
-    //     if (!isset($this->items[$index]['product_id'])) {
-    //         return;
-    //     }
-    
-    //     $productId = $this->items[$index]['product_id'];
-    
-    //     // Ensure searchTerm exists for this index
-    //     $searchTerm = $this->items[$index]['searchTerm'] ?? '';
-    
-    //     if (!empty($searchTerm)) {
-    //         $this->items[$index]['searchResults'] = Fabric::join('product_fabrics', 'fabrics.id', '=', 'product_fabrics.fabric_id')
-    //             ->where('product_fabrics.product_id', $productId)
-    //             ->where('fabrics.status', 1)
-    //             ->where('fabrics.title', 'LIKE', "%{$searchTerm}%")
-    //             ->select('fabrics.id', 'fabrics.title')
-    //             ->distinct()
-    //             ->limit(10)
-    //             ->get();
-    //     } else {
-    //         $this->items[$index]['searchResults'] = [];
-    //     }
-    // }
 
     public function searchFabrics($index)
     {
@@ -343,7 +217,7 @@ public function validatePhoneNumber($number, $field, $requiredLength)
         // Perform the fabric search
         $productId = $this->items[$index]['product_id'] ?? null;
         $searchTerm = $this->items[$index]['searchTerm'] ?? '';
-    
+        
         if (!empty($searchTerm) && !is_null($productId)) {
             $this->items[$index]['searchResults'] = Fabric::join('product_fabrics', 'fabrics.id', '=', 'product_fabrics.fabric_id')
                 ->where('product_fabrics.product_id', $productId)
@@ -381,27 +255,23 @@ public function validatePhoneNumber($number, $field, $requiredLength)
     }
 
     // Define rules for validation
-    protected $rules = [   
-        'items' => 'required|min:1',     
-        'items.*.collection' => 'required|string',
-        'items.*.category' => 'required|string',
-        'items.*.searchproduct' => 'required|string',
-        'items.*.product_id' => 'required|integer',
-        'items.*.price' => 'required|numeric|min:1',  // Ensuring that price is a valid number (and greater than or equal to 0).
-        // 'paid_amount' => 'required|numeric|min:1',   // Ensuring that price is a valid number (and greater than or equal to 0).
-        // 'payment_mode' => 'required|string',  // Ensuring that price is a valid number (and greater than or equal to 0).
-        // 'items.*.measurements.*' => 'nullable|string',
-        // 'items.*.measurements' => 'nullable|array', // Ensure measurements exist as an array
-        // 'items.*.get_measurements.*.value' => 'required|string',
-        // 'items.*.get_measurements.*.value' => 'required|string|min:1',
-        'items.*.searchTerm' => 'required_if:items.*.collection,1',
-        // 'order_number' => 'required|numeric|unique:orders,order_number|min:1',
-        'order_number' => 'required|string|not_in:000|unique:orders,order_number',
-        'items.*.selectedCatalogue' => 'required_if:items.*.collection,1',
-        'items.*.page_number' => 'required_if:items.*.collection,1'
-    ];
+    public function rules(){
+        return[
+            'items' => 'required|min:1',     
+            'items.*.collection' => 'required|string',
+            'items.*.category' => 'required|string',
+            'items.*.searchproduct' => 'required|string',
+            'items.*.product_id' => 'required|integer',
+            'items.*.price' => 'required|numeric|min:1',  
+            'items.*.searchTerm' => 'required_if:items.*.collection,1|nullable',
+            'order_number' => 'required|string|not_in:000|unique:orders,order_number',
+            'items.*.selectedCatalogue' => 'required_if:items.*.collection,1|nullable',
+            'items.*.page_number' => 'required_if:items.*.collection,1|nullable'
+        ];
+    }
+   
 
-    protected function messages(){
+    public function messages(){
         return [
             'items.required' => 'Please add at least one item to the order.',
              'items.*.category.required' => 'Please select a category for the item.',
@@ -492,22 +362,6 @@ public function validatePhoneNumber($number, $field, $requiredLength)
     }
 
 
-    // public function addItem()
-    // {
-    //     $this->items[] = [
-           
-    //         'collection' => '',
-    //         'category' => '',
-    //         'sub_category' => '',
-    //         'searchproduct' => '',
-    //         'selected_fabric' => null,
-    //         'measurements' => [],
-    //         'products' => [],
-    //         'product_id' => null,
-    //         'price' => '', // Ensure price is initialized to an empty string, not null.
-    //     ];
-    //     // $this->validate();
-    // }
 
     public function addItem()
     {
@@ -538,20 +392,7 @@ public function validatePhoneNumber($number, $field, $requiredLength)
     }
     
 
-    // public function addMeasurement($index, $measurement)
-    // {
-    //     // Initialize measurements array if it's not already set for the specific item
-    //     if (!isset($this->items[$index]['measurements'])) {
-    //         $this->items[$index]['measurements'] = [];
-    //     }
-    
-    //     // Add the measurement to the measurements array
-    //     $this->items[$index]['measurements'][$measurement->id] = [
-    //         'title' => $measurement->title,
-    //         'short_code' => $measurement->short_code,
-    //         'value' => '',  // Initialize the value as empty or with a default value
-    //     ];
-    // }
+
 
     
 
@@ -684,23 +525,7 @@ public function validatePhoneNumber($number, $field, $requiredLength)
     
     }
 
-    // public function checkproductPrice($value, $index)
-    // {
-    //     // Remove any non-numeric characters except for the decimal point
-    //     $formattedValue = preg_replace('/[^0-9.]/', '', $value);
-
-    //     // Check if the value is numeric
-    //     if (is_numeric($formattedValue)) {
-    //         // Format the value to two decimal places if it's a valid number
-    //         // $this->items[$index]['price'] = number_format((float)$formattedValue, 2, '.', '');
-    //         session()->forget('errorPrice.' . $index); // Clear any previous error message
-    //     } else {
-    //         // If the value is invalid, reset the price and show an error message
-    //         $this->items[$index]['price'] = 0;
-    //         session()->flash('errorPrice.' . $index, '🚨 Please enter a valid price.');
-    //     }
-    //     $this->updateBillingAmount();  // Update billing amount after checking price
-    // }
+   
 
     public function checkproductPrice($value, $index)
     {
@@ -842,14 +667,28 @@ public function validatePhoneNumber($number, $field, $requiredLength)
             $this->items[$index]['existing_measurements'] = [];
         }
     }
+    public function copyMeasurements($index){
+        if ($index > 0) {
+            if (!empty($this->items[$index]['copy_previous_measurements'])) {
+                // If checkbox is checked, copy measurements from the previous item
+                if (!empty($this->items[$index - 1]['get_measurements'])) {
+                    $this->items[$index]['get_measurements'] = $this->items[$index - 1]['get_measurements'];
+                }
+            } else {
+                // If checkbox is unchecked, clear measurements
+                $this->items[$index]['get_measurements'] = [];
+            }
+        }
+    }
 
     public function save()
-    {
-        
+    {   
+        // dd($this->all());
         DB::beginTransaction(); // Begin transaction
-        $this->validate();
+        
         try{ 
-          
+            $this->validate();
+            
             // Calculate the total amount
             $total_amount = array_sum(array_column($this->items, 'price'));
             if ($this->paid_amount > $total_amount) {
@@ -871,14 +710,14 @@ public function validatePhoneNumber($number, $field, $requiredLength)
                     'email' => $this->email,
                     'dob' => $this->dob,
                     'country_id' => $this->country_id,
-                    'phone' => $this->phone,
-                    'whatsapp_no' => $this->whatsapp_no,
-                    'country_code' => $this->country_code,
                     'country_code_phone' => $this->selectedCountryPhone,
+                    'phone' => $this->phone,
                     'country_code_whatsapp' => $this->selectedCountryWhatsapp,
+                    'whatsapp_no' => $this->whatsapp_no,
+                    // 'country_code' => $this->country_code,
                     'country_code_alt_1'  => $this->selectedCountryAlt1,
-                    'country_code_alt_2'  => $this->selectedCountryAlt2,
                     'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    'country_code_alt_2'  => $this->selectedCountryAlt2,
                     'alternative_phone_number_2' => $this->alternative_phone_number_2,
                     'user_type' => 1, // Customer
                 ]);
@@ -924,10 +763,13 @@ public function validatePhoneNumber($number, $field, $requiredLength)
                     'email' => $this->email,
                     'dob' => $this->dob,
                     'country_id' => $this->country_id,
+                    'country_code_phone' => $this->selectedCountryPhone,
                     'phone' => $this->phone,
+                    'country_code_whatsapp' => $this->selectedCountryWhatsapp,
                     'whatsapp_no' => $this->whatsapp_no,
-                    'country_code' => $this->country_code,
+                    'country_code_alt_1'  => $this->selectedCountryAlt1,
                     'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    'country_code_alt_2'  => $this->selectedCountryAlt2,
                     'alternative_phone_number_2' => $this->alternative_phone_number_2,
                     'user_type' => 1, // Customer
                 ]);
@@ -1043,9 +885,6 @@ public function validatePhoneNumber($number, $field, $requiredLength)
             }
 
             $order->total_amount = $total_amount;
-            // $order->paid_amount = $this->paid_amount;
-            // $order->remaining_amount = $this->remaining_amount;
-            // $order->payment_mode = $this->payment_mode;
             $order->last_payment_date = date('Y-m-d H:i:s');
             $order->created_by = (int) $this->salesman; // Explicitly cast to integer
 
@@ -1066,8 +905,8 @@ public function validatePhoneNumber($number, $field, $requiredLength)
 
                 $orderItem = new OrderItem();
                 $orderItem->order_id = $order->id;
-                $orderItem->catalogue_id = $item['selectedCatalogue'];
-                $orderItem->cat_page_number = $item['page_number'];
+                $orderItem->catalogue_id = $item['selectedCatalogue'] ?? null;
+                $orderItem->cat_page_number = $item['page_number'] ?? null;
                 $orderItem->product_id = $item['product_id'];
                 $orderItem->collection = $collection_data ? $collection_data->id : "";
                 $orderItem->category = $category_data ? $category_data->id : "";
@@ -1105,15 +944,43 @@ public function validatePhoneNumber($number, $field, $requiredLength)
                 }
             }
 
-            // Update Bill Number
+            // Store WhatsApp details if the flags are set
+                if ($this->isWhatsappPhone) {
+                    UserWhatsapp::create([
+                        'user_id' => $user->id,
+                        'country_code' => $this->selectedCountryPhone,
+                        'whatsapp_number' => $this->phone,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
 
+                if ($this->isWhatsappAlt1) {
+                    UserWhatsapp::create([
+                        'user_id' => $user->id,
+                        'country_code' => $this->selectedCountryAlt1,
+                        'whatsapp_number' => $this->alternative_phone_number_1,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+
+                if ($this->isWhatsappAlt2) {
+                    UserWhatsapp::create([
+                        'user_id' => $user->id,
+                        'country_code' => $this->selectedCountryAlt2,
+                        'whatsapp_number' => $this->alternative_phone_number_2,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
 
             DB::commit();
 
             session()->flash('success', 'Order has been generated successfully.');
             return redirect()->route('admin.order.index');
         } catch (\Exception $e) {
-            dd($e);
+            // dd($e);
             DB::rollBack();
             \Log::error('Error saving order: ' . $e->getMessage());
             dd($e->getMessage());
@@ -1168,13 +1035,7 @@ public function validatePhoneNumber($number, $field, $requiredLength)
         $this->searchResults = [];
         $this->searchTerm = '';
     }
-    public function SameAsMobile(){
-        if($this->is_wa_same){
-            $this->whatsapp_no = $this->phone;
-        }else{
-            $this->whatsapp_no = '';
-        }
-    }
+   
     public function toggleShippingAddress()
     {
         // When the checkbox is checked
@@ -1200,6 +1061,9 @@ public function validatePhoneNumber($number, $field, $requiredLength)
 
     public function TabChange($value)
     {
+        // dd($this->all());
+        // dd($this->errorClass, $this->errorMessage);
+
         // Initialize or reset error classes and messages
         $this->errorClass = [];
         $this->errorMessage = [];
@@ -1219,18 +1083,18 @@ public function validatePhoneNumber($number, $field, $requiredLength)
             }
 
             // validate country
-            if(empty($this->search)){
-                $this->errorClass['search'] = 'border-danger';
-                $this->errorMessage['search'] = 'Please Search a country first';
-            }else{
-                $this->errorClass['search']  = null;
-                $this->errorMessage['search']  = null;
-            }
+            // if(empty($this->search)){
+            //     $this->errorClass['search'] = 'border-danger';
+            //     $this->errorMessage['search'] = 'Please Search a country first';
+            // }else{
+            //     $this->errorClass['search']  = null;
+            //     $this->errorMessage['search']  = null;
+            // }
 
             // validate Salesman
             if(empty($this->salesman)){
                 $this->errorClass['salesman'] = 'border-danger';
-                $this->errorMessage['salesman'] = 'Please select a salesmana first';
+                $this->errorMessage['salesman'] = 'Please select a salesman first';
             }else{
                 $this->errorClass['salesman']  = null;
                 $this->errorMessage['salesman']  = null;
@@ -1349,21 +1213,7 @@ public function validatePhoneNumber($number, $field, $requiredLength)
                 $this->errorMessage['billing_country'] = null;
             }
             
-            // if(!empty($this->billing_pin)){
-            //     if (strlen($this->billing_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
-            //         $this->errorClass['billing_pin'] = 'border-danger';
-            //         $this->errorMessage['billing_pin'] = 'Billing pin must be '.env('VALIDATE_PIN', 6).' digits';
-            //     } else {
-            //         $this->errorClass['billing_pin'] = null;
-            //         $this->errorMessage['billing_pin'] = null;
-            //     }
-            // }else {
-            //     // No error for an empty shipping_pin
-            //     $this->errorClass['billing_pin'] = null;
-            //     $this->errorMessage['billing_pin'] = null;
-            // }
             
-    
             // Validate Shipping Information
             if (empty($this->shipping_address)) {
                 $this->errorClass['shipping_address'] = 'border-danger';
@@ -1390,19 +1240,7 @@ public function validatePhoneNumber($number, $field, $requiredLength)
                 $this->errorMessage['shipping_country'] = null;
             }
     
-            // if (!empty($this->shipping_pin)) { // Only validate if shipping_pin is not empty
-            //     if (strlen($this->shipping_pin) != env('VALIDATE_PIN', 6)) { // Validate length
-            //         $this->errorClass['shipping_pin'] = 'border-danger';
-            //         $this->errorMessage['shipping_pin'] = 'Shipping pin must be ' . env('VALIDATE_PIN', 6) . ' digits';
-            //     } else {
-            //         $this->errorClass['shipping_pin'] = null;
-            //         $this->errorMessage['shipping_pin'] = null;
-            //     }
-            // } else {
-            //     // No error for an empty shipping_pin
-            //     $this->errorClass['shipping_pin'] = null;
-            //     $this->errorMessage['shipping_pin'] = null;
-            // }
+        
             
     
            
@@ -1443,11 +1281,8 @@ public function validatePhoneNumber($number, $field, $requiredLength)
 
     public function render()
     {
-       // dd($this->items[$index]['get_measurements']);
-        //dd($this->items[$index]['get_measurements']);
-       // dd($this->existing_measurements);
+     
         return view('livewire.order.order-new', [
-            // 'collectionsType' => $this->collectionsType,
             'categories' => $this->categories,
         ]);
     }

@@ -38,12 +38,13 @@
             <form wire:submit.prevent="save">
                 <div class="{{$activeTab==1?" d-block":"d-none"}}" id="tab1">
                     <div class="row align-items-center mb-3">
-                    <div class="col-md-4">
+                        <div class="col-md-4">
                             <div class="d-flex justify-content-between">
                                 <!-- Search Label -->
                                 <label for="searchCustomer" class="form-label mb-0">Business Type</label>
                             </div>
-                            <select wire:model="selectedBusinessType" class="form-select me-2 form-control form-control-sm border border-1 customer_input"
+                            <select wire:model="selectedBusinessType"
+                                class="form-select me-2 form-control form-control-sm border border-1 customer_input"
                                 aria-label="Default select example">
                                 <option selected hidden>Select Domain</option>
                                 @foreach ($Business_type as $domain)
@@ -55,7 +56,7 @@
                             @endif
                         </div>
                         {{-- Display Order by and order number --}}
-                          <!-- Ordered By Section -->
+                        <!-- Ordered By Section -->
                         <div class="col-md-4">
                             <label class="form-label"><strong>Ordered By</strong></label>
                             <select
@@ -63,34 +64,34 @@
                                 wire:change="changeSalesman($event.target.value)" wire:model="salesman">
                                 <option value="" selected hidden>Choose one..</option>
                                 <!-- Set authenticated user as default -->
-                            @if(auth()->guard('admin')->check())
+                                @if(auth()->guard('admin')->check())
                                 <option value="{{auth()->guard('admin')->user()->id}}" selected>
                                     {{auth()->guard('admin')->user()->name}}
                                 </option>
-                            @endif
-
-                            <!-- Other Salesmen -->
-                            @foreach ($salesmen as $salesmans)
-                                @if ($salesmans->id != auth()->guard('admin')->user()->id)
-                                    <option value="{{ $salesmans->id }}">{{ $salesmans->name }}</option>
                                 @endif
-                            @endforeach
-                        </select>
-                        @if(isset($errorMessage['salesman']))
-                            <div class="text-danger">{{ $errorMessage['salesman'] }}</div>
-                        @endif
-                    </div>
 
-                    <!-- Bill Number -->
-                    <div class="col-md-4">
-                        <label class="form-label"><strong>Bill Number</strong></label>
-                        <input type="text" class="form-control form-control-sm text-center border border-1" 
-                            disabled wire:model="order_number" value="{{ $order_number }}">
-                        @if(isset($errorMessage['order_number']))
+                                <!-- Other Salesmen -->
+                                @foreach ($salesmen as $salesmans)
+                                @if ($salesmans->id != auth()->guard('admin')->user()->id)
+                                <option value="{{ $salesmans->id }}">{{ $salesmans->name }}</option>
+                                @endif
+                                @endforeach
+                            </select>
+                            @if(isset($errorMessage['salesman']))
+                            <div class="text-danger">{{ $errorMessage['salesman'] }}</div>
+                            @endif
+                        </div>
+
+                        <!-- Bill Number -->
+                        <div class="col-md-4">
+                            <label class="form-label"><strong>Bill Number</strong></label>
+                            <input type="text" class="form-control form-control-sm text-center border border-1" disabled
+                                wire:model="order_number" value="{{ $order_number }}">
+                            @if(isset($errorMessage['order_number']))
                             <div class="text-danger">{{ $errorMessage['order_number'] }}</div>
                             @endif
                             {{-- @error('order_number')
-                               <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger">{{ $message }}</div>
                             @enderror --}}
                         </div>
 
@@ -114,7 +115,8 @@
                                     <button class="dropdown-item" type="button"
                                         wire:click="selectCustomer({{ $customer->id }})">
                                         <img src="{{ $customer->profile_image ? asset($customer->profile_image) : asset('assets/img/user.png') }}"
-                                            alt=""> {{$customer->prefix . " ". $customer->name }} ({{ $customer->country_code_phone .' '.$customer->phone
+                                            alt=""> {{$customer->prefix . " ". $customer->name }} ({{
+                                        $customer->country_code_phone .' '.$customer->phone
                                         }})
                                     </button>
                                     @endforeach
@@ -122,8 +124,8 @@
                                 @endif
                             </div>
                         </div>
-                        
-                       
+
+
                     </div>
 
                     <!-- Order Customer Fields... -->
@@ -229,126 +231,135 @@
                             <div class="text-danger">{{ $errorMessage['dob'] }}</div>
                             @endif
                         </div>
-                 <!-- Phone Number -->
-                 <!-- Phone Number -->
-                 <div class="mb-3 col-md-3">
-    <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
-    <div class="extention-group">
-        <!-- Country Select Dropdown for Phone -->
-        <select wire:model="selectedCountryPhone"
-                wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
-                class="form-control form-control-sm">
-            <option value="" selected hidden>Select Country</option>
-            @foreach($countries as $country)
-                <option value="{{ $country->country_code }}" data-length="{{ $country->mobile_length }}">
-                    {{ $country->title }} ({{ $country->country_code }})
-                </option>
-            @endforeach
-        </select>
+                        <!-- Phone Number -->
+                        <!-- Phone Number -->
+                        <div class="mb-3 col-md-3">
+                            <label for="phone" class="form-label">Phone Number <span
+                                    class="text-danger">*</span></label>
+                            <div class="extention-group">
+                                <!-- Country Select Dropdown for Phone -->
+                                <select wire:model="selectedCountryPhone"
+                                    wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
+                                    class="form-control form-control-sm">
+                                    <option value="" selected hidden>Select Country</option>
+                                    @foreach($countries as $country)
+                                    <option value="{{ $country->country_code }}"
+                                        data-length="{{ $country->mobile_length }}">
+                                        {{ $country->title }} ({{ $country->country_code }})
+                                    </option>
+                                    @endforeach
+                                </select>
 
-        <!-- Phone Input Field -->
-        <input type="text" wire:model="phone" id="phone"
-               class="form-control form-control-sm border border-1 p-2 {{ $errorClass['phone'] ?? '' }}"
-               placeholder="Enter Phone Number" maxlength="{{ $mobileLengthPhone }}">
+                                <!-- Phone Input Field -->
+                                <input type="text" wire:model="phone" id="phone"
+                                    class="form-control form-control-sm border border-1 p-2 {{ $errorClass['phone'] ?? '' }}"
+                                    placeholder="Enter Phone Number" maxlength="{{ $mobileLengthPhone }}">
 
-        <!-- Error Message -->
-        @if(isset($errorMessage['phone']))
-            <div class="text-danger">{{ $errorMessage['phone'] }}</div>
-        @endif
-    </div>
-</div>
+                                <!-- Error Message -->
+                            </div>
+                            @if(isset($errorMessage['phone']))
+                            <div class="text-danger">{{ $errorMessage['phone'] }}</div>
+                            @endif
+                            <div>
+                                <input type="checkbox" id="is_whatsapp1" wire:model="isWhatsappPhone">
+                                <label for="is_whatsapp1" class="form-check-label ms-2">Is Whatsapp</label>
+                            </div>
+                        </div>
 
-<!-- WhatsApp Number -->
-<div class="mb-3 col-md-3">
-    <label for="whatsapp_no" class="form-label">WhatsApp Number <span class="text-danger">*</span></label>
-    <div class="extention-group">
-        <!-- Country Select Dropdown for WhatsApp -->
-        <select wire:model="selectedCountryWhatsapp"
-                wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'whatsapp')"
-                class="form-control form-control-sm">
-            <option value="" selected hidden>Select Country</option>
-            @foreach($countries as $country)
-                <option value="{{ $country->country_code }}" data-length="{{ $country->mobile_length }}">
-                    {{ $country->title }} ({{ $country->country_code }})
-                </option>
-            @endforeach
-        </select>
+                        <!-- WhatsApp Number -->
+                        <div class="mb-3 col-md-3">
+                            <label for="whatsapp_no" class="form-label">WhatsApp Number <span
+                                    class="text-danger">*</span></label>
+                            <div class="extention-group">
+                                <!-- Country Select Dropdown for WhatsApp -->
+                                <select wire:model="selectedCountryWhatsapp"
+                                    wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'whatsapp')"
+                                    class="form-control form-control-sm">
+                                    <option value="" selected hidden>Select Country</option>
+                                    @foreach($countries as $country)
+                                    <option value="{{ $country->country_code }}"
+                                        data-length="{{ $country->mobile_length }}">
+                                        {{ $country->title }} ({{ $country->country_code }})
+                                    </option>
+                                    @endforeach
+                                </select>
 
-        <!-- WhatsApp Input Field -->
-        <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
-               class="form-control form-control-sm border border-1 p-2 {{ $errorClass['whatsapp_no'] ?? '' }}"
-               placeholder="Enter WhatsApp Number" maxlength="{{ $mobileLengthWhatsapp }}" 
-               @if($is_wa_same) disabled @endif>
+                                <!-- WhatsApp Input Field -->
+                                <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
+                                    class="form-control form-control-sm border border-1 p-2 {{ $errorClass['whatsapp_no'] ?? '' }}"
+                                    placeholder="Enter WhatsApp Number" maxlength="{{ $mobileLengthWhatsapp }}"
+                                   >
+                            </div>
+                                @if(isset($errorMessage['whatsapp_no']))
+                                <div class="text-danger">{{ $errorMessage['whatsapp_no'] }}</div>
+                                @endif
+                        </div>
 
-        <!-- Error Message -->
-        @if(isset($errorMessage['whatsapp_no']))
-            <div class="text-danger">{{ $errorMessage['whatsapp_no'] }}</div>
-        @endif
+                        <!-- Alternative Phone Number 1 -->
+                        <div class="mb-3 col-md-3">
+                            <label for="alternative_phone_number_1" class="form-label">Alternative Phone Number
+                                1</label>
+                            <div class="extention-group">
+                                <!-- Country Select Dropdown for Alternative Phone 1 -->
+                                <select wire:model="selectedCountryAlt1"
+                                    wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_1')"
+                                    class="form-control form-control-sm">
+                                    <option value="" selected hidden>Select Country</option>
+                                    @foreach($countries as $country)
+                                    <option value="{{ $country->country_code }}"
+                                        data-length="{{ $country->mobile_length }}">
+                                        {{ $country->title }} ({{ $country->country_code }})
+                                    </option>
+                                    @endforeach
+                                </select>
 
-        <!-- Same as Phone Checkbox -->
-        <div class="form-check ps-0">
-            <input type="checkbox" id="is_wa_same" wire:change="SameAsMobile"
-                   class="form-check-input" value="0" wire:model="is_wa_same">
-            <label for="is_wa_same" class="form-check-label font-sm text-danger"><small>Same as Phone Number</small></label>
-        </div>
-    </div>
-</div>
+                                <!-- Alternative Phone 1 Input Field -->
+                                <input type="text" wire:model="alternative_phone_number_1"
+                                    class="form-control form-control-sm border border-1 p-2 {{ $errorClass['alternative_phone_number_1'] ?? '' }}"
+                                    placeholder="Alternative Phone No" maxlength="{{ $mobileLengthAlt1 }}">
 
-<!-- Alternative Phone Number 1 -->
-<div class="mb-3 col-md-3">
-    <label for="alternative_phone_number_1" class="form-label">Alternative Phone Number 1</label>
-    <div class="extention-group">
-        <!-- Country Select Dropdown for Alternative Phone 1 -->
-        <select wire:model="selectedCountryAlt1"
-                wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_1')"
-                class="form-control form-control-sm">
-            <option value="" selected hidden>Select Country</option>
-            @foreach($countries as $country)
-                <option value="{{ $country->country_code }}" data-length="{{ $country->mobile_length }}">
-                    {{ $country->title }} ({{ $country->country_code }})
-                </option>
-            @endforeach
-        </select>
+                                <!-- Error Message -->
+                            </div>
+                            @if(isset($errorMessage['alternative_phone_number_1']))
+                            <div class="text-danger">{{ $errorMessage['alternative_phone_number_1'] }}</div>
+                            @endif
+                            <div>
+                                <input type="checkbox" id="is_whatsapp2" wire:model="isWhatsappAlt1">
+                                <label for="is_whatsapp2" class="form-check-label ms-2">Is Whatsapp</label>
+                            </div>
+                        </div>
 
-        <!-- Alternative Phone 1 Input Field -->
-        <input type="text" wire:model="alternative_phone_number_1"
-               class="form-control form-control-sm border border-1 p-2 {{ $errorClass['alternative_phone_number_1'] ?? '' }}"
-               placeholder="Alternative Phone No" maxlength="{{ $mobileLengthAlt1 }}">
+                        <!-- Alternative Phone Number 2 -->
+                        <div class="mb-3 col-md-3">
+                            <label for="alternative_phone_number_2" class="form-label">Alternative Phone Number
+                                2</label>
+                            <div class="extention-group">
+                                <!-- Country Select Dropdown for Alternative Phone 2 -->
+                                <select wire:model="selectedCountryAlt2"
+                                    wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_2')"
+                                    class="form-control form-control-sm">
+                                    <option value="" selected hidden>Select Country</option>
+                                    @foreach($countries as $country)
+                                    <option value="{{ $country->country_code }}"
+                                        data-length="{{ $country->mobile_length }}">
+                                        {{ $country->title }} ({{ $country->country_code }})
+                                    </option>
+                                    @endforeach
+                                </select>
 
-        <!-- Error Message -->
-        @if(isset($errorMessage['alternative_phone_number_1']))
-            <div class="text-danger">{{ $errorMessage['alternative_phone_number_1'] }}</div>
-        @endif
-    </div>
-</div>
-
-<!-- Alternative Phone Number 2 -->
-<div class="mb-3 col-md-3">
-    <label for="alternative_phone_number_2" class="form-label">Alternative Phone Number 2</label>
-    <div class="extention-group">
-        <!-- Country Select Dropdown for Alternative Phone 2 -->
-        <select wire:model="selectedCountryAlt2"
-                wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_2')"
-                class="form-control form-control-sm">
-            <option value="" selected hidden>Select Country</option>
-            @foreach($countries as $country)
-                <option value="{{ $country->country_code }}" data-length="{{ $country->mobile_length }}">
-                    {{ $country->title }} ({{ $country->country_code }})
-                </option>
-            @endforeach
-        </select>
-
-        <!-- Alternative Phone 2 Input Field -->
-        <input type="text" wire:model="alternative_phone_number_2"
-               class="form-control form-control-sm border border-1 p-2 {{ $errorClass['alternative_phone_number_2'] ?? '' }}"
-               placeholder="Alternative Phone No" maxlength="{{ $mobileLengthAlt2 }}">
-
-        <!-- Error Message -->
-        @if(isset($errorMessage['alternative_phone_number_2']))
-            <div class="text-danger">{{ $errorMessage['alternative_phone_number_2'] }}</div>
-        @endif
-    </div>
-</div>
+                                <!-- Alternative Phone 2 Input Field -->
+                                <input type="text" wire:model="alternative_phone_number_2"
+                                    class="form-control form-control-sm border border-1 p-2 {{ $errorClass['alternative_phone_number_2'] ?? '' }}"
+                                    placeholder="Alternative Phone No" maxlength="{{ $mobileLengthAlt2 }}">
+                            </div>
+                                @if(isset($errorMessage['alternative_phone_number_2']))
+                                <div class="text-danger">{{ $errorMessage['alternative_phone_number_2'] }}</div>
+                                @endif
+                                <div>
+                                    <input type="checkbox" id="is_whatsapp3" wire:model="isWhatsappAlt2">
+                                    <label for="is_whatsapp3" class="form-check-label ms-2">Is Whatsapp</label>
+                                </div>
+                        </div>
 
 
                     </div>
@@ -529,19 +540,19 @@
                             <h6 class="badge bg-danger custom_danger_badge">Product Information</h6>
                         </div>
                     </div>
-                        @if ($errors->has('items'))
-                            <div class="alert alert-danger">
-                                {{ $errors->first('items') }}
-                            </div>
-                        @endif
-                        {{-- Display Order by and order number --}}
-                          <!-- Ordered By Section -->
-                        <div class="row align-items-center mb-3">
+                    @if ($errors->has('items'))
+                    <div class="alert alert-danger">
+                        {{ $errors->first('items') }}
+                    </div>
+                    @endif
+                    {{-- Display Order by and order number --}}
+                    <!-- Ordered By Section -->
+                    <div class="row align-items-center mb-3">
                         <div class="col-md-6">
                             <label class="form-label"><strong>Ordered By</strong></label>
-                            <input type="text" 
+                            <input type="text"
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
-                               value="{{ optional($salesmen->where('id', $salesman)->first())->name }}" readonly>
+                                value="{{ optional($salesmen->where('id', $salesman)->first())->name }}" readonly>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label"><strong>Bill Number</strong></label>
@@ -549,120 +560,130 @@
                             <input type="text" class="form-control form-control-sm text-center border border-1" disabled
                                 value="{{$order_number}}" readonly>
                         </div>
+                    </div>
+
+                    <!-- Loop through items -->
+                    @foreach($items as $index => $item)
+                    <div class="row align-items-center mt-3">
+                        <!-- Collection  -->
+                        <div class="mb-3 col-md-2">
+                            <label class="form-label"><strong>Collection </strong><span
+                                    class="text-danger">*</span></label>
+                            <select wire:model="items.{{ $index }}.collection"
+                                wire:change="GetCategory($event.target.value, {{ $index }})"
+                                class="form-control border border-2 p-2 form-control-sm @error('items.'.$index.'.collection') border-danger @enderror">
+                                <option value="" selected hidden>Select collection</option>
+                                @foreach($collections as $citems)
+                                <option value="{{ $citems->id }}">{{ ucwords($citems->title) }}
+                                    @if($citems->short_code)({{ $citems->short_code }})@endif</option>
+                                @endforeach
+                            </select>
+                            @error("items.".$index.".collection")
+                            <div class='text-danger'>{{ $message }}</div>
+                            @enderror
                         </div>
 
-                        <!-- Loop through items -->
-                        @foreach($items as $index => $item)
-                            <div class="row align-items-center mt-3">
-                            <!-- Collection  -->
-                            <div class="mb-3 col-md-2">
-                                <label class="form-label"><strong>Collection </strong><span
-                                        class="text-danger">*</span></label>
-                                <select wire:model="items.{{ $index }}.collection"
-                                    wire:change="GetCategory($event.target.value, {{ $index }})"
-                                    class="form-control border border-2 p-2 form-control-sm @error('items.'.$index.'.collection') border-danger @enderror">
-                                    <option value="" selected hidden>Select collection</option>
-                                    @foreach($collections as $citems)
-                                    <option value="{{ $citems->id }}">{{ ucwords($citems->title) }}
-                                        @if($citems->short_code)({{ $citems->short_code }})@endif</option>
+                        <!-- Category -->
+                        <div class="mb-3 col-md-2">
+                            <label class="form-label"><strong>Category</strong> <span
+                                    class="text-danger">*</span></label>
+                            <select wire:model="items.{{ $index }}.category"
+                                class="form-select form-control-sm border border-1 @error('items.'.$index.'.category') border-danger @enderror"
+                                wire:change="CategoryWiseProduct($event.target.value, {{ $index }})">
+                                <option value="" selected hidden>Select Category</option>
+                                @if (isset($items[$index]['categories']) && count($items[$index]['categories']) > 0)
+                                @foreach ($items[$index]['categories'] as $category)
+                                <option value="{{ $category['id'] }}">{{ $category['title'] }}</option>
+                                @endforeach
+                                @else
+                                <option value="" disabled>No categories available</option>
+                                @endif
+                            </select>
+                            @error("items.".$index.".category")
+                            <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Product -->
+                        @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
+                        <div class="mb-3 col-md-4">
+                            @else
+                            <div class="mb-3 col-md-8">
+                                @endif
+                                <label class="form-label"><strong>Product</strong></label>
+                                <input type="text" wire:keyup="FindProduct($event.target.value, {{ $index }})"
+                                    wire:model="items.{{ $index }}.searchproduct"
+                                    class="form-control form-control-sm border border-1 customer_input @error('items.'.$index.'.searchproduct') border-danger @enderror"
+                                    placeholder="Enter product name">
+                                @if (session()->has('errorProduct.' . $index))
+                                <p class="text-danger">{{ session('errorProduct.' . $index) }}</p>
+                                @endif
+                                @if(isset($items[$index]['products']) && count($items[$index]['products']) > 0)
+                                <div id="fetch_customer_details" class="dropdown-menu show w-25"
+                                    style="max-height: 200px; overflow-y: auto;">
+                                    @foreach ($items[$index]['products'] as $product)
+                                    <button class="dropdown-item" type="button"
+                                        wire:click='selectProduct({{ $index }}, "{{ $product->name }}", {{ $product->id }})'>
+                                        <img src="{{ $product->product_image ? asset($product->product_image) : asset('assets/img/cubes.png') }}"
+                                            alt=""> {{ $product->name }}({{ $product->product_code }})
+                                    </button>
                                     @endforeach
-                                </select>
-                                @error("items.".$index.".collection")
-                                <div class='text-danger'>{{ $message }}</div>
+                                </div>
+                                @endif
+                                @error("items.$index.searchproduct")
+                                <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <!-- Category -->
+                            <!-- Catalogue -->
+                            @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
                             <div class="mb-3 col-md-2">
-                                <label class="form-label"><strong>Category</strong> <span
-                                        class="text-danger">*</span></label>
-                                <select wire:model="items.{{ $index }}.category"
-                                    class="form-select form-control-sm border border-1 @error('items.'.$index.'.category') border-danger @enderror"
-                                    wire:change="CategoryWiseProduct($event.target.value, {{ $index }})">
-                                    <option value="" selected hidden>Select Category</option>
-                                    @if (isset($items[$index]['categories']) && count($items[$index]['categories']) > 0)
-                                    @foreach ($items[$index]['categories'] as $category)
-                                    <option value="{{ $category['id'] }}">{{ $category['title'] }}</option>
+                                <label class="form-label"><strong>Catalogue</strong></label>
+                                <select wire:model="items.{{ $index }}.selectedCatalogue"
+                                    class="form-control form-control-sm border border-1 @error('items.'.$index.'.selectedCatalogue') border-danger @enderror"
+                                    wire:change="SelectedCatalogue($event.target.value, {{ $index }})">
+                                    <option value="" selected hidden>Select Catalogue</option>
+                                    @foreach($catalogues[$index] ?? [] as $id => $title)
+                                    <option value="{{ $id }}">{{ $title }}
+                                        @if(isset($maxPages[$index][$id]))
+                                        (1 - {{ $maxPages[$index][$id] }})
+                                        @endif
+                                    </option>
                                     @endforeach
-                                    @else
-                                    <option value="" disabled>No categories available</option>
-                                    @endif
                                 </select>
-                                @error("items.".$index.".category")
+                                @error("items." .$index. ".selectedCatalogue")
                                 <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            <!-- Product -->
-                            @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
-                            <div class="mb-3 col-md-4">
-                                @else
-                                <div class="mb-3 col-md-8">
-                                    @endif
-                                    <label class="form-label"><strong>Product</strong></label>
-                                    <input type="text" wire:keyup="FindProduct($event.target.value, {{ $index }})"
-                                        wire:model="items.{{ $index }}.searchproduct"
-                                        class="form-control form-control-sm border border-1 customer_input @error('items.'.$index.'.searchproduct') border-danger @enderror"
-                                        placeholder="Enter product name">
-                                    @if (session()->has('errorProduct.' . $index))
-                                    <p class="text-danger">{{ session('errorProduct.' . $index) }}</p>
-                                    @endif
-                                    @if(isset($items[$index]['products']) && count($items[$index]['products']) > 0)
-                                    <div id="fetch_customer_details" class="dropdown-menu show w-25"
-                                        style="max-height: 200px; overflow-y: auto;">
-                                        @foreach ($items[$index]['products'] as $product)
-                                        <button class="dropdown-item" type="button"
-                                            wire:click='selectProduct({{ $index }}, "{{ $product->name }}", {{ $product->id }})'>
-                                            <img src="{{ $product->product_image ? asset($product->product_image) : asset('assets/img/cubes.png') }}"
-                                                alt=""> {{ $product->name }}({{ $product->product_code }})
-                                        </button>
-                                        @endforeach
-                                    </div>
-                                    @endif
-                                    @error("items.$index.searchproduct")
-                                    <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <!-- Catalogue -->
-                                @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
-                                <div class="mb-3 col-md-2">
-                                    <label class="form-label"><strong>Catalogue</strong></label>
-                                    <select wire:model="items.{{ $index }}.selectedCatalogue"
-                                        class="form-control form-control-sm border border-1 @error('items.'.$index.'.selectedCatalogue') border-danger @enderror"
-                                        wire:change="SelectedCatalogue($event.target.value, {{ $index }})">
-                                        <option value="" selected hidden>Select Catalogue</option>
-                                        @foreach($catalogues[$index] ?? [] as $id => $title)
-                                        <option value="{{ $id }}">{{ $title }}
-                                            @if(isset($maxPages[$index][$id]))
-                                            (1 - {{ $maxPages[$index][$id] }})
-                                            @endif
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                    @error("items." .$index. ".selectedCatalogue")
-                                    <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3 col-md-2">
-                                    <label class="form-label"><strong>Page Number</strong></label>
-                                    <input type="number" wire:model="items.{{$index}}.page_number"
-                                        wire:keyup="validatePageNumber({{ $index }})" id="page_number"
-                                        class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_number') border-danger @enderror"
-                                        min="1"
-                                        max="{{ isset($items[$index]['selectedCatalogue']) && isset($maxPages[$index][$items[$index]['selectedCatalogue']]) ? $maxPages[$index][$items[$index]['selectedCatalogue']] : '' }}">
-                                    @error("items.".$index.".page_number")
-                                    <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                @endif
-                                <!-- Catalogue end -->
+                            <div class="mb-3 col-md-2">
+                                <label class="form-label"><strong>Page Number</strong></label>
+                                <input type="number" wire:model="items.{{$index}}.page_number"
+                                    wire:keyup="validatePageNumber({{ $index }})" id="page_number"
+                                    class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_number') border-danger @enderror"
+                                    min="1"
+                                    max="{{ isset($items[$index]['selectedCatalogue']) && isset($maxPages[$index][$items[$index]['selectedCatalogue']]) ? $maxPages[$index][$items[$index]['selectedCatalogue']] : '' }}">
+                                @error("items.".$index.".page_number")
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
                             </div>
-                            {{-- Append Measurements data --}}
-                            @if(isset($this->items[$index]['product_id']) && $items[$index]['collection'] == 1)
+                            @endif
+                            <!-- Catalogue end -->
+                        </div>
+                        {{-- Append Measurements data --}}
+                        @if(isset($this->items[$index]['product_id']) && $items[$index]['collection'] == 1)
                         <div class="row">
                             <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
                                 <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
+                                <!-- Checkbox to Copy Previous Measurements -->
+                                    @if($index > 0) <!-- Show checkbox only for second item onwards -->
+                                    <div class="form-check mb-2">
+                                        <input type="checkbox" class="form-check-input" wire:model="items.{{ $index }}.copy_previous_measurements" 
+                                            wire:change="copyMeasurements({{ $index }})" id="copy_measurements_{{ $index }}">
+                                        <label class="form-check-label" for="copy_measurements_{{ $index }}">
+                                            Use previous measurements
+                                        </label>
+                                    </div>
+                                @endif
                                 <div class="row">
                                     @if(isset($items[$index]['measurements']) &&
                                     count($items[$index]['measurements']) > 0)
@@ -882,4 +903,4 @@
         <div class="loader"></div>
     </div> --}}
 
-</div> 
+</div>
