@@ -207,7 +207,7 @@ class AddOrderSlip extends Component
             
             do {
                 $lastInvoice = Invoice::orderBy('id', 'DESC')->first();
-                $invoice_no = str_pad(optional($lastInvoice)->id + 1, 10, '0', STR_PAD_LEFT);
+                $invoice_no = str_pad(optional($lastInvoice)->id + 1, 6, '0', STR_PAD_LEFT);
             } while (Invoice::where('invoice_no', $invoice_no)->exists()); // Ensure unique invoice_no
             
 
