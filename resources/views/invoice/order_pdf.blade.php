@@ -55,7 +55,7 @@
     </tr>
     <tr>
         <td colspan="2">
-            <h2 style="font-size: 30px; color:#acacac; font-weight: 400;">Invoice: {{ $invoice->invoice_no }}</h2>
+            <h2 style="font-size: 30px; color:#acacac; font-weight: 400;">Invoice: INV/{{ date('Y') }}/{{ $invoice->invoice_no }}</h2>
         </td>
     </tr>
     <tr>
@@ -104,7 +104,7 @@
                             $totalQuantity += $item->quantity;
                         @endphp
                         <tr>
-                            <td style="width:60%; line-height: 1.6; font-size: 13px;">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</td>
+                            <td style="width:60%; line-height: 1.6; font-size: 13px;">{{ $item->product_name }}</td>
                             <td style="font-size: 13px;">{{ $item->quantity }} set</td>
                             <td style="font-size: 13px;">{{ number_format( ($item->total_price)/($item->quantity) ) }}</td>
                             <td style="font-size: 13px;">0.00</td>
@@ -151,7 +151,7 @@
     </tr>
     <tr>
         <td colspan="2">
-            <p style="font-size: 13px; margin-top: 20px;">Please use the following communication for your payment: {{ $invoice->invoice_no }}</p>
+            <p style="font-size: 13px; margin-top: 20px;">Please use the following communication for your payment: INV/{{ date('Y') }}/{{ $invoice->invoice_no }}</p>
         </td>
     </tr>
 </table>

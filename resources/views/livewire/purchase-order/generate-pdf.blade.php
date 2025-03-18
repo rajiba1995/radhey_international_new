@@ -29,7 +29,7 @@
         height: 100px;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        /* justify-content: space-between; */
         box-shadow: 8px 11px 0px rgba(0, 0, 0, 0.2);
     }
 
