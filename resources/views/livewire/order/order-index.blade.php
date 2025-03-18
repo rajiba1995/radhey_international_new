@@ -122,7 +122,8 @@
                                     @else
                                         <!-- <a href="#" class="btn btn-outline-primary select-md btn_action">Edit Slip</a> -->
                                         {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Order Copy</a> --}}
-                                        <button wire:click="downloadInvoice({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Invoice</button>
+                                        <button wire:click="downloadInvoice({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Bill</button>
+                                        <button wire:click="downloadOrderInvoice({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Invoice</button>
                                     @endif
                                     <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
 
@@ -137,7 +138,7 @@
                                     <a href="{{route('admin.order.invoice', $order->id)}}" target="_blank" class="btn btn-outline-info btn-sm custom-btn-sm mb-0">Invoice</a> --}}
                                 </td>
                             </tr>
-                        @endforeach
+                        @endforeach  
                     </tbody>
                 </table>
 

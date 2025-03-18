@@ -123,6 +123,20 @@ class OrderIndex extends Component
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();
         }, 'invoice_' . $invoice->invoice_no . '.pdf');
+    } 
+    public function downloadOrderInvoice($orderId)
+    {
+        $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
+                    ->where('order_id', $orderId)
+                    ->firstOrFail();
+    // dd($invoice);
+        // Generate PDF
+        $pdf = PDF::loadView('invoice.order_pdf', compact('invoice'));
+    
+        // Download the PDF
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, 'invoice_' . $invoice->invoice_no . '.pdf');
     }   
     
 
