@@ -11,7 +11,7 @@ class UserWhatsapp extends Model
     protected $table = 'user_whatsapps';
 
     protected $fillable = [
-        'user_id', 'country_code', 'whatsapp_number'
+        'supplier_id','user_id', 'country_code', 'whatsapp_number'
     ];
 
     public function user(){

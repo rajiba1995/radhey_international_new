@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Supplier;
 
 use App\Models\Supplier;
 use App\Models\Country;
+use App\Models\UserWhatsapp;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -14,61 +15,84 @@ class SupplierAdd extends Component
     public $prefix, $name, $email, $mobile, $whatsapp_no ,$alternative_phone_number_1, $alternative_phone_number_2;
     public $billing_address, $billing_landmark, $billing_state, $billing_city, $billing_pin, $billing_country;
     public $gst_number, $gst_file, $credit_limit, $credit_days;
-    public $searchTerm;
+    // public $searchTerm;
     protected $rules=[];
     public $countries = [];
     public $selectedCountryId;
     public $country_code;
     public $mobileLength;
+    public $selectedCountryPhone, $selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2,
+            $mobileLengthPhone,   $mobileLengthWhatsapp  ,  $mobileLengthAlt1, $mobileLengthAlt2;
+    public $isWhatsappPhone, $isWhatsappAlt1,$isWhatsappAlt2;
 
     public function mount(){
         $this->selectedCountryId = null;
         $this->country_code = '';
-        $this->countries = Country::all();
+        $this->countries = Country::where('status',1)->get();
     }
 
-    public function FindCountry($term){
-        $this->searchTerm = $term;
-        if (!empty($this->searchTerm)) {
-            $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->searchTerm . '%')->get();
-        }else{
-            $this->filteredCountries = [];
+    public function GetCountryDetails($mobileLength, $field){
+        switch($field){
+            case 'phone':
+                $this->mobileLengthPhone = $mobileLength;
+            break;
+
+            case 'whatsapp':
+                $this->mobileLengthWhatsapp = $mobileLength;
+            break;
+
+            case 'alt_phone_1':
+                $this->mobileLengthAlt1  = $mobileLength;
+            break;
+
+            case 'alt_phone_2':
+                $this->mobileLengthAlt2 = $mobileLength;
+            break;
         }
     }
-    public function selectCountry($countryId){
-        $country = Country::find($countryId);
-        if($country){
-            $this->selectedCountryId = $country->id;
-            $this->searchTerm  = $country->title;
-            $this->country_code = $country->country_code;
-            $this->mobileLength = $country->mobile_length;
-        }
 
-        $this->filteredCountries = [];
+    // public function FindCountry($term){
+    //     $this->searchTerm = $term;
+    //     if (!empty($this->searchTerm)) {
+    //         $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->searchTerm . '%')->get();
+    //     }else{
+    //         $this->filteredCountries = [];
+    //     }
+    // }
+    // public function selectCountry($countryId){
+    //     $country = Country::find($countryId);
+    //     if($country){
+    //         $this->selectedCountryId = $country->id;
+    //         $this->searchTerm  = $country->title;
+    //         $this->country_code = $country->country_code;
+    //         $this->mobileLength = $country->mobile_length;
+    //     }
+
+    //     $this->filteredCountries = [];
         
-    }
+    // }
 
    public function rules(){
      return [
-            'searchTerm' => 'required',
+            // 'searchTerm' => 'required',
             'prefix' => 'required',
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|unique:suppliers,email',
             'mobile' => [
                 'required',
-               'regex:/^\d{'. $this->mobileLength .'}$/',
+               'regex:/^\d{'. $this->mobileLengthPhone .'}$/',
             ],
             'whatsapp_no' => [
                 'required',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
             ],
             'alternative_phone_number_1' => [
                 'nullable',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthAlt1 .'}$/',
             ],
             'alternative_phone_number_2' => [
                 'nullable',
-                'regex:/^\d{'. $this->mobileLength .'}$/',
+                'regex:/^\d{'. $this->mobileLengthAlt2 .'}$/',
             ],
             'billing_address' => 'required|string|max:255',
             'billing_landmark' => 'nullable|string|max:255',
@@ -86,16 +110,16 @@ class SupplierAdd extends Component
    public function messages()
     {
         return [
-            'searchTerm.required' => 'Please select a country.',
+            // 'searchTerm.required' => 'Please select a country.',
             'name.required' => 'Supplier name is required.',
             'email.email' => 'Enter a valid email address.',
             'email.unique' => 'This email is already taken.',
             'mobile.required' => 'Mobile number is required.',
-            'mobile.regex' => 'Mobile number must be exactly ' . $this->mobileLength . ' digits.',
+            'mobile.regex' => 'Mobile number must be exactly ' . $this->mobileLengthPhone . ' digits.',
             'whatsapp_no.required' => 'WhatsApp number is required.',
-            'whatsapp_no.regex' => 'WhatsApp number must be exactly ' . $this->mobileLength . ' digits.',
-            'alternative_phone_number_1.regex' => 'Alternative phone number 1 must be exactly ' . $this->mobileLength . ' digits.',
-            'alternative_phone_number_2.regex' => 'Alternative phone number 2 must be exactly ' . $this->mobileLength . ' digits.',
+            'whatsapp_no.regex' => 'WhatsApp number must be exactly ' . $this->mobileLengthWhatsapp . ' digits.',
+            'alternative_phone_number_1.regex' => 'Alternative phone number 1 must be exactly ' . $this->mobileLengthAlt1 . ' digits.',
+            'alternative_phone_number_2.regex' => 'Alternative phone number 2 must be exactly ' . $this->mobileLengthAlt2 . ' digits.',
             'billing_address.required' => 'Billing address is required.',
             'billing_state.required' => 'Billing state is required.',
             'billing_city.required' => 'Billing city is required.',
@@ -110,49 +134,81 @@ class SupplierAdd extends Component
     public function save()
     {   
         // dd($this->all());
-        $this->validate();
-
-        if ($this->gst_file) {
-            $gstFilePath = $this->gst_file->store('gst_files','public');
-             $absoluteAssetPath = 'storage/' . $gstFilePath;
+        try{
+            $this->validate();
+            if ($this->gst_file) {
+                $gstFilePath = $this->gst_file->store('gst_files','public');
+                $absoluteAssetPath = 'storage/' . $gstFilePath;
+            }
+        
+        $supplier =  Supplier::create([
+                'prefix' => $this->prefix,
+                'name' => $this->name,
+                'email' => $this->email,
+                'country_id'=> $this->selectedCountryId,
+                // 'country_code'=> $this->country_code,
+                'country_code_alt_1' => $this->selectedCountryAlt1,
+                'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                'country_code_alt_2'  => $this->selectedCountryAlt2,
+                'alternative_phone_number_2' => $this->alternative_phone_number_2,
+                'country_code_mobile' => $this->selectedCountryPhone,
+                'mobile' => $this->mobile,
+                'country_code_whatsapp'=> $this->selectedCountryWhatsapp,
+                'whatsapp_no' => $this->whatsapp_no,
+                'billing_address' => $this->billing_address,
+                'billing_landmark' => $this->billing_landmark,
+                'billing_state' => $this->billing_state,
+                'billing_city' => $this->billing_city,
+                'billing_pin' => $this->billing_pin,
+                'billing_country' => $this->billing_country,
+                'gst_number' => $this->gst_number,
+                'gst_file' => isset($absoluteAssetPath) ? $absoluteAssetPath : null, 
+                'credit_limit' => $this->credit_limit,
+                'credit_days' => $this->credit_days,
+            ]);
+        
+            if($this->isWhatsappPhone){
+                UserWhatsapp::create([
+                    'supplier_id'=> $supplier->id,
+                    'country_code' => $this->selectedCountryPhone,
+                    'whatsapp_number' => $this->mobile,
+                    'created_at'     => now(),
+                    'updated_at'     => now()
+                ]);
+            }
+        
+            if($this->isWhatsappAlt1){
+                UserWhatsapp::create([
+                    'supplier_id'=> $supplier->id,
+                    'country_code' => $this->selectedCountryAlt1,
+                    'whatsapp_number' => $this->alternative_phone_number_1,
+                    'created_at'     => now(),
+                    'updated_at'     => now()
+                ]);
+            }
+        
+            if($this->isWhatsappAlt2){
+                UserWhatsapp::create([
+                    'supplier_id'=> $supplier->id,
+                    'country_code' => $this->selectedCountryAlt2,
+                    'whatsapp_number' => $this->alternative_phone_number_2,
+                    'created_at'     => now(),
+                    'updated_at'     => now()
+                ]);
+            }
+        
+            session()->flash('success', 'Supplier added successfully!');
+            return redirect()->route('suppliers.index');
+        }catch(\Exception $e){
+             // Catch any error and store it in the session
+            session()->flash('error', 'Something went wrong! ' . $e->getMessage());
+            dd($e->getMessage());
+            return back()->withInput();
         }
 
-        Supplier::create([
-            'prefix' => $this->prefix,
-            'name' => $this->name,
-            'email' => $this->email,
-            'country_id'=> $this->selectedCountryId,
-            'country_code'=> $this->country_code,
-            'alternative_phone_number_1' => $this->alternative_phone_number_1,
-            'alternative_phone_number_2' => $this->alternative_phone_number_2,
-            'mobile' => $this->mobile,
-            'whatsapp_no' => $this->whatsapp_no,
-            'billing_address' => $this->billing_address,
-            'billing_landmark' => $this->billing_landmark,
-            'billing_state' => $this->billing_state,
-            'billing_city' => $this->billing_city,
-            'billing_pin' => $this->billing_pin,
-            'billing_country' => $this->billing_country,
-            'gst_number' => $this->gst_number,
-            'gst_file' => isset($absoluteAssetPath) ? $absoluteAssetPath : null, 
-            'credit_limit' => $this->credit_limit,
-            'credit_days' => $this->credit_days,
-        ]);
-
-        session()->flash('success', 'Supplier added successfully!');
-        return redirect()->route('suppliers.index');
     }
 
-    // public function SameAsMobile(){
-    //     if($this->is_wa_same == 0){
-    //         $this->whatsapp_no = $this->mobile;
-    //         $this->is_wa_same = 1;
-    //     }else{
-    //         $this->whatsapp_no = '';
-    //         $this->is_wa_same = 0;
-    //     }
-    // }
-
+    
     public function render()
     {
         return view('livewire.supplier.supplier-add');

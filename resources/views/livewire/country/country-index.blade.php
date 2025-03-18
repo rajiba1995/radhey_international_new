@@ -18,15 +18,20 @@
                     <div class="card my-4">
                         <div class="card-header pb-0">
                             <div class="row">
-                                @if(session()->has('message'))
-                                    <div class="alert alert-success" id="flashMessage">
-                                        {{ session('message') }}
-                                    </div>
-                                @elseif(session()->has('error'))
-                                    <div class="alert alert-danger" id="flashMessage">
-                                        {{ session('error') }}
-                                    </div>
-                                @endif
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" placeholder="Search by country name..." wire:model="search" wire:keyup="FindCountry($event.target.value)">
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    @if(session()->has('message'))
+                                        <div class="alert alert-success text-center" id="flashMessage">
+                                            {{ session('message') }}
+                                        </div>
+                                    @elseif(session()->has('error'))
+                                        <div class="alert alert-danger" id="flashMessage">
+                                            {{ session('error') }}
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                             <div class="card-body pb-2">
                                 <div class="table-responsive p-0">

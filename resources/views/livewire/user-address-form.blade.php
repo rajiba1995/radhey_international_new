@@ -213,7 +213,7 @@
                                     <option value="" selected hidden>Select Country</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}" data-length="{{$country->mobile_length}}">{{
-                                        $country->title }} (+{{ $country->country_code
+                                        $country->title }} ({{ $country->country_code
                                         }})</option>
                                     @endforeach
                                 </select>

@@ -847,9 +847,8 @@ public function validatePhoneNumber($number, $field, $requiredLength)
     {
         
         DB::beginTransaction(); // Begin transaction
-        
+        $this->validate();
         try{ 
-            $this->validate();
           
             // Calculate the total amount
             $total_amount = array_sum(array_column($this->items, 'price'));
