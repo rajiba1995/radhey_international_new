@@ -591,7 +591,21 @@
                                 @enderror
                             </div>
                             <!-- </div> -->
-
+                            <div class="mb-3 col-md-2">
+                                <label class="form-label"><strong>Page Item</strong></label>
+                                <select wire:model="items.{{$index}}.page_item" 
+                                        class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_item') border-danger @enderror">
+                                    <option value="" selected hidden>Select Page Item</option>
+                                    @foreach($pageItems[$index] ?? [] as $id => $item)
+                                        <option value="{{ $item->catalog_item  }}">
+                                            {{ $item->catalog_item }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error("items.".$index.".page_item")
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
                             @endif
                         </div>
                         <!-- Measurements -->
