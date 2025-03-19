@@ -167,6 +167,7 @@ class OrderEdit extends Component
                     'catalogues' => $item->collection == 1 ? $this->catalogues : [],
                     'selectedCatalogue' => $item->catalogue_id,
                     'page_number' => $item->cat_page_number,
+                    'pageItems' => $item->cat_page_item,
                 ];
             })->toArray();
         }
