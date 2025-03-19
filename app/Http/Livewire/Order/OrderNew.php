@@ -713,7 +713,7 @@ class OrderNew extends Component
 
     public function save()
     {   
-        dd($this->all());
+        // dd($this->all());
         DB::beginTransaction(); // Begin transaction
         
         try{ 
