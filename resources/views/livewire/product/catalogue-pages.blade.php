@@ -123,13 +123,11 @@
                                     </div>
                                     <!-- Submit Button -->
                                     <div class="mb-2 text-end mt-4">
-                                        {{-- @if($cataloguePageId)
-                                        <a href="javascript:void(0);" 
+                                        <a href="{{route('product.catalogue')}}" 
                                         class="btn btn-sm btn-danger select-md" 
-                                        wire:click.prevent="resetFields">
-                                        Clear
+                                        >
+                                        <i class="material-icons text-white" style="font-size: 15px;">chevron_left</i>Back
                                         </a>
-                                        @endif --}}
                                         <button type="submit" class="btn btn-sm btn-success select-md" wire:loading.attr="disabled">
                                             <span>Create</span>
                                         </button>

@@ -74,7 +74,7 @@ class OrderNew extends Component
     public $salesmanBill;
     public $selectedFabric = null;
     // public $filteredCountries = [];
-    public $search;
+    // public $search;
     public $mobileLength;
     public $country_code;
     public $country_id;
@@ -91,103 +91,102 @@ class OrderNew extends Component
     ];
 
     public function mount()
-{
-    $user_id = request()->query('user_id');
+    {
+        $user_id = request()->query('user_id');
 
-    if ($user_id) {
-        $customer = User::with(['billingAddress', 'shippingAddress'])
-            ->where([
-                ['id', $user_id],
-                ['user_type', 1],
-                ['status', 1]
-            ])
-            ->first();
+        if ($user_id) {
+            $customer = User::with(['billingAddress', 'shippingAddress'])
+                ->where([
+                    ['id', $user_id],
+                    ['user_type', 1],
+                    ['status', 1]
+                ])
+                ->first();
 
-        if ($customer) {
-            $this->customer_id = $customer->id;
-            $this->name = $customer->name;
-            $this->company_name = $customer->company_name;
-            $this->employee_rank = $customer->employee_rank;
-            $this->email = $customer->email;
-            $this->dob = $customer->dob;
-            $this->phone = $customer->phone;
-            $this->whatsapp_no = $customer->whatsapp_no;
-            
+            if ($customer) {
+                $this->customer_id = $customer->id;
+                $this->name = $customer->name;
+                $this->company_name = $customer->company_name;
+                $this->employee_rank = $customer->employee_rank;
+                $this->email = $customer->email;
+                $this->dob = $customer->dob;
+                $this->phone = $customer->phone;
+                $this->whatsapp_no = $customer->whatsapp_no;
 
-            // Assign Billing Address (if exists)
-            if ($billing = $customer->billingAddress) {
-                $this->billing_address = $billing->address;
-                $this->billing_landmark = $billing->landmark;
-                $this->billing_city = $billing->city;
-                $this->billing_state = $billing->state;
-                $this->billing_country = $billing->country;
-                $this->billing_pin = $billing->zip_code;
+                // Assign Billing Address (if exists)
+                if ($billing = $customer->billingAddress) {
+                    $this->billing_address = $billing->address;
+                    $this->billing_landmark = $billing->landmark;
+                    $this->billing_city = $billing->city;
+                    $this->billing_state = $billing->state;
+                    $this->billing_country = $billing->country;
+                    $this->billing_pin = $billing->zip_code;
+                }
+
+                // Assign Shipping Address (if exists)
+                if ($shipping = $customer->shippingAddress) {
+                    $this->shipping_address = $shipping->address;
+                    $this->shipping_landmark = $shipping->landmark;
+                    $this->shipping_city = $shipping->city;
+                    $this->shipping_state = $shipping->state;
+                    $this->shipping_country = $shipping->country;
+                    $this->shipping_pin = $shipping->zip_code;
+                }
+
+                // Fetch latest order
+                $this->orders = Order::with(['customer:id,prefix,name'])
+                    ->where('customer_id', $customer->id)
+                    ->latest()
+                    ->take(1)
+                    ->get();
             }
-
-            // Assign Shipping Address (if exists)
-            if ($shipping = $customer->shippingAddress) {
-                $this->shipping_address = $shipping->address;
-                $this->shipping_landmark = $shipping->landmark;
-                $this->shipping_city = $shipping->city;
-                $this->shipping_state = $shipping->state;
-                $this->shipping_country = $shipping->country;
-                $this->shipping_pin = $shipping->zip_code;
-            }
-
-            // Fetch latest order
-            $this->orders = Order::with(['customer:id,prefix,name'])
-                ->where('customer_id', $customer->id)
-                ->latest()
-                ->take(1)
-                ->get();
         }
-    }
 
-    // Load common dropdowns
-    $this->customers = User::where([
-        ['user_type', 1],
-        ['status', 1]
-    ])->orderBy('name')->get();
+        // Load common dropdowns
+        $this->customers = User::where([
+            ['user_type', 1],
+            ['status', 1]
+        ])->orderBy('name')->get();
 
-    $this->categories = Category::where('status', 1)->orderBy('title')->get();
-    $this->collections = Collection::whereIn('id', [1, 2])->orderBy('title')->get();
-    $this->salesmen = User::where([
-        ['user_type', 0],
-        ['designation', 2]
-    ])->get();
+        $this->categories = Category::where('status', 1)->orderBy('title')->get();
+        $this->collections = Collection::whereIn('id', [1, 2])->orderBy('title')->get();
+        $this->salesmen = User::where([
+            ['user_type', 0],
+            ['designation', 2]
+        ])->get();
 
-    // Auto-select the logged-in Salesman
-    $this->salesman = auth()->guard('admin')->user()->id ?? null;
+        // Auto-select the logged-in Salesman
+        $this->salesman = auth()->guard('admin')->user()->id ?? null;
 
-    // Auto-fetch bill book number for the salesman
-    if ($this->salesman) {
-        $this->changeSalesman($this->salesman);
-    }
+        // Auto-fetch bill book number for the salesman
+        if ($this->salesman) {
+            $this->changeSalesman($this->salesman);
+        }
 
-    // Fetch Salesman Billing if exists
-    if (auth()->guard('admin')->check()) {
-        $this->salesmanBill = SalesmanBilling::where('salesman_id', auth()->guard('admin')->user()->id)->first();
-    }
+        // Fetch Salesman Billing if exists
+        if (auth()->guard('admin')->check()) {
+            $this->salesmanBill = SalesmanBilling::where('salesman_id', auth()->guard('admin')->user()->id)->first();
+        }
 
-    // Add initial order item
-    $this->addItem();
+        // Add initial order item
+        $this->addItem();
 
-    foreach ($this->items as $index => $item) {
-        if (isset($item['measurements'])) {
-            foreach ($item['measurements'] as $measurement) {
-                foreach ($this->existing_measurements as $existing) {
-                    if (trim($existing['short_code']) === trim($measurement['short_code'])) {
-                        $this->items[$index]['get_measurements'][$measurement['id']]['value'] = $existing['value'];
+        foreach ($this->items as $index => $item) {
+            if (isset($item['measurements'])) {
+                foreach ($item['measurements'] as $measurement) {
+                    foreach ($this->existing_measurements as $existing) {
+                        if (trim($existing['short_code']) === trim($measurement['short_code'])) {
+                            $this->items[$index]['get_measurements'][$measurement['id']]['value'] = $existing['value'];
+                        }
                     }
                 }
             }
         }
-    }
 
-    $this->Business_type = BusinessType::all();
-    $this->selectedBusinessType = null;
-    $this->countries = Country::where('status',1)->get();
-}
+        $this->Business_type = BusinessType::all();
+        $this->selectedBusinessType = null;
+        $this->countries = Country::where('status',1)->get();
+    }
 
     public function GetCountryDetails($mobileLength, $field)
     {
@@ -324,19 +323,35 @@ class OrderNew extends Component
                 if ($customerFromOrder) {
                     $this->prefix = $customerFromOrder->prefix ?? '';
                     $this->selectedBusinessType = $customerFromOrder->business_type;
+                    $this->selectedCountryPhone = $customerFromOrder->country_code_phone;
+                    $this->selectedCountryWhatsapp = $customerFromOrder->country_code_whatsapp;
+                    $this->selectedCountryAlt1 = $customerFromOrder->country_code_alt_1;
+                    $this->selectedCountryAlt2 = $customerFromOrder->country_code_alt_2;
 
-                    // Fetch country details using the customer's country_id
-                    $country = Country::find($customerFromOrder->country_id);
-                    if ($country) {
-                        // Append the country information
-                        $this->search = $country->title;
-                        $this->country_code = $country->country_code;
-                        // $this->mobileLength = $country->mobile_length;
+                     // Assign phone numbers FIRST
+                    $this->phone = $customerFromOrder->phone;
+                    $this->alternative_phone_number_1 = $customerFromOrder->alternative_phone_number_1;
+                    $this->alternative_phone_number_2 = $customerFromOrder->alternative_phone_number_2;
 
-                        // Optionally, if you need to display the country code and other country-related data
-                        // in the customer form, you can also bind them to the input fields.
-                        $this->selectedCountryPhone = $country->country_code;
-                    }
+                    // Set mobile length for respective fields
+                    $this->mobileLengthPhone = Country::where('country_code',$this->selectedCountryPhone)->value('mobile_length') ?? '';
+                    $this->mobileLengthWhatsapp = Country::where('country_code',$this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
+                    $this->mobileLengthAlt1 = Country::where('country_code',$this->selectedCountryAlt1)->value('mobile_length') ?? '';
+                    $this->mobileLengthAlt2 = Country::where('country_code',$this->selectedCountryAlt2)->value('mobile_length') ?? '';
+                    
+                     // checkbox pre-selected if the number is also a whatsapp number
+                     $this->isWhatsappPhone = UserWhatsapp::where('user_id', $customerFromOrder->id)
+                     ->where('whatsapp_number', $this->phone)
+                     ->exists();
+             
+                    $this->isWhatsappAlt1 = UserWhatsapp::where('user_id', $customerFromOrder->id)
+                        ->where('whatsapp_number', $this->alternative_phone_number_1)
+                        ->exists();
+                
+                    $this->isWhatsappAlt2 = UserWhatsapp::where('user_id', $customerFromOrder->id)
+                     ->where('whatsapp_number', $this->alternative_phone_number_2)
+                     ->exists();
+             
                 }
 
                 // Add the customer to search results
@@ -351,13 +366,9 @@ class OrderNew extends Component
             $this->searchResults = $users->unique('id')->values();
         } else {
             // Reset results when the search term is empty
-            $this->searchResults = [];
-            $this->orders = collect();
-            $this->prefix = '';
-            $this->search = '';
-            $this->country_code = '';
-            $this->selectedBusinessType = '';
-            $this->mobileLength = '';
+            $this->reset([
+                'searchResults','orders','prefix','selectedBusinessType','selectedCountryPhone','selectedCountryWhatsapp','selectedCountryAlt1','selectedCountryAlt2','isWhatsappPhone', 'isWhatsappAlt1', 'isWhatsappAlt2'
+            ]);
         }
     }
 

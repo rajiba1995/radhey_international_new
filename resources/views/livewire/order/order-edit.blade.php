@@ -9,9 +9,9 @@
             <li><a href="{{route('admin.order.edit',$orders->id)}}">Update Order</a></li>
             <li class="back-button">
                 @if($activeTab==1)
-                <a class="btn btn-dark btn-sm text-decoration-none text-light font-weight-bold mb-0"
+                <a class="btn btn-sm btn-danger select-md"
                     href="{{route('admin.order.index')}}" role="button">
-                    <i class="material-icons text-white" style="font-size: 15px;">chevron_left</i>
+                    <i class="material-icons" style="font-size: 15px;">chevron_left</i>
                     <span class="ms-1">Back</span>
                 </a>
                 @endif
