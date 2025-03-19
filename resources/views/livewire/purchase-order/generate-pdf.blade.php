@@ -25,11 +25,11 @@
     }
     .box {
         border: 1px solid #000;
-        padding: 13px 11px;
+        padding: 9px 7px;
         height: 100px;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        /* justify-content: space-between; */
         box-shadow: 8px 11px 0px rgba(0, 0, 0, 0.2);
     }
 
@@ -40,7 +40,7 @@
 <table class="table-custom">
     <tr>
         <td style="width:50%; vertical-align: top;">
-            <img src="./images/logo.png" style="width:200px; height:auto;">
+            <img src="{{  public_path('assets/img/stanny.png')}}" style="width:200px; height:auto;">
         </td>
         <td style="width:50%; vertical-align: center;">
             <div class="box">

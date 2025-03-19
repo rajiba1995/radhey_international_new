@@ -100,8 +100,8 @@
                                     <p class="small text-muted mb-1">
                                         <span>Name: <strong>{{$order->prefix ." ". $order->customer_name}}</strong> </span>
                                         <br>
-                                        <span>Mobile : <strong>{{$order->customer?$order->customer->phone:""}}</strong> </span> <br>
-                                        <span>WhatsApp : <strong>{{$order->customer?$order->customer->whatsapp_no:""}}</strong> </span>
+                                        <span>Mobile : <strong>{{$order->customer? $order->customer->country_code_phone.' '.$order->customer->phone:""}}</strong> </span> <br>
+                                        <span>WhatsApp : <strong>{{$order->customer?$order->customer->country_code_whatsapp.' '.$order->customer->whatsapp_no:""}}</strong> </span>
                                     </p>
                                 </td>
                                 <td><p class="text-xs font-weight-bold mb-0">{{ $order->total_amount }}</p></td>
