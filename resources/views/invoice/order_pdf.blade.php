@@ -40,14 +40,18 @@
     </tr>
     <tr>
         <td colspan="2">
+            @php
+                $billing_address = $invoice->order->billing_address;
+                $formatted_address = preg_replace('/,\s*,/', ',', $billing_address); 
+                $address_lines = explode(',', $formatted_address); 
+            @endphp
             <table>
                 <tr>
                     <td style="width:50%"></td>
                     <td style="width:50%">
-                        <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">STE RADHEY's SARL</h3>
-                        <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">centre ville</h3>
-                        <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">bzv</h3>
-                        <h3 style="font-size: 17px; margin-bottom: 3px;">congo</h3>
+                        @foreach($address_lines as $line)
+                        <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">{{ trim($line) }}</h3>
+                        @endforeach
                     </td>
                 </tr>
             </table>
@@ -95,23 +99,23 @@
                     <th style="padding:8px 0; font-size: 14px;">Total price</th>
                 </thead>
                 <tbody>
-                @php
-                    $totalQuantity = 0;
-                @endphp
-                @if($invoice->order)
-                    @foreach($invoice->order->items as $item)
-                        @php
-                            $totalQuantity += $item->quantity;
-                        @endphp
-                        <tr>
-                            <td style="width:60%; line-height: 1.6; font-size: 13px;">{{ $item->product_name }}</td>
-                            <td style="font-size: 13px;">{{ $item->quantity }} set</td>
-                            <td style="font-size: 13px;">{{ number_format( ($item->total_price)/($item->quantity) ) }}</td>
-                            <td style="font-size: 13px;">0.00</td>
-                            <td style="font-size: 13px;">{{ number_format( $item->total_price ) }} FCFA</td>
-                        </tr>
+                    @php
+                        $totalQuantity = 0;
+                    @endphp
+                    @if($invoice->order)
+                        @foreach($invoice->order->items as $item)
+                            @php
+                                $totalQuantity += $item->quantity;
+                            @endphp
+                            <tr>
+                                <td style="width:60%; line-height: 1.6; font-size: 13px;">{{ $item->product_name }}</td>
+                                <td style="font-size: 13px;">{{ $item->quantity }} set</td>
+                                <td style="font-size: 13px;">{{ number_format( ($item->total_price)/($item->quantity) ) }}</td>
+                                <td style="font-size: 13px;">0.00</td>
+                                <td style="font-size: 13px;">{{ number_format( $item->total_price ) }} FCFA</td>
+                            </tr>
                         @endforeach
-                        @endif
+                    @endif
                 </tbody>
             </table>
             <table style="margin-top: 45px;">

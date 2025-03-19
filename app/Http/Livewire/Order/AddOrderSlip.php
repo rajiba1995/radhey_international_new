@@ -153,7 +153,7 @@ class AddOrderSlip extends Component
             'staff_id' => 'required|exists:users,id',
         ]);
 
-        $order = Order::find($this->order->id);
+        $order = Order::find($this->order->id); 
 
         if ($order) {
             $order->update([
