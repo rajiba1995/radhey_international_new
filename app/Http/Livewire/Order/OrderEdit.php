@@ -20,6 +20,7 @@ use App\Models\Country;
 use App\Models\BusinessType;
 use Illuminate\Support\Facades\DB;
 use Auth;
+use App\Models\UserWhatsapp;
 
 class OrderEdit extends Component
 {
@@ -38,7 +39,11 @@ class OrderEdit extends Component
     
     public $customers = null;
     public $orders;
-    public $is_wa_same, $prefix, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1, $alternative_phone_number_2;
+    public $is_wa_same, $prefix, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1, $alternative_phone_number_2,
+    $selectedCountryPhone, $selectedCountryWhatsapp, $selectedCountryAlt1 , $selectedCountryAlt2 ,$mobileLengthPhone, $mobileLengthWhatsapp, $mobileLengthAlt1, $mobileLengthAlt2,
+    $countries,
+     $isWhatsappPhone, $isWhatsappAlt1 , $isWhatsappAlt2
+    ;
     
     public $order_number, $billing_address,$billing_landmark,$billing_city,$billing_state,$billing_country,$billing_pin;
 
@@ -64,16 +69,17 @@ class OrderEdit extends Component
     public $selectedBusinessType;
     public $search;
     public $country_code;
-    public $countries;
-    public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
+    public $country_id;
+    // public $countries;
+    // public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
     // public $selectedCountryPhone;
     // public $mobileLengthPhone;
-    public $isWhatsappPhone;
-    public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
+    // public $isWhatsappPhone;
+    // public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
     public function mount($id)
     {
         $this->orders = Order::with(['items.measurements'])->findOrFail($id); // Fetch the order by ID
-       
+    //    dd($this->orders->customer->id);
         if ($this->orders) {
             $this->order_number = $this->orders->order_number;
             $this->customer_id = $this->orders->customer_id;
@@ -84,15 +90,34 @@ class OrderEdit extends Component
             $this->shipping_address = $this->orders->shipping_address;
             $this->is_billing_shipping_same = ($this->orders->billing_address == $this->orders->shipping_address);
             $this->phone = $this->orders->customer->phone;
-            $this->whatsapp_no = $this->orders->customer->whatsapp_no;
-            $this->is_wa_same  = ($this->phone == $this->whatsapp_no);
+            $this->alternative_phone_number_1 = $this->orders->customer->alternative_phone_number_1;
+            $this->alternative_phone_number_2 = $this->orders->customer->alternative_phone_number_2;
+            $this->countries = Country::where('status',1)->get();
+            $this->selectedCountryPhone =  $this->orders->customer->country_code_phone;
+            $this->selectedCountryWhatsapp =  $this->orders->customer->country_code_whatsapp;
+            $this->selectedCountryAlt1 =  $this->orders->customer->country_code_alt_1;
+            $this->selectedCountryAlt2 =  $this->orders->customer->country_code_alt_2;
+
+            // Set mobile lengths based on selected countries
+            $this->mobileLengthPhone = Country::where('country_code', $this->selectedCountryPhone)->value('mobile_length') ?? '';
+            $this->mobileLengthWhatsapp = Country::where('country_code', $this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
+            $this->mobileLengthAlt1 = Country::where('country_code', $this->selectedCountryAlt1)->value('mobile_length') ?? '';
+            $this->mobileLengthAlt2 = Country::where('country_code', $this->selectedCountryAlt2)->value('mobile_length') ?? '';
+            
+            $this->isWhatsappPhone = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->phone)->exists();
+            $this->isWhatsappAlt1 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_1)->exists();
+            // dd( $this->phone);
+
+            $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
+            // $this->whatsapp_no = $this->orders->customer->whatsapp_no;
+            // $this->is_wa_same  = ($this->phone == $this->whatsapp_no);
             $this->catalogues = Catalogue::with('catalogueTitle')->get()->toArray();
-            $country = Country::find($this->orders->customer->country_id);
-            // $country = Country::find($customer->country_id);
-            if ($country) {
-                $this->selectedCountryPhone = $country->country_code;
-                $this->mobileLengthPhone = $country->mobile_length;
-            }
+            // $country = Country::find($this->orders->customer->country_id);
+            // // $country = Country::find($customer->country_id);
+            // if ($country) {
+            //     $this->selectedCountryPhone = $country->country_code;
+            //     $this->mobileLengthPhone = $country->mobile_length;
+            // }
 
             $this->items = $this->orders->items->map(function ($item) {
                
@@ -185,14 +210,13 @@ class OrderEdit extends Component
         $this->Business_type = BusinessType::all();
         $this->selectedCountryId = $this->orders->customer->country_id;
         $this->search = Country::where('id',$this->orders->customer->country_id)->pluck('title');
-        $country = Country::find($this->selectedCountryId);
+        // $country = Country::find($this->selectedCountryId);
 
-        if($country){
-            $this->country_code = $country->country_code;
-            $this->mobileLength = $country->mobile_length;
-        }
-        $this->alternative_phone_number_1 = $this->orders->customer->alternative_phone_number_1;
-        $this->alternative_phone_number_2 = $this->orders->customer->alternative_phone_number_2;
+        // if($country){
+        //     $this->country_code = $country->country_code;
+        //     $this->mobileLength = $country->mobile_length;
+        // }
+       
         $this->selectedBusinessType = $this->orders->customer->business_type;
         $this->customer_id = $this->orders->customer_id;
         $this->prefix = $this->orders->prefix;
@@ -201,7 +225,7 @@ class OrderEdit extends Component
         $this->employee_rank = $this->orders->customer->employee_rank;
         $this->email = $this->orders->customer_email;
         $this->dob = $this->orders->customer->dob;
-        $this->phone = $this->orders->customer->phone;
+        // $this->phone = $this->orders->customer->phone;
         $this->whatsapp_no = $this->orders->customer->whatsapp_no;
 
         $this->customers = User::where('user_type', 1)->where('status', 1)->orderBy('name', 'ASC')->get();
@@ -213,7 +237,7 @@ class OrderEdit extends Component
         $this->remaining_amount =  $this->orders->remaining_amount;
         $this->payment_mode = $this->orders->payment_mode;
         // $this->addItem();
-        $this->countries = Country::all();
+        // $this->countries = Country::all();
         $this->salesmanBill = SalesmanBilling::where('salesman_id',auth()->guard('admin')->user()->id)->first();
     }
     public function GetCountryDetails($mobileLength, $field)
@@ -598,13 +622,13 @@ class OrderEdit extends Component
         }
         if ($value > 1) {
             // Validate search
-            if (empty($this->search)) {
-                $this->errorClass['search'] = 'border-danger';
-                $this->errorMessage['search'] = 'Please search a country first';
-            } else {
-                $this->errorClass['search'] = null;
-                $this->errorMessage['search'] = null;
-            }
+            // if (empty($this->search)) {
+            //     $this->errorClass['search'] = 'border-danger';
+            //     $this->errorMessage['search'] = 'Please search a country first';
+            // } else {
+            //     $this->errorClass['search'] = null;
+            //     $this->errorMessage['search'] = null;
+            // }
 
             // Validate name
             if (empty($this->name)) {
@@ -634,50 +658,54 @@ class OrderEdit extends Component
                 $this->errorMessage['dob'] = null;
             }
     
-             // Validate Phone Number
-             if (empty($this->phone)) {
-                $this->errorClass['phone'] = 'border-danger';
-                $this->errorMessage['phone'] = 'Please enter customer phone number';
-            } elseif (!preg_match('/^\d{'. $this->mobileLength .'}$/', $this->phone)) {
-                $this->errorClass['phone'] = 'border-danger';
-                $this->errorMessage['phone'] = "Phone number must be exactly ".$this->mobileLength." digits";
-            } else {
-                $this->errorClass['phone'] = null;
-                $this->errorMessage['phone'] = null;
-            }
+           
+    
+         // Validate Phone Number
+         if (empty($this->phone)) {
+            $this->errorClass['phone'] = 'border-danger';
+            $this->errorMessage['phone'] = 'Please enter customer phone number';
+        } elseif (!preg_match('/^\d{'. $this->mobileLengthPhone .'}$/', $this->phone)) {
+            $this->errorClass['phone'] = 'border-danger';
+            $this->errorMessage['phone'] = "Phone number must be exactly ".$this->mobileLengthPhone." digits";
+        } else {
+            $this->errorClass['phone'] = null;
+            $this->errorMessage['phone'] = null;
+        }
 
-            // Validate WhatsApp Number
-           if (empty($this->whatsapp_no)) {
-                $this->errorClass['whatsapp_no'] = 'border-danger';
-                $this->errorMessage['whatsapp_no'] = 'Please enter WhatsApp number';
-            } elseif (!preg_match('/^\d{'. $this->mobileLength .'}$/', $this->whatsapp_no)) {
-                $this->errorClass['whatsapp_no'] = 'border-danger';
-                $this->errorMessage['whatsapp_no'] = 'WhatsApp number must be exactly ' . $this->mobileLength . ' digits';
-            } else {
-                $this->errorClass['whatsapp_no'] = null;
-                $this->errorMessage['whatsapp_no'] = null;
-            }
+        // Validate WhatsApp Number
+        if (empty($this->whatsapp_no)) {
+            $this->errorClass['whatsapp_no'] = 'border-danger';
+            $this->errorMessage['whatsapp_no'] = 'Please enter WhatsApp number';
+        } elseif (!preg_match('/^\d{'. $this->mobileLengthWhatsapp .'}$/', $this->whatsapp_no)) {
+            $this->errorClass['whatsapp_no'] = 'border-danger';
+            $this->errorMessage['whatsapp_no'] = 'WhatsApp number must be exactly ' . $this->mobileLengthWhatsapp . ' digits';
+        } else {
+            $this->errorClass['whatsapp_no'] = null;
+            $this->errorMessage['whatsapp_no'] = null;
+        }
 
-            // validate alternative number 1
-          if (!empty($this->alternative_phone_number_1) &&  !preg_match('/^\d{'. $this->mobileLength .'}$/', $this->alternative_phone_number_1)) {
+        // Validate Alternative Phone Number 1
+        if (!empty($this->alternative_phone_number_1)) {
+            if (!preg_match('/^\d{'. $this->mobileLengthAlt1 .'}$/', $this->alternative_phone_number_1)) {
                 $this->errorClass['alternative_phone_number_1'] = 'border-danger';
-                $this->errorMessage['alternative_phone_number_1'] = 'Alternative number 1 must be exactly ' . $this->mobileLength . ' digits';
+                $this->errorMessage['alternative_phone_number_1'] = 'Alternative number 1 must be exactly ' . $this->mobileLengthAlt1 . ' digits';
             } else {
                 $this->errorClass['alternative_phone_number_1'] = null;
                 $this->errorMessage['alternative_phone_number_1'] = null;
             }
+        }
 
-            // validate alternative number 2
-           
-            if (!empty($this->alternative_phone_number_2) &&  !preg_match('/^\d{'. $this->mobileLength .'}$/', $this->alternative_phone_number_2)) {
+        // Validate Alternative Phone Number 2
+        if (!empty($this->alternative_phone_number_2)) {
+            if (!preg_match('/^\d{'. $this->mobileLengthAlt2 .'}$/', $this->alternative_phone_number_2)) {
                 $this->errorClass['alternative_phone_number_2'] = 'border-danger';
-                $this->errorMessage['alternative_phone_number_2'] = 'Alternative number 2 must be exactly ' . $this->mobileLength . ' digits';
+                $this->errorMessage['alternative_phone_number_2'] = 'Alternative number 2 must be exactly ' . $this->mobileLengthAlt2 . ' digits';
             } else {
                 $this->errorClass['alternative_phone_number_2'] = null;
                 $this->errorMessage['alternative_phone_number_2'] = null;
             }
+        }
 
-    
             // Validate Billing Information
             if (empty($this->billing_address)) {
                 $this->errorClass['billing_address'] = 'border-danger';
@@ -803,7 +831,34 @@ class OrderEdit extends Component
             $this->is_wa_same = 0;
         }
     }
+    // public function copyMeasurements($index){
+    //     if ($index > 0) {
+    //         if (!empty($this->items[$index]['copy_previous_measurements'])) {
+    //             // If checkbox is checked, copy measurements from the previous item
+    //             if (!empty($this->items[$index - 1]['get_measurements'])) {
+    //                 $this->items[$index]['get_measurements'] = $this->items[$index - 1]['get_measurements'];
+    //             }
+    //         } else {
+    //             // If checkbox is unchecked, clear measurements
+    //             $this->items[$index]['get_measurements'] = [];
+    //         }
+    //     }
+    // }
 
+    public function copyMeasurements($index) {
+        if ($index > 0) {
+            if (!empty($this->items[$index]['copy_previous_measurements'])) {
+                if (!empty($this->items[$index - 1]['measurements'])) {
+                    // Convert Collection to Array
+                    $this->items[$index]['measurements'] = $this->items[$index - 1]['measurements']->toArray();
+                }
+            } else {
+                $this->items[$index]['measurements'] = [];
+            }
+        }
+    }
+    
+    
     public function update()
     {
         $this->validate();
@@ -843,14 +898,26 @@ class OrderEdit extends Component
                     'employee_rank' => $this->employee_rank,
                     'email' => $this->email,
                     'dob' => $this->dob,
-                    'phone' => $this->phone,
-                    'whatsapp_no' => $this->whatsapp_no,
-                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
-                    'alternative_phone_number_2' => $this->alternative_phone_number_2,
+                    // 'phone' => $this->phone,
+                    // 'whatsapp_no' => $this->whatsapp_no,
+                    // 'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    // 'alternative_phone_number_2' => $this->alternative_phone_number_2,
                     'user_type' => 1, // Customer (if needed, or update as appropriate)
                     'business_type' => $this->selectedBusinessType,
                     'country_id' => $this->selectedCountryId,
                     'country_code' => $this->country_code,
+
+
+                    // 'country_id' => $this->country_id,
+                    'country_code_phone' => $this->selectedCountryPhone,
+                    'phone' => $this->phone,
+                    'country_code_whatsapp' => $this->selectedCountryWhatsapp,
+                    'whatsapp_no' => $this->whatsapp_no,
+                    // 'country_code' => $this->country_code,
+                    'country_code_alt_1'  => $this->selectedCountryAlt1,
+                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    'country_code_alt_2'  => $this->selectedCountryAlt2,
+                    'alternative_phone_number_2' => $this->alternative_phone_number_2,
                 ]);
             }
             // Update or create addresses
@@ -994,6 +1061,40 @@ class OrderEdit extends Component
                         ]);
                 }
             }
+            // Store or update WhatsApp details if the flags are set
+            $existingNumbers = UserWhatsapp::where('user_id', $this->orders->customer->id)->pluck('whatsapp_number')->toArray();
+
+            $updatedNumbers = [];
+            
+            if ($this->isWhatsappPhone) {
+                UserWhatsapp::updateOrCreate(
+                    ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->phone], // Search criteria
+                    ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
+                );
+                $updatedNumbers[] = $this->phone;
+            }
+            
+            if ($this->isWhatsappAlt1) {
+                UserWhatsapp::updateOrCreate(
+                    ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->alternative_phone_number_1], // Search criteria
+                    ['country_code' => $this->selectedCountryAlt1, 'updated_at' => now()]
+                );
+                $updatedNumbers[] = $this->alternative_phone_number_1;
+            }
+            
+            if ($this->isWhatsappAlt2) {
+                UserWhatsapp::updateOrCreate(
+                    ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->alternative_phone_number_2], // Search criteria
+                    ['country_code' => $this->selectedCountryAlt2, 'updated_at' => now()]
+                );
+                $updatedNumbers[] = $this->alternative_phone_number_2;
+            }
+            
+            // Delete records that were not updated
+            UserWhatsapp::where('user_id', $this->orders->customer->id)
+                ->whereNotIn('whatsapp_number', $updatedNumbers)
+                ->delete();
+            
 
             DB::commit();
             session()->flash('success', 'Order has been updated successfully.');

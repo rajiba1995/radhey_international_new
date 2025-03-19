@@ -191,26 +191,7 @@ class OrderNew extends Component
         $this->countries = Country::where('status',1)->get();
     }
 
-    public function GetCountryDetails($mobileLength, $field)
-    {
-        switch($field){
-            case 'phone':
-                $this->mobileLengthPhone = $mobileLength;
-                break;
-
-            case 'whatsapp':
-                $this->mobileLengthWhatsapp = $mobileLength;
-                break;
-
-            case 'alt_phone_1':
-                $this->mobileLengthAlt1 = $mobileLength;
-                break;
-            
-            case 'alt_phone_2':
-                $this->mobileLengthAlt2 = $mobileLength;
-                break;
-        }
-    }
+     
 
 
     public function searchFabrics($index)
