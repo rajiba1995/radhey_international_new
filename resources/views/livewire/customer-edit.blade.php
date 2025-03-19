@@ -1,4 +1,4 @@
-<div class="container-fluid px-2 px-md-4">
+ <div class="container-fluid px-2 px-md-4">
     <section class="admin__title">
         <h5>Edit Customer</h5>
     </section>
