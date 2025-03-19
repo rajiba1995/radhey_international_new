@@ -21,6 +21,8 @@ use App\Models\Payment;
 use App\Models\Country;
 use App\Models\BusinessType;
 use App\Models\UserWhatsapp;
+use App\Models\Page;
+use App\Models\CataloguePageItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
@@ -81,6 +83,7 @@ class OrderNew extends Component
     public $Business_type;
     public $selectedBusinessType;
     public $countries;
+    public $pageItems = [];
 
     public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
     public $isWhatsappPhone, $isWhatsappAlt1, $isWhatsappAlt2;
@@ -369,6 +372,7 @@ class OrderNew extends Component
             'price' => '',
             'selectedCatalogue' => '',
             'page_number' => '',
+            'page_item' => '',
             'searchTerm' => '', // Ensure search field is empty
             // 'searchResults' => [], // Clear previous search results
         ];
@@ -443,7 +447,32 @@ class OrderNew extends Component
         }
     
         $pageNumber = (int) $this->items[$index]['page_number'];
-        $selectedCatalogue = $this->items[$index]['selectedCatalogue'];
+        $selectedCatalogue = $this->items[$index]['selectedCatalogue'];  //this is actually catalogue title id
+        // dd($pageNumber,$selectedCatalogue);
+        // Get all catalogues under the selected catalogue title
+         $catalogueIds = Catalogue::where('catalogue_title_id', $selectedCatalogue)->pluck('id');
+         // Fetch the page ID first
+            $page = Page::where('catalogue_id', $catalogueIds)
+            ->where('page_number', $pageNumber)
+            ->first();
+         // Fetch catalog items from `catalogue_page_item` table
+         if ($page) {
+            // Fetch catalog items from `catalogue_page_item` using page_id
+            // $pageItems = CataloguePageItem::whereIn('catalogue_id', $catalogueIds)
+            //     ->where('page_id', $page->id)
+            //     ->pluck('catalog_item')
+            //     ->toArray();
+            $pageItems = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
+                ->whereIn('catalogue_page_items.catalogue_id', $catalogueIds) 
+                ->where('pages.page_number', $pageNumber)
+                ->select('catalogue_page_items.id', 'catalogue_page_items.catalog_item', 'pages.page_number')
+                ->get();
+            
+            // Store fetched items in a property for dropdown use
+            $this->pageItems[$index] = $pageItems;
+        } else {
+            $this->pageItems[$index] = [];
+        }
     
         // Ensure we get the correct max page for the selected catalogue
         $maxPage = $this->maxPages[$index][$selectedCatalogue] ?? null;
@@ -457,18 +486,10 @@ class OrderNew extends Component
         } else {
             $this->resetErrorBag("items.$index.page_number");
         }
+
     }
+
     
-
-
-    // public function SelectedPage($value , $index){
-    //     $this->items[$index]['selectedPage'] = $value;
-    //     $this->selectedImage[$index] = Catalogue::where('catalogue_title_id',$this->items[$index]['selectedCatalogue'])
-    //                                             ->where('page_number',$value)
-    //                                             ->value('image');
-    // }
-    
-
 
     public function CategoryWiseProduct($categoryId, $index)
     {
@@ -662,12 +683,10 @@ class OrderNew extends Component
     public function copyMeasurements($index){
         if ($index > 0) {
             if (!empty($this->items[$index]['copy_previous_measurements'])) {
-                // If checkbox is checked, copy measurements from the previous item
                 if (!empty($this->items[$index - 1]['get_measurements'])) {
                     $this->items[$index]['get_measurements'] = $this->items[$index - 1]['get_measurements'];
                 }
             } else {
-                // If checkbox is unchecked, clear measurements
                 $this->items[$index]['get_measurements'] = [];
             }
         }
@@ -675,7 +694,7 @@ class OrderNew extends Component
 
     public function save()
     {   
-        // dd($this->all());
+        dd($this->all());
         DB::beginTransaction(); // Begin transaction
         
         try{ 
@@ -899,10 +918,11 @@ class OrderNew extends Component
                 $orderItem->order_id = $order->id;
                 $orderItem->catalogue_id = $item['selectedCatalogue'] ?? null;
                 $orderItem->cat_page_number = $item['page_number'] ?? null;
+                $orderItem->cat_page_item = $item['page_item'] ?? null;
                 $orderItem->product_id = $item['product_id'];
                 $orderItem->collection = $collection_data ? $collection_data->id : "";
                 $orderItem->category = $category_data ? $category_data->id : "";
-                // $orderItem->sub_category = $sub_category_data ? $sub_category_data->title : "";
+                
                 $orderItem->product_name = $item['searchproduct'];
                 $orderItem->total_price = $item['price'];
                 $orderItem->piece_price = $item['price'];
@@ -938,30 +958,29 @@ class OrderNew extends Component
 
             // Store WhatsApp details if the flags are set
                 if ($this->isWhatsappPhone) {
-                    UserWhatsapp::create([
-                        'user_id' => $user->id,
-                        'country_code' => $this->selectedCountryPhone,
-                        'whatsapp_number' => $this->phone,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+                    UserWhatsapp::updateOrCreate(
+                        ['user_id' => $user->id,'whatsapp_number' => $this->phone],
+                        [ 'country_code' => $this->selectedCountryPhone, 'created_at' => now(),'updated_at' => now()]
+                    );
                 }
 
                 if ($this->isWhatsappAlt1) {
-                    UserWhatsapp::create([
-                        'user_id' => $user->id,
+                    UserWhatsapp::updateOrCreate([
+                         'user_id' => $user->id,
+                         'whatsapp_number' => $this->alternative_phone_number_1,
+                        ],
+                        [
                         'country_code' => $this->selectedCountryAlt1,
-                        'whatsapp_number' => $this->alternative_phone_number_1,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
                 }
 
                 if ($this->isWhatsappAlt2) {
-                    UserWhatsapp::create([
+                    UserWhatsapp::updateOrCreate([
                         'user_id' => $user->id,
-                        'country_code' => $this->selectedCountryAlt2,
-                        'whatsapp_number' => $this->alternative_phone_number_2,
+                        'whatsapp_number' => $this->alternative_phone_number_2],
+                        ['country_code' => $this->selectedCountryAlt2,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -1074,14 +1093,7 @@ class OrderNew extends Component
                 $this->errorMessage['selectedBusinessType'] = null;
             }
 
-            // validate country
-            // if(empty($this->search)){
-            //     $this->errorClass['search'] = 'border-danger';
-            //     $this->errorMessage['search'] = 'Please Search a country first';
-            // }else{
-            //     $this->errorClass['search']  = null;
-            //     $this->errorMessage['search']  = null;
-            // }
+            
 
             // validate Salesman
             if(empty($this->salesman)){

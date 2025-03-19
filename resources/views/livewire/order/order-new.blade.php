@@ -606,7 +606,7 @@
 
                         <!-- Product -->
                         @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
-                        <div class="mb-3 col-md-4">
+                        <div class="mb-3 col-md-3">
                             @else
                             <div class="mb-3 col-md-8">
                                 @endif
@@ -655,7 +655,7 @@
                                 @enderror
                             </div>
 
-                            <div class="mb-3 col-md-2">
+                            <div class="mb-3 col-md-1">
                                 <label class="form-label"><strong>Page Number</strong></label>
                                 <input type="number" wire:model="items.{{$index}}.page_number"
                                     wire:keyup="validatePageNumber({{ $index }})" id="page_number"
@@ -663,6 +663,22 @@
                                     min="1"
                                     max="{{ isset($items[$index]['selectedCatalogue']) && isset($maxPages[$index][$items[$index]['selectedCatalogue']]) ? $maxPages[$index][$items[$index]['selectedCatalogue']] : '' }}">
                                 @error("items.".$index.".page_number")
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3 col-md-2">
+                                <label class="form-label"><strong>Page Item</strong></label>
+                                <select wire:model="items.{{$index}}.page_item" 
+                                        class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_item') border-danger @enderror">
+                                    <option value="" selected hidden>Select Page Item</option>
+                                    @foreach($pageItems[$index] ?? [] as $id => $item)
+                                        <option value="{{ $item->catalog_item  }}">
+                                            {{ $item->catalog_item }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error("items.".$index.".page_item")
                                 <div class="text-danger">{{ $message }}</div>
                                 @enderror
                             </div>
