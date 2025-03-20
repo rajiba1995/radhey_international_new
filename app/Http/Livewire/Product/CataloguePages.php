@@ -6,9 +6,13 @@ use Livewire\Component;
 use App\Models\Catalogue;
 use App\Models\Page;
 use App\Models\CataloguePageItem;
+use Livewire\WithPagination;
+
 
 class CataloguePages extends Component
 {
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
     public $pages;
     public $editing = false;
     public $editingPageId; 

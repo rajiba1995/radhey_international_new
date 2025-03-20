@@ -91,8 +91,8 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="pagination-nav">
-                                {{-- {{ $catalogs->links() }} --}}
+                            <div class="mt-4">
+                                {{-- {{ $pages->links() }} --}}
                             </div>
                         </div>
                     </div>
