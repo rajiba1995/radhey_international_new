@@ -73,12 +73,12 @@
                                             </td>
 
                                             <td class="align-middle">
-                                                <button
+                                                {{-- <button
                                                     wire:click="setCatalogueAndPage({{ $page->catalogue_id }} , {{$page->page_number}})"
                                                     class="btn btn-outline-primary select-md btn_action btn_outline"
                                                     title="Create">
                                                     Click
-                                                </button>
+                                                </button> --}}
                                                 <button
                                                     wire:click="editCatalogueAndPage({{ $page->catalogue_id }} , {{$page->page_number}})"
                                                     class="btn btn-outline-primary select-md btn_action btn_outline"
@@ -105,7 +105,7 @@
                     <div class="card my-4">
                         <div class="card-body px-0 pb-2 mx-4">
                             <div class="d-flex justify-content-between mb-3">
-                                <h5>{{$cataloguePageId ? 'Update Catalogue Page Item' : 'Create Catalogue Page Item'}}
+                                <h5>Update Catalogue Page Item
                                 </h5>
                             </div>
                             <form wire:submit.prevent="storeOrUpdate">
@@ -158,7 +158,7 @@
                                         </a>
                                         <button type="submit" class="btn btn-sm btn-success select-md"
                                             wire:loading.attr="disabled">
-                                            <span>{{ $cataloguePageId ? 'Update' : 'Create' }}</span>
+                                            <span>Update</span>
                                         </button>
                                     </div>
                                 </div>
