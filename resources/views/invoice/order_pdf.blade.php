@@ -30,15 +30,16 @@
 <table class="table-custom">
     <tr>
         <td style="width:60%;">
-            <img src="{{  public_path('assets/img/stanny.png')}}" style="width:130px; height:auto;">
+            <img src="{{  public_path('assets/img/pdf_logo.png')}}" style="width:130px; height:auto;">
         </td>
         <td style="width:40%;">
-            <h4 style="margin-top: 0; margin-bottom: 10px; font-size: 14px; font-style: italic; margin-bottom: 20px;">Vetro destination ideale</h4>
-            <p style="font-size: 12px; margin-bottom: 6px; color:#ccc;">Lorem Ipsum is simply dummy text</p>
-            <p style="font-size: 12px; margin-bottom: 6px; color:#ccc;">Lorem Ipsum is </p>
+        <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">STE RADHEY'S SARL</h3>
+            <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">CAPITAL: 1.000.000 FCFA</h3>
+            <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">NIU  M24000000659298E</h3>
+            <h3 style="font-size: 15px; margin-bottom: 3px;">RCCM  CG-PNR-01-2024-B12-00203</h3>
         </td>
     </tr>
-    <tr>
+    {{-- <tr>
         <td colspan="2">
             @php
                 $billing_address = $invoice->order->billing_address;
@@ -56,7 +57,7 @@
                 </tr>
             </table>
         </td>
-    </tr>
+    </tr> --}}
     <tr>
         <td colspan="2">
             <h2 style="font-size: 30px; color:#acacac; font-weight: 400;">Invoice: INV/{{ date('Y') }}/{{ $invoice->invoice_no }}</h2>
@@ -127,17 +128,25 @@
                                 <td style="font-weight: 600; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">Total</td>
                                 <td style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">{{ number_format($invoice->net_price) }} FCFA</td>
                             </tr>
+                            @php
+                                $tva = $item->total_price * 0.18;
+                                $ca = $tva * 0.05;
+                                $ht_amount = $item->total_price - ($tva + $ca);
+                            @endphp
+
                             <tr>
                                 <td style="color:#a2a0a0; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">H.T</td>
-                                <td style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">0.00 FCFA</td>
+                                <td style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">{{ number_format($ht_amount, 2) }} FCFA</td>
                             </tr>
                             <tr>
                                 <td style="color:#a2a0a0; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">T.V.A</td>
-                                <td style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">0.00 FCFA</td>
+                                <td style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">{{ number_format($tva, 2) }}
+                                FCFA</td>
                             </tr>
                             <tr>
                                 <td style="color:#a2a0a0; padding: 6px; font-size: 13px;">C.A</td>
-                                <td style="text-align: right; padding: 6px; font-size: 13px;">0.00 FCFA</td>
+                                <td style="text-align: right; padding: 6px; font-size: 13px;">{{ number_format($ca, 2) }}
+                                FCFA</td>
                             </tr>
                             <tr>
                                 <td style="font-size: 13px; padding: 6px; font-style: italic; border-bottom: 1px solid #ccc;">paid on {{ \Carbon\Carbon::parse($invoice->created_at)->format('d-m-Y') }} using cash</td>
@@ -163,7 +172,7 @@
 
 <table style="border-color:#000; border-style: double; border-bottom: 0; border-right: 0; border-left:0; margin-top: 35px;">
     <tr>
-        <td style="font-size: 13px; padding: 4px;">PNR: Lorem Ipsum is simply dummy text of the printing</td>
+        <td style="font-size: 13px; padding: 4px;">PNR: Lorem Ipsum is simply dummy text of the printing</td>  
         <td style="font-size: 13px; padding: 4px;">Mobile: +148 15265978</td>
         <td style="font-size: 13px; padding: 4px;">Email: info-pro@gmail.com</td>
     </tr>
