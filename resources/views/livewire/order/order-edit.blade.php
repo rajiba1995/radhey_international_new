@@ -611,40 +611,46 @@
                         <!-- Measurements -->
                         @if(isset($this->items[$index]['product_id']) && $items[$index]['selected_collection'] == 1)
                         <div class="row">
-                            <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
-                                <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
-                                    @if($index > 0) <!-- Show checkbox only for second item onwards -->
-                                        <div class="form-check mb-2">
-                                            <input type="checkbox" class="form-check-input" wire:model="items.{{ $index }}.copy_previous_measurements" 
-                                                wire:change="copyMeasurements({{ $index }})" id="copy_measurements_{{ $index }}">
-                                            <label class="form-check-label" for="copy_measurements_{{ $index }}">
-                                                Use previous measurements
-                                            </label>
-                                        </div>
-                                    @endif
-                                <div class="row">
+                        <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
+            <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
 
-                                   
+            @if($index > 0) <!-- Show checkbox only for second item onwards -->
+                <div class="form-check mb-2">
+                    <input type="checkbox" class="form-check-input" wire:model="items.{{ $index }}.copy_previous_measurements" 
+                        wire:change="copyMeasurements({{ $index }})" id="copy_measurements_{{ $index }}">
+                    <label class="form-check-label" for="copy_measurements_{{ $index }}">
+                        Use previous measurements
+                    </label>
+                </div>
 
-                                    @if(isset($items[$index]['measurements']) && count($items[$index]['measurements']) > 0)
-                                    @foreach ($items[$index]['measurements'] as $key =>$measurement)
-                                    <div class="col-md-3">
-                                        <label>
-                                            {{ isset($measurement['title']) ? $measurement['title'] : 'N/A' }}
-                                            <strong>[{{ isset($measurement['short_code']) ?
-                                                $measurement['short_code'] : '' }}]</strong>
-                                        </label>
-                                        <input type="text"
-                                            class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
-                                            wire:model="items.{{ $index }}.measurements.{{ $key }}.value">
-                                        @error("items.{$index}.measurements.{$key}.value")
-                                        <div class="text-danger">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    @endforeach
-                                    @endif
-                                </div>
-                            </div>
+                <!-- Display error if copying measurements failed due to product mismatch -->
+                @if (session()->has('measurements_error.' . $index))
+                    <div class="alert alert-danger">
+                        {{ session('measurements_error.' . $index) }}
+                    </div>
+                @endif
+            @endif
+
+    <div class="row">
+        @if(isset($items[$index]['measurements']) && count($items[$index]['measurements']) > 0)
+            @foreach ($items[$index]['measurements'] as $key => $measurement)
+                <div class="col-md-3">
+                    <label>
+                        {{ isset($measurement['title']) ? $measurement['title'] : 'N/A' }}
+                        <strong>[{{ isset($measurement['short_code']) ? $measurement['short_code'] : '' }}]</strong>
+                    </label>
+                    <input type="text"
+                        class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
+                        wire:model="items.{{ $index }}.measurements.{{ $key }}.value">
+                    @error("items.{$index}.measurements.{$key}.value")
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+            @endforeach
+        @endif
+    </div>
+</div>
+
                             <!-- Fabrics -->
                             <div class="col-12 col-md-2">
                                 <label class="form-label"><strong>Fabric</strong></label>

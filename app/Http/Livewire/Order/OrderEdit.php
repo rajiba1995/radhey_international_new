@@ -846,19 +846,50 @@ class OrderEdit extends Component
     //     }
     // }
 
+    // public function copyMeasurements($index) {
+    //     if ($index > 0) {
+    //         if (!empty($this->items[$index]['copy_previous_measurements'])) {
+    //             if (!empty($this->items[$index - 1]['measurements'])) {
+    //                 // Convert Collection to Array
+    //                 $this->items[$index]['measurements'] = $this->items[$index - 1]['measurements']->toArray();
+    //             }
+    //         } else {
+    //             $this->items[$index]['measurements'] = [];
+    //         }
+    //     }
+    // }
     public function copyMeasurements($index) {
         if ($index > 0) {
+            $currentProductId = $this->items[$index]['product_id'] ?? null;
+            $previousProductId = $this->items[$index - 1]['product_id'] ?? null;
+    
             if (!empty($this->items[$index]['copy_previous_measurements'])) {
-                if (!empty($this->items[$index - 1]['measurements'])) {
-                    // Convert Collection to Array
+                if ($currentProductId === $previousProductId && !empty($this->items[$index - 1]['measurements'])) {
+                    // Copy measurements if the product is the same
                     $this->items[$index]['measurements'] = $this->items[$index - 1]['measurements']->toArray();
+                } else {
+                    // Keep structure but clear measurement values
+                    if (!empty($this->items[$index]['measurements'])) {
+                        foreach ($this->items[$index]['measurements'] as $key => $measurement) {
+                            $this->items[$index]['measurements'][$key]['value'] = ''; // Clear only values
+                        }
+                    }
+                    session()->flash('measurements_error.' . $index, 'Measurements cannot be copied as products are different.');
                 }
             } else {
-                $this->items[$index]['measurements'] = [];
+                // Clear only values if checkbox is unchecked
+                if (!empty($this->items[$index]['measurements'])) {
+                    foreach ($this->items[$index]['measurements'] as $key => $measurement) {
+                        $this->items[$index]['measurements'][$key]['value'] = '';
+                    }
+                }
             }
         }
     }
     
+    
+    
+
     
     public function update()
     {
