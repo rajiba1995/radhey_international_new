@@ -118,7 +118,7 @@ class OrderEdit extends Component
             //     $this->selectedCountryPhone = $country->country_code;
             //     $this->mobileLengthPhone = $country->mobile_length;
             // }
-
+            // dd($this->catalogues);
             $this->items = $this->orders->items->map(function ($item) {
                
                 $selected_titles = OrderMeasurement::where('order_item_id', $item->id)->pluck('measurement_name')->toArray();
@@ -143,7 +143,7 @@ class OrderEdit extends Component
                             'value' => $index !== false ? $selected_values[$index] : '', // Assign value if title is in selected titles
                         ];
                 });
-                 
+                //  dd($item->catalogue_id);
                 return [
                     'order_item_id' => $item->id, 
                     'product_id' => $item->product_id,
