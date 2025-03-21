@@ -596,11 +596,13 @@
                                 <select wire:model="items.{{$index}}.page_item" 
                                         class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_item') border-danger @enderror">
                                     <option value="" selected hidden>Select Page Item</option>
-                                    @foreach($items[$index]['pageItems'] ?? [] as $item)
-                                        <option value="{{ $item }}" {{$items[$index]['pageItems'] == $item ? 'selected' : ''}}>
-                                            {{ $item }}
-                                        </option>
-                                    @endforeach
+                                    @if(!empty($items[$index]['pageItems']))
+                                        @foreach($items[$index]['pageItems'] ?? [] as $item)
+                                            <option value="{{ $item }}" {{$items[$index]['page_item'] == $item ? 'selected' : ''}}>
+                                                {{ $item }}
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 </select>
                                 @error("items.".$index.".page_item")
                                 <div class="text-danger">{{ $message }}</div>

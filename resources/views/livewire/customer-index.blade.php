@@ -202,7 +202,7 @@
                                                         </a>
                                                           <!-- Purchase History (Ledger) Button -->
                                                         <a href="{{route('admin.order.index',['customer_id' => $user->id])}}" class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="Purchase History" title="Purchase History">
-                                                            Purchase History
+                                                            Order History
                                                         </a>
     
                                                         <!-- Add Payment Button -->

@@ -135,12 +135,13 @@ class OrderEdit extends Component
                 });
 
                 $pageItems = [];
-                    if ($item->catalogue_id && $item->cat_page_number) {
+                    if (!empty($item->catalogue_id) && !empty($item->cat_page_number)) {
                         $pageItems = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
                         ->where('catalogue_page_items.catalogue_id', $item->catalogue_id) 
                         ->where('pages.page_number', $item->cat_page_number)
                         ->pluck('catalogue_page_items.catalog_item')
                         ->toArray();
+                        // dd($pageItems);
                     }
 
                  
@@ -263,6 +264,7 @@ class OrderEdit extends Component
                 break;
         }
     }
+    
 
     public function addItem()
     {
@@ -284,6 +286,8 @@ class OrderEdit extends Component
             'catalogues' => [],
             'selectedCatalogue' => '',
             'page_number' => '',
+            'pageItems' => [],
+            'page_item' => null,
         ];
         // Ensure catalogues and max pages are initialized
    

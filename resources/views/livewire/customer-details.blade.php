@@ -34,13 +34,14 @@
                                     {{--@dump($customer)--}}
                                     @if ($customer && $customer->profile_image)
                                         <img src="{{asset($customer->profile_image)}}" alt="Avatar"class="rounded-circle">
+                                    @else
+                                       <img src="{{asset("assets/img/profile_image.png")}}" alt="profile-image">
                                     @endif
-                                    <img src="{{asset("assets/img/profile_image.png")}}" alt="profile-image">
                                 </div>
 
                                 <div class="pofile-details">
                                     <h6 class="text-nowrap mb-0 meduim-heading">{{$customer->name}}</h6>
-                                    <h6 class="text-nowrap mb-0 meduim-heading">{{$customer->ordersAsCustomer->count()}} Orders</h6>
+                                    {{-- <h6 class="text-nowrap mb-0 meduim-heading">{{$customer->ordersAsCustomer->count()}} Orders</h6> --}}
                                 </div>
                             </div>
                         </div>
@@ -142,7 +143,7 @@
     
                     </div>
 
-                    <div class="form-group mb-3">
+                    {{-- <div class="form-group mb-3">
                     <h6 class="card-title">Account Information</h6>
                          @if($customer->gst_certificate_image !=""||$customer->gst_number !=""||$customer->credit_limit !=""||$customer->credit_days !="")
                             <div class="avatar me-3">
@@ -177,7 +178,7 @@
                         @endif
                       
     
-                    </div>
+                    </div> --}}
                     
                     
                 </div>
