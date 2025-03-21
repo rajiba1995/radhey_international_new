@@ -240,6 +240,11 @@ class OrderEdit extends Component
         // $this->addItem();
         // $this->countries = Country::all();
         $this->salesmanBill = SalesmanBilling::where('salesman_id',auth()->guard('admin')->user()->id)->first();
+
+
+        foreach ($this->items as $index => $item) {
+            $this->items[$index]['copy_previous_measurements'] = false; // Ensure checkbox is not selected
+        }
     }
     public function GetCountryDetails($mobileLength, $field)
     {
