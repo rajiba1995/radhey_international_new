@@ -40,7 +40,7 @@ class OrderEdit extends Component
     
     public $customers = null;
     public $orders;
-    public $prefix, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1, $alternative_phone_number_2,
+    public $is_wa_same, $prefix, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1, $alternative_phone_number_2,
     $selectedCountryPhone, $selectedCountryWhatsapp, $selectedCountryAlt1 , $selectedCountryAlt2 ,$mobileLengthPhone, $mobileLengthWhatsapp, $mobileLengthAlt1, $mobileLengthAlt2,
     $countries,
      $isWhatsappPhone, $isWhatsappAlt1 , $isWhatsappAlt2
@@ -71,7 +71,12 @@ class OrderEdit extends Component
     public $search;
     public $country_code;
     public $country_id;
-    
+    // public $countries;
+    // public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
+    // public $selectedCountryPhone;
+    // public $mobileLengthPhone;
+    // public $isWhatsappPhone;
+    // public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
     public function mount($id)
     {
         $this->orders = Order::with(['items.measurements'])->findOrFail($id); // Fetch the order by ID
@@ -105,10 +110,16 @@ class OrderEdit extends Component
             // dd( $this->phone);
 
             $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
-            
+            // $this->whatsapp_no = $this->orders->customer->whatsapp_no;
+            // $this->is_wa_same  = ($this->phone == $this->whatsapp_no);
             $this->catalogues = Catalogue::with('catalogueTitle')->get()->toArray();
-           
-
+            // $country = Country::find($this->orders->customer->country_id);
+            // // $country = Country::find($customer->country_id);
+            // if ($country) {
+            //     $this->selectedCountryPhone = $country->country_code;
+            //     $this->mobileLengthPhone = $country->mobile_length;
+            // }
+            // dd($this->catalogues);
             $this->items = $this->orders->items->map(function ($item) {
                
                 $selected_titles = OrderMeasurement::where('order_item_id', $item->id)->pluck('measurement_name')->toArray();
@@ -145,6 +156,7 @@ class OrderEdit extends Component
                     }
 
                  
+                //  dd($item->catalogue_id);
                 return [
                     'order_item_id' => $item->id, 
                     'product_id' => $item->product_id,
@@ -172,7 +184,6 @@ class OrderEdit extends Component
                     'page_item' => $item->cat_page_item,
                 ];
             })->toArray();
-            // dd($this->items);
         }
         // Split the address and assign to the properties
         $billingAddress = explode(',', $this->orders->billing_address);
@@ -243,6 +254,11 @@ class OrderEdit extends Component
         // $this->addItem();
         // $this->countries = Country::all();
         $this->salesmanBill = SalesmanBilling::where('salesman_id',auth()->guard('admin')->user()->id)->first();
+
+
+        foreach ($this->items as $index => $item) {
+            $this->items[$index]['copy_previous_measurements'] = false; // Ensure checkbox is not selected
+        }
     }
     public function GetCountryDetails($mobileLength, $field)
     {
@@ -852,19 +868,50 @@ class OrderEdit extends Component
     //     }
     // }
 
+    // public function copyMeasurements($index) {
+    //     if ($index > 0) {
+    //         if (!empty($this->items[$index]['copy_previous_measurements'])) {
+    //             if (!empty($this->items[$index - 1]['measurements'])) {
+    //                 // Convert Collection to Array
+    //                 $this->items[$index]['measurements'] = $this->items[$index - 1]['measurements']->toArray();
+    //             }
+    //         } else {
+    //             $this->items[$index]['measurements'] = [];
+    //         }
+    //     }
+    // }
     public function copyMeasurements($index) {
         if ($index > 0) {
+            $currentProductId = $this->items[$index]['product_id'] ?? null;
+            $previousProductId = $this->items[$index - 1]['product_id'] ?? null;
+    
             if (!empty($this->items[$index]['copy_previous_measurements'])) {
-                if (!empty($this->items[$index - 1]['measurements'])) {
-                    // Convert Collection to Array
+                if ($currentProductId === $previousProductId && !empty($this->items[$index - 1]['measurements'])) {
+                    // Copy measurements if the product is the same
                     $this->items[$index]['measurements'] = $this->items[$index - 1]['measurements']->toArray();
+                } else {
+                    // Keep structure but clear measurement values
+                    if (!empty($this->items[$index]['measurements'])) {
+                        foreach ($this->items[$index]['measurements'] as $key => $measurement) {
+                            $this->items[$index]['measurements'][$key]['value'] = ''; // Clear only values
+                        }
+                    }
+                    session()->flash('measurements_error.' . $index, 'Measurements cannot be copied as products are different.');
                 }
             } else {
-                $this->items[$index]['measurements'] = [];
+                // Clear only values if checkbox is unchecked
+                if (!empty($this->items[$index]['measurements'])) {
+                    foreach ($this->items[$index]['measurements'] as $key => $measurement) {
+                        $this->items[$index]['measurements'][$key]['value'] = '';
+                    }
+                }
             }
         }
     }
     
+    
+    
+
     
     public function update()
     {
@@ -905,7 +952,10 @@ class OrderEdit extends Component
                     'employee_rank' => $this->employee_rank,
                     'email' => $this->email,
                     'dob' => $this->dob,
-                   
+                    // 'phone' => $this->phone,
+                    // 'whatsapp_no' => $this->whatsapp_no,
+                    // 'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    // 'alternative_phone_number_2' => $this->alternative_phone_number_2,
                     'user_type' => 1, // Customer (if needed, or update as appropriate)
                     'business_type' => $this->selectedBusinessType,
                     'country_id' => $this->selectedCountryId,
@@ -994,7 +1044,11 @@ class OrderEdit extends Component
            
 
             foreach ($this->items as $key=>$item) {
-               
+                // $orderItem = OrderItem::where('order_id', $order->id)->where('product_id', $item['product_id'])->first();
+                // $orderItem = OrderItem::firstOrNew([
+                //     'order_id' => $order->id,
+                //     'product_id' => $item['product_id']
+                // ]);
                 if (!empty($item['order_item_id'])) {
                     // Find the existing OrderItem by its ID
                     $orderItem = OrderItem::find($item['order_item_id']);
@@ -1019,7 +1073,7 @@ class OrderEdit extends Component
                                                 ? $item['selectedCatalogue'] 
                                                 : null;
                     $orderItem->cat_page_number  = $item['page_number'] ?? null;
-                    $orderItem->cat_page_item  =   $item['page_item'] ?? null;
+                    $orderItem->cat_page_item  = $item['page_item'] ?? null;
                     $orderItem->save();
                     
 
@@ -1032,7 +1086,12 @@ class OrderEdit extends Component
                                                             ->where('measurement_name', $measurementName)
                                                             ->first();
                         
-                        
+                        // if ($orderMeasurement) {
+                        //     // If the OrderMeasurement exists, update it
+                        //     $orderMeasurement->measurement_value = $measurement['value'] ?? null;
+                        //     $orderMeasurement->measurement_name = $measurement['title'];
+                        //     $orderMeasurement->save();
+                        // } 
                         if ($orderMeasurement) {
                             $orderMeasurement->update([
                                 'measurement_value' => $measurementValue,
@@ -1063,43 +1122,27 @@ class OrderEdit extends Component
             $updatedNumbers = [];
             
             if ($this->isWhatsappPhone) {
-                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->phone)
-                                                    ->where('user_id', '!=', $user->id)
-                                                    ->exists();
-                if(!$existingRecord){
-                    UserWhatsapp::updateOrCreate(
-                        ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->phone], // Search criteria
-                        ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
-                    );
-                    $updatedNumbers[] = $this->phone;
-                }
+                UserWhatsapp::updateOrCreate(
+                    ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->phone], // Search criteria
+                    ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
+                );
+                $updatedNumbers[] = $this->phone;
             }
-
             
             if ($this->isWhatsappAlt1) {
-                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_1)
-                                                    ->where('user_id', '!=', $user->id)
-                                                    ->exists();
-                if(!$existingRecord){
                 UserWhatsapp::updateOrCreate(
                     ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->alternative_phone_number_1], // Search criteria
                     ['country_code' => $this->selectedCountryAlt1, 'updated_at' => now()]
                 );
                 $updatedNumbers[] = $this->alternative_phone_number_1;
-              }
             }
             
             if ($this->isWhatsappAlt2) {
-                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_2)
-                                                    ->where('user_id', '!=', $user->id)
-                                                    ->exists();
-                if(!$existingRecord){
                 UserWhatsapp::updateOrCreate(
                     ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->alternative_phone_number_2], // Search criteria
                     ['country_code' => $this->selectedCountryAlt2, 'updated_at' => now()]
                 );
                 $updatedNumbers[] = $this->alternative_phone_number_2;
-              }
             }
             
             // Delete records that were not updated

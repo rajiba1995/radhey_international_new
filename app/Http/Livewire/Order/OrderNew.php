@@ -488,6 +488,7 @@ class OrderNew extends Component
             
             // Store fetched items in a property for dropdown use
             $this->pageItems[$index] = $pageItems;
+            // dd($this->pageItems[$index]);
         } else {
             $this->pageItems[$index] = [];
         }
