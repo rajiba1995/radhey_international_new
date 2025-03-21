@@ -528,7 +528,7 @@
                         </div>
                         <!-- Product -->
                         @if(isset($item['selected_collection']) && $item['selected_collection'] == 1)
-                        <div class="mb-3 col-md-3">
+                        <div class="mb-3 col-md-4">
                             @else
                             <div class="mb-3 col-md-8">
                                 @endif
@@ -579,7 +579,7 @@
                                 @enderror
                             </div>
 
-                            <div class="mb-3 col-md-1">
+                            <div class="mb-3 col-md-2">
                                 <label class="form-label"><strong>Page Number</strong></label>
                                 <input type="number" wire:model="items.{{$index}}.page_number"
                                     wire:keyup="validatePageNumber({{ $index }})" id="page_number"
@@ -596,9 +596,9 @@
                                 <select wire:model="items.{{$index}}.page_item" 
                                         class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_item') border-danger @enderror">
                                     <option value="" selected hidden>Select Page Item</option>
-                                    @foreach($items[$index]['pageItems'] ?? [] as $item)
-                                        <option value="{{ $item }}" {{$items[$index]['pageItems'] == $item ? 'selected' : ''}}>
-                                            {{ $item }}
+                                    @foreach($pageItems[$index] ?? [] as $id => $item)
+                                        <option value="{{ $item->catalog_item  }}">
+                                            {{ $item->catalog_item }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -624,9 +624,10 @@
                                     @endif
                                 <div class="row">
 
-                                    @if(isset($items[$index]['measurements']) &&
-                                    count($items[$index]['measurements']) > 0)
-                                    @foreach ($items[$index]['measurements'] as $key => $measurement)
+                                   
+
+                                    @if(isset($items[$index]['measurements']) && count($items[$index]['measurements']) > 0)
+                                    @foreach ($items[$index]['measurements'] as $key =>$measurement)
                                     <div class="col-md-3">
                                         <label>
                                             {{ isset($measurement['title']) ? $measurement['title'] : 'N/A' }}
