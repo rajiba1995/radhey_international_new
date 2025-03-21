@@ -6,10 +6,16 @@ use Livewire\Component;
 use App\Models\Catalogue;
 use App\Models\Page;
 use App\Models\CataloguePageItem;
+use Livewire\WithPagination;
+
 
 class CataloguePages extends Component
 {
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
     public $pages;
+    public $editing = false;
+    public $editingPageId; 
     public $cataloguePageId;
     public $catalogue_id;
     public $catalogue_name;
@@ -20,8 +26,7 @@ class CataloguePages extends Component
         $catalogue = Catalogue::with('catalogueTitle')->findOrFail($catalogue_id);
         $this->catalogue_id = $catalogue->id;
         $this->catalogue_name = $catalogue->catalogueTitle->title ?? 'Unknwon';
-        $this->pages = Page::with('catalogue')->where('catalogue_id',$catalogue_id)->get();
-
+        $this->pages = Page::with(['catalogue','cataloguePageItems'])->where('catalogue_id',$catalogue_id)->get();
     }
 
     public function setCatalogueAndPage($catalogue_id, $page_number){
@@ -31,7 +36,35 @@ class CataloguePages extends Component
             $catalogue_name  = $catalogue->catalogueTitle->title ?? 'Unknown';
         }
         $this->page_number = $page_number;
+        $this->cataloguePageId = null; // Reset to null for create mode
+        $this->catalog_items = ['']; // Reset items
     }
+
+    public function editCatalogueAndPage($catalogue_id, $page_number){
+        $this->catalogue_id = $catalogue_id;
+        $this->page_number = $page_number;
+    
+        // Fetch catalogue details
+        $catalogue = Catalogue::find($catalogue_id);
+        if ($catalogue) {
+            $this->catalogue_name = $catalogue->catalogueTitle->title ?? 'Unknown';
+        }
+    
+        // Fetch the selected page items
+        $page = Page::with('cataloguePageItems')->where('catalogue_id', $catalogue_id)
+            ->where('page_number', $page_number)
+            ->first();
+    
+        if ($page) {
+            $this->cataloguePageId = $page->id;
+            // Populate catalog_items with existing values
+            $this->catalog_items = $page->cataloguePageItems->pluck('catalog_item')->toArray();
+        } else {
+            $this->cataloguePageId = null;
+            $this->catalog_items = [''];
+        }
+    }
+    
 
     public function addItem(){
         $this->catalog_items[] = '';
@@ -44,26 +77,74 @@ class CataloguePages extends Component
         }
     }
 
-    public function store(){
+
+
+    public function storeOrUpdate()
+    {
         $this->validate([
             'page_number'    => 'required',
             'catalog_items.*'  => 'required'
-        ],[
+        ], [
             'page_number.required'    => 'Page number is required.',
             'catalog_items.*.required' => 'Page Item is required.',
         ]);
 
-        foreach($this->catalog_items as $item){
-            CataloguePageItem::create([
-                'catalogue_id' => $this->catalogue_id,
-                'page_id'      => Page::where('catalogue_id',$this->catalogue_id)->value('id'),
-                'catalog_item' => $item
-            ]);
+        // Find or create the page
+        $page = Page::firstOrCreate([
+            'catalogue_id' => $this->catalogue_id,
+            'page_number'  => $this->page_number
+        ]);
+
+        // Get existing catalog items for this page
+        $existingItems = CataloguePageItem::where([
+            'catalogue_id' => $this->catalogue_id,
+            'page_id'      => $page->id
+        ])->pluck('catalog_item')->toArray();
+
+        $incomingItems = array_map('trim', $this->catalog_items);
+        
+       
+        foreach ($incomingItems as $item) {
+            if (!empty($item)) {
+                CataloguePageItem::updateOrCreate(
+                    [
+                        'catalogue_id' => $this->catalogue_id,
+                        'page_id'      => $page->id,
+                        'catalog_item' => $item
+                    ],
+                    [] // No need to update fields if found
+                );
+            }
         }
 
-        session()->flash('message','Catalogue Page Items added successfully!');
+        
+        $itemsToDelete = array_diff($existingItems, $incomingItems);
+
+        
+        if (!empty($itemsToDelete)) {
+            CataloguePageItem::where([
+                'catalogue_id' => $this->catalogue_id,
+                'page_id'      => $page->id
+            ])->whereIn('catalog_item', $itemsToDelete)->delete();
+        }
+
+       
+        $this->pages = Page::with(['catalogue', 'cataloguePageItems'])
+            ->where('catalogue_id', $this->catalogue_id)
+            ->get();
+
+        session()->flash('message','Catalogue Page Items updated successfully!');
         $this->resetForm();
     }
+
+    
+    
+    
+    
+    
+
+    
+    
 
     public function resetForm(){
         $this->reset([

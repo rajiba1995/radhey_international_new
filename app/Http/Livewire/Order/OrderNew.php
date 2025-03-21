@@ -245,11 +245,12 @@ class OrderNew extends Component
             'items.*.category' => 'required|string',
             'items.*.searchproduct' => 'required|string',
             'items.*.product_id' => 'required|integer',
+            'items.*.page_item' => 'required_if:items.*.collection,1',
             'items.*.price' => 'required|numeric|min:1',  
-            'items.*.searchTerm' => 'required_if:items.*.collection,1|nullable',
+            'items.*.searchTerm' => 'required_if:items.*.collection,1',
             'order_number' => 'required|string|not_in:000|unique:orders,order_number',
-            'items.*.selectedCatalogue' => 'required_if:items.*.collection,1|nullable',
-            'items.*.page_number' => 'required_if:items.*.collection,1|nullable'
+            'items.*.selectedCatalogue' => 'required_if:items.*.collection,1',
+            'items.*.page_number' => 'required_if:items.*.collection,1'
         ];
     }
    
@@ -261,6 +262,7 @@ class OrderNew extends Component
              'items.*.searchproduct.required' => 'Please select a product for the item.',
              'items.*.selectedCatalogue.required_if' => 'Please select a catalogue for the item.',
              'items.*.page_number.required_if' => 'Please select a page for the item.',
+             'items.*.page_item.required_if'  => 'Please select a page item',
              'items.*.price.required'  => 'Please enter a price for the item.',
              'items.*.collection.required' =>  'Please enter a collection for the item.',
              'items.*.searchTerm.required_if' =>  'Please enter a Fabric for the item.',
@@ -698,8 +700,8 @@ class OrderNew extends Component
         // dd($this->all());
         DB::beginTransaction(); // Begin transaction
         
+        $this->validate();
         try{ 
-            $this->validate();
             
             // Calculate the total amount
             $total_amount = array_sum(array_column($this->items, 'price'));
