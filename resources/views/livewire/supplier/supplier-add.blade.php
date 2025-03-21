@@ -23,28 +23,7 @@
                     <div class="col-md-8">
                         <h6 class="badge bg-danger custom_danger_badge">Basic Information</h6>
                     </div>
-                    {{-- <div class="col-md-4">
-                        <div class="position-relative">
-                            <input type="text" wire:keyup="FindCountry($event.target.value)"
-                               wire:model.debounce.500ms="searchTerm"
-                                class="form-control form-control-sm border border-1 customer_input"
-                                placeholder="Search By Country">
-                            @error('searchTerm')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                           @if(!empty($filteredCountries))
-                            <div id="fetch_customer_details" class="dropdown-menu show w-100"
-                                style="max-height: 200px; overflow-y: auto;">
-                                @foreach ($filteredCountries as $countries)
-                                <button class="dropdown-item" type="button"
-                                    wire:click="selectCountry({{ $countries->id }})">
-                                     {{$countries->title}}({{$countries->country_code}})
-                                </button>
-                                @endforeach
-                            </div>
-                            @endif 
-                        </div>
-                    </div> --}}
+                    
                 </div>
             </div>
             
