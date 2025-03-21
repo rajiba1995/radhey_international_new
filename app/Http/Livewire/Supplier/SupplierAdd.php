@@ -7,6 +7,8 @@ use App\Models\Country;
 use App\Models\UserWhatsapp;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Validation\Rule;
+
 
 class SupplierAdd extends Component
 {
@@ -24,6 +26,7 @@ class SupplierAdd extends Component
     public $selectedCountryPhone, $selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2,
             $mobileLengthPhone,   $mobileLengthWhatsapp  ,  $mobileLengthAlt1, $mobileLengthAlt2;
     public $isWhatsappPhone, $isWhatsappAlt1,$isWhatsappAlt2;
+    public $supplier;
 
     public function mount(){
         $this->selectedCountryId = null;
@@ -51,33 +54,18 @@ class SupplierAdd extends Component
         }
     }
 
-    // public function FindCountry($term){
-    //     $this->searchTerm = $term;
-    //     if (!empty($this->searchTerm)) {
-    //         $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->searchTerm . '%')->get();
-    //     }else{
-    //         $this->filteredCountries = [];
-    //     }
-    // }
-    // public function selectCountry($countryId){
-    //     $country = Country::find($countryId);
-    //     if($country){
-    //         $this->selectedCountryId = $country->id;
-    //         $this->searchTerm  = $country->title;
-    //         $this->country_code = $country->country_code;
-    //         $this->mobileLength = $country->mobile_length;
-    //     }
-
-    //     $this->filteredCountries = [];
-        
-    // }
+    
 
    public function rules(){
      return [
             // 'searchTerm' => 'required',
             'prefix' => 'required',
             'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:suppliers,email',
+            'email' => [
+                'nullable',
+                'email',
+                Rule::unique('suppliers', 'email')->ignore(optional($this->supplier)->id),
+            ],
             'mobile' => [
                 'required',
                'regex:/^\d{'. $this->mobileLengthPhone .'}$/',
@@ -113,7 +101,6 @@ class SupplierAdd extends Component
             // 'searchTerm.required' => 'Please select a country.',
             'name.required' => 'Supplier name is required.',
             'email.email' => 'Enter a valid email address.',
-            'email.unique' => 'This email is already taken.',
             'mobile.required' => 'Mobile number is required.',
             'mobile.regex' => 'Mobile number must be exactly ' . $this->mobileLengthPhone . ' digits.',
             'whatsapp_no.required' => 'WhatsApp number is required.',
@@ -133,9 +120,10 @@ class SupplierAdd extends Component
    
     public function save()
     {   
-        // dd($this->all());
+        
+        
+        $this->validate();
         try{
-            $this->validate();
             if ($this->gst_file) {
                 $gstFilePath = $this->gst_file->store('gst_files','public');
                 $absoluteAssetPath = 'storage/' . $gstFilePath;
@@ -168,33 +156,52 @@ class SupplierAdd extends Component
             ]);
         
             if($this->isWhatsappPhone){
-                UserWhatsapp::create([
+                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->mobile)
+                                                ->where('supplier_id','!=', $supplier->id)
+                                                ->exists();
+            if(!$existingRecord){
+                UserWhatsapp::updateOrCreate([
                     'supplier_id'=> $supplier->id,
+                    'whatsapp_number' => $this->mobile],
+                    [
                     'country_code' => $this->selectedCountryPhone,
-                    'whatsapp_number' => $this->mobile,
                     'created_at'     => now(),
                     'updated_at'     => now()
                 ]);
             }
+          }
+
         
             if($this->isWhatsappAlt1){
-                UserWhatsapp::create([
+                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_1)
+                                                ->where('supplier_id','!=', $supplier->id)
+                                                ->exists();
+            if(!$existingRecord){
+                UserWhatsapp::updateOrCreate([
                     'supplier_id'=> $supplier->id,
+                    'whatsapp_number' => $this->alternative_phone_number_1],
+                    [
                     'country_code' => $this->selectedCountryAlt1,
-                    'whatsapp_number' => $this->alternative_phone_number_1,
                     'created_at'     => now(),
                     'updated_at'     => now()
                 ]);
+             }
             }
         
             if($this->isWhatsappAlt2){
-                UserWhatsapp::create([
+                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_1)
+                                                ->where('supplier_id','!=', $supplier->id)
+                                                ->exists();
+            if(!$existingRecord){
+                UserWhatsapp::updateOrCreate([
                     'supplier_id'=> $supplier->id,
+                    'whatsapp_number' => $this->alternative_phone_number_2],
+                    [
                     'country_code' => $this->selectedCountryAlt2,
-                    'whatsapp_number' => $this->alternative_phone_number_2,
                     'created_at'     => now(),
                     'updated_at'     => now()
                 ]);
+             }
             }
         
             session()->flash('success', 'Supplier added successfully!');

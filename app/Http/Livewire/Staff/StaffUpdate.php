@@ -290,40 +290,69 @@ class StaffUpdate extends Component
             
         ]);
 
-        if($this->isWhatsappPhone && $this->mobile){
+        if($this->isWhatsappPhone){
+            $existingRecord = UserWhatsapp::where('whatsapp_number', $this->mobile)
+                                                ->where('user_id','!=', $this->staff->id)
+                                                ->exists();
+        if(!$existingRecord){
             UserWhatsapp::updateOrCreate(
                 ['user_id' => $this->staff->id, 'whatsapp_number' => $this->mobile],
                 ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
             ); 
+         } 
         }else{
-            UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->mobile)->delete();
+            if(!empty($this->mobile)){
+                UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->mobile)->delete();
+            }
         }
 
-        if($this->isWhatsappAlt1 && $this->alternative_phone_number_1){
+
+        if($this->isWhatsappAlt1){
+            $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_1)
+                                                    ->where('user_id','!=', $this->staff->id)
+                                                    ->exists();
+        if(!$existingRecord){
             UserWhatsapp::updateOrCreate(
                 ['user_id' => $this->staff->id, 'whatsapp_number' => $this->alternative_phone_number_1],
                 ['country_code' => $this->selectedCountryAlt1, 'updated_at' => now()]
             ); 
+         }
         }else{
-            UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->alternative_phone_number_1)->delete();
+            if(!empty($this->alternative_phone_number_1)){
+                UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->alternative_phone_number_1)->delete();
+            }
         }
 
-        if($this->isWhatsappAlt2 && $this->alternative_phone_number_2){
+        if($this->isWhatsappAlt2){
+            $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_2)
+                                                    ->where('user_id','!=', $this->staff->id)
+                                                    ->exists();
+        if(!$existingRecord){
             UserWhatsapp::updateOrCreate(
                 ['user_id' => $this->staff->id, 'whatsapp_number' => $this->alternative_phone_number_2],
                 ['country_code' => $this->selectedCountryAlt2, 'updated_at' => now()]
             ); 
+        }
         }else{
-            UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->alternative_phone_number_2)->delete();
+            if(!empty($this->alternative_phone_number_2)){
+                UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->alternative_phone_number_2)->delete();
+            }
         }
 
-        if($this->isWhatsappEmergency && $this->emergency_mobile){
+        if($this->isWhatsappEmergency){
+            $existingRecord = UserWhatsapp::where('whatsapp_number', $this->emergency_mobile)
+                                                    ->where('user_id','!=', $this->staff->id)
+                                                    ->exists();
+        if(!$existingRecord){
             UserWhatsapp::updateOrCreate(
                 ['user_id' => $this->staff->id, 'whatsapp_number' => $this->emergency_mobile],
                 ['country_code' => $this->selectedCountryEmergencyContact, 'updated_at' => now()]
             ); 
+         }
         }else{
-            UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->emergency_mobile)->delete();
+            if(!empty($this->emergency_mobile)){
+                UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->emergency_mobile)->delete();
+            }
         }
 
 

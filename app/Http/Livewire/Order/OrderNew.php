@@ -191,6 +191,26 @@ class OrderNew extends Component
         $this->countries = Country::where('status',1)->get();
     }
 
+    public function GetCountryDetails($mobileLength, $field){
+        switch($field){
+            case 'phone':
+                $this->mobileLengthPhone  = $mobileLength;
+                break;
+
+            case 'whatsapp':
+                $this->mobileLengthWhatsapp = $mobileLength;
+                break;
+
+            case 'alt_phone_1':
+                $this->mobileLengthAlt1 = $mobileLength;
+                break;
+            
+            case 'alt_phone_2':
+                $this->mobileLengthAlt2 = $mobileLength;
+                break;
+        }
+    }
+
      
 
 
@@ -459,11 +479,7 @@ class OrderNew extends Component
             ->first();
          // Fetch catalog items from `catalogue_page_item` table
          if ($page) {
-            // Fetch catalog items from `catalogue_page_item` using page_id
-            // $pageItems = CataloguePageItem::whereIn('catalogue_id', $catalogueIds)
-            //     ->where('page_id', $page->id)
-            //     ->pluck('catalog_item')
-            //     ->toArray();
+            
             $pageItems = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
                 ->whereIn('catalogue_page_items.catalogue_id', $catalogueIds) 
                 ->where('pages.page_number', $pageNumber)
@@ -960,33 +976,53 @@ class OrderNew extends Component
 
             // Store WhatsApp details if the flags are set
                 if ($this->isWhatsappPhone) {
-                    UserWhatsapp::updateOrCreate(
-                        ['user_id' => $user->id,'whatsapp_number' => $this->phone],
-                        [ 'country_code' => $this->selectedCountryPhone, 'created_at' => now(),'updated_at' => now()]
-                    );
+                    $existingRecord = UserWhatsapp::where('whatsapp_number', $this->phone)
+                                                    ->where('user_id', '!=', $user->id)
+                                                    ->exists();
+
+                    if (!$existingRecord) {
+                        UserWhatsapp::updateOrCreate(
+                            ['user_id' => $user->id,'whatsapp_number' => $this->phone],
+                            [ 'country_code' => $this->selectedCountryPhone, 'created_at' => now(),'updated_at' => now()]
+                        );
+                    }
                 }
+             
 
                 if ($this->isWhatsappAlt1) {
-                    UserWhatsapp::updateOrCreate([
-                         'user_id' => $user->id,
-                         'whatsapp_number' => $this->alternative_phone_number_1,
-                        ],
-                        [
-                        'country_code' => $this->selectedCountryAlt1,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+                    $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_1)
+                                                    ->where('user_id', '!=', $user->id)
+                                                    ->exists();
+                    if(!$existingRecord){
+                        UserWhatsapp::updateOrCreate([
+                             'user_id' => $user->id,
+                             'whatsapp_number' => $this->alternative_phone_number_1,
+                            ],
+                            [
+                            'country_code' => $this->selectedCountryAlt1,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }          
                 }
 
+
                 if ($this->isWhatsappAlt2) {
-                    UserWhatsapp::updateOrCreate([
-                        'user_id' => $user->id,
-                        'whatsapp_number' => $this->alternative_phone_number_2],
-                        ['country_code' => $this->selectedCountryAlt2,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+                    $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_2)
+                                                    ->where('user_id', '!=', $user->id)
+                                                    ->exists();
+
+                    if(!$existingRecord){
+                        UserWhatsapp::updateOrCreate([
+                            'user_id' => $user->id,
+                            'whatsapp_number' => $this->alternative_phone_number_2],
+                            ['country_code' => $this->selectedCountryAlt2,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
                 }
+
 
             DB::commit();
 
