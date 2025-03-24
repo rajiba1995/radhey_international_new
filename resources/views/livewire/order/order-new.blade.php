@@ -231,7 +231,7 @@
                             <div class="text-danger">{{ $errorMessage['dob'] }}</div>
                             @endif
                         </div>
-                        <!-- Phone Number -->
+
                         <!-- Phone Number -->
                         <div class="mb-3 col-md-3">
                             <label for="phone" class="form-label">Phone Number <span
@@ -287,12 +287,11 @@
                                 <!-- WhatsApp Input Field -->
                                 <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
                                     class="form-control form-control-sm border border-1 p-2 {{ $errorClass['whatsapp_no'] ?? '' }}"
-                                    placeholder="Enter WhatsApp Number" maxlength="{{ $mobileLengthWhatsapp }}"
-                                   >
+                                    placeholder="Enter WhatsApp Number" maxlength="{{ $mobileLengthWhatsapp }}">
                             </div>
-                                @if(isset($errorMessage['whatsapp_no']))
-                                <div class="text-danger">{{ $errorMessage['whatsapp_no'] }}</div>
-                                @endif
+                            @if(isset($errorMessage['whatsapp_no']))
+                            <div class="text-danger">{{ $errorMessage['whatsapp_no'] }}</div>
+                            @endif
                         </div>
 
                         <!-- Alternative Phone Number 1 -->
@@ -352,13 +351,13 @@
                                     class="form-control form-control-sm border border-1 p-2 {{ $errorClass['alternative_phone_number_2'] ?? '' }}"
                                     placeholder="Alternative Phone No" maxlength="{{ $mobileLengthAlt2 }}">
                             </div>
-                                @if(isset($errorMessage['alternative_phone_number_2']))
-                                <div class="text-danger">{{ $errorMessage['alternative_phone_number_2'] }}</div>
-                                @endif
-                                <div>
-                                    <input type="checkbox" id="is_whatsapp3" wire:model="isWhatsappAlt2">
-                                    <label for="is_whatsapp3" class="form-check-label ms-2">Is Whatsapp</label>
-                                </div>
+                            @if(isset($errorMessage['alternative_phone_number_2']))
+                            <div class="text-danger">{{ $errorMessage['alternative_phone_number_2'] }}</div>
+                            @endif
+                            <div>
+                                <input type="checkbox" id="is_whatsapp3" wire:model="isWhatsappAlt2">
+                                <label for="is_whatsapp3" class="form-check-label ms-2">Is Whatsapp</label>
+                            </div>
                         </div>
 
 
@@ -552,7 +551,8 @@
                             <label class="form-label"><strong>Ordered By</strong></label>
                             <input type="text"
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
-                                value="{{ auth()->guard('admin')->check() && $salesman == auth()->guard('admin')->user()->id ? auth()->guard('admin')->user()->name : optional($salesmen->where('id', $salesman)->first())->name }}" readonly>
+                                value="{{ auth()->guard('admin')->check() && $salesman == auth()->guard('admin')->user()->id ? auth()->guard('admin')->user()->name : optional($salesmen->where('id', $salesman)->first())->name }}"
+                                readonly>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label"><strong>Bill Number</strong></label>
@@ -669,13 +669,13 @@
 
                             <div class="mb-3 col-md-2">
                                 <label class="form-label"><strong>Page Item</strong></label>
-                                <select wire:model="items.{{$index}}.page_item" 
-                                        class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_item') border-danger @enderror">
+                                <select wire:model="items.{{$index}}.page_item"
+                                    class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_item') border-danger @enderror">
                                     <option value="" selected hidden>Select Page Item</option>
                                     @foreach($pageItems[$index] ?? [] as $id => $item)
-                                        <option value="{{ $item->catalog_item  }}">
-                                            {{ $item->catalog_item }}
-                                        </option>
+                                    <option value="{{ $item->catalog_item  }}">
+                                        {{ $item->catalog_item }}
+                                    </option>
                                     @endforeach
                                 </select>
                                 @error("items.".$index.".page_item")
@@ -691,14 +691,17 @@
                             <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
                                 <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
                                 <!-- Checkbox to Copy Previous Measurements -->
-                                    @if($index > 0) <!-- Show checkbox only for second item onwards -->
-                                    <div class="form-check mb-2">
-                                        <input type="checkbox" class="form-check-input" wire:model="items.{{ $index }}.copy_previous_measurements" 
-                                            wire:change="copyMeasurements({{ $index }})" id="copy_measurements_{{ $index }}">
-                                        <label class="form-check-label" for="copy_measurements_{{ $index }}">
-                                            Use previous measurements
-                                        </label>
-                                    </div>
+                                @if($index > 0)
+                                <!-- Show checkbox only for second item onwards -->
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input"
+                                        wire:model="items.{{ $index }}.copy_previous_measurements"
+                                        wire:change="copyMeasurements({{ $index }})"
+                                        id="copy_measurements_{{ $index }}">
+                                    <label class="form-check-label" for="copy_measurements_{{ $index }}">
+                                        Use previous measurements
+                                    </label>
+                                </div>
                                 @endif
                                 <div class="row">
                                     @if(isset($items[$index]['measurements']) &&

@@ -118,6 +118,24 @@ class OrderNew extends Component
                 $this->phone = $customer->phone;
                 $this->whatsapp_no = $customer->whatsapp_no;
 
+                $this->selectedCountryPhone = $customer->country_code_phone;
+                $this->selectedCountryWhatsapp = $customer->country_code_whatsapp;
+                $this->selectedCountryAlt1 = $customer->country_code_alt_1;
+                $this->selectedCountryAlt2 = $customer->country_code_alt_2;
+
+                $this->phone = $customer->phone;
+                $this->alternative_phone_number_1 = $customer->alternative_phone_number_1;
+                $this->alternative_phone_number_2 = $customer->alternative_phone_number_2;
+
+                $this->mobileLengthPhone = Country::where('country_code',$this->selectedCountryPhone)->value('mobile_length') ?? '';
+                $this->mobileLengthWhatsapp = Country::where('country_code',$this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
+                $this->mobileLengthAlt1 = Country::where('country_code',$this->selectedCountryAlt1)->value('mobile_length') ?? '';
+                $this->mobileLengthAlt2 = Country::where('country_code',$this->selectedCountryAlt2)->value('mobile_length') ?? '';
+
+                $this->isWhatsappPhone = UserWhatsapp::where('user_id',$customer->id)->where('whatsapp_number',$this->phone)->exists();
+                $this->isWhatsappAlt1 = UserWhatsapp::where('user_id',$customer->id)->where('whatsapp_number',$this->alternative_phone_number_1)->exists();
+                $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$customer->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
+
                 // Assign Billing Address (if exists)
                 if ($billing = $customer->billingAddress) {
                     $this->billing_address = $billing->address;
