@@ -52,7 +52,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($pages as $index => $page)
+                                        @foreach($catpages as $index => $page)
                                         <tr>
                                             {{-- <td>
                                                 <h6 class="mb-0 text-sm">{{ $index + 1 }}</h6>
@@ -92,7 +92,7 @@
                                 </table>
                             </div>
                             <div class="mt-4">
-                                {{-- {{ $pages->links() }} --}}
+                                {{ $catpages->links() }}
                             </div>
                         </div>
                     </div>
