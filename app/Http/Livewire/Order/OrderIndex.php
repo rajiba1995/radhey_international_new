@@ -80,7 +80,7 @@ class OrderIndex extends Component
         // $users = User::all();
         $this->usersWithOrders = User::whereHas('orders')->get();
         $orders = Order::query()
-        ->where('status', '!=' , 'Cancelled')
+        // ->where('status', '!=' , 'Cancelled')
         ->when($this->customer_id, function ($query) { // If customer_id is set, filter orders
             $query->where('customer_id', $this->customer_id);
         })
