@@ -27,7 +27,8 @@ class CustomerIndex extends Component
     public $file;
 
     protected $updatesQueryString = ['search'];
-    
+    protected $paginationTheme = 'bootstrap'; 
+
     public function confirmDelete($id){
         $this->dispatch('showDeleteConfirm',['itemId' => $id]);
     }
