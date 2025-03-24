@@ -58,7 +58,7 @@
                         {{-- Display Order by and order number --}}
                         <!-- Ordered By Section -->
                         <div class="col-md-4">
-                            <label class="form-label"><strong>Ordered By1</strong></label>
+                            <label class="form-label"><strong>Ordered By</strong></label>
                             <select
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
                                 wire:change="changeSalesman($event.target.value)" wire:model="salesman">
@@ -549,7 +549,7 @@
                     <!-- Ordered By Section -->
                     <div class="row align-items-center mb-3">
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Ordered Byw</strong></label>
+                            <label class="form-label"><strong>Ordered By</strong></label>
                             <input type="text"
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
                                 value="{{ auth()->guard('admin')->check() && $salesman == auth()->guard('admin')->user()->id ? auth()->guard('admin')->user()->name : optional($salesmen->where('id', $salesman)->first())->name }}" readonly>
