@@ -22,12 +22,13 @@ class CataloguePages extends Component
     public $page_number;
     public $catalog_items = [''];
 
-    public function mount($catalogue_id){
+    public function mount($catalogue_id)
+    {
         $catalogue = Catalogue::with('catalogueTitle')->findOrFail($catalogue_id);
         $this->catalogue_id = $catalogue->id;
-        $this->catalogue_name = $catalogue->catalogueTitle->title ?? 'Unknwon';
-        $this->pages = Page::with(['catalogue','cataloguePageItems'])->where('catalogue_id',$catalogue_id)->get();
+        $this->catalogue_name = $catalogue->catalogueTitle->title ?? 'Unknown';
     }
+
 
     public function setCatalogueAndPage($catalogue_id, $page_number){
         $catalogue = Catalogue::find($catalogue_id);
@@ -156,6 +157,9 @@ class CataloguePages extends Component
 
     public function render()
     {
-        return view('livewire.product.catalogue-pages');
+        $catpages = Page::with(['catalogue', 'cataloguePageItems'])
+            ->where('catalogue_id', $this->catalogue_id)
+            ->paginate(10);
+        return view('livewire.product.catalogue-pages', compact('catpages'));
     }
 }
