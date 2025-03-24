@@ -114,11 +114,13 @@
                                 </td>
                             <td class="text-center">
                                     @if(empty($order->packingslip))
-                                        <a href="{{route('admin.order.add_order_slip', $order->id)}}" class="btn btn-outline-primary select-md btn_action btn_outline">Approve Order</a>
-                                        <a href="{{route('admin.order.edit', $order->id)}}" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Edit</a>
-                                        
-                                        <button  wire:click="confirmCancelOrder({{ $order->id }})"
-                                        class="btn btn-outline-danger select-md btn_outline">Cancel Order</button >
+                                        @if($order->status!="Cancelled")
+                                            <a href="{{route('admin.order.add_order_slip', $order->id)}}" class="btn btn-outline-primary select-md btn_action btn_outline">Approve Order</a>
+                                            <a href="{{route('admin.order.edit', $order->id)}}" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Edit</a>
+                                            
+                                            <button  wire:click="confirmCancelOrder({{ $order->id }})"
+                                            class="btn btn-outline-danger select-md btn_outline">Cancel Order</button >
+                                        @endif
                                     @else
                                         <!-- <a href="#" class="btn btn-outline-primary select-md btn_action">Edit Slip</a> -->
                                         {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Order Copy</a> --}}
