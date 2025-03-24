@@ -26,7 +26,7 @@ class CataloguePages extends Component
     {
         $catalogue = Catalogue::with('catalogueTitle')->findOrFail($catalogue_id);
         $this->catalogue_id = $catalogue->id;
-        $this->catalogue_name = $catalogue->catalogueTitle->title ?? '';
+        $this->catalogue_name = $catalogue->catalogueTitle->title ?? 'Unknown';
     }
 
 
