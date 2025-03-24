@@ -94,10 +94,11 @@
                                                             </button>
                                                         </div>
                                                     </div>
-                                                    <div class="col-auto">
-                                                        <button wire:click="sampleExport" class="btn btn-outline-success select-md"><i class="fas fa-file-csv me-1"></i>Sample CSV Download</button>
-                                                    </div>
+                                                    
                                                 </form>
+                                                <div class="col-auto">
+                                                    <button wire:click="downloadCustomerCSV" class="btn btn-outline-success select-md"><i class="fas fa-file-csv me-1"></i>Sample CSV Download</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

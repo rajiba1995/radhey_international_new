@@ -21,7 +21,6 @@ use App\Models\BusinessType;
 use Illuminate\Support\Facades\DB;
 use Auth;
 use App\Models\UserWhatsapp;
-use App\Models\CataloguePageItem;
 
 class OrderEdit extends Component
 {
@@ -144,18 +143,6 @@ class OrderEdit extends Component
                             'value' => $index !== false ? $selected_values[$index] : '', // Assign value if title is in selected titles
                         ];
                 });
-
-                $pageItems = [];
-                    if (!empty($item->catalogue_id) && !empty($item->cat_page_number)) {
-                        $pageItems = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
-                        ->where('catalogue_page_items.catalogue_id', $item->catalogue_id) 
-                        ->where('pages.page_number', $item->cat_page_number)
-                        ->pluck('catalogue_page_items.catalog_item')
-                        ->toArray();
-                        // dd($pageItems);
-                    }
-
-                 
                 //  dd($item->catalogue_id);
                 return [
                     'order_item_id' => $item->id, 
@@ -180,8 +167,7 @@ class OrderEdit extends Component
                     'catalogues' => $item->collection == 1 ? $this->catalogues : [],
                     'selectedCatalogue' => $item->catalogue_id,
                     'page_number' => $item->cat_page_number,
-                    'pageItems' => $pageItems,
-                    'page_item' => $item->cat_page_item,
+                    'pageItems' => $item->cat_page_item,
                 ];
             })->toArray();
         }
@@ -280,7 +266,6 @@ class OrderEdit extends Component
                 break;
         }
     }
-    
 
     public function addItem()
     {
@@ -302,8 +287,6 @@ class OrderEdit extends Component
             'catalogues' => [],
             'selectedCatalogue' => '',
             'page_number' => '',
-            'pageItems' => [],
-            'page_item' => null,
         ];
         // Ensure catalogues and max pages are initialized
    
@@ -1073,7 +1056,6 @@ class OrderEdit extends Component
                                                 ? $item['selectedCatalogue'] 
                                                 : null;
                     $orderItem->cat_page_number  = $item['page_number'] ?? null;
-                    $orderItem->cat_page_item  = $item['page_item'] ?? null;
                     $orderItem->save();
                     
 
@@ -1110,7 +1092,6 @@ class OrderEdit extends Component
                            
                         }
                     }
-                    
                     $orderItem = OrderItem::where('order_id', $order->id)->where('product_id', $item['product_id'])->first();
                         $orderItem->update([
                             'selected_fabric' => $item['selected_fabric'], // Save selected fabric ID

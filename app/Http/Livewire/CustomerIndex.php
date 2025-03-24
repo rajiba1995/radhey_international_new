@@ -136,6 +136,18 @@ class CustomerIndex extends Component
         return Excel::download(new UserAddressExport, 'user_addresses.xlsx');
     }
 
+
+    public function downloadCustomerCSV()
+    {
+        $filePath = public_path('assets/csv/customers_details.csv'); // Correct file path
+
+        if (file_exists($filePath)) {
+            return response()->download($filePath);
+        } else {
+            session()->flash('error', 'File not found.');
+        }
+    }
+
     public function render()
     {
         $users = User::where('user_type',1)

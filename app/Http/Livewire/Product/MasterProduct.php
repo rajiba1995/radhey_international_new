@@ -49,14 +49,14 @@ class MasterProduct extends Component
     {
         return response()->streamDownload(function () {
             echo Excel::raw(new ProductsExport, \Maatwebsite\Excel\Excel::XLSX);
-        }, 'products.xlsx');
+        }, 'products.csv');
     }
 
     public function sampleExport()
     {
         return response()->streamDownload(function () {
             echo Excel::raw(new SampleProductsExport, \Maatwebsite\Excel\Excel::XLSX);
-        }, 'products.xlsx');
+        }, 'products.csv');
     }
 
     public function import()
@@ -82,6 +82,17 @@ class MasterProduct extends Component
     }
     public function resetForm(){
         $this->reset(['search']);
+    }
+
+    public function downloadProductCSV()
+    {
+        $filePath = public_path('assets/csv/products.csv'); // Correct file path
+
+        if (file_exists($filePath)) {
+            return response()->download($filePath);
+        } else {
+            session()->flash('error', 'File not found.');
+        }
     }
 
     public function render()
