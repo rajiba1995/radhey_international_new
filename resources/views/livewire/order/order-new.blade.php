@@ -905,7 +905,7 @@
                                 class="material-icons text-white">add</i>Generate Order</button>
                         @endif
                         @if($activeTab==1)
-                        <button type="button" class="btn btn-sm btn-cta mx-2"
+                        <button type="button" id="nextTab" class="btn btn-sm btn-cta mx-2"
                             wire:click="TabChange({{$activeTab+1}})">Next<i
                                 class="material-icons text-white">chevron_right</i></button>
                         @endif
@@ -918,5 +918,29 @@
     {{-- <div class="loader-container" wire:target="!FindCustomer" wire:loading>
         <div class="loader"></div>
     </div> --}}
-
 </div>
+
+<script>
+    //     $(document).ready(function(){
+    //     $(document).on('click', '#nextTab', function(){
+    //         alert('hi');
+    //         window.scrollTo({
+    //             top: 0,
+    //             behavior: 'smooth'
+    //         });
+    //     });
+    // });
+    document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("click", function(event) {
+            if (event.target.closest("#nextTab")) {
+                setTimeout(function () {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                }, 100); 
+            }
+        });
+    });
+    
+</script>

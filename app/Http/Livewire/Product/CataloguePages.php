@@ -14,7 +14,7 @@ class CataloguePages extends Component
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
     public $pages;
-    public $editing = false;
+    public $isEditing = false;
     public $editingPageId; 
     public $cataloguePageId;
     public $catalogue_id;
@@ -43,7 +43,8 @@ class CataloguePages extends Component
     public function editCatalogueAndPage($catalogue_id, $page_number){
         $this->catalogue_id = $catalogue_id;
         $this->page_number = $page_number;
-    
+        $this->isEditing = true;
+
         // Fetch catalogue details
         $catalogue = Catalogue::find($catalogue_id);
         if ($catalogue) {
@@ -63,6 +64,12 @@ class CataloguePages extends Component
             $this->cataloguePageId = null;
             $this->catalog_items = [''];
         }
+
+        if(empty($this->catalog_items)){
+            $this->catalog_items = [''];
+        }
+      
+
     }
     
 
@@ -137,19 +144,12 @@ class CataloguePages extends Component
         $this->resetForm();
     }
 
-    
-    
-    
-    
-    
-
-    
-    
 
     public function resetForm(){
         $this->reset([
           'catalog_items',
-          'page_number'
+          'page_number',
+          'isEditing'
         ]);
     }
 

@@ -8,6 +8,7 @@ use App\Models\Catalogue;
 use App\Models\CatalogueTitle;
 use App\Models\Page;
 use Illuminate\Support\Facades\Storage; 
+use Illuminate\Validation\Rule;
 
 class MasterCatalogue extends Component
 {
@@ -19,18 +20,26 @@ class MasterCatalogue extends Component
     public $image;
     public $catalogueTitle;
     public $catalogues;
+    public $status = 1;
 
-    protected $rules = [
-        'catalogue_title_id'=>'required|string|max:255|exists:catalogue_titles,id',
-        'page_number'=> 'required|numeric',
-        'image'=>'nullable|mimes:pdf',
-    ];  
-
+    public function rules()
+    {
+        return [
+            'catalogue_title_id' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('catalogues', 'catalogue_title_id') // Correct usage of unique rule
+            ],
+            'page_number' => 'required|numeric',
+            'image' => 'nullable|mimes:pdf',
+        ];
+    }
     protected $messages = [
         'catalogue_title_id.required' => 'The catalogue title is required.',
         'catalogue_title_id.string' => 'The catalogue title must be a valid string.',
         'catalogue_title_id.max' => 'The catalogue title cannot exceed 255 characters.',
-        
+         'catalogue_title_id.unique' => 'This catalogue title already exists. Please choose a different one.',
         'page_number.required' => 'The page number is required.',
         'page_number.numeric' => 'The page number must be a number.',
         
@@ -83,7 +92,8 @@ class MasterCatalogue extends Component
        $catalogue = Catalogue::create([
             'catalogue_title_id' => $this->catalogue_title_id,
             'page_number' => $this->page_number,
-            'image' => $pdfPath
+            'image' => $pdfPath,
+            'status' => $this->status
         ]);
 
         // Insert Pages for this Catalogue
@@ -147,6 +157,14 @@ class MasterCatalogue extends Component
 
         $catalogue->delete();
         session()->flash('message','Catalogue deleted successfully');
+        $this->reloadCatalogues();
+    }
+
+    public function toggleStatus($id){
+        $catalogue = Catalogue::findOrFail($id);
+        $catalogue->status = !$catalogue->status;
+        $catalogue->save();
+        session()->flash('message','Catalogue status updated successfully');
         $this->reloadCatalogues();
     }
 

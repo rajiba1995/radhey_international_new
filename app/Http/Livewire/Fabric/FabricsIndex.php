@@ -23,10 +23,6 @@ class FabricsIndex extends Component
 
     public function mount($product_id)
     {
-        // $this->product_id = $product_id; // Initialize with the passed product
-        // $this->fabrics = Fabric::with('products')->get();
-
-
         $this->product = Product::with('fabrics')->findOrFail($product_id);
         $this->fabrics = $this->product->fabrics;
         // dd($this->fabrics);

@@ -111,9 +111,10 @@
                             <form wire:submit.prevent="storeOrUpdate">
                                 <div class="row">
                                     <!-- Title -->
+                                    @if ($isEditing)
                                     <label class="form-label">Catalogue</label>
                                     <div class="ms-md-auto pe-md-3 d-flex align-items-center mb-2">
-                                        <input type="text" wire:model="catalogue_name" readonly class="form-control">
+                                        <input type="text" wire:model="catalogue_name"  readonly class="form-control">
                                     </div>
                                     @error('catalogue_name')
                                     <p class="text-danger inputerror">{{ $message }}</p>
@@ -127,6 +128,7 @@
                                     @error('page_number')
                                     <p class="text-danger inputerror">{{ $message }}</p>
                                     @enderror
+                                    @endif
 
 
                                     <label class="form-label">Page Item</label>

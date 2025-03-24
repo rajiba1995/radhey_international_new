@@ -385,7 +385,8 @@ class OrderEdit extends Component
         // 'payment_mode' => 'required|string',  // Ensuring that price is a valid number (and greater than or equal to 0).
         'items.*.measurements.*' => 'nullable',
         'items.*.selectedCatalogue' => 'required_if:items.*.selected_collection,1', 
-        'items.*.page_number' => 'required_if:items.*.selected_collection,1'
+        'items.*.page_number' => 'required_if:items.*.selected_collection,1',
+        'items.*.page_item' => 'required_if:items.*.selected_collection,1'
     ];
 
     protected function messages(){
@@ -393,7 +394,8 @@ class OrderEdit extends Component
              'items.*.selected_category.required' => 'Please select a category for the item.',
              'items.*.searchproduct.required' => 'Please select a product for the item.',
              'items.*.selectedCatalogue.required_if' => 'Please select a catalogue for the item.',
-             'items.*.page_number.required' => 'Please select a page for the item.',
+             'items.*.page_number.required_if' => 'Please select a page for the item.',
+             'items.*.page_item.required_if' => 'Please select a page item',
              'items.*.price.required'  => 'Please enter a price for the item.',
              'items.*.selected_collection.required' =>  'Please enter a collection for the item.',
         ];
@@ -1092,7 +1094,7 @@ class OrderEdit extends Component
                         //     $orderMeasurement->measurement_name = $measurement['title'];
                         //     $orderMeasurement->save();
                         // } 
-                        if ($orderMeasurement) {
+                        if ($orderMeasurement) {    
                             $orderMeasurement->update([
                                 'measurement_value' => $measurementValue,
                             ]);
