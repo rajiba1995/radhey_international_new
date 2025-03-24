@@ -39,7 +39,7 @@
                         <div class="card-body pb-2">
                             <div class="table-responsive p-0">
                                 <table class="table align-items-center mb-0" >
-                                    @if($fabrics->count()>0)
+                                    @if($productFabrics->count()>0)
                                         <thead>
                                             <tr>
                                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-10">Image</th>
@@ -48,7 +48,7 @@
                                         </thead>
                                         <tbody id="">
                                         
-                                            @foreach ($fabrics as $fabric)
+                                            @foreach ($productFabrics as $fabric)
                                             
                                                 <tr data-id="{{ $fabric->id }}" class="handle">
                                                     <td class="align-middle">
@@ -68,8 +68,9 @@
                                         <p class="text-danger">No Fabric found !</p>
                                     @endif
                                 </table>
+                               
                                 <div class="d-flex justify-content-end mt-2">
-                                    {{-- {{$fabrics->links()}} --}}
+                                {{ $productFabrics->links() }}
                                 </div>
                             </div>
                         </div>

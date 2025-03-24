@@ -13,9 +13,13 @@ use Illuminate\Http\Request;
 
 class FabricsIndex extends Component
 {
+    use WithPagination;
+
     public $fabrics;
     public  $title,$product_id, $status = 1, $fabricId,$image;
     public $search = '';
+    protected $paginationTheme = 'bootstrap'; 
+
 
     public function mount($product_id)
     {
@@ -31,11 +35,11 @@ class FabricsIndex extends Component
     public function render()
     {
         $subCat = Product::select('name')->find($this->product_id);
-        $fabrics = Fabric::where('title', 'like', "%{$this->search}%")
+        $productFabrics = Fabric::where('title', 'like', "%{$this->search}%")
             // ->orWhere('short_code', 'like', "%{$this->search}%")
             ->orderBy('id', 'desc')
             ->paginate(10);
-
-        return view('livewire.fabric.fabrics-index');
+        return view('livewire.fabric.fabrics-index', compact('productFabrics'));
+        
     }
 }

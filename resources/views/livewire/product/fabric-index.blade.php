@@ -140,7 +140,7 @@
                                     </tbody>
                                 </table>
                                 <div class="d-flex justify-content-end mt-2">
-                                    {{-- {{$fabrics->links()}} --}}
+                                    {{$fabrics->links()}}
                                 </div>
                             </div>
                         </div>

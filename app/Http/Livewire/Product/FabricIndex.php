@@ -25,7 +25,8 @@ class FabricIndex extends Component
     public $search = '';
     public $file;
     public $processedFileHash = null; // Store the hash of the last processed file
-
+    protected $paginationTheme = 'bootstrap'; 
+    
     public function confirmDelete($id){
         $this->dispatch('showDeleteConfirm',['itemId' => $id]);
     }
