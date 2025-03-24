@@ -17,16 +17,20 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ProductsImport;
 use App\Exports\ProductsExport;
 use App\Exports\SampleProductsExport;
+use Livewire\WithPagination;
 
 class MasterProduct extends Component
 {
     use WithFileUploads;
+    use WithPagination;
 
     public $productData;
     public $collection;
     public $searchFilter;
     public $file;
     public $search;
+
+    protected $paginationTheme = 'bootstrap'; 
 
     public function mount(){
         $this->collection = Collection::all();
@@ -107,6 +111,6 @@ class MasterProduct extends Component
             $query->where('name', 'like', '%' . $this->search . '%');// Apply search filter if provided
         })->latest()
         ->paginate(10);
-        return view('livewire.product.master-product',['products'=>$products]);
+        return view('livewire.product.master-product', compact('products'));
     }
 }

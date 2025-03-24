@@ -188,7 +188,9 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            
+                            <div class="d-flex justify-content-end mt-2">
+                                {{ $products->links() }}
+                            </div>
                         </div>
                     </div>
                 </div>
