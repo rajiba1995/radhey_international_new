@@ -108,7 +108,9 @@ class OrderNew extends Component
 
             if ($customer) {
                 $this->customer_id = $customer->id;
+                $this->prefix = $customer->prefix;
                 $this->name = $customer->name;
+                $this->searchTerm = $customer->prefix . ' ' . $customer->name;
                 $this->company_name = $customer->company_name;
                 $this->employee_rank = $customer->employee_rank;
                 $this->email = $customer->email;
@@ -187,7 +189,7 @@ class OrderNew extends Component
         }
 
         $this->Business_type = BusinessType::all();
-        $this->selectedBusinessType = null;
+        $this->selectedBusinessType = BusinessType::where('title','TEXTILES')->value('id');
         $this->countries = Country::where('status',1)->get();
     }
 
@@ -431,11 +433,11 @@ class OrderNew extends Component
         // $this->items[$index]['selectedPage'] = null; 
       
             // Fetch categories and products based on the selected collection 
-            $this->items[$index]['categories'] = Category::orderBy('title', 'ASC')->where('collection_id', $value)->get();
-            $this->items[$index]['products'] = Product::orderBy('name', 'ASC')->where('collection_id', $value)->get();
+            $this->items[$index]['categories'] = Category::orderBy('title', 'ASC')->where('collection_id', $value)->where('status',1)->get();
+            $this->items[$index]['products'] = Product::orderBy('name', 'ASC')->where('collection_id', $value)->where('status',1)->get();
        
             if ($value == 1) {
-                $catalogues = Catalogue::with('catalogueTitle')->get();
+                $catalogues = Catalogue::with('catalogueTitle')->where('status',1)->get();
                 $this->catalogues[$index] = $catalogues->pluck('catalogueTitle.title', 'catalogue_title_id');
         // dd($this->catalogues[$index]);
                 // Fetch max page numbers per catalogue
@@ -520,6 +522,7 @@ class OrderNew extends Component
             // Fetch products based on the selected category and collection
             $this->items[$index]['products'] = Product::where('category_id', $categoryId)
                 ->where('collection_id', $this->items[$index]['collection']) // Ensure the selected collection is considered
+                ->where('status', 1)
                 ->get();
         }
     }
@@ -552,6 +555,7 @@ class OrderNew extends Component
                     $query->where('name', 'like', '%' . $term . '%')
                           ->orWhere('product_code', 'like', '%' . $term . '%');
                 })
+                ->where('status', 1)
                 ->get();
         }
     
@@ -964,14 +968,11 @@ class OrderNew extends Component
                     }
                     $missing_measurements = array_diff($get_all_measurment_field, $get_all_field_measurment_id);
 
-                    if (!empty($missing_measurements)) {
-                        session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
-                        return;
-                    }
+                    // if (!empty($missing_measurements)) {
+                    //     session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
+                    //     return;
+                    // }
                     
-                }else{
-                    session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
-                    return;
                 }
             }
 

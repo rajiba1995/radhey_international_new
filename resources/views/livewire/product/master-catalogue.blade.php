@@ -52,6 +52,7 @@
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-10">SL</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-10">Title</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-10">Page Number</th>
+                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-10">Status</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-10">Actions</th>
                                         </tr>
                                     </thead>
@@ -62,6 +63,11 @@
                                                 
                                                 <td><p class="text-xs font-weight-bold mb-0">{{ $catalogue->catalogueTitle ? $catalogue->catalogueTitle->title : "" }}</p></td>
                                                 <td><p class="text-xs font-weight-bold mb-0">{{ $catalogue->page_number }}</p></td>
+                                                <td class="align-middle">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input ms-auto" type="checkbox" wire:click="toggleStatus({{ $catalogue->id }})" @if($catalogue->status) checked @endif>
+                                                    </div>
+                                                </td>
                                                 <td class="align-middle">
                                                     <button wire:click="edit({{ $catalogue->id }})" class="btn btn-outline-primary select-md btn_action btn_outline" title="Edit">
                                                         Edit

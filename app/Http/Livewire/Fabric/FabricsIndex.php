@@ -13,16 +13,14 @@ use Illuminate\Http\Request;
 
 class FabricsIndex extends Component
 {
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
     public $fabrics;
     public  $title,$product_id, $status = 1, $fabricId,$image;
     public $search = '';
 
     public function mount($product_id)
     {
-        // $this->product_id = $product_id; // Initialize with the passed product
-        // $this->fabrics = Fabric::with('products')->get();
-
-
         $this->product = Product::with('fabrics')->findOrFail($product_id);
         $this->fabrics = $this->product->fabrics;
         // dd($this->fabrics);
@@ -36,6 +34,8 @@ class FabricsIndex extends Component
             ->orderBy('id', 'desc')
             ->paginate(10);
 
-        return view('livewire.fabric.fabrics-index');
+        return view('livewire.fabric.fabrics-index',[
+            'fabrics' => $fabrics,
+        ]);
     }
 }
