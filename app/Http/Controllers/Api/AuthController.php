@@ -572,29 +572,30 @@ class AuthController extends Controller
             ->take(20)
             ->get();
           
-        // Fetch orders and get the first matching customer's details
-        $order = Order::where('order_number', 'like', "%{$filter}%")
-            ->orWhereHas('customer', function ($query) use ($filter) {
-                $query->where('name', 'like', "%{$filter}%");
-            })
-            ->where('created_by', $user->id)
-            ->latest()
-            ->first(); // Fetch only the first order directly
-            $data = [];
-            if(count($users)>0){
-                if ($order && $order->customer) {
-                    $users->prepend($order->customer);
-                }
-                // dd($users);
-                $data['id'] = $users[0]->id;
-                $data['name'] = $users[0]->name;
-                $data['email'] = $users[0]->email;
-                $data['phone'] = $users[0]->phone;
+            // Fetch orders and get the first matching customer's details
+            $order = Order::where('order_number', 'like', "%{$filter}%")
+                ->orWhereHas('customer', function ($query) use ($filter) {
+                    $query->where('name', 'like', "%{$filter}%");
+                })
+                ->where('created_by', $user->id)
+                ->latest()
+                ->first(); // Fetch only the first order directly
+            
+            if ($order && $order->customer) {
+                $users->prepend($order->customer);
             }
             
+            $data = $users->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                ];
+            });
         return response()->json([
-            'status' => $users->isNotEmpty(),
-            'message' => $users->isNotEmpty() ? 'Data fetched successfully!' : 'Sorry, we cannot find any results!',
+            'status' => true,
+            'message' => 'Data fetched successfully!',
             'data' => $data,
         ],200);
     }
