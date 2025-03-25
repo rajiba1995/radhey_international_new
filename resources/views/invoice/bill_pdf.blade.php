@@ -51,8 +51,8 @@
             <table>
                 <tr>
                     <td style="width:50%;">
-                        <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Invoice Date:</h5>
-                        <p style="color:#000; font-size: 14px;">{{ \Carbon\Carbon::parse($invoice->created_at)->format('d-m-Y') }}</p>
+                        <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Order Date:</h5>
+                        <p style="color:#000; font-size: 14px;">{{ \Carbon\Carbon::parse($invoice->order->created_at)->format('d-m-Y') }}</p>
                     </td>
                     <td style="width:50%;">
                         <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Sales Person:</h5>
@@ -117,11 +117,7 @@
             </table>
         </td>
     </tr>
-    <tr>
-        <td colspan="2">
-            <p style="font-size: 13px; margin-top: 20px;">Please use the following communication for your payment: INV/{{ date('Y') }}/{{ $invoice->invoice_no }}</p>
-        </td>
-    </tr>
+
 </table>
 
 

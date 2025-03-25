@@ -151,7 +151,7 @@ class OrderIndex extends Component
         // Download the PDF
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf->output();
-        }, 'invoice_' . $invoice->invoice_no . '.pdf');
+        }, 'bill_' . $invoice->order->order_number . '.pdf');
     }  
 
     // Cancelled Orders
