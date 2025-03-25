@@ -57,40 +57,12 @@ class CustomerIndex extends Component
     public function resetForm(){
         $this->reset(['search']);
     }
-    // public function import()
-    // {
-    //     $this->validate([
-    //         'file' => 'required|file|mimes:xlsx,csv|max:2048', // Ensure valid file format
-    //     ]);
     
-    //     try {
-    //         Excel::import(new UsersWithAddressesImport(), $this->file->getRealPath()); // Pass file correctly
-    //         session()->flash('success', 'Customers and addresses imported successfully!');
-    //         $this->file = null; // Reset file input
-    //     } catch (\Exception $e) {
-    //         session()->flash('error', 'Import failed: ' . $e->getMessage());
-    //     }
-    // }
     protected $rules = [
         'file' => 'required|mimes:xlsx,csv|max:2048', // Validate file type and size
     ];
 
-    // public function import()
-    // {
-    //     $this->validate(); // Validate the file input
-
-    //     // Store the uploaded file in storage
-    //     $path = $this->file->store('imports');
-
-    //     // Perform the import
-    //     Excel::import(new UsersWithAddressesImport, storage_path('app/' . $path));
-
-    //     // Reset file input
-    //     $this->reset('file');
-
-    //     // Send success message
-    //     session()->flash('success', 'Users imported successfully!');
-    // }
+   
 
     public function import()
     {
@@ -151,11 +123,11 @@ class CustomerIndex extends Component
 
     public function render()
     {
-        $users = User::where('user_type',1)
+        $users = User::with('customer_order')->where('user_type',1)
         ->when($this->search, function ($query) {
             $query->where('name', 'like', '%' . $this->search . '%');
-        })->paginate(10);
-        
+        })->latest()
+        ->paginate(10);
         return view('livewire.customer-index', compact('users'));
     }
 }

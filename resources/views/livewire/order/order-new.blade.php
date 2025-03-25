@@ -71,14 +71,14 @@
                                 <!-- Set authenticated user as default -->
                                 @if(auth()->guard('admin')->check())
                                 <option value="{{auth()->guard('admin')->user()->id}}" selected>
-                                    {{auth()->guard('admin')->user()->name}}
+                                    {{strtoupper(auth()->guard('admin')->user()->name)}}
                                 </option>
                                 @endif
 
                                 <!-- Other Salesmen -->
                                 @foreach ($salesmen as $salesmans)
                                 @if ($salesmans->id != auth()->guard('admin')->user()->id)
-                                <option value="{{ $salesmans->id }}">{{ $salesmans->name }}</option>
+                                <option value="{{ $salesmans->id }}">{{ strtoupper($salesmans->name.' '.$salesmans->surname) }}</option>
                                 @endif
                                 @endforeach
                             </select>

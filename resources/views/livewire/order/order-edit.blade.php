@@ -1,4 +1,9 @@
 <div class="container">
+    {{-- <style>
+        .breadcrumb_menu li a{
+            color: #fff!important;
+        }
+    </style> --}}
     <section class="admin__title">
         <h5>Update Order <span class="badge bg-success custom_success_badge">{{env('ORDER_PREFIX') .
                 $order_number}}</span></h5>
@@ -9,7 +14,7 @@
             <li><a href="{{route('admin.order.edit',$orders->id)}}">Update Order</a></li>
             <li class="back-button">
                 @if($activeTab==1)
-                <a class="btn btn-sm btn-danger select-md"
+                <a class="btn btn-sm btn-danger select-md text-light font-weight-bold mb-0"
                     href="{{route('admin.order.index')}}" role="button">
                     <i class="material-icons" style="font-size: 15px;">chevron_left</i>
                     <span class="ms-1">Back</span>

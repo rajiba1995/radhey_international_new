@@ -122,7 +122,7 @@
                             <div class="modal-dialog modal-dialog-centered modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="ViewProductModalLabel{{$item->id}}"># {{$item->invoice_no}} / {{$item->customer?$item->customer->name : ""}}</h5>
+                                        <h5 class="modal-title" id="ViewProductModalLabel{{$item->id}}"># {{$item->invoice_no}} / {{$item->customer?ucfirst($item->customer->name) : ""}}</h5>
                                         <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">
                                             Close
                                         </button>

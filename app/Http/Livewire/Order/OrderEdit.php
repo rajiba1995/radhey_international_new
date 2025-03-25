@@ -152,7 +152,6 @@ class OrderEdit extends Component
                         ->where('pages.page_number', $item->cat_page_number)
                         ->pluck('catalogue_page_items.catalog_item')
                         ->toArray();
-                        // dd($pageItems);
                     }
 
                  
@@ -523,6 +522,18 @@ class OrderEdit extends Component
     
         $pageNumber = (int) $this->items[$index]['page_number'];
         $selectedCatalogue = $this->items[$index]['selectedCatalogue'];
+
+        // Fetch page items dynamically
+         $this->items[$index]['pageItems'] = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
+                                                            ->where('catalogue_page_items.catalogue_id', $selectedCatalogue)
+                                                            ->where('pages.page_number', $pageNumber)
+                                                            ->pluck('catalogue_page_items.catalog_item')
+                                                            ->toArray();
+                                                            // If no items found, reset selected page item
+        
+        if (empty($this->items[$index]['pageItems'])) {
+            $this->items[$index]['page_item'] = null;
+        }
     
         // Ensure we get the correct max page for the selected catalogue
         $maxPage = $this->maxPages[$index][$selectedCatalogue] ?? null;

@@ -102,7 +102,7 @@
                                     <tbody>
                                         @forelse ($staff as $key=> $member)
                                         <tr>
-                                            <td><p class="text-xs font-weight-bold mb-0">{{$member->prefix. " ".ucwords($member->name)}}</p></td>
+                                            <td><p class="text-xs font-weight-bold mb-0">{{$member->prefix. " ".strtoupper($member->name.' '.$member->surname)}}</p></td>
                                             <td><p class="text-xs font-weight-bold mb-0">{{ ucwords($member->designationDetails->name ?? 'N/A')  }}</p></td>
                                             <td>
                                                 <p class="text-xs font-weight-bold mb-0"><span>Mobile:</span><strong> {{ $member->country_code_phone.' '.$member->phone ?? 'N/A' }}</strong> <br>

@@ -152,6 +152,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class, 'created_by');
     }
+    public function customer_order()
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
     public function ordersAsCustomer()
     {
         return $this->hasMany(Order::class, 'customer_id'); // 'customer_id' is the foreign key in the orders table

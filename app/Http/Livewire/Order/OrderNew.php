@@ -156,6 +156,19 @@ class OrderNew extends Component
                     $this->shipping_pin = $shipping->zip_code;
                 }
 
+                 // Check if Billing and Shipping addresses are the same
+                if ($billing && $shipping) {
+                    $this->is_billing_shipping_same = 
+                        $billing->address === $shipping->address &&
+                        $billing->landmark === $shipping->landmark &&
+                        $billing->city === $shipping->city &&
+                        $billing->state === $shipping->state &&
+                        $billing->country === $shipping->country &&
+                        $billing->zip_code === $shipping->zip_code;
+                } else {
+                    $this->is_billing_shipping_same = false;
+                }
+
                 // Fetch latest order
                 $this->orders = Order::with(['customer:id,prefix,name'])
                     ->where('customer_id', $customer->id)
