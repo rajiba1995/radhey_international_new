@@ -80,7 +80,7 @@ class OrderIndex extends Component
         // $users = User::all();
         $this->usersWithOrders = User::whereHas('orders')->get();
         $orders = Order::query()
-        ->where('status', '!=' , 'Cancelled')
+        // ->where('status', '!=' , 'Cancelled')
         ->when($this->customer_id, function ($query) { // If customer_id is set, filter orders
             $query->where('customer_id', $this->customer_id);
         })
@@ -118,6 +118,20 @@ class OrderIndex extends Component
     
         // Generate PDF
         $pdf = PDF::loadView('invoice.pdf', compact('invoice'));
+    
+        // Download the PDF
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, 'invoice_' . $invoice->invoice_no . '.pdf');
+    } 
+    public function downloadOrderInvoice($orderId)
+    {
+        $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
+                    ->where('order_id', $orderId)
+                    ->firstOrFail();
+    // dd($invoice);
+        // Generate PDF
+        $pdf = PDF::loadView('invoice.order_pdf', compact('invoice'));
     
         // Download the PDF
         return response()->streamDownload(function () use ($pdf) {

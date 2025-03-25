@@ -17,8 +17,10 @@ class Supplier extends Model
         'email',
         'country_code',
         'country_id',
+        'country_code_mobile',
         'mobile',
         'is_wa_same',
+        'country_code_whatsapp',
         'whatsapp_no',
         'billing_address',
         'billing_landmark',
@@ -38,7 +40,9 @@ class Supplier extends Model
         'credit_limit',
         'credit_days',
         'status',
+        'country_code_alt_1',
         'alternative_phone_number_1',
+        'country_code_alt_2',
         'alternative_phone_number_2'
     ];
 }

@@ -80,7 +80,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-auto">
-                                                <a wire:click="sampleExport" class="btn btn-outline-success select-md"><i class="fas fa-file-csv me-1"></i>Sample CSV Download</a>
+                                                <a wire:click="downloadProductCSV" class="btn btn-outline-success select-md"><i class="fas fa-file-csv me-1"></i>Sample CSV Download</a>
                                             </div>
                                         </form>
                                     </div>
@@ -188,7 +188,9 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            
+                            <div class="d-flex justify-content-end mt-2">
+                                {{ $products->links() }}
+                            </div>
                         </div>
                     </div>
                 </div>

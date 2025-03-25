@@ -17,16 +17,20 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ProductsImport;
 use App\Exports\ProductsExport;
 use App\Exports\SampleProductsExport;
+use Livewire\WithPagination;
 
 class MasterProduct extends Component
 {
     use WithFileUploads;
+    use WithPagination;
 
     public $productData;
     public $collection;
     public $searchFilter;
     public $file;
     public $search;
+
+    protected $paginationTheme = 'bootstrap'; 
 
     public function mount(){
         $this->collection = Collection::all();
@@ -49,14 +53,14 @@ class MasterProduct extends Component
     {
         return response()->streamDownload(function () {
             echo Excel::raw(new ProductsExport, \Maatwebsite\Excel\Excel::XLSX);
-        }, 'products.xlsx');
+        }, 'products.csv');
     }
 
     public function sampleExport()
     {
         return response()->streamDownload(function () {
             echo Excel::raw(new SampleProductsExport, \Maatwebsite\Excel\Excel::XLSX);
-        }, 'products.xlsx');
+        }, 'products.csv');
     }
 
     public function import()
@@ -84,6 +88,17 @@ class MasterProduct extends Component
         $this->reset(['search']);
     }
 
+    public function downloadProductCSV()
+    {
+        $filePath = public_path('assets/csv/products.csv'); // Correct file path
+
+        if (file_exists($filePath)) {
+            return response()->download($filePath);
+        } else {
+            session()->flash('error', 'File not found.');
+        }
+    }
+
     public function render()
     {
         $query = Product::with('category','sub_category')->whereNull('deleted_at');
@@ -96,6 +111,6 @@ class MasterProduct extends Component
             $query->where('name', 'like', '%' . $this->search . '%');// Apply search filter if provided
         })->latest()
         ->paginate(10);
-        return view('livewire.product.master-product',['products'=>$products]);
+        return view('livewire.product.master-product', compact('products'));
     }
 }

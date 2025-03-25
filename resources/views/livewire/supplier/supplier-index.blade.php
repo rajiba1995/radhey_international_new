@@ -87,7 +87,7 @@
                                                 <p class="text-xs font-weight-bold mb-0">{{ $supplier->email ?? 'N/A'}}</p>
                                             </td>
                                             <td>
-                                                <p class="text-xs font-weight-bold mb-0">{{ $supplier->mobile }}</p>
+                                                <p class="text-xs font-weight-bold mb-0">{{$supplier->country_code_mobile .' '. $supplier->mobile }}</p>
                                             </td>
                                             <td>
                                                 <div class="form-check form-switch">

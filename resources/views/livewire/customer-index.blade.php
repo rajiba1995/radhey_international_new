@@ -94,10 +94,11 @@
                                                             </button>
                                                         </div>
                                                     </div>
-                                                    <div class="col-auto">
-                                                        <button wire:click="sampleExport" class="btn btn-outline-success select-md"><i class="fas fa-file-csv me-1"></i>Sample CSV Download</button>
-                                                    </div>
+                                                    
                                                 </form>
+                                                <div class="col-auto">
+                                                    <button wire:click="downloadCustomerCSV" class="btn btn-outline-success select-md"><i class="fas fa-file-csv me-1"></i>Sample CSV Download</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -176,7 +177,7 @@
                                                         <!--</div>-->
                                                     </td>
                                                     <td>
-                                                        <p class="text-xs font-weight-bold mb-0">{{ $user->phone }}</p>
+                                                        <p class="text-xs font-weight-bold mb-0">{{ $user->country_code_phone.' '. $user->phone }}</p>
                                                     </td>
                                                     <td>
                                                         <p class="text-xs font-weight-bold mb-0">{{ $user->company_name ?? 'N/A'}}</p>
@@ -202,7 +203,7 @@
                                                         </a>
                                                           <!-- Purchase History (Ledger) Button -->
                                                         <a href="{{route('admin.order.index',['customer_id' => $user->id])}}" class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="Purchase History" title="Purchase History">
-                                                            Purchase History
+                                                            Order History
                                                         </a>
     
                                                         <!-- Add Payment Button -->

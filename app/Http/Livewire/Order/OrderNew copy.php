@@ -20,9 +20,6 @@ use App\Models\OrderMeasurement;
 use App\Models\Payment;
 use App\Models\Country;
 use App\Models\BusinessType;
-use App\Models\UserWhatsapp;
-use App\Models\Page;
-use App\Models\CataloguePageItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
@@ -44,7 +41,7 @@ class OrderNew extends Component
 
     public $customers = null;
     public $orders = null;
-    public $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1,$alternative_phone_number_2;
+    public $is_wa_same, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1,$alternative_phone_number_2;
     public $billing_address,$billing_landmark,$billing_city,$billing_state,$billing_country,$billing_pin;
 
     public $is_billing_shipping_same;
@@ -74,19 +71,23 @@ class OrderNew extends Component
 
     // for checking salesman billing exists or not
     public $salesmanBill;
+
+    // public $searchTerm = '';
     public $selectedFabric = null;
-    // public $filteredCountries = [];
-    // public $search;
+    public $filteredCountries = [];
+    public $search;
     public $mobileLength;
     public $country_code;
     public $country_id;
     public $Business_type;
     public $selectedBusinessType;
-    public $countries;
-    public $pageItems = [];
 
+
+    public $countries;
     public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
-    public $isWhatsappPhone, $isWhatsappAlt1, $isWhatsappAlt2;
+    // public $selectedCountryPhone;
+    // public $mobileLengthPhone;
+    public $isWhatsappPhone;
     public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
     public $items = [
         // Example item structure
@@ -94,145 +95,205 @@ class OrderNew extends Component
     ];
 
     public function mount()
-    {
-        $user_id = request()->query('user_id');
+{
+    $user_id = request()->query('user_id');
 
-        if ($user_id) {
-            $customer = User::with(['billingAddress', 'shippingAddress'])
-                ->where([
-                    ['id', $user_id],
-                    ['user_type', 1],
-                    ['status', 1]
-                ])
-                ->first();
+    if ($user_id) {
+        $customer = User::with(['billingAddress', 'shippingAddress'])
+            ->where([
+                ['id', $user_id],
+                ['user_type', 1],
+                ['status', 1]
+            ])
+            ->first();
 
-            if ($customer) {
-                $this->customer_id = $customer->id;
-                $this->prefix = $customer->prefix;
-                $this->name = $customer->name;
-                $this->searchTerm = $customer->prefix . ' ' . $customer->name;
-                $this->company_name = $customer->company_name;
-                $this->employee_rank = $customer->employee_rank;
-                $this->email = $customer->email;
-                $this->dob = $customer->dob;
-                $this->phone = $customer->phone;
-                $this->whatsapp_no = $customer->whatsapp_no;
+        if ($customer) {
+            $this->customer_id = $customer->id;
+            $this->name = $customer->name;
+            $this->company_name = $customer->company_name;
+            $this->employee_rank = $customer->employee_rank;
+            $this->email = $customer->email;
+            $this->dob = $customer->dob;
+            $this->phone = $customer->phone;
+            $this->whatsapp_no = $customer->whatsapp_no;
+            $this->is_wa_same = ($customer->phone == $customer->whatsapp_no) ? 1 : 0;
 
-                $this->selectedCountryPhone = $customer->country_code_phone;
-                $this->selectedCountryWhatsapp = $customer->country_code_whatsapp;
-                $this->selectedCountryAlt1 = $customer->country_code_alt_1;
-                $this->selectedCountryAlt2 = $customer->country_code_alt_2;
-
-                $this->phone = $customer->phone;
-                $this->alternative_phone_number_1 = $customer->alternative_phone_number_1;
-                $this->alternative_phone_number_2 = $customer->alternative_phone_number_2;
-
-                $this->mobileLengthPhone = Country::where('country_code',$this->selectedCountryPhone)->value('mobile_length') ?? '';
-                $this->mobileLengthWhatsapp = Country::where('country_code',$this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
-                $this->mobileLengthAlt1 = Country::where('country_code',$this->selectedCountryAlt1)->value('mobile_length') ?? '';
-                $this->mobileLengthAlt2 = Country::where('country_code',$this->selectedCountryAlt2)->value('mobile_length') ?? '';
-
-                $this->isWhatsappPhone = UserWhatsapp::where('user_id',$customer->id)->where('whatsapp_number',$this->phone)->exists();
-                $this->isWhatsappAlt1 = UserWhatsapp::where('user_id',$customer->id)->where('whatsapp_number',$this->alternative_phone_number_1)->exists();
-                $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$customer->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
-
-                // Assign Billing Address (if exists)
-                if ($billing = $customer->billingAddress) {
-                    $this->billing_address = $billing->address;
-                    $this->billing_landmark = $billing->landmark;
-                    $this->billing_city = $billing->city;
-                    $this->billing_state = $billing->state;
-                    $this->billing_country = $billing->country;
-                    $this->billing_pin = $billing->zip_code;
-                }
-
-                // Assign Shipping Address (if exists)
-                if ($shipping = $customer->shippingAddress) {
-                    $this->shipping_address = $shipping->address;
-                    $this->shipping_landmark = $shipping->landmark;
-                    $this->shipping_city = $shipping->city;
-                    $this->shipping_state = $shipping->state;
-                    $this->shipping_country = $shipping->country;
-                    $this->shipping_pin = $shipping->zip_code;
-                }
-
-                // Fetch latest order
-                $this->orders = Order::with(['customer:id,prefix,name'])
-                    ->where('customer_id', $customer->id)
-                    ->latest()
-                    ->take(1)
-                    ->get();
+            // Assign Billing Address (if exists)
+            if ($billing = $customer->billingAddress) {
+                $this->billing_address = $billing->address;
+                $this->billing_landmark = $billing->landmark;
+                $this->billing_city = $billing->city;
+                $this->billing_state = $billing->state;
+                $this->billing_country = $billing->country;
+                $this->billing_pin = $billing->zip_code;
             }
+
+            // Assign Shipping Address (if exists)
+            if ($shipping = $customer->shippingAddress) {
+                $this->shipping_address = $shipping->address;
+                $this->shipping_landmark = $shipping->landmark;
+                $this->shipping_city = $shipping->city;
+                $this->shipping_state = $shipping->state;
+                $this->shipping_country = $shipping->country;
+                $this->shipping_pin = $shipping->zip_code;
+            }
+
+            // Fetch latest order
+            $this->orders = Order::with(['customer:id,prefix,name'])
+                ->where('customer_id', $customer->id)
+                ->latest()
+                ->take(1)
+                ->get();
         }
+    }
 
-        // Load common dropdowns
-        $this->customers = User::where([
-            ['user_type', 1],
-            ['status', 1]
-        ])->orderBy('name')->get();
+    // Load common dropdowns
+    $this->customers = User::where([
+        ['user_type', 1],
+        ['status', 1]
+    ])->orderBy('name')->get();
 
-        $this->categories = Category::where('status', 1)->orderBy('title')->get();
-        $this->collections = Collection::whereIn('id', [1, 2])->orderBy('title')->get();
-        $this->salesmen = User::where([
-            ['user_type', 0],
-            ['designation', 2]
-        ])->get();
+    $this->categories = Category::where('status', 1)->orderBy('title')->get();
+    $this->collections = Collection::whereIn('id', [1, 2])->orderBy('title')->get();
+    $this->salesmen = User::where([
+        ['user_type', 0],
+        ['designation', 2]
+    ])->get();
 
-        // Auto-select the logged-in Salesman
-        $this->salesman = auth()->guard('admin')->user()->id ?? null;
+    // Auto-select the logged-in Salesman
+    $this->salesman = auth()->guard('admin')->user()->id ?? null;
 
-        // Auto-fetch bill book number for the salesman
-        if ($this->salesman) {
-            $this->changeSalesman($this->salesman);
-        }
+    // Auto-fetch bill book number for the salesman
+    if ($this->salesman) {
+        $this->changeSalesman($this->salesman);
+    }
 
-        // Fetch Salesman Billing if exists
-        if (auth()->guard('admin')->check()) {
-            $this->salesmanBill = SalesmanBilling::where('salesman_id', auth()->guard('admin')->user()->id)->first();
-        }
+    // Fetch Salesman Billing if exists
+    if (auth()->guard('admin')->check()) {
+        $this->salesmanBill = SalesmanBilling::where('salesman_id', auth()->guard('admin')->user()->id)->first();
+    }
 
-        // Add initial order item
-        $this->addItem();
+    // Add initial order item
+    $this->addItem();
 
-        foreach ($this->items as $index => $item) {
-            if (isset($item['measurements'])) {
-                foreach ($item['measurements'] as $measurement) {
-                    foreach ($this->existing_measurements as $existing) {
-                        if (trim($existing['short_code']) === trim($measurement['short_code'])) {
-                            $this->items[$index]['get_measurements'][$measurement['id']]['value'] = $existing['value'];
-                        }
+    foreach ($this->items as $index => $item) {
+        if (isset($item['measurements'])) {
+            foreach ($item['measurements'] as $measurement) {
+                foreach ($this->existing_measurements as $existing) {
+                    if (trim($existing['short_code']) === trim($measurement['short_code'])) {
+                        $this->items[$index]['get_measurements'][$measurement['id']]['value'] = $existing['value'];
                     }
                 }
             }
         }
-
-        $this->Business_type = BusinessType::all();
-        $this->selectedBusinessType = BusinessType::where('title','TEXTILES')->value('id');
-        $this->countries = Country::where('status',1)->get();
     }
 
-    public function GetCountryDetails($mobileLength, $field){
-        switch($field){
-            case 'phone':
-                $this->mobileLengthPhone  = $mobileLength;
-                break;
+    $this->Business_type = BusinessType::all();
+    $this->selectedBusinessType = null;
+    $this->countries = Country::all();
+}
 
-            case 'whatsapp':
-                $this->mobileLengthWhatsapp = $mobileLength;
-                break;
+public function GetCountryDetails($mobileLength, $field)
+{
+    switch($field){
+        case 'phone':
+            $this->mobileLengthPhone = $mobileLength;
+            break;
 
-            case 'alt_phone_1':
-                $this->mobileLengthAlt1 = $mobileLength;
-                break;
-            
-            case 'alt_phone_2':
-                $this->mobileLengthAlt2 = $mobileLength;
-                break;
+        case 'whatsapp':
+            $this->mobileLengthWhatsapp = $mobileLength;
+            break;
+
+        case 'alt_phone_1':
+            $this->mobileLengthAlt1 = $mobileLength;
+            break;
+        
+        case 'alt_phone_2':
+            $this->mobileLengthAlt2 = $mobileLength;
+            break;
+    }
+}
+
+// public function updatedSelectedCountryPhone($countryCode)
+// {
+//     $country = Country::where('country_code', $countryCode)->first();
+//     if ($country) {
+//         $this->mobileLengthPhone = $country->mobile_length;
+//     }
+// }
+
+// public function updatedSelectedCountryWhatsapp($countryCode)
+// {
+//     $country = Country::where('country_code', $countryCode)->first();
+//     if ($country) {
+//         $this->mobileLengthWhatsapp = $country->whatsapp_length;
+//     }
+// }
+
+// public function updatedSelectedCountryAlt1($countryCode)
+// {
+//     $country = Country::where('country_code', $countryCode)->first();
+//     if ($country) {
+//         $this->mobileLengthAlt1 = $country->mobile_length_alt_1;
+//     }
+// }
+
+// public function updatedSelectedCountryAlt2($countryCode)
+// {
+//     $country = Country::where('country_code', $countryCode)->first();
+//     if ($country) {
+//         $this->mobileLengthAlt2 = $country->mobile_length_alt_2;
+//     }
+// }
+
+
+    public function FindCountry($term){
+        $this->search = $term;
+        if (!empty($this->search)) {
+            $this->filteredCountries = Country::where('title', 'LIKE', '%' . $this->search . '%')->get();
+        }else{
+            $this->filteredCountries = [];
         }
     }
 
-     
+    public function selectCountry($countryId){
+        $country = Country::find($countryId);
+        if($country){
+            $this->country_id = $country->id;
+            $this->search  = $country->title;
+            $this->country_code = $country->country_code;
+            $this->mobileLength = $country->mobile_length;
+        }
 
+        $this->filteredCountries = [];
+    }
+
+      
+    // public function searchFabrics($index) 
+    // {
+    //     // Ensure product_id exists for the given index
+    //     if (!isset($this->items[$index]['product_id'])) {
+    //         return;
+    //     }
+    
+    //     $productId = $this->items[$index]['product_id'];
+    
+    //     // Ensure searchTerm exists for this index
+    //     $searchTerm = $this->items[$index]['searchTerm'] ?? '';
+    
+    //     if (!empty($searchTerm)) {
+    //         $this->items[$index]['searchResults'] = Fabric::join('product_fabrics', 'fabrics.id', '=', 'product_fabrics.fabric_id')
+    //             ->where('product_fabrics.product_id', $productId)
+    //             ->where('fabrics.status', 1)
+    //             ->where('fabrics.title', 'LIKE', "%{$searchTerm}%")
+    //             ->select('fabrics.id', 'fabrics.title')
+    //             ->distinct()
+    //             ->limit(10)
+    //             ->get();
+    //     } else {
+    //         $this->items[$index]['searchResults'] = [];
+    //     }
+    // }
 
     public function searchFabrics($index)
     {
@@ -240,7 +301,7 @@ class OrderNew extends Component
         // Perform the fabric search
         $productId = $this->items[$index]['product_id'] ?? null;
         $searchTerm = $this->items[$index]['searchTerm'] ?? '';
-        
+    
         if (!empty($searchTerm) && !is_null($productId)) {
             $this->items[$index]['searchResults'] = Fabric::join('product_fabrics', 'fabrics.id', '=', 'product_fabrics.fabric_id')
                 ->where('product_fabrics.product_id', $productId)
@@ -278,31 +339,33 @@ class OrderNew extends Component
     }
 
     // Define rules for validation
-    public function rules(){
-        return[
-            'items' => 'required|min:1',     
-            'items.*.collection' => 'required|string',
-            'items.*.category' => 'required|string',
-            'items.*.searchproduct' => 'required|string',
-            'items.*.product_id' => 'required|integer',
-            'items.*.page_item' => 'required_if:items.*.collection,1',
-            'items.*.price' => 'required|numeric|min:1',  
-            'items.*.searchTerm' => 'required_if:items.*.collection,1',
-            'order_number' => 'required|string|not_in:000|unique:orders,order_number',
-            'items.*.selectedCatalogue' => 'required_if:items.*.collection,1',
-            'items.*.page_number' => 'required_if:items.*.collection,1'
-        ];
-    }
-   
+    protected $rules = [   
+        'items' => 'required|min:1',     
+        'items.*.collection' => 'required|string',
+        'items.*.category' => 'required|string',
+        'items.*.searchproduct' => 'required|string',
+        'items.*.product_id' => 'required|integer',
+        'items.*.price' => 'required|numeric|min:1',  // Ensuring that price is a valid number (and greater than or equal to 0).
+        // 'paid_amount' => 'required|numeric|min:1',   // Ensuring that price is a valid number (and greater than or equal to 0).
+        // 'payment_mode' => 'required|string',  // Ensuring that price is a valid number (and greater than or equal to 0).
+        // 'items.*.measurements.*' => 'nullable|string',
+        // 'items.*.measurements' => 'nullable|array', // Ensure measurements exist as an array
+        // 'items.*.get_measurements.*.value' => 'required|string',
+        // 'items.*.get_measurements.*.value' => 'required|string|min:1',
+        'items.*.searchTerm' => 'required_if:items.*.collection,1',
+        // 'order_number' => 'required|numeric|unique:orders,order_number|min:1',
+        'order_number' => 'required|string|not_in:000|unique:orders,order_number',
+        'items.*.selectedCatalogue' => 'required_if:items.*.collection,1',
+        'items.*.page_number' => 'required_if:items.*.collection,1'
+    ];
 
-    public function messages(){
+    protected function messages(){
         return [
             'items.required' => 'Please add at least one item to the order.',
              'items.*.category.required' => 'Please select a category for the item.',
              'items.*.searchproduct.required' => 'Please select a product for the item.',
              'items.*.selectedCatalogue.required_if' => 'Please select a catalogue for the item.',
              'items.*.page_number.required_if' => 'Please select a page for the item.',
-             'items.*.page_item.required_if'  => 'Please select a page item',
              'items.*.price.required'  => 'Please enter a price for the item.',
              'items.*.collection.required' =>  'Please enter a collection for the item.',
              'items.*.searchTerm.required_if' =>  'Please enter a Fabric for the item.',
@@ -349,35 +412,19 @@ class OrderNew extends Component
                 if ($customerFromOrder) {
                     $this->prefix = $customerFromOrder->prefix ?? '';
                     $this->selectedBusinessType = $customerFromOrder->business_type;
-                    $this->selectedCountryPhone = $customerFromOrder->country_code_phone;
-                    $this->selectedCountryWhatsapp = $customerFromOrder->country_code_whatsapp;
-                    $this->selectedCountryAlt1 = $customerFromOrder->country_code_alt_1;
-                    $this->selectedCountryAlt2 = $customerFromOrder->country_code_alt_2;
 
-                     // Assign phone numbers FIRST
-                    $this->phone = $customerFromOrder->phone;
-                    $this->alternative_phone_number_1 = $customerFromOrder->alternative_phone_number_1;
-                    $this->alternative_phone_number_2 = $customerFromOrder->alternative_phone_number_2;
+                    // Fetch country details using the customer's country_id
+                    $country = Country::find($customerFromOrder->country_id);
+                    if ($country) {
+                        // Append the country information
+                        $this->search = $country->title;
+                        $this->country_code = $country->country_code;
+                        $this->mobileLength = $country->mobile_length;
 
-                    // Set mobile length for respective fields
-                    $this->mobileLengthPhone = Country::where('country_code',$this->selectedCountryPhone)->value('mobile_length') ?? '';
-                    $this->mobileLengthWhatsapp = Country::where('country_code',$this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
-                    $this->mobileLengthAlt1 = Country::where('country_code',$this->selectedCountryAlt1)->value('mobile_length') ?? '';
-                    $this->mobileLengthAlt2 = Country::where('country_code',$this->selectedCountryAlt2)->value('mobile_length') ?? '';
-                    
-                     // checkbox pre-selected if the number is also a whatsapp number
-                     $this->isWhatsappPhone = UserWhatsapp::where('user_id', $customerFromOrder->id)
-                     ->where('whatsapp_number', $this->phone)
-                     ->exists();
-             
-                    $this->isWhatsappAlt1 = UserWhatsapp::where('user_id', $customerFromOrder->id)
-                        ->where('whatsapp_number', $this->alternative_phone_number_1)
-                        ->exists();
-                
-                    $this->isWhatsappAlt2 = UserWhatsapp::where('user_id', $customerFromOrder->id)
-                     ->where('whatsapp_number', $this->alternative_phone_number_2)
-                     ->exists();
-             
+                        // Optionally, if you need to display the country code and other country-related data
+                        // in the customer form, you can also bind them to the input fields.
+                        $this->selectedCountryPhone = $country->country_code;
+                    }
                 }
 
                 // Add the customer to search results
@@ -392,13 +439,33 @@ class OrderNew extends Component
             $this->searchResults = $users->unique('id')->values();
         } else {
             // Reset results when the search term is empty
-            $this->reset([
-                'searchResults','orders','prefix','selectedBusinessType','selectedCountryPhone','selectedCountryWhatsapp','selectedCountryAlt1','selectedCountryAlt2','isWhatsappPhone', 'isWhatsappAlt1', 'isWhatsappAlt2'
-            ]);
+            $this->searchResults = [];
+            $this->orders = collect();
+            $this->prefix = '';
+            $this->search = '';
+            $this->country_code = '';
+            $this->selectedBusinessType = '';
+            $this->mobileLength = '';
         }
     }
 
 
+    // public function addItem()
+    // {
+    //     $this->items[] = [
+           
+    //         'collection' => '',
+    //         'category' => '',
+    //         'sub_category' => '',
+    //         'searchproduct' => '',
+    //         'selected_fabric' => null,
+    //         'measurements' => [],
+    //         'products' => [],
+    //         'product_id' => null,
+    //         'price' => '', // Ensure price is initialized to an empty string, not null.
+    //     ];
+    //     // $this->validate();
+    // }
 
     public function addItem()
     {
@@ -414,7 +481,6 @@ class OrderNew extends Component
             'price' => '',
             'selectedCatalogue' => '',
             'page_number' => '',
-            'page_item' => '',
             'searchTerm' => '', // Ensure search field is empty
             // 'searchResults' => [], // Clear previous search results
         ];
@@ -430,7 +496,20 @@ class OrderNew extends Component
     }
     
 
-
+    // public function addMeasurement($index, $measurement)
+    // {
+    //     // Initialize measurements array if it's not already set for the specific item
+    //     if (!isset($this->items[$index]['measurements'])) {
+    //         $this->items[$index]['measurements'] = [];
+    //     }
+    
+    //     // Add the measurement to the measurements array
+    //     $this->items[$index]['measurements'][$measurement->id] = [
+    //         'title' => $measurement->title,
+    //         'short_code' => $measurement->short_code,
+    //         'value' => '',  // Initialize the value as empty or with a default value
+    //     ];
+    // }
 
     
 
@@ -451,11 +530,11 @@ class OrderNew extends Component
         // $this->items[$index]['selectedPage'] = null; 
       
             // Fetch categories and products based on the selected collection 
-            $this->items[$index]['categories'] = Category::orderBy('title', 'ASC')->where('collection_id', $value)->where('status',1)->get();
-            $this->items[$index]['products'] = Product::orderBy('name', 'ASC')->where('collection_id', $value)->where('status',1)->get();
+            $this->items[$index]['categories'] = Category::orderBy('title', 'ASC')->where('collection_id', $value)->get();
+            $this->items[$index]['products'] = Product::orderBy('name', 'ASC')->where('collection_id', $value)->get();
        
             if ($value == 1) {
-                $catalogues = Catalogue::with('catalogueTitle')->where('status',1)->get();
+                $catalogues = Catalogue::with('catalogueTitle')->get();
                 $this->catalogues[$index] = $catalogues->pluck('catalogueTitle.title', 'catalogue_title_id');
         // dd($this->catalogues[$index]);
                 // Fetch max page numbers per catalogue
@@ -489,29 +568,7 @@ class OrderNew extends Component
         }
     
         $pageNumber = (int) $this->items[$index]['page_number'];
-        $selectedCatalogue = $this->items[$index]['selectedCatalogue'];  //this is actually catalogue title id
-        // dd($pageNumber,$selectedCatalogue);
-        // Get all catalogues under the selected catalogue title
-         $catalogueIds = Catalogue::where('catalogue_title_id', $selectedCatalogue)->pluck('id');
-         // Fetch the page ID first
-            $page = Page::where('catalogue_id', $catalogueIds)
-            ->where('page_number', $pageNumber)
-            ->first();
-         // Fetch catalog items from `catalogue_page_item` table
-         if ($page) {
-            
-            $pageItems = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
-                ->whereIn('catalogue_page_items.catalogue_id', $catalogueIds) 
-                ->where('pages.page_number', $pageNumber)
-                ->select('catalogue_page_items.id', 'catalogue_page_items.catalog_item', 'pages.page_number')
-                ->get();
-            
-            // Store fetched items in a property for dropdown use
-            $this->pageItems[$index] = $pageItems;
-            // dd($this->pageItems[$index]);
-        } else {
-            $this->pageItems[$index] = [];
-        }
+        $selectedCatalogue = $this->items[$index]['selectedCatalogue'];
     
         // Ensure we get the correct max page for the selected catalogue
         $maxPage = $this->maxPages[$index][$selectedCatalogue] ?? null;
@@ -525,10 +582,18 @@ class OrderNew extends Component
         } else {
             $this->resetErrorBag("items.$index.page_number");
         }
-
     }
-
     
+
+
+    // public function SelectedPage($value , $index){
+    //     $this->items[$index]['selectedPage'] = $value;
+    //     $this->selectedImage[$index] = Catalogue::where('catalogue_title_id',$this->items[$index]['selectedCatalogue'])
+    //                                             ->where('page_number',$value)
+    //                                             ->value('image');
+    // }
+    
+
 
     public function CategoryWiseProduct($categoryId, $index)
     {
@@ -540,7 +605,6 @@ class OrderNew extends Component
             // Fetch products based on the selected category and collection
             $this->items[$index]['products'] = Product::where('category_id', $categoryId)
                 ->where('collection_id', $this->items[$index]['collection']) // Ensure the selected collection is considered
-                ->where('status', 1)
                 ->get();
         }
     }
@@ -573,13 +637,28 @@ class OrderNew extends Component
                     $query->where('name', 'like', '%' . $term . '%')
                           ->orWhere('product_code', 'like', '%' . $term . '%');
                 })
-                ->where('status', 1)
                 ->get();
         }
     
     }
 
-   
+    // public function checkproductPrice($value, $index)
+    // {
+    //     // Remove any non-numeric characters except for the decimal point
+    //     $formattedValue = preg_replace('/[^0-9.]/', '', $value);
+
+    //     // Check if the value is numeric
+    //     if (is_numeric($formattedValue)) {
+    //         // Format the value to two decimal places if it's a valid number
+    //         // $this->items[$index]['price'] = number_format((float)$formattedValue, 2, '.', '');
+    //         session()->forget('errorPrice.' . $index); // Clear any previous error message
+    //     } else {
+    //         // If the value is invalid, reset the price and show an error message
+    //         $this->items[$index]['price'] = 0;
+    //         session()->flash('errorPrice.' . $index, '🚨 Please enter a valid price.');
+    //     }
+    //     $this->updateBillingAmount();  // Update billing amount after checking price
+    // }
 
     public function checkproductPrice($value, $index)
     {
@@ -721,26 +800,15 @@ class OrderNew extends Component
             $this->items[$index]['existing_measurements'] = [];
         }
     }
-    public function copyMeasurements($index){
-        if ($index > 0) {
-            if (!empty($this->items[$index]['copy_previous_measurements'])) {
-                if (!empty($this->items[$index - 1]['get_measurements'])) {
-                    $this->items[$index]['get_measurements'] = $this->items[$index - 1]['get_measurements'];
-                }
-            } else {
-                $this->items[$index]['get_measurements'] = [];
-            }
-        }
-    }
 
     public function save()
-    {   
-        // dd($this->all());
+    {
+        
         DB::beginTransaction(); // Begin transaction
         
-        $this->validate();
         try{ 
-            
+            $this->validate();
+          
             // Calculate the total amount
             $total_amount = array_sum(array_column($this->items, 'price'));
             if ($this->paid_amount > $total_amount) {
@@ -762,14 +830,14 @@ class OrderNew extends Component
                     'email' => $this->email,
                     'dob' => $this->dob,
                     'country_id' => $this->country_id,
-                    'country_code_phone' => $this->selectedCountryPhone,
                     'phone' => $this->phone,
-                    'country_code_whatsapp' => $this->selectedCountryWhatsapp,
                     'whatsapp_no' => $this->whatsapp_no,
-                    // 'country_code' => $this->country_code,
+                    'country_code' => $this->country_code,
+                    'country_code_phone' => $this->selectedCountryPhone,
+                    'country_code_whatsapp' => $this->selectedCountryWhatsapp,
                     'country_code_alt_1'  => $this->selectedCountryAlt1,
-                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
                     'country_code_alt_2'  => $this->selectedCountryAlt2,
+                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
                     'alternative_phone_number_2' => $this->alternative_phone_number_2,
                     'user_type' => 1, // Customer
                 ]);
@@ -815,13 +883,10 @@ class OrderNew extends Component
                     'email' => $this->email,
                     'dob' => $this->dob,
                     'country_id' => $this->country_id,
-                    'country_code_phone' => $this->selectedCountryPhone,
                     'phone' => $this->phone,
-                    'country_code_whatsapp' => $this->selectedCountryWhatsapp,
                     'whatsapp_no' => $this->whatsapp_no,
-                    'country_code_alt_1'  => $this->selectedCountryAlt1,
+                    'country_code' => $this->country_code,
                     'alternative_phone_number_1' => $this->alternative_phone_number_1,
-                    'country_code_alt_2'  => $this->selectedCountryAlt2,
                     'alternative_phone_number_2' => $this->alternative_phone_number_2,
                     'user_type' => 1, // Customer
                 ]);
@@ -937,6 +1002,9 @@ class OrderNew extends Component
             }
 
             $order->total_amount = $total_amount;
+            // $order->paid_amount = $this->paid_amount;
+            // $order->remaining_amount = $this->remaining_amount;
+            // $order->payment_mode = $this->payment_mode;
             $order->last_payment_date = date('Y-m-d H:i:s');
             $order->created_by = (int) $this->salesman; // Explicitly cast to integer
 
@@ -957,13 +1025,12 @@ class OrderNew extends Component
 
                 $orderItem = new OrderItem();
                 $orderItem->order_id = $order->id;
-                $orderItem->catalogue_id = $item['selectedCatalogue'] ?? null;
-                $orderItem->cat_page_number = $item['page_number'] ?? null;
-                $orderItem->cat_page_item = $item['page_item'] ?? null;
+                $orderItem->catalogue_id = $item['selectedCatalogue'];
+                $orderItem->cat_page_number = $item['page_number'];
                 $orderItem->product_id = $item['product_id'];
                 $orderItem->collection = $collection_data ? $collection_data->id : "";
                 $orderItem->category = $category_data ? $category_data->id : "";
-                
+                // $orderItem->sub_category = $sub_category_data ? $sub_category_data->title : "";
                 $orderItem->product_name = $item['searchproduct'];
                 $orderItem->total_price = $item['price'];
                 $orderItem->piece_price = $item['price'];
@@ -986,62 +1053,18 @@ class OrderNew extends Component
                     }
                     $missing_measurements = array_diff($get_all_measurment_field, $get_all_field_measurment_id);
 
-                    // if (!empty($missing_measurements)) {
-                    //     session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
-                    //     return;
-                    // }
+                    if (!empty($missing_measurements)) {
+                        session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
+                        return;
+                    }
                     
+                }else{
+                    session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
+                    return;
                 }
             }
 
-            // Store WhatsApp details if the flags are set
-                if ($this->isWhatsappPhone) {
-                    $existingRecord = UserWhatsapp::where('whatsapp_number', $this->phone)
-                                                    ->where('user_id', '!=', $user->id)
-                                                    ->exists();
-
-                    if (!$existingRecord) {
-                        UserWhatsapp::updateOrCreate(
-                            ['user_id' => $user->id,'whatsapp_number' => $this->phone],
-                            [ 'country_code' => $this->selectedCountryPhone, 'created_at' => now(),'updated_at' => now()]
-                        );
-                    }
-                }
-             
-
-                if ($this->isWhatsappAlt1) {
-                    $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_1)
-                                                    ->where('user_id', '!=', $user->id)
-                                                    ->exists();
-                    if(!$existingRecord){
-                        UserWhatsapp::updateOrCreate([
-                             'user_id' => $user->id,
-                             'whatsapp_number' => $this->alternative_phone_number_1,
-                            ],
-                            [
-                            'country_code' => $this->selectedCountryAlt1,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }          
-                }
-
-
-                if ($this->isWhatsappAlt2) {
-                    $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_2)
-                                                    ->where('user_id', '!=', $user->id)
-                                                    ->exists();
-
-                    if(!$existingRecord){
-                        UserWhatsapp::updateOrCreate([
-                            'user_id' => $user->id,
-                            'whatsapp_number' => $this->alternative_phone_number_2],
-                            ['country_code' => $this->selectedCountryAlt2,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                    }
-                }
+            // Update Bill Number
 
 
             DB::commit();
@@ -1049,7 +1072,7 @@ class OrderNew extends Component
             session()->flash('success', 'Order has been generated successfully.');
             return redirect()->route('admin.order.index');
         } catch (\Exception $e) {
-            // dd($e);
+            dd($e);
             DB::rollBack();
             \Log::error('Error saving order: ' . $e->getMessage());
             dd($e->getMessage());
@@ -1104,7 +1127,13 @@ class OrderNew extends Component
         $this->searchResults = [];
         $this->searchTerm = '';
     }
-   
+    public function SameAsMobile(){
+        if($this->is_wa_same){
+            $this->whatsapp_no = $this->phone;
+        }else{
+            $this->whatsapp_no = '';
+        }
+    }
     public function toggleShippingAddress()
     {
         // When the checkbox is checked
@@ -1130,9 +1159,6 @@ class OrderNew extends Component
 
     public function TabChange($value)
     {
-        // dd($this->all());
-        // dd($this->errorClass, $this->errorMessage);
-
         // Initialize or reset error classes and messages
         $this->errorClass = [];
         $this->errorMessage = [];
@@ -1151,12 +1177,19 @@ class OrderNew extends Component
                 $this->errorMessage['selectedBusinessType'] = null;
             }
 
-            
+            // validate country
+            if(empty($this->search)){
+                $this->errorClass['search'] = 'border-danger';
+                $this->errorMessage['search'] = 'Please Search a country first';
+            }else{
+                $this->errorClass['search']  = null;
+                $this->errorMessage['search']  = null;
+            }
 
             // validate Salesman
             if(empty($this->salesman)){
                 $this->errorClass['salesman'] = 'border-danger';
-                $this->errorMessage['salesman'] = 'Please select a salesman first';
+                $this->errorMessage['salesman'] = 'Please select a salesmana first';
             }else{
                 $this->errorClass['salesman']  = null;
                 $this->errorMessage['salesman']  = null;
@@ -1275,7 +1308,21 @@ class OrderNew extends Component
                 $this->errorMessage['billing_country'] = null;
             }
             
+            // if(!empty($this->billing_pin)){
+            //     if (strlen($this->billing_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
+            //         $this->errorClass['billing_pin'] = 'border-danger';
+            //         $this->errorMessage['billing_pin'] = 'Billing pin must be '.env('VALIDATE_PIN', 6).' digits';
+            //     } else {
+            //         $this->errorClass['billing_pin'] = null;
+            //         $this->errorMessage['billing_pin'] = null;
+            //     }
+            // }else {
+            //     // No error for an empty shipping_pin
+            //     $this->errorClass['billing_pin'] = null;
+            //     $this->errorMessage['billing_pin'] = null;
+            // }
             
+    
             // Validate Shipping Information
             if (empty($this->shipping_address)) {
                 $this->errorClass['shipping_address'] = 'border-danger';
@@ -1302,7 +1349,19 @@ class OrderNew extends Component
                 $this->errorMessage['shipping_country'] = null;
             }
     
-        
+            // if (!empty($this->shipping_pin)) { // Only validate if shipping_pin is not empty
+            //     if (strlen($this->shipping_pin) != env('VALIDATE_PIN', 6)) { // Validate length
+            //         $this->errorClass['shipping_pin'] = 'border-danger';
+            //         $this->errorMessage['shipping_pin'] = 'Shipping pin must be ' . env('VALIDATE_PIN', 6) . ' digits';
+            //     } else {
+            //         $this->errorClass['shipping_pin'] = null;
+            //         $this->errorMessage['shipping_pin'] = null;
+            //     }
+            // } else {
+            //     // No error for an empty shipping_pin
+            //     $this->errorClass['shipping_pin'] = null;
+            //     $this->errorMessage['shipping_pin'] = null;
+            // }
             
     
            
@@ -1343,8 +1402,11 @@ class OrderNew extends Component
 
     public function render()
     {
-     
+       // dd($this->items[$index]['get_measurements']);
+        //dd($this->items[$index]['get_measurements']);
+       // dd($this->existing_measurements);
         return view('livewire.order.order-new', [
+            // 'collectionsType' => $this->collectionsType,
             'categories' => $this->categories,
         ]);
     }

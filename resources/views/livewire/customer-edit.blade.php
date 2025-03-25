@@ -1,4 +1,4 @@
-<div class="container-fluid px-2 px-md-4">
+ <div class="container-fluid px-2 px-md-4">
     <section class="admin__title">
         <h5>Edit Customer</h5>
     </section>
@@ -155,11 +155,7 @@
                                 <input type="text" wire:model="whatsapp_no" id="whatsapp_no"
                                     class="form-control form-control-sm border border-1 p-2"  placeholder="Enter Whatsapp Number" maxLength={{$mobileLengthWhatsapp}}>
                             </div>
-                            {{-- <div class="custon-input-group">
-                                <input type="checkbox" id="is_wa_same" wire:change="SameAsMobile" value="0"
-                                    @if($is_wa_same) checked @endif>
-                                <label for="is_wa_same" class="form-check-label ms-2">Same as Phone Number</label>
-                            </div> --}}
+                           
                             @error('whatsapp_no')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
@@ -286,8 +282,7 @@
                             @enderror
                         </div>
                         <div class="mb-3 col-md-6">
-                            <label for="billing_state" class="form-label"> State <span
-                                    class="text-danger">*</span></label>
+                            <label for="billing_state" class="form-label"> State </label>
                             <input type="text" wire:model="billing_state" id="billing_state"
                                 class="form-control form-control-sm border border-1 p-2" placeholder="Enter state">
                             @error('billing_state')
@@ -357,8 +352,7 @@
                             @enderror
                         </div>
                         <div class="mb-3 col-md-6">
-                            <label for="shipping_state" class="form-label"> State <span
-                                    class="text-danger">*</span></label>
+                            <label for="shipping_state" class="form-label"> State </label>
                             <input type="text" wire:model="shipping_state" id="shipping_state"
                                 class="form-control form-control-sm border border-1 p-2" placeholder="Enter State"
                                 @if($is_billing_shipping_same) disabled @endif>

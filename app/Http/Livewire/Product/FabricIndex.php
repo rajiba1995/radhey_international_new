@@ -25,7 +25,8 @@ class FabricIndex extends Component
     public $search = '';
     public $file;
     public $processedFileHash = null; // Store the hash of the last processed file
-
+    protected $paginationTheme = 'bootstrap'; 
+    
     public function confirmDelete($id){
         $this->dispatch('showDeleteConfirm',['itemId' => $id]);
     }
@@ -78,12 +79,12 @@ class FabricIndex extends Component
     // Export Fabrics
     public function export()
     {
-        return Excel::download(new FabricsExport(), 'fabrics.xlsx');
+        return Excel::download(new FabricsExport(), 'fabrics.csv');
     }
 
     public function sampleExport()
     {
-        return Excel::download(new SampleFabricExport(), 'sample_fabrics.xlsx');
+        return Excel::download(new SampleFabricExport(), 'sample_fabrics.csv');
     }
     public function store()
     {
@@ -200,7 +201,16 @@ class FabricIndex extends Component
         session()->flash('message', 'Fabric status updated successfully!');
     }
 
-    
+    public function downloadFabricCSV()
+    {
+        $filePath = public_path('assets/csv/sample_fabrics.csv'); // Correct file path
+
+        if (file_exists($filePath)) {
+            return response()->download($filePath);
+        } else {
+            session()->flash('error', 'File not found.');
+        }
+    }
     // Render Method with Search and Pagination
     public function render()
     {

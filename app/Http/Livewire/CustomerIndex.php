@@ -27,7 +27,8 @@ class CustomerIndex extends Component
     public $file;
 
     protected $updatesQueryString = ['search'];
-    
+    protected $paginationTheme = 'bootstrap'; 
+
     public function confirmDelete($id){
         $this->dispatch('showDeleteConfirm',['itemId' => $id]);
     }
@@ -134,6 +135,18 @@ class CustomerIndex extends Component
     public function exportAddresses()
     {
         return Excel::download(new UserAddressExport, 'user_addresses.xlsx');
+    }
+
+
+    public function downloadCustomerCSV()
+    {
+        $filePath = public_path('assets/csv/customers_details.csv'); // Correct file path
+
+        if (file_exists($filePath)) {
+            return response()->download($filePath);
+        } else {
+            session()->flash('error', 'File not found.');
+        }
     }
 
     public function render()

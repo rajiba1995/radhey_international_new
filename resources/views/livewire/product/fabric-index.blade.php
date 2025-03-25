@@ -76,10 +76,11 @@
                                                                         </button>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col-auto">
-                                                                    <button wire:click="sampleExport" class="btn btn-outline-success select-md"><i class="fas fa-file-csv me-1"></i>Sample CSV Download</button>
-                                                                </div>
+                                                                
                                                             </form>
+                                                            <div class="col-auto">
+                                                                <button wire:click="downloadFabricCSV" class="btn btn-outline-success select-md"><i class="fas fa-file-csv me-1"></i>Sample CSV Download</button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -139,7 +140,7 @@
                                     </tbody>
                                 </table>
                                 <div class="d-flex justify-content-end mt-2">
-                                    {{-- {{$fabrics->links()}} --}}
+                                    {{$fabrics->links()}}
                                 </div>
                             </div>
                         </div>
