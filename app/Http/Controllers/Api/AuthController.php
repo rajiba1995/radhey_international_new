@@ -15,6 +15,7 @@ use App\Models\BusinessType;
 use App\Models\PaymentCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -493,7 +494,8 @@ class AuthController extends Controller
 
         // Get All customer created by this user
 
-        $customers = User::where('created_by', $user->id)->orderBy('id','DESC')->get();
+        $customers = User::with('billingAddress')->where('created_by', $user->id)->orderBy('id','DESC')->get();
+        // dd($customers);
         return response()->json([
             'status' => true,
             'message' => 'Customer list retrieved successfully',
@@ -506,7 +508,7 @@ class AuthController extends Controller
             return $user; // Return the response if the user is not authenticated
         }
 
-        $details = User::find($id);
+        $details = User::with('billingAddress')->find($id);
       
         if (!$details) {
             return response()->json([
@@ -569,28 +571,31 @@ class AuthController extends Controller
             ->where('created_by', $user->id)
             ->take(20)
             ->get();
-
-        // Fetch orders and get the first matching customer's details
-        $order = Order::where('order_number', 'like', "%{$filter}%")
-            ->orWhereHas('customer', function ($query) use ($filter) {
-                $query->where('name', 'like', "%{$filter}%");
-            })
-            ->where('created_by', $user->id)
-            ->latest()
-            ->first(); // Fetch only the first order directly
-        $data = [];
-        if ($order && $order->customer) {
-            $users->prepend($order->customer);
-            $data['id'] = $users[0]->id;
-            $data['name'] = $users[0]->name;
-            $data['email'] = $users[0]->email;
-            $data['phone'] = $users[0]->phone;
-           
-        }
-
+          
+            // Fetch orders and get the first matching customer's details
+            $order = Order::where('order_number', 'like', "%{$filter}%")
+                ->orWhereHas('customer', function ($query) use ($filter) {
+                    $query->where('name', 'like', "%{$filter}%");
+                })
+                ->where('created_by', $user->id)
+                ->latest()
+                ->first(); // Fetch only the first order directly
+            
+            if ($order && $order->customer) {
+                $users->prepend($order->customer);
+            }
+            
+            $data = $users->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                ];
+            });
         return response()->json([
-            'status' => $users->isNotEmpty(),
-            'message' => $users->isNotEmpty() ? 'Data fetched successfully!' : 'Sorry, we cannot find any results!',
+            'status' => true,
+            'message' => 'Data fetched successfully!',
             'data' => $data,
         ],200);
     }
@@ -690,7 +695,7 @@ class AuthController extends Controller
     public function customer_update($id, Request $request){
         $phone_code_length = $request->phone_code_length;
         $whatsapp_code_length = $request->whatsapp_code_length;
-
+        // dd($whatsapp_code_length);
         // Validation Rules
         $rules = [
             'prefix' => 'required|string|max:255',
