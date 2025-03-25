@@ -1,4 +1,9 @@
 <div class="container">
+    <style>
+        .ps{
+            overflow: inherit !important;
+        }
+    </style>
     <section class="admin__title">
         <h5>Place Order</h5>
     </section>
@@ -933,17 +938,39 @@
     //         });
     //     });
     // });
-    document.addEventListener("DOMContentLoaded", function() {
-        document.addEventListener("click", function(event) {
-            if (event.target.closest("#nextTab")) {
-                setTimeout(function () {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    });
-                }, 100); 
-            }
-        });
-    });
+//     document.addEventListener("DOMContentLoaded", function() {
+//   document.addEventListener("click", function(event) {
+//     if (event.target.closest("#nextTab")) {
+//       setTimeout(function () {
+//         const scrollContainer = document.querySelector('.ps'); // replace with your class or ID
+//         if (scrollContainer) {
+//           scrollContainer.scrollTo({
+//             top: 0,
+//             behavior: "smooth"
+//           });
+//         }
+//       }, 300);
+//     }
+//   });
+// });
+
+document.addEventListener("DOMContentLoaded", function() {
+  document.addEventListener("click", function(event) {
+    if (event.target.closest("#nextTab")) {
+      setTimeout(function () {
+        const scrollContainer = document.querySelector('#sales_order_data'); // Replace with real selector
+        if (scrollContainer) {
+          scrollContainer.scrollTo({
+            top: 0,
+            behavior: "smooth"
+          });
+        } else {
+          console.log("Scroll container not found");
+        }
+      }, 300);
+    }
+  });
+});
+
     
 </script>
