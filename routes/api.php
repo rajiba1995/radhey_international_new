@@ -47,7 +47,7 @@ Route::middleware('auth:sanctum', 'token.session')->group(function () {
     Route::post('/customer/store', [AuthController::class, 'customer_store']);
     Route::post('/customer/update/{id}', [AuthController::class, 'customer_update']);
     Route::get('/customer/order/list', [AuthController::class, 'order_list']);
-
+    
 
 
 

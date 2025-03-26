@@ -190,7 +190,7 @@
                                 </td>
                                 <td colspan="3" class="pt-4" style="vertical-align: text-top !important;">
                                     <p>FABRIC : <strong>{{$item['fabrics']->title}}</strong></p>
-                                    <p>CATLOGUE : <strong>{{$item['catalogue']->catalogueTitle->title}}</strong> (PAGE:
+                                    <p>CATLOGUE : <strong>{{ optional(optional($item['catalogue'])->catalogueTitle)->title }}</strong> (PAGE:
                                         <strong>{{$item['cat_page_number']}}</strong>)
                                     </p>
                                 </td>

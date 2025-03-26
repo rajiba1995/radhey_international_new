@@ -1,9 +1,9 @@
 <div class="container">
-    <style>
+    {{-- <style>
         .ps{
             overflow: inherit !important;
         }
-    </style>
+    </style> --}}
     <section class="admin__title">
         <h5>Place Order</h5>
     </section>
@@ -120,7 +120,7 @@
                                     <button class="dropdown-item" type="button"
                                         wire:click="selectCustomer({{ $customer->id }})">
                                         <img src="{{ $customer->profile_image ? asset($customer->profile_image) : asset('assets/img/user.png') }}"
-                                            alt=""> {{$customer->prefix . " ". $customer->name }} ({{
+                                            alt=""> {{ucfirst($customer->prefix . " ". $customer->name) }} ({{
                                         $customer->country_code_phone .' '.$customer->phone
                                         }})
                                     </button>

@@ -193,4 +193,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserWhatsapp::class, 'user_id', 'id');
     }
+
+   
 }
