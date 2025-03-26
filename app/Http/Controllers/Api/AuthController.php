@@ -658,6 +658,7 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'country_code_phone' => $request->phone_code,
                 'phone' => $request->phone,
+                'country_code_whatsapp' => $request->whatsapp_code,
                 'whatsapp_no' => $request->whatsapp_no,
                 'dob' => $request->dob,
                 'company_name' => $request->company_name,
