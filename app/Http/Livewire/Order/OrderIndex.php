@@ -24,7 +24,8 @@ class OrderIndex extends Component
     public $created_by, $search,$status,$start_date,$end_date; 
     public $invoiceId;
     public $orderId;
-
+    public $totalPrice;
+    
     // protected $listeners = ['cancelOrder'];
     protected $listeners = ['cancelOrder'];
 
@@ -58,7 +59,7 @@ class OrderIndex extends Component
             $this->start_date,
             $this->end_date,
             $this->search
-        ), 'orders.xlsx');
+        ), 'orders.csv');
     }
 
     // public function updateStatus($status, $id)
@@ -129,7 +130,7 @@ class OrderIndex extends Component
         $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
                     ->where('order_id', $orderId)
                     ->firstOrFail();
-    // dd($invoice);
+        // dd($invoice);
         // Generate PDF
         $pdf = PDF::loadView('invoice.order_pdf', compact('invoice'));
     
@@ -138,7 +139,20 @@ class OrderIndex extends Component
             echo $pdf->output();
         }, 'invoice_' . $invoice->invoice_no . '.pdf');
     }   
+    public function downloadOrderBill($orderId)
+    {
+        $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
+                    ->where('order_id', $orderId)
+                    ->firstOrFail();
+        // dd($invoice);
+        // Generate PDF
+        $pdf = PDF::loadView('invoice.bill_pdf', compact('invoice'));
     
+        // Download the PDF
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, 'bill_' . $invoice->order->order_number . '.pdf');
+    }  
 
     // Cancelled Orders
     // public function confirmCancelOrder($id = null)
@@ -184,4 +198,4 @@ class OrderIndex extends Component
         session()->flash('message', 'Order has been cancelled successfully.');
     }
 
-}
+} 
