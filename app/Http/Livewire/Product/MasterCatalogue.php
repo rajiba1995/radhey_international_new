@@ -144,6 +144,23 @@ class MasterCatalogue extends Component
             'image' => $pdfPath,
         ]);
 
+        // **Handle Inner Pages Update**
+        $existingPagesCount = $catalogue->pages()->count();
+
+        if ($this->page_number > $existingPagesCount) {
+            for ($i = $existingPagesCount + 1; $i <= $this->page_number; $i++) {
+                Page::create([
+                    'catalogue_id' => $catalogue->id,
+                    'page_number'  => $i
+                ]);
+            }
+        } elseif ($this->page_number < $existingPagesCount) {
+            // **Remove Extra Pages**
+            Page::where('catalogue_id', $catalogue->id)
+                ->where('page_number', '>', $this->page_number)
+                ->delete();
+        }
+
         session()->flash('message', 'Catalogue Updated Successfully');
         $this->resetFields();
         $this->reloadCatalogues();

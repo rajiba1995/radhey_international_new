@@ -49,6 +49,12 @@
                             <p class="mb-0"> <i class="fab fa-whatsapp" style="font-size: 14px; color: #25D366;"></i>
                             {{ $supplier->is_wa_same ?$supplier->country_code_mobile .' '. $supplier->mobile : $supplier->country_code_whatsapp .' '.$supplier->whatsapp_no }}
                             </p>
+                            <p class="mb-0"><i class="fas fa-phone-alt" style="font-size: 14px; color: #6c757d;"></i>
+                                {{$supplier->country_code_alt_1 .' '. $supplier->alternative_phone_number_1 }}
+                            </p>
+                            <p class="mb-0"><i class="fas fa-phone-alt" style="font-size: 14px; color: #6c757d;"></i>
+                                {{$supplier->country_code_alt_2 .' '. $supplier->alternative_phone_number_2 }}
+                            </p>
                         </div>
                     </div>
                 </div>
