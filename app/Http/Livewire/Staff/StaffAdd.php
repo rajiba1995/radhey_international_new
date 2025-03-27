@@ -44,6 +44,8 @@ class StaffAdd extends Component
     public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2,$selectedCountryEmergencyContact,$selectedCountryEmergencyWhatsapp;
     public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2,$mobileLengthEmergencyContact,$mobileLengthEmergencyWhatsapp;
     public $isWhatsappPhone, $isWhatsappAlt1, $isWhatsappAlt2, $isWhatsappEmergency;
+    public $team_lead;
+    public $teamLeads =[];
 
     public function mount(){
         $this->designations = Designation::where('status',1)->orderBy('name', 'ASC')->where('id', '!=', 1)->get();
@@ -53,6 +55,7 @@ class StaffAdd extends Component
         $this->selectedCountryId = null;
         $this->selectedBusinessType  = null;
         $this->emp_code = $this->generateEmpCode();
+        $this->teamLeads = User::where('user_type',0)->get();
     }
 
     public function GetCountryDetails($mobileLength, $field){
@@ -101,6 +104,7 @@ class StaffAdd extends Component
         return[
             'branch_id'   => 'required',
             'designation' => 'required',
+            'team_lead'  =>  'required',
             'emp_code' => 'required',
             'prefix' => 'required',
             'person_name' => 'required|string|max:255',
@@ -212,11 +216,6 @@ class StaffAdd extends Component
 
        try { 
 
-            // $lastEmployee = User::where('user_type', 0)->latest('id')->first();
-            // $newEmployeeId = $lastEmployee ? intval(substr($lastEmployee->employee_id, 4)) + 1 : 1;
-            // $formattedEmployeeId = 'RI-' . str_pad($newEmployeeId, 3, '0', STR_PAD_LEFT);
-
-
         // Check and upload the images only if they are provided
             $imagePath = $this->image ? Helper::uploadImage($this->image, 'staff2') : null;
             $passportIdFrontPath = $this->passport_id_front ? Helper::uploadImage($this->passport_id_front, 'staff') : null;
@@ -237,6 +236,7 @@ class StaffAdd extends Component
                 'country_id'=> $this->selectedCountryId,
                 'user_type' => 0, //for Staff
                 'designation' => $this->designation ?? "",
+                'parent_id'  =>  $this->team_lead, 
                 'prefix'    => $this->prefix,
                 'name' => ucwords($this->person_name) ?? "",
                 'email' => $this->email ?? "",

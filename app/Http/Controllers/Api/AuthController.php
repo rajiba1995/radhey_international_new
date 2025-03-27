@@ -295,7 +295,7 @@ class AuthController extends Controller
 
         // Remove device ID to require OTP on next login
         $userLogin->device_id = null;
-        $userLogin->mpin = null; // Optional: Remove MPIN if required
+        // $userLogin->mpin = null; // Optional: Remove MPIN if required
         $userLogin->save();
 
         // Delete API tokens if the user is authenticated

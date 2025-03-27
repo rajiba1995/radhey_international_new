@@ -21,37 +21,7 @@
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-                        {{-- <div class="col-5"> --}}
-                            {{-- <select wire:change="SelectedCountry" wire:model="selectedCountryId"
-                                class="form-select me-2 form-control" aria-label="Default select example">
-                                <option selected hidden>Select Country</option>
-                                @foreach($Selectcountry as $countries)
-                                <option value="{{$countries->id}}">{{$countries->title}}</option>
-                                @endforeach
-                                
-                            </select> --}}
-                            {{-- <div class="position-relative">
-                                <input type="text" wire:keyup="FindCountry($event.target.value)"
-                                   wire:model.debounce.500ms="searchTerm"
-                                    class="form-control form-control-sm border border-1 customer_input"
-                                    placeholder="Search By Country">
-                                @error('searchTerm')
-                                    <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                               @if(!empty($filteredCountries))
-                                <div id="fetch_customer_details" class="dropdown-menu show w-100"
-                                    style="max-height: 200px; overflow-y: auto;">
-                                    @foreach ($filteredCountries as $countries)
-                                    <button class="dropdown-item" type="button"
-                                        wire:click="selectCountry({{ $countries->id }})">
-                                         {{$countries->title}}({{$countries->country_code}})
-                                    </button>
-                                    @endforeach
-                                </div>
-                                @endif 
-                            </div> --}}
-                            
-                        {{-- </div> --}}
+                       
                         <div class="col-3">
                             <a href="{{ route('staff.index') }}" class="btn btn-cta btn-sm">
                                 <i class="material-icons text-white" style="font-size: 15px;">chevron_left</i> Back
@@ -65,7 +35,7 @@
         <div class="card-body p-3">
             <form wire:submit.prevent="save">
                 <div class="row">
-                    <div class="mb-3 col-md-6">
+                    <div class="mb-3 col-md-4">
                         <label for="branch_id" class="form-label">Branch Name <span class="text-danger">*</span></label>
                         <select wire:model="branch_id" id="branch_id"
                             class="form-control form-control-sm border border-1 p-2">
@@ -78,7 +48,19 @@
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="mb-3 col-md-6">
+                    <div class="mb-3 col-md-4">
+                        <label for="team_lead" class="form-label">Team Lead <span class="text-danger">*</span></label>
+                        <select wire:model="team_lead" id="team_lead" class="form-control form-control-sm border border-1 p-2">
+                            <option value="" selected hidden>Select Team Lead</option>
+                            @foreach ($teamLeads as $lead)
+                                <option value="{{ $lead->id }}">{{ ucwords($lead->name) }}</option>
+                            @endforeach
+                        </select>
+                        @error('team_lead')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3 col-md-4">
                         <label for="designation" class="form-label">Designation <span
                                 class="text-danger">*</span></label>
                         <select wire:model="designation" id="designation"
@@ -94,6 +76,7 @@
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
+                    
                 </div>
                 <div class="row">
                     <div class="mb-3 col-md-3">
