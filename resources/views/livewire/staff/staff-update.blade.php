@@ -64,7 +64,7 @@
             <form wire:submit.prevent="update">
                 <div class="row">
                     {{-- Branch --}}
-                    <div class="mb-3 col-md-6">
+                    <div class="mb-3 col-md-4">
                         <label for="selectedBranchId" class="form-label">Branch Name <span
                                 class="text-danger">*</span></label>
                         <select wire:model="selectedBranchId" id="selectedBranchId"
@@ -78,9 +78,21 @@
                         <div class="text-danger">{{ $message }}</div>
                         @enderror
                     </div>
-
+                    {{-- Team Lead --}}
+                    <div class="mb-3 col-md-4">
+                        <label for="team_lead" class="form-label">Team Lead <span class="text-danger">*</span></label>
+                        <select wire:model="team_lead" id="team_lead" class="form-control form-control-sm border border-1 p-2">
+                            <option value="" selected hidden>Select Team Lead</option>
+                            @foreach ($teamLeads as $lead)
+                                <option value="{{ $lead->id }}">{{ ucwords($lead->name) }}</option>
+                            @endforeach
+                        </select>
+                        @error('team_lead')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
                     {{-- Designation --}}
-                    <div class="mb-3 col-md-6">
+                    <div class="mb-3 col-md-4">
                         <label for="designation" class="form-label">Designation <span
                                 class="text-danger">*</span></label>
                         <select wire:model="designation" id="designation"
@@ -553,7 +565,7 @@
                         @enderror
                     </div>
                 </div>
-                <button type="submit" class="btn btn-cta mt-4">Save</button>
+                <button type="submit" class="btn btn-cta mt-4">Update</button>
             </form>
         </div>
     </div>

@@ -303,7 +303,7 @@ class OrderNew extends Component
             'items.*.searchTerm' => 'required_if:items.*.collection,1',
             'order_number' => 'required|string|not_in:000|unique:orders,order_number',
             'items.*.selectedCatalogue' => 'required_if:items.*.collection,1',
-            'items.*.page_number' => 'required_if:items.*.collection,1'
+            'items.*.page_number' => 'required_if:items.*.collection,1',
         ];
     }
    
@@ -323,6 +323,7 @@ class OrderNew extends Component
              'order_number.not_in' => 'Order number "000" is not allowed.',
              'order_number.unique' => 'Order number already exists, please try again.',
              'items.*.get_measurements.*.value.required' => 'Each measurement value is required.',
+            
         ];
     }
 
@@ -979,6 +980,7 @@ class OrderNew extends Component
                 
                 $orderItem->product_name = $item['searchproduct'];
                 $orderItem->total_price = $item['price'];
+                $orderItem->remarks  = $item['remarks'];
                 $orderItem->piece_price = $item['price'];
                 $orderItem->quantity = 1;
                 $orderItem->fabrics = $fabric_data ? $fabric_data->id : "";

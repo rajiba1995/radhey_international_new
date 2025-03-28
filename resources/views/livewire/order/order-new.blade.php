@@ -720,7 +720,7 @@
                                             wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.title"
                                             value="{{ $measurement['title'] }}">
                                         <input type="text"
-                                            class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
+                                            class="form-control form-control-sm border border-1 customer_input measurement_input"
                                             wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
                                         @error('items.' . $index . '.get_measurements.' .$measurement['id'])
                                         <div class="text-danger">{{ $message }}</div>
@@ -764,9 +764,9 @@
                                         <input type="text"
                                             wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
                                             wire:model="items.{{ $index }}.price"
-                                            class="form-control form-control-sm border border-1 customer_input text-center 
-                                                            @if(session()->has('errorPrice.' . $index)) border-danger @endif 
-                                                            @error('items.' . $index . '.price') border-danger  @enderror" placeholder="Enter Price">
+                                            class="form-control form-control-sm border border-1 customer_input 
+                                            @if(session()->has('errorPrice.' . $index)) border-danger @endif 
+                                            @error('items.' . $index . '.price') border-danger  @enderror" placeholder="Enter Price">
                                     </div>
                                     <div>
                                         <!-- Delete Button -->
@@ -776,6 +776,7 @@
                                         </button>
                                     </div>
                                 </div>
+                                {{-- <div>hi</div> --}}
 
                                 <!-- Error Messages -->
                                 @if(session()->has('errorPrice.' . $index))
@@ -794,7 +795,7 @@
                                     <!-- Price Input -->
                                     <label class="form-label"><strong>Price</strong></label>
                                     <input type="text" wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
-                                        wire:model="items.{{ $index }}.price" class="form-control form-control-sm border border-1 customer_input text-center 
+                                        wire:model="items.{{ $index }}.price" class="form-control form-control-sm border border-1 customer_input 
                                                     @if(session()->has('errorPrice.' . $index)) border-danger @endif 
                                                     @error('items.' . $index . '.price') border-danger  @enderror"
                                         placeholder="Enter Price">
@@ -816,6 +817,15 @@
                             @enderror
                         </div>
                         @endif
+                        <div class="col-12 col-md-2">
+                            <label class="form-label"><strong>Remarks</strong></label>
+                            <textarea type="text" wire:model="items.{{ $index }}.remarks"
+                                class="form-control form-control-sm border border-1 customer_input"
+                                placeholder="Enter Product Remarks"></textarea>
+                            @error("items.".$index.".remarks")
+                            <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
                         @endforeach
                         <!-- Add Item Button -->
                         <div class="row align-items-end my-4">
