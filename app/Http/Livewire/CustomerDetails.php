@@ -22,6 +22,17 @@ class CustomerDetails extends Component
         // dd($this->customer);
     }
 
+    
+    public function redirectToOrderPage()
+    {
+        return redirect()->route('admin.order.new', ['user_id' => $this->customerId]);
+    }
+
+    public function redirectToOrderIndex(){
+        return redirect()->route('admin.order.index', ['customer_id' => $this->customerId]);
+    }
+    
+
     public function render()
     {
         return view('livewire.customer-details');

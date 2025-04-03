@@ -29,11 +29,12 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
                 if ($user->userAddress->isEmpty()) {
                     return [[
                         'User Type' => $userType,
+                        'Prefix'    => $user->prefix,
                         'Customer Name' => $user->name,
                         'Company Name' => $user->company_name,
                         'Rank' => $user->employee_rank,
                         'Email' => $user->email,
-                        'Country Code Phone' => $user->country_code,
+                        'Country Code Phone' => $user->country_code_phone,
                         'Phone' => $user->phone,
                         'Country Code Alternet Phone One' => $user->country_code_alt_1,
                         'Alternet Phone One' => $user->alternative_phone_number_1,
@@ -57,11 +58,12 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
                 return $user->userAddress->map(function ($address) use ($user, $userType) {
                     return [
                         'User Type' => $userType,
+                        'Prefix'    => $user->prefix,
                         'Customer Name' => $user->name,
                         'Company Name' => $user->company_name,
                         'Rank' => $user->employee_rank,
                         'Email' => $user->email,
-                        'Country Code Phone' => $user->country_code,
+                        'Country Code Phone' => $user->country_code_phone,
                         'Phone' => $user->phone,
                         'Country Code Alternet Phone One' => $user->country_code_alt_1,
                         'Alternet Phone One' => $user->alternative_phone_number_1,
@@ -101,9 +103,9 @@ class SampleUserAndAddressExport implements FromCollection, WithHeadings
             'Alternet Phone One',
             'Country Code Alternet Phone Two',
             'Alternet Phone Two',
-            'Country Code Whatsapp', // Added here
+            // 'Country Code Whatsapp', // Added here
 
-            'Whatsapp Number',
+            // 'Whatsapp Number',
             'DOB',
             'Address Type',
             'Address',

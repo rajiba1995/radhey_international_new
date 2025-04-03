@@ -228,13 +228,13 @@
                         </div>
 
                         <div class="mb-2 col-md-3">
-                            <label for="dob" class="form-label">Date Of Birth <span class="text-danger">*</span></label>
+                            <label for="dob" class="form-label">Date Of Birth</label>
                             <input type="date" autocomplete="bday" wire:model="dob" id="dob"
                                 max="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
                                 class="form-control form-control-sm border border-1 p-2 {{ $errorClass['dob'] ?? '' }}">
-                            @if(isset($errorMessage['dob']))
+                            {{-- @if(isset($errorMessage['dob']))
                             <div class="text-danger">{{ $errorMessage['dob'] }}</div>
-                            @endif
+                            @endif --}}
                         </div>
 
                         <!-- Phone Number -->
@@ -272,7 +272,7 @@
                         </div>
 
                         <!-- WhatsApp Number -->
-                        <div class="mb-3 col-md-3">
+                        {{-- <div class="mb-3 col-md-3">
                             <label for="whatsapp_no" class="form-label">WhatsApp Number <span
                                     class="text-danger">*</span></label>
                             <div class="extention-group">
@@ -297,7 +297,7 @@
                             @if(isset($errorMessage['whatsapp_no']))
                             <div class="text-danger">{{ $errorMessage['whatsapp_no'] }}</div>
                             @endif
-                        </div>
+                        </div> --}}
 
                         <!-- Alternative Phone Number 1 -->
                         <div class="mb-3 col-md-3">
@@ -375,7 +375,7 @@
                         <div class="pt-0">
                             <div class="admin__content">
                                 <aside>
-                                    <nav class="text-uppercase font-weight-bold">Billing Address</nav>
+                                    <nav class="text-uppercase font-weight-bold"> Address</nav>
                                 </aside>
                                 <content>
                                     <div class="row mb-2 align-items-center">
@@ -442,7 +442,7 @@
                                     </div>
                                 </content>
                             </div>
-                            <div class="admin__content">
+                            {{-- <div class="admin__content">
                                 <aside>
 
                                 </aside>
@@ -461,8 +461,8 @@
                                         </div>
                                     </div>
                                 </content>
-                            </div>
-                            <div class="admin__content">
+                            </div> --}}
+                            {{-- <div class="admin__content">
                                 <aside>
                                     <nav class="text-uppercase font-weight-bold">Shipping Address</nav>
                                 </aside>
@@ -533,7 +533,7 @@
                                         </div>
                                     </div>
                                 </content>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>

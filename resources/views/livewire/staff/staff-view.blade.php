@@ -34,6 +34,7 @@
                                 @endif
                                 <div class="d-flex flex-column">
                                     <h6 class="mb-0">{{ $staff->prefix ." ".$staff->name }}</h6>
+                                    <p class="mb-1"><strong>Email:</strong> {{ ucwords($staff->branch->name ?? 'N/A') }}</p>
                                     <p class="mb-1"><strong>Branch:</strong> {{ ucwords($staff->branch->name ?? 'N/A') }}</p>
                                     <p class="mb-1"><strong>Designation:</strong> {{ ucwords($staff->designationDetails->name ?? 'N/A') }}</p>
                                 </div>

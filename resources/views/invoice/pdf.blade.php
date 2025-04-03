@@ -83,8 +83,8 @@
         <div class="d-flex justify-content-between align-items-start">
             <!-- Left Column (Personal Info) -->
             <div class="col-12">
-                <p><strong>Mr/Mrs:</strong> {{ $invoice->customer->name }}</p>
-                <p><strong>Rank:</strong> {{ $invoice->customer->employee_rank }}</p>
+                <p><strong>Mr/Mrs:</strong> {{ $invoice->customer?->name  ?? 'N/A'}}</p>
+                <p><strong>Rank:</strong> {{ $invoice->customer?->employee_rank ?? 'N/A' }}</p>
             </div>
 
             <!-- Right Column (Amount Details) -->

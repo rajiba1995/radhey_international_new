@@ -24,50 +24,19 @@
                     <div class="col-md-8">
                         <h6 class="badge bg-danger custom_danger_badge">Basic Information</h6>
                     </div>
-                    {{-- country --}}
-                    {{-- <div class="col-md-4">
-                        <div class="position-relative ms-3">
-                            <input type="text" wire:keyup="FindCountry($event.target.value)"
-                                wire:model.debounce.500ms="searchTerm"
-                                class="form-control form-control-sm border border-1 customer_input"
-                                placeholder="Search By Country">
-                            @error('searchTerm')
-                            <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                            @if(!empty($filteredCountries))
-                            <div id="fetch_customer_details" class="dropdown-menu show w-100"
-                                style="max-height: 200px; overflow-y: auto;">
-                                @foreach ($filteredCountries as $countries)
-                                <button class="dropdown-item" type="button"
-                                    wire:click="selectCountry({{ $countries->id }})">
-                                    {{$countries->title}}({{$countries->country_code}})
-                                </button>
-                                @endforeach
-                            </div>
-                            @endif
-                        </div>
-                    </div> --}}
                 </div>
             </div>
 
             <div class="card-body p-3">
                 <form wire:submit.prevent="save">
                     <div class="row mb-3">
-                        {{-- <div class="mt-4 col-md-1">
-                            <select name="" id="" class="form-control form-control-sm border border-1">
-                                <option value="">Select Prefix</option>
-                                @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
-                                <option value="{{$prefix}}">{{ $prefix }}</option>
-                                @endforeach
-                            </select>
-                        </div> --}}
                         <!-- Customer Details -->
                         <div class="mb-3 col-md-3">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <select wire:model="prefix" class="form-control form-control-sm border border-1"
                                     style="max-width: 60px;">
-                                    <option value="" selected hidden>Prefix</option>
+                                    <option value="" selected hidden>Prefix ↓<i class="fa-regular fa-arrow-down"></i></option>
                                     @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
                                     <option value="{{$prefix}}">{{ $prefix }}</option>
                                     @endforeach
@@ -112,7 +81,7 @@
                         </div>
 
                         <div class="mb-3 col-md-3">
-                            <label for="dob" class="form-label">Date Of Birth <span class="text-danger">*</span></label>
+                            <label for="dob" class="form-label">Date Of Birth </label>
                             <input type="date" wire:model="dob" id="dob"
                                 class="form-control form-control-sm border border-1 p-2"
                                 max="{{now()->format('Y-m-d')}}">
@@ -128,7 +97,7 @@
                                 <select wire:model="selectedCountryPhone"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
                                     class="form-control form-control-sm">
-                                    <option value="" selected hidden>Select Country</option>
+                                    <option value="" selected hidden>Select Country ↓</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}"
                                         data-length="{{$country->mobile_length}}">{{
@@ -151,7 +120,7 @@
 
 
 
-                        <div class="mb-3 col-md-3">
+                        {{-- <div class="mb-3 col-md-3">
                             <label for="whatsapp_no" class="form-label">WhatsApp Number <span
                                     class="text-danger">*</span></label>
                             <div class="extention-group">
@@ -168,13 +137,11 @@
                                     class="form-control form-control-sm border border-1 p-2"
                                     placeholder="Enter Whatsapp Number" maxLength="{{$mobileLengthWhatsapp}}">
                             </div>
-                            {{-- <input type="checkbox" id="is_wa_same" wire:change="SameAsMobile" value="0"
-                                @if($is_wa_same) checked @endif> --}}
-                            {{-- <label for="is_wa_same" class="form-check-label ms-2">Same as Phone Number</label> --}}
+                           
                             @error('whatsapp_no')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
-                        </div>
+                        </div> --}}
 
 
                         <div class="mb-3 col-md-3">
@@ -183,7 +150,7 @@
                                 <select wire:model="selectedCountryAlt1"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_1')"
                                     class="form-control form-control-sm">
-                                    <option value="" selected hidden>Select Country</option>
+                                    <option value="" selected hidden>Select Country ↓</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}" data-length="{{$country->mobile_length}}">{{
                                         $country->title }} ({{ $country->country_code
@@ -204,13 +171,13 @@
                             </div>
                         </div>
 
-                        <div class="mb-3 col-md-4">
+                        <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">alternative phone number 2 </label>
                             <div class="extention-group">
                                 <select wire:model="selectedCountryAlt2"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_2')"
                                     class="form-control form-control-sm">
-                                    <option value="" selected hidden>Select Country</option>
+                                    <option value="" selected hidden>Select Country ↓</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}" data-length="{{$country->mobile_length}}">{{
                                         $country->title }} ({{ $country->country_code
@@ -232,7 +199,7 @@
                         </div>
 
                         <div class="mb-3 col-md-4">
-                            <label for="image" class="form-label">Profile Image <span class="text-danger">*</span></label>
+                            <label for="image" class="form-label">Profile Image </label>
                             <input type="file" wire:model="image" id="image"
                                 class="form-control form-control-sm border border-1 p-2">
                             @if($tempImageUrl)
@@ -242,7 +209,7 @@
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="mb-3 col-md-4">
+                        {{-- <div class="mb-3 col-md-4">
                             <label for="verified_video" class="form-label">Verified Video</label>
                             <input type="file" wire:model="verified_video" id="verified_video"
                                 class="form-control form-control-sm border border-1 p-2">
@@ -250,11 +217,11 @@
                             @error('verified_video')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
-                        </div>
+                        </div> --}}
                     </div>
 
                     <div class="col-12 col-md-6 mb-3">
-                        <h6 class="badge bg-danger custom_danger_badge">Billing Address</h6>
+                        <h6 class="badge bg-danger custom_danger_badge"> Address</h6>
                     </div>
 
                     <div class="row">
@@ -263,7 +230,7 @@
                                     class="text-danger">*</span></label>
                             <input type="text" wire:model="billing_address" id="billing_address"
                                 class="form-control form-control-sm border border-1 p-2"
-                                placeholder="Enter Billing Address">
+                                placeholder="Enter Address">
                             @error('billing_address')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
@@ -311,7 +278,7 @@
                             @enderror
                         </div>
                     </div>
-                    <div class=" d-flex justify-content-between mt-4">
+                    {{-- <div class=" d-flex justify-content-between mt-4">
                         <h6 class="badge bg-danger custom_danger_badge mb-3">Shipping Address</h6>
                         <div class="d-flex align-item-center">
                             <input type="checkbox" wire:change="toggleShippingAddress"
@@ -320,10 +287,10 @@
                             <label for="isBillingShippingSame" class="form-check-label"><span
                                     class="badge bg-secondary">Shipping Address Same As Billing</span></label>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Shipping Address -->
-                    <div class="row mb-4">
+                    {{-- <div class="row mb-4">
                         <div class="mb-3 col-md-4">
                             <label for="shipping_address" class="form-label">Street Address <span
                                     class="text-danger">*</span></label>
@@ -381,7 +348,7 @@
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
+                    </div> --}}
 
                     {{-- <h6 class="badge bg-danger custom_danger_badge mb-3">Account Information</h6>
                     <div class="row">

@@ -21,7 +21,9 @@
         <div class="card-body">
             <div class="row">
                 <div class="col">
-                <a href="{{ route('admin.customers.edit', ['id' => $customer->id]) }}" class="btn btn-outline-info custom-btn-sm">Edit</a>
+                   <a href="{{ route('admin.customers.edit', ['id' => $customer->id]) }}" class="btn btn-outline-info custom-btn-sm">Edit</a>
+                   <a wire:click="redirectToOrderPage" class="btn btn-outline-info custom-btn-sm">Place Order</a>
+                   <a wire:click="redirectToOrderIndex" class="btn btn-outline-info custom-btn-sm">Order History</a>
                 </div>
             </div>
             <div class="row">
@@ -128,7 +130,7 @@
                     </div>
                 </div>
                 <div class="col-sm-6">
-                    <div class="form-group mb-3">
+                    {{-- <div class="form-group mb-3">
                         <h6>Shipping Address</h6>
                         <div class="row">
                         @if($customer->shippingAddressLatest)
@@ -144,9 +146,9 @@
                                 <p>No shipping address available.</p>
                             @endif
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="form-group mb-3">
-                        <h6>Billing Address</h6>
+                        <h6> Address</h6>
                         <div class="row">
                         @if($customer->billingAddressLatest)
                                 <p>{{ implode(', ', array_filter([

@@ -173,7 +173,7 @@
                                         @if ($user->profile_image)
                                         <img src="{{asset($user->profile_image)}}" alt="profile-image" width="85px">
                                         @else
-                                        <img src="{{asset(" assets/img/profile_image.png")}}" alt="profile-image"
+                                        <img src="{{asset("assets/img/profile_image.png")}}" alt="profile-image"
                                             width="85px">
                                         @endif
                                     </td>
@@ -208,7 +208,7 @@
                                             Edit
                                         </a>
                                         @if ($user->customer_order && count($user->customer_order) > 0)
-
+                                          
                                         @else
                                         <a class="btn btn-outline-danger select-md btn_outline"
                                             wire:click="confirmDelete({{ $user->id }})" @click.stop>Delete</a>

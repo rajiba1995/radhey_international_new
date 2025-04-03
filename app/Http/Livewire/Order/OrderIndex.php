@@ -62,17 +62,7 @@ class OrderIndex extends Component
         ), 'orders.csv');
     }
 
-    // public function updateStatus($status, $id)
-    // {
-    //     $order = Order::find($id); // Fetch the order by ID
-        
-    //     if ($order) {
-    //         $order->update(['status' => $status]);
-    //         session()->flash('success', 'Order status updated successfully.');
-    //     } else {
-    //         session()->flash('error', 'Order not found.');
-    //     }
-    // }
+   
 
     
     public function render()
@@ -154,26 +144,7 @@ class OrderIndex extends Component
         }, 'bill_' . $invoice->order->order_number . '.pdf');
     }  
 
-    // Cancelled Orders
-    // public function confirmCancelOrder($id = null)
-    // {
-    //     // dd($orderId);
-    //     if (!$id) {
-    //         throw new \Exception("Order ID is missing in confirmCancelOrder.");
-    //     }
     
-    //     $this->dispatch('confirmCancel', ['orderId' => $id]);
-    // }
-    
-
-    // public function cancelOrder($orderId = null)
-    // {
-    //     if (!$orderId) {
-    //         throw new \Exception("Order ID is required but received null.");
-    //     }
-        
-    //     dd("Order ID: " . $orderId);
-    // }
 
     public function confirmCancelOrder($id = null)
     {

@@ -123,9 +123,19 @@ class CustomerIndex extends Component
 
     public function render()
     {
-        $users = User::with('customer_order')->where('user_type',1)
+        // $users = User::with('customer_order')->where('user_type',1)
+        // ->when($this->search, function ($query) {
+        //     $query->where('name', 'like', '%' . $this->search . '%');
+        // })->latest()
+        // ->paginate(10);
+        $users = User::with('customer_order')->where('user_type', 1)
         ->when($this->search, function ($query) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where(function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhereHas('customer_order', function ($subQuery) {
+                          $subQuery->where('order_number', 'like', '%' . $this->search . '%');
+                      });
+            });
         })->latest()
         ->paginate(10);
         return view('livewire.customer-index', compact('users'));
