@@ -7,22 +7,22 @@
                 <div class="col-md-6 d-flex align-items-center">
                     <h6 class="badge bg-danger custom_danger_badge">Basic Information</h6>
                 </div>
-                <div class="col-md-6 align-items-center">
+                <div class="col-md-6 text-end">
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-10">
                             <select wire:model="selectedBusinessType" class="form-select me-2 form-control"
                                 aria-label="Default select example">
                                 <option selected hidden>Select Domain</option>
                                 @foreach ($Business_type as $domain)
                                 <option value="{{$domain->id}}">{{$domain->title}}</option>
                                 @endforeach
+
                             </select>
                             @error('selectedBusinessType')
-                                <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger error-message">{{ $message }}</div>
                             @enderror
                         </div>
-                       
-                        <div class="col-3">
+                        <div class="col-2">
                             <a href="{{ route('staff.index') }}" class="btn btn-cta btn-sm">
                                 <i class="material-icons text-white" style="font-size: 15px;">chevron_left</i> Back
                             </a>
@@ -45,7 +45,7 @@
                             @endforeach
                         </select>
                         @error('branch_id')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-3 col-md-4">
@@ -53,11 +53,11 @@
                         <select wire:model="team_lead" id="team_lead" class="form-control form-control-sm border border-1 p-2">
                             <option value="" selected hidden>Select Team Lead</option>
                             @foreach ($teamLeads as $lead)
-                                <option value="{{ $lead->id }}">{{ ucwords($lead->name) }}</option>
+                            <option value="{{ $lead->id }}">{{ ucwords($lead->name) }} {{ucwords($lead->surname)}}@if($lead->prof_name)({{ucwords($lead->prof_name)}})@endif</option>
                             @endforeach
                         </select>
                         @error('team_lead')
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-3 col-md-4">
@@ -73,7 +73,7 @@
                             <!-- Add more options as needed -->
                         </select>
                         @error('designation')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     
@@ -84,7 +84,7 @@
                         <input type="text" wire:model="emp_code" id="emp_code" 
                             class="form-control form-control-sm border border-1 p-2" placeholder="Enter Your Code" readonly>
                         @error('emp_code')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -102,10 +102,10 @@
                             class="form-control form-control-sm border border-1 p-2" placeholder="Enter Person Name">
                         </div>
                         @error('prefix')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                         @error('person_name')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -114,7 +114,7 @@
                         <input type="text" wire:model="surname" id="surname"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Enter Surname">
                         @error('surname')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -124,7 +124,7 @@
                             class="form-control form-control-sm border border-1 p-2"
                             placeholder="Enter Profession Name">
                         @error('prof_name')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -136,7 +136,7 @@
                         <input type="email" wire:model="email" id="email"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Enter Email">
                         @error('email')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-3 col-md-3">
@@ -157,7 +157,7 @@
                             class="form-control form-control-sm border border-1 p-2" placeholder="Staff Mobile No" maxLength={{ $mobileLengthPhone }}>
                         </div>
                         @error('mobile')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                         <div>
                             <input type="checkbox" id="is_whatsapp1" wire:model="isWhatsappPhone">
@@ -175,7 +175,7 @@
                         <input type="text" wire:model="aadhaar_number" id="aadhaar_number"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Staff Aadhaar Number">
                         @error('aadhaar_number')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -199,7 +199,7 @@
                             </div>
                         </div>
                         @error('whatsapp_no')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-3 col-md-3">
@@ -218,7 +218,7 @@
                             <input type="text" wire:model="alternative_phone_number_1" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLengthAlt1 }}>
                         </div>
                         @error('alternative_phone_number_1')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                         <div>
                             <input type="checkbox" id="is_whatsapp2" wire:model="isWhatsappAlt1">
@@ -241,7 +241,7 @@
                             <input type="text" wire:model="alternative_phone_number_2" class="form-control form-control-sm border border-1 p-2" placeholder="Alternative Phone No" maxLength={{ $mobileLengthAlt2 }}>
                         </div>
                         @error('alternative_phone_number_2')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                         <div>
                             <input type="checkbox" id="is_whatsapp3" wire:model="isWhatsappAlt2">
@@ -257,7 +257,7 @@
                         <input type="file" wire:model="image" id="image"
                             class="form-control form-control-sm border border-1 p-2">
                         @error('image')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                         @if ($image)
                         <div class="mt-2">
@@ -271,7 +271,7 @@
                         <input type="file" wire:model="passport_id_front" id="passport_id_front"
                             class="form-control form-control-sm border border-1 p-2">
                         @error('passport_id_front')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                         @if ($passport_id_front)
                         <div class="mt-2">
@@ -285,7 +285,7 @@
                         <input type="file" wire:model="passport_id_back" id="passport_id_back"
                             class="form-control form-control-sm border border-1 p-2">
                         @error('passport_id_back')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                         @if ($passport_id_back)
                         <div class="mt-2">
@@ -299,7 +299,7 @@
                         <input type="date" wire:model="passport_expiry_date" id="passport_expiry_date"
                             class="form-control form-control-sm border border-1 p-2">
                         @error('passport_expiry_date')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -314,7 +314,7 @@
                             class="form-control form-control-sm border border-1 p-2"
                             placeholder="Enter Passport Number">
                         @error('passport_no')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -323,7 +323,7 @@
                         <input type="date" wire:model="dob" id="dob"
                             class="form-control form-control-sm border border-1 p-2" max="{{now()->format('Y-m-d')}}">
                         @error('dob')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -332,7 +332,7 @@
                         <input type="date" wire:model="passport_issued_date" id="passport_issued_date"
                             class="form-control form-control-sm border border-1 p-2">
                         @error('passport_issued_date')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -345,7 +345,7 @@
                         <input type="visa_no" wire:model="visa_no" id="visa_no"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Enter Visa Number">
                         @error('visa_no')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -360,7 +360,7 @@
                             class="form-control form-control-sm border border-1 p-2"
                             placeholder="Enter Emergency Contact Name">
                         @error('emergency_contact_person')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -384,7 +384,7 @@
                             placeholder="Enter Emergency Mobile Number" maxLength={{ $mobileLengthEmergencyContact }}>
                         </div>
                         @error('emergency_mobile')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                         <div>
                             <input type="checkbox" id="is_whatsapp4" wire:model="isWhatsappEmergency">
@@ -418,7 +418,7 @@
                             </div>
                         </div>
                         @error('emergency_whatsapp')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -429,7 +429,7 @@
                             class="form-control form-control-sm border border-1 p-2"
                             placeholder="Enter Emergency Contact Address"></textarea>
                         @error('emergency_address')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -444,7 +444,7 @@
                         <input type="text" wire:model="account_holder_name"
                             class="form-control form-control-sm border border-1 p-2" placeholder="A/C Holder Name">
                         @error('account_holder_name')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -452,7 +452,7 @@
                         <input type="text" wire:model="bank_name"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Bank Name">
                         @error('bank_name')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -460,7 +460,7 @@
                         <input type="text" wire:model="branch_name"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Branch Name">
                         @error('branch_name')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4 mt-3">
@@ -468,7 +468,7 @@
                         <input type="number" wire:model="account_no"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Account No">
                         @error('account_no')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4 mt-3">
@@ -476,7 +476,7 @@
                         <input type="text" wire:model="ifsc" class="form-control form-control-sm border border-1 p-2"
                             placeholder="IFSC">
                         @error('ifsc')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -488,7 +488,7 @@
                         <input type="number" wire:model="monthly_salary"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Salary (30 Days)">
                         @error('monthly_salary')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -496,7 +496,7 @@
                         <input type="number" wire:model="daily_salary"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Bonus">
                         @error('daily_salary')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -504,7 +504,7 @@
                         <input type="number" wire:model="travel_allowance"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Past Salaries">
                         @error('travel_allowance')
-                        <div class="text-danger">{{ $message }}</div>
+                        <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -519,7 +519,7 @@
                         <textarea wire:model="address" class="form-control form-control-sm border border-1 p-2"
                             placeholder="Address"></textarea>
                         @error('address')
-                        <div class="text-danger">{{$message}}</div>
+                        <div class="text-danger error-message">{{$message}}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -527,7 +527,7 @@
                         <input type="text" wire:model="landmark"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Landmark">
                         @error('landmark')
-                        <div class="text-danger">{{$message}}</div>
+                        <div class="text-danger error-message">{{$message}}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -539,7 +539,7 @@
                         <input type="text" wire:model="state" class="form-control form-control-sm border border-1 p-2"
                             placeholder="State">
                         @error('state')
-                        <div class="text-danger">{{$message}}</div>
+                        <div class="text-danger error-message">{{$message}}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -547,7 +547,7 @@
                         <input type="text" wire:model="city" class="form-control form-control-sm border border-1 p-2"
                             placeholder="City">
                         @error('city')
-                        <div class="text-danger">{{$message}}</div>
+                        <div class="text-danger error-message">{{$message}}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -555,7 +555,7 @@
                         <input type="number" wire:model="pincode"
                             class="form-control form-control-sm border border-1 p-2" placeholder="Pincode">
                         @error('pincode')
-                        <div class="text-danger">{{$message}}</div>
+                        <div class="text-danger error-message">{{$message}}</div>
                         @enderror
                     </div>
 
@@ -564,7 +564,7 @@
                         <input type="text" wire:model="password"
                             class="form-control form-control-sm border border-1 p-2" placeholder="password">
                         @error('password')
-                        <div class="text-danger">{{$message}}</div>
+                        <div class="text-danger error-message">{{$message}}</div>
                         @enderror
                     </div>
 
@@ -574,13 +574,25 @@
                             placeholder="Country">
                         {{-- <input type="hidden" wire:model="password" value="yourPasswordHere"> --}}
                          @error('country')
-                        <div class="text-danger">{{$message}}</div>
+                        <div class="text-danger error-message">{{$message}}</div>
                         @enderror
                     </div>
                 </div> 
-                <button type="submit" class="btn btn-cta mt-4">Save</button>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-cta mt-4">Save</button>
+                </div>
         </div>
         </form>
     </div>
 </div>
 </div>
+<script>
+     window.addEventListener('error_message', event => {
+        setTimeout(() => {
+            let errorElement = document.querySelector(".error-message");
+            if (errorElement) {
+                errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }, 100);
+    });
+</script>

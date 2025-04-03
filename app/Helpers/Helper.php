@@ -112,25 +112,25 @@ class Helper
 
     public static function GetCustomerDetails($term)
     {
+        $auth = Auth::guard('admin')->user();
         if (!empty($term)) {
-            // dd($term);
-           return User::where('user_type', 1)
-                ->where('status', 1)
-                ->where(function ($query) use ($term) {
-                    $query->where('name', 'like', '%' . $term . '%')
-                        ->orWhere('phone', 'like', '%' . $term . '%')
-                        ->orWhere('whatsapp_no', 'like', '%' . $term . '%')
-                        ->orWhere('email', 'like', '%' . $term . '%');
-                })
-                ->take(20)
-                ->get();
-                $orders = Order::where('order_number', 'like', '%' . $term . '%')
-                    ->orWhereHas('customer', function ($query) {
-                        $query->where('name', 'like', '%' . $term . '%');
-                    })
-                    ->latest()
-                    ->take(1)
-                    ->get();
+            return User::where('user_type', 1)
+            ->where('status', 1)
+            ->where(function ($query) use ($term) {
+                $query->where('name', 'like', '%' . $term . '%')
+                    ->orWhere('phone', 'like', '%' . $term . '%')
+                    ->orWhere('whatsapp_no', 'like', '%' . $term . '%')
+                    ->orWhere('email', 'like', '%' . $term . '%')
+                    ->orWhereHas('orders', function ($q) use ($term) { // Include orders filter
+                        $q->where('order_number', 'like', '%' . $term . '%')
+                            ->orWhere('customer_name', 'like', '%' . $term . '%')
+                            ->orWhere('customer_email', 'like', '%' . $term . '%');
+                    });
+            })
+            // ->when(!$auth->is_super_admin, fn($query) => $query->where('created_by', $auth->id)) // Restrict non-admins
+            ->withCount('orders') // Optionally, count the orders for reference
+            ->take(20)
+            ->get();
 
         } else {
             // Reset results when the search term is empty

@@ -368,6 +368,7 @@ class StaffAdd extends Component
 
     public function render()
     {
+        $this->dispatch('error_message');
         return view('livewire.staff.staff-add');
     }
 }

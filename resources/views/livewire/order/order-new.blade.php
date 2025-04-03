@@ -57,7 +57,7 @@
                                 @endforeach
                             </select>
                             @if(isset($errorMessage['selectedBusinessType']))
-                            <div class="text-danger">{{ $errorMessage['selectedBusinessType'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['selectedBusinessType'] }}</div>
                             @endif
                         </div>
                         {{-- Display Order by and order number --}}
@@ -83,7 +83,7 @@
                                 @endforeach
                             </select>
                             @if(isset($errorMessage['salesman']))
-                            <div class="text-danger">{{ $errorMessage['salesman'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['salesman'] }}</div>
                             @endif
                         </div>
 
@@ -93,10 +93,10 @@
                             <input type="text" class="form-control form-control-sm text-center border border-1" disabled
                                 wire:model="order_number" value="{{ $order_number }}">
                             @if(isset($errorMessage['order_number']))
-                            <div class="text-danger">{{ $errorMessage['order_number'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['order_number'] }}</div>
                             @endif
                             {{-- @error('order_number')
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger error-message">{{ $message }}</div>
                             @enderror --}}
                         </div>
 
@@ -198,10 +198,10 @@
                                     placeholder="Enter customer name">
                             </div>
                             @if(isset($errorMessage['prefix']))
-                            <div class="text-danger">{{ $errorMessage['prefix'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['prefix'] }}</div>
                             @endif
                             @if(isset($errorMessage['name']))
-                            <div class="text-danger">{{ $errorMessage['name'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['name'] }}</div>
                             @endif
                         </div>
 
@@ -223,7 +223,7 @@
                                 class="form-control form-control-sm border border-1 p-2 {{ $errorClass['email'] ?? '' }}"
                                 placeholder="Enter email">
                             @if(isset($errorMessage['email']))
-                            <div class="text-danger">{{ $errorMessage['email'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['email'] }}</div>
                             @endif
                         </div>
 
@@ -233,7 +233,7 @@
                                 max="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
                                 class="form-control form-control-sm border border-1 p-2 {{ $errorClass['dob'] ?? '' }}">
                             @if(isset($errorMessage['dob']))
-                            <div class="text-danger">{{ $errorMessage['dob'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['dob'] }}</div>
                             @endif
                         </div>
 
@@ -263,7 +263,7 @@
                                 <!-- Error Message -->
                             </div>
                             @if(isset($errorMessage['phone']))
-                            <div class="text-danger">{{ $errorMessage['phone'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['phone'] }}</div>
                             @endif
                             <div>
                                 <input type="checkbox" id="is_whatsapp1" wire:model="isWhatsappPhone">
@@ -295,7 +295,7 @@
                                     placeholder="Enter WhatsApp Number" maxlength="{{ $mobileLengthWhatsapp }}">
                             </div>
                             @if(isset($errorMessage['whatsapp_no']))
-                            <div class="text-danger">{{ $errorMessage['whatsapp_no'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['whatsapp_no'] }}</div>
                             @endif
                         </div>
 
@@ -325,7 +325,7 @@
                                 <!-- Error Message -->
                             </div>
                             @if(isset($errorMessage['alternative_phone_number_1']))
-                            <div class="text-danger">{{ $errorMessage['alternative_phone_number_1'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['alternative_phone_number_1'] }}</div>
                             @endif
                             <div>
                                 <input type="checkbox" id="is_whatsapp2" wire:model="isWhatsappAlt1">
@@ -357,7 +357,7 @@
                                     placeholder="Alternative Phone No" maxlength="{{ $mobileLengthAlt2 }}">
                             </div>
                             @if(isset($errorMessage['alternative_phone_number_2']))
-                            <div class="text-danger">{{ $errorMessage['alternative_phone_number_2'] }}</div>
+                            <div class="text-danger error-message">{{ $errorMessage['alternative_phone_number_2'] }}</div>
                             @endif
                             <div>
                                 <input type="checkbox" id="is_whatsapp3" wire:model="isWhatsappAlt2">
@@ -387,7 +387,7 @@
                                             <input type="text" id="billing_addr" class="form-control form-control-sm"
                                                 wire:model="billing_address" value="">
                                             @if(isset($errorMessage['billing_address']))
-                                            <div class="text-danger">{{ $errorMessage['billing_address'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['billing_address'] }}</div>
                                             @endif
                                         </div>
                                     </div>
@@ -400,7 +400,7 @@
                                                 class="form-control form-control-sm" wire:model="billing_landmark"
                                                 value="">
                                             @if(isset($errorMessage['billing_landmark']))
-                                            <div class="text-danger">{{ $errorMessage['billing_landmark'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['billing_landmark'] }}</div>
                                             @endif
                                         </div>
                                     </div>
@@ -413,7 +413,7 @@
                                             <input type="text" id="billing_city" class="form-control form-control-sm"
                                                 wire:model="billing_city" value="">
                                             @if(isset($errorMessage['billing_city']))
-                                            <div class="text-danger">{{ $errorMessage['billing_city'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['billing_city'] }}</div>
                                             @endif
                                         </div>
                                     </div>
@@ -426,7 +426,7 @@
                                             <input type="text" id="billing_country" class="form-control form-control-sm"
                                                 wire:model="billing_country" value="">
                                             @if(isset($errorMessage['billing_country']))
-                                            <div class="text-danger">{{ $errorMessage['billing_country'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['billing_country'] }}</div>
                                             @endif
                                         </div>
                                         <div class="col-3 text-end">
@@ -436,7 +436,7 @@
                                             <input type="text" id="billing_pin" class="form-control form-control-sm"
                                                 wire:model="billing_pin" value="">
                                             @if(isset($errorMessage['billing_pin']))
-                                            <div class="text-danger">{{ $errorMessage['billing_pin'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['billing_pin'] }}</div>
                                             @endif
                                         </div>
                                     </div>
@@ -477,7 +477,7 @@
                                                 wire:model="shipping_address" value="" @if ($shipping_address) disabled
                                                 @endif>
                                             @if(isset($errorMessage['shipping_address']))
-                                            <div class="text-danger">{{ $errorMessage['shipping_address'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['shipping_address'] }}</div>
                                             @endif
                                         </div>
                                     </div>
@@ -490,7 +490,7 @@
                                                 class="form-control form-control-sm" wire:model="shipping_landmark"
                                                 value="" @if ($shipping_landmark) disabled @endif>
                                             @if(isset($errorMessage['shipping_landmark']))
-                                            <div class="text-danger">{{ $errorMessage['shipping_landmark'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['shipping_landmark'] }}</div>
                                             @endif
                                         </div>
                                     </div>
@@ -504,7 +504,7 @@
                                                 wire:model="shipping_city" value="" @if ($shipping_city) disabled
                                                 @endif>
                                             @if(isset($errorMessage['shipping_city']))
-                                            <div class="text-danger">{{ $errorMessage['shipping_city'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['shipping_city'] }}</div>
                                             @endif
                                         </div>
                                     </div>
@@ -518,7 +518,7 @@
                                                 class="form-control form-control-sm" wire:model="shipping_country"
                                                 value="" @if ($shipping_country) disabled @endif>
                                             @if(isset($errorMessage['shipping_country']))
-                                            <div class="text-danger">{{ $errorMessage['shipping_country'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['shipping_country'] }}</div>
                                             @endif
                                         </div>
                                         <div class="col-3 text-end">
@@ -528,7 +528,7 @@
                                             <input type="text" id="shipping_pin" class="form-control form-control-sm"
                                                 wire:model="shipping_pin" value="" @if ($shipping_pin) disabled @endif>
                                             @if(isset($errorMessage['shipping_pin']))
-                                            <div class="text-danger">{{ $errorMessage['shipping_pin'] }}</div>
+                                            <div class="text-danger error-message">{{ $errorMessage['shipping_pin'] }}</div>
                                             @endif
                                         </div>
                                     </div>
@@ -605,7 +605,7 @@
                                 @endif
                             </select>
                             @error("items.".$index.".category")
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger error-message">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -636,7 +636,7 @@
                                 </div>
                                 @endif
                                 @error("items.$index.searchproduct")
-                                <div class="text-danger">{{ $message }}</div>
+                                <div class="text-danger error-message">{{ $message }}</div>
                                 @enderror
                             </div>
                             <!-- Catalogue -->
@@ -656,7 +656,7 @@
                                     @endforeach
                                 </select>
                                 @error("items." .$index. ".selectedCatalogue")
-                                <div class="text-danger">{{ $message }}</div>
+                                <div class="text-danger error-message">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -668,7 +668,7 @@
                                     min="1"
                                     max="{{ isset($items[$index]['selectedCatalogue']) && isset($maxPages[$index][$items[$index]['selectedCatalogue']]) ? $maxPages[$index][$items[$index]['selectedCatalogue']] : '' }}">
                                 @error("items.".$index.".page_number")
-                                <div class="text-danger">{{ $message }}</div>
+                                <div class="text-danger error-message">{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -684,7 +684,7 @@
                                     @endforeach
                                 </select>
                                 @error("items.".$index.".page_item")
-                                <div class="text-danger">{{ $message }}</div>
+                                <div class="text-danger error-message">{{ $message }}</div>
                                 @enderror
                             </div>
                             @endif
@@ -723,7 +723,7 @@
                                             class="form-control form-control-sm border border-1 customer_input measurement_input"
                                             wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
                                         @error('items.' . $index . '.get_measurements.' .$measurement['id'])
-                                        <div class="text-danger">{{ $message }}</div>
+                                        <div class="text-danger error-message">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     @endforeach
@@ -741,7 +741,7 @@
                                     wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"
                                     placeholder="Search by fabric name" id="searchFabric_{{ $index }}">
                                 @error("items.". $index .".searchTerm")
-                                <div class="text-danger">{{ $message }}</div>
+                                <div class="text-danger error-message">{{ $message }}</div>
                                 @enderror
 
                                 @if(!empty($items[$index]['searchResults']))
@@ -780,11 +780,11 @@
 
                                 <!-- Error Messages -->
                                 @if(session()->has('errorPrice.' . $index))
-                                <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
+                                <div class="text-danger error-message">{{ session('errorPrice.' . $index) }}</div>
                                 @endif
 
                                 @error('items.' . $index . '.price')
-                                <div class="text-danger">{{ $message }}</div>
+                                <div class="text-danger error-message">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -809,11 +809,11 @@
                             </div>
                             <!-- Error Messages -->
                             @if(session()->has('errorPrice.' . $index))
-                            <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
+                            <div class="text-danger error-message">{{ session('errorPrice.' . $index) }}</div>
                             @endif
 
                             @error('items.' . $index . '.price')
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger error-message">{{ $message }}</div>
                             @enderror
                         </div>
                         @endif
@@ -823,7 +823,7 @@
                                 class="form-control form-control-sm border border-1 customer_input"
                                 placeholder="Enter Product Remarks"></textarea>
                             @error("items.".$index.".remarks")
-                            <div class="text-danger">{{ $message }}</div>
+                            <div class="text-danger error-message">{{ $message }}</div>
                             @enderror
                         </div>
                         @endforeach
@@ -904,7 +904,7 @@
                                     @error('order_number')
                                     <tr>
                                         <td colspan="2">
-                                            <div class="text-danger">{{ $message }}</div>
+                                            <div class="text-danger error-message">{{ $message }}</div>
                                         </td>
                                     </tr>
                                     @enderror --}}
@@ -939,30 +939,14 @@
 </div>
 
 <script>
-    //     $(document).ready(function(){
-    //     $(document).on('click', '#nextTab', function(){
-    //         alert('hi');
-    //         window.scrollTo({
-    //             top: 0,
-    //             behavior: 'smooth'
-    //         });
-    //     });
-    // });
-//     document.addEventListener("DOMContentLoaded", function() {
-//   document.addEventListener("click", function(event) {
-//     if (event.target.closest("#nextTab")) {
-//       setTimeout(function () {
-//         const scrollContainer = document.querySelector('.ps'); // replace with your class or ID
-//         if (scrollContainer) {
-//           scrollContainer.scrollTo({
-//             top: 0,
-//             behavior: "smooth"
-//           });
-//         }
-//       }, 300);
-//     }
-//   });
-// });
+  window.addEventListener('error_message', event => {
+        setTimeout(() => {
+            let errorElement = document.querySelector(".error-message");
+            if (errorElement) {
+                errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }, 100);
+    });
 
 document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener("click", function(event) {

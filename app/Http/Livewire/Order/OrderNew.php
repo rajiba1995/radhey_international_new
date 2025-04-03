@@ -786,6 +786,7 @@ class OrderNew extends Component
                     'country_code_alt_2'  => $this->selectedCountryAlt2,
                     'alternative_phone_number_2' => $this->alternative_phone_number_2,
                     'user_type' => 1, // Customer
+                    'created_by' => auth()->guard('admin')->user()->id, // Customer
                 ]);
              } 
                 // Store Billing Address for the new user
@@ -980,7 +981,7 @@ class OrderNew extends Component
                 
                 $orderItem->product_name = $item['searchproduct'];
                 $orderItem->total_price = $item['price'];
-                $orderItem->remarks  = $item['remarks'];
+                $orderItem->remarks  = isset($item['remarks'])?$item['remarks']:"";
                 $orderItem->piece_price = $item['price'];
                 $orderItem->quantity = 1;
                 $orderItem->fabrics = $fabric_data ? $fabric_data->id : "";
@@ -1358,7 +1359,7 @@ class OrderNew extends Component
 
     public function render()
     {
-     
+        $this->dispatch('error_message');
         return view('livewire.order.order-new', [
             'categories' => $this->categories,
         ]);

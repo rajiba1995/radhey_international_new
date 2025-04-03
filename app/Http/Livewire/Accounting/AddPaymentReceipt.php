@@ -9,6 +9,7 @@ use App\Models\PaymentCollection;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use App\Interfaces\AccountingRepositoryInterface;
 
 class AddPaymentReceipt extends Component
@@ -18,11 +19,13 @@ class AddPaymentReceipt extends Component
     public $errorMessage = [];
     public $activePayementMode = 'cash';
     public $staffs =[];
+    public $my_designation;
     public $payment_voucher_no;
     public $payment_id;
+    public $new_customer = false;
     public $payment_collection_id = "";
     public $readonly = "readonly";
-    public $customer,$customer_id, $staff_id, $amount, $voucher_no, $payment_date, $payment_mode, $chq_utr_no, $bank_name, $receipt_for = "Customer";
+    public $customer,$customer_id, $customer_name, $staff_id, $amount, $voucher_no, $payment_date, $payment_mode, $chq_utr_no, $bank_name, $receipt_for = "Customer";
 
     public function boot(AccountingRepositoryInterface $accountingRepository)
     {
@@ -39,7 +42,7 @@ class AddPaymentReceipt extends Component
      
         $this->payment_voucher_no = $payment_voucher_no;
         $this->voucher_no = 'PAYRECEIPT'.time();
-        $this->staffs = User::where('user_type', 0)->where('designation', 2)->select('name', 'id')->orderBy('name', 'ASC')->get();
+        $this->staffs = User::where('user_type', 0)->whereIn('designation', [2,12])->select('name', 'id','designation')->orderBy('name', 'ASC')->get();
         if($payment_collection){
             $this->payment_collection_id = $payment_collection->id;
             $this->customer = $payment_collection->customer->name;
@@ -58,15 +61,26 @@ class AddPaymentReceipt extends Component
             $this->readonly = "";
         }
     }
+
+    public function changeNewCustomer(){
+        // dd($this->new_customer); // This will show true or false
+    }
    
     public function submitForm()
     {
         $this->reset(['errorMessage']);
         $this->errorMessage = array();
         // Validate customer
-        if (empty($this->customer_id)) {
-           $this->errorMessage['customer_id'] = 'Please select a customer.';
+        if($this->new_customer){
+            if (empty($this->customer_name)) {
+                $this->errorMessage['customer_name'] = 'Please enter customer name.';
+            }
+        }else{
+            if (empty($this->customer_id)) {
+                $this->errorMessage['customer_id'] = 'Please select a customer.';
+            }
         }
+        
 
         // Validate collected by
         if (empty($this->staff_id)) {
@@ -107,6 +121,13 @@ class AddPaymentReceipt extends Component
         }else{
             try {
                 DB::beginTransaction();
+                if($this->new_customer){
+                    $user = new User;
+                    $user->name = ucwords($this->customer_name);
+                    $user->save();
+                    $this->customer_id = $user->id;
+                }
+
                 //code...
                 $this->accountingRepository->StorePaymentReceipt($this->all());
                 session()->flash('success', 'Payment receipt added successfully.');
@@ -154,6 +175,7 @@ class AddPaymentReceipt extends Component
     }
     public function render()
     {
+        $this->staff_id = Auth::guard('admin')->user()->id;
         return view('livewire.accounting.add-payment-receipt');
     }
 }

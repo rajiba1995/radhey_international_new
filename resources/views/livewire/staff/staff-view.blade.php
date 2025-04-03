@@ -52,7 +52,7 @@
                                     @if (isset($staff->address) && ($staff->address->address || $staff->address->city))
                                       <p class="mb-1"><i class="fas fa-map-marker-alt" style="font-size: 14px; color: #6c757d;"></i> {{ $staff->address->address ?? 'N/A' }}, {{ $staff->address->city ?? 'N/A' }}</p>  
                                     @endif
-                                    <p class="mb-1">  <i class="fas fa-calendar-alt"></i> {{ $staff->dob }}</p>
+                                    <p class="mb-1">  <i class="fas fa-calendar-alt"></i> {{ date('d-m-Y', strtotime($staff->dob)) }}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <h6 class="mb-1">Emergency Contact Info</h6>

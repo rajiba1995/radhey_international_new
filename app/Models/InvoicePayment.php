@@ -20,4 +20,5 @@ class InvoicePayment extends Model
     public function invoice(){
         return $this->belongsTo(Invoice::class, 'invoice_id ', 'id');
     }
+    
 }

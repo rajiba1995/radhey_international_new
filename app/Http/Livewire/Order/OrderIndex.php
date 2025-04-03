@@ -10,6 +10,8 @@ use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\OrdersExport;
 use App\Models\Invoice;
+
+use Illuminate\Support\Facades\Auth;
 // use Barryvdh\DomPDF\Facade as PDF;
 // use Barryvdh\DomPDF\PDF;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -25,6 +27,7 @@ class OrderIndex extends Component
     public $invoiceId;
     public $orderId;
     public $totalPrice;
+    public $auth;
     
     // protected $listeners = ['cancelOrder'];
     protected $listeners = ['cancelOrder'];
@@ -77,54 +80,54 @@ class OrderIndex extends Component
     
     public function render()
     {
-        // Fetch users for the dropdown
-        // $users = User::all();
-        $this->usersWithOrders = User::whereHas('orders')->get();
+        $placed_by = User::where('user_type', 0)->get();
+        $auth = Auth::guard('admin')->user();
+
+        if($auth->is_super_admin){
+            $wonOrders = order::get()->pluck('created_by')->toArray();
+        }else{
+            // Fetch orders
+            $wonOrders = $auth->orders(); // Start the query
+            // dd($wonOrders);
+            // If the user is not a super admin, filter by `created_by`
+            if (!$auth->is_super_admin) {
+                $wonOrders->where('created_by', $auth->id);
+            }
+            // Execute the query
+            $wonOrders = $wonOrders->get()->pluck('created_by')->toArray();
+        }
+        
+       
+        $this->usersWithOrders = $wonOrders;
         $orders = Order::query()
-        // ->where('status', '!=' , 'Cancelled')
-        ->when($this->customer_id, function ($query) { // If customer_id is set, filter orders
-            $query->where('customer_id', $this->customer_id);
-        })
+        // ->where('status', '!=' , 'Cancelled') // Uncomment if needed
+        ->when($this->customer_id, fn($query) => $query->where('customer_id', $this->customer_id)) // Filter by customer ID
         ->when($this->search, function ($query) {
             $query->where('order_number', 'like', '%' . $this->search . '%')
                   ->orWhereHas('customer', function ($q) {
-                      $q->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('email', 'like', '%' . $this->search . '%')
-                        ->orWhere('phone', 'like', '%' . $this->search . '%');
+                      $q->where(function ($subQuery) {
+                          $subQuery->where('name', 'like', '%' . $this->search . '%')
+                                   ->orWhere('email', 'like', '%' . $this->search . '%')
+                                   ->orWhere('phone', 'like', '%' . $this->search . '%')
+                                   ->orWhere('whatsapp_no', 'like', '%' . $this->search . '%'); 
+                      });
                   });
         })
-        ->when($this->created_by, function ($query) {
-            $query->where('created_by', $this->created_by);
-        })
-        ->when($this->start_date, function ($query) {
-            $query->whereDate('created_at', '>=', $this->start_date);
-        })
-        ->when($this->end_date, function ($query) {
-            $query->whereDate('created_at', '<=', $this->end_date);
-        })
+        ->when($this->created_by, fn($query) => $query->where('created_by', $this->created_by)) // Filter by creator
+        ->when($this->start_date, fn($query) => $query->whereDate('created_at', '>=', $this->start_date)) // Start date filter
+        ->when($this->end_date, fn($query) => $query->whereDate('created_at', '<=', $this->end_date)) // End date filter
+        ->when(!$auth->is_super_admin, fn($query) => $query->where('created_by', $auth->id)) // Restrict non-admins
         ->orderBy('created_at', 'desc')
         ->paginate(20);
 
         return view('livewire.order.order-index', [
+            'placed_by' => $placed_by,
             'orders' => $orders,
             'usersWithOrders' => $this->usersWithOrders, 
         ]);
     }
 
-    public function downloadInvoice($orderId)
-    {
-        $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
-                    ->where('order_id', $orderId)
-                    ->firstOrFail();
-    
-        // Generate PDF
-        $pdf = PDF::loadView('invoice.pdf', compact('invoice'));
-    
-        // Download the PDF
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->output();
-        }, 'invoice_' . $invoice->invoice_no . '.pdf');
-    } 
+   
     public function downloadOrderInvoice($orderId)
     {
         $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])

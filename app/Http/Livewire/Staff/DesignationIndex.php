@@ -41,13 +41,13 @@ class DesignationIndex extends Component
         if ($this->designationId) {
             // Update existing designation
             $designation = Designation::findOrFail($this->designationId);
-            $designation->update(['name' => $this->name]);
+            $designation->update(['name' => strtoupper($this->name)]);
             // Sync roles with the designation
             $designation->roles()->sync($this->roles);  // This syncs the roles 
             Session::flash('message', 'Designation updated successfully');
         }else {
             // Create new designation
-            $designation = Designation::create(['name' => $this->name]);
+            $designation = Designation::create(['name' => strtoupper($this->name)]);
 
             if (!empty($this->roles)) {
                 $designation->roles()->sync($this->roles); // Sync roles to the new designation

@@ -32,28 +32,42 @@
                             <div class="col-sm-4">
                                 <div class="form-group mb-3">
                                     <label for="" id="">Customer <span class="text-danger">*</span></label>
-
+                                    
                                     <div class="position-relative">
-                                        <input type="text" wire:keyup="FindCustomer($event.target.value)"
-                                            wire:model="customer"
+                                        @if($new_customer)
+                                            <input type="text"
+                                            wire:model="customer_name"
                                             class="form-control form-control-sm border border-1 customer_input"
-                                            placeholder="Search customer by name, mobile, order ID" {{$readonly}}>
-                                        <input type="hidden" wire:model="customer_id" value="">
-                                        @if(isset($errorMessage['customer_id']))
-                                        <div class="text-danger">{{ $errorMessage['customer_id'] }}</div>
+                                            placeholder="Please enter customer name">
+                                            @if(isset($errorMessage['customer_name']))
+                                            <div class="text-danger">{{ $errorMessage['customer_name'] }}</div>
+                                            @endif
+                                        @else
+                                            <input type="text" wire:keyup="FindCustomer($event.target.value)"
+                                                wire:model="customer"
+                                                class="form-control form-control-sm border border-1 customer_input"
+                                                placeholder="Search customer by name, mobile, order ID" {{$readonly}}>
+                                            <input type="hidden" wire:model="customer_id" value="">
+                                            @if(isset($errorMessage['customer_id']))
+                                            <div class="text-danger">{{ $errorMessage['customer_id'] }}</div>
+                                            @endif
+                                            @if(!empty($searchResults))
+                                            <div id="fetch_customer_details" class="dropdown-menu show w-100"
+                                                style="max-height: 200px; overflow-y: auto;">
+                                                @foreach ($searchResults as $customer)
+                                                <button class="dropdown-item" type="button"
+                                                    wire:click="selectCustomer({{ $customer->id }})">
+                                                    <img src="{{ $customer->profile_image ? asset($customer->profile_image) : asset('assets/img/user.png') }}"
+                                                        alt=""> {{ ucfirst($customer->prefix . " ".$customer->name) }} ({{ $customer->phone }})
+                                                </button>
+                                                @endforeach
+                                            </div>
+                                            @endif
                                         @endif
-                                        @if(!empty($searchResults))
-                                        <div id="fetch_customer_details" class="dropdown-menu show w-100"
-                                            style="max-height: 200px; overflow-y: auto;">
-                                            @foreach ($searchResults as $customer)
-                                            <button class="dropdown-item" type="button"
-                                                wire:click="selectCustomer({{ $customer->id }})">
-                                                <img src="{{ $customer->profile_image ? asset($customer->profile_image) : asset('assets/img/user.png') }}"
-                                                    alt=""> {{ ucfirst($customer->prefix . " ".$customer->name) }} ({{ $customer->phone }})
-                                            </button>
-                                            @endforeach
-                                        </div>
-                                        @endif
+                                    </div>
+                                    <div class="is-filled text-end">
+                                        <input type="checkbox" id="new_customer" wire:model="new_customer" wire:change="changeNewCustomer">
+                                        <label for="new_customer" class="mt-0 text-primary cursor-pointer">New Customer</label>
                                     </div>
                                 </div>
                             </div>

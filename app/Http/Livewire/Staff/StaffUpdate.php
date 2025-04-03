@@ -47,7 +47,7 @@ class StaffUpdate extends Component
         $this->countries = Country::where('status',1)->get();
         $this->Business_type = BusinessType::all();
         $this->branchNames = Branch::all();
-        $this->teamLeads = User::where('user_type',0)->get();
+        $this->teamLeads = User::where('user_type',0)->where('id', '!=', $staff_id)->get();
         // dd( $this->staff->designationDetails->id);
         $this->designations = Designation::latest()->get();
          // If staff exists, assign the data to the public variables
@@ -256,189 +256,185 @@ class StaffUpdate extends Component
     
 
     public function update(){
-        // dd($this->all());
-        // if ($this->parent_id == Auth::id()) {
-        //     session()->flash('error', 'You cannot assign yourself as your own parent.');
-        //     return;
-        // }
         $this->validate();
 
-    try {
-       // Store the files
-       $imagePath = $this->image && $this->image instanceof \Illuminate\Http\UploadedFile ? $this->image->store('images', 'public') : $this->staff->image;
-       $passportIdFrontPath = $this->passport_id_front && $this->passport_id_front instanceof \Illuminate\Http\UploadedFile ? $this->passport_id_front->store('user_ids', 'public') : $this->staff->passport_id_front;
-       $passportIdBackPath = $this->passport_id_back && $this->passport_id_back instanceof \Illuminate\Http\UploadedFile ? $this->passport_id_back->store('user_ids', 'public') : $this->staff->passport_id_back;
-       
-         // Update the staff record
-        $this->staff->update([
-            'country_id'=> $this->selectedCountryId,
-            'branch_id'=> $this->selectedBranchId,
-            'designation'=> $this->designation,
-            'parent_id'  => $this->team_lead,
-            'prefix'   => $this->prefix,
-            'name' => $this->person_name ?? '',
-            'emp_code' => $this->emp_code ?? '',
-            'surname' => $this->surname ?? '',
-            'prof_name' => $this->prof_name ?? '',
-            'dob' => $this->dob ?? '',
-            'business_type' => $this->selectedBusinessType ?? '',
-            'email' => $this->email ?? '',
-            'country_code_phone' => $this->selectedCountryPhone,
-            'phone' => $this->mobile ?? '',
-            'aadhar_name' => $this->aadhaar_number ?? '',
-            'country_code_whatsapp' => $this->selectedCountryWhatsapp,
-            'whatsapp_no' => $this->whatsapp_no ?? '',
-            'image' => $imagePath ?? '',
-            'passport_id_front' => $passportIdFrontPath ?? '',
-            'passport_id_back' => $passportIdBackPath ?? '',
-            'passport_no' => $this->passport_no ?? '',
-            'visa_no' => $this->visa_no ?? '',
-            'passport_expiry_date' => !empty($this->passport_expiry_date) ? $this->passport_expiry_date : null,
-            'passport_issued_date' => !empty($this->passport_issued_date) ? $this->passport_issued_date : null,
-            'emergency_contact_person'=> $this->emergency_contact_person,
-            'country_code_emergency_mobile' => $this->selectedCountryEmergencyContact,
-            'emergency_mobile' => $this->emergency_mobile,
-            'country_code_emergency_whatsapp' => $this->selectedCountryEmergencyWhatsapp,
-            'emergency_whatsapp' => $this->emergency_whatsapp,
-            'emergency_address' => $this->emergency_address,
-            // 'country_code' => $this->country_code,
-            'country_code_alt_1' => $this->selectedCountryAlt1,
-            'alternative_phone_number_1' => $this->alternative_phone_number_1,
-            'country_code_alt_2' => $this->selectedCountryAlt2,
-            'alternative_phone_number_2' => $this->alternative_phone_number_2,
-            
-        ]);
+        try {
+        // Store the files
+        $imagePath = $this->image && $this->image instanceof \Illuminate\Http\UploadedFile ? $this->image->store('images', 'public') : $this->staff->image;
+        $passportIdFrontPath = $this->passport_id_front && $this->passport_id_front instanceof \Illuminate\Http\UploadedFile ? $this->passport_id_front->store('user_ids', 'public') : $this->staff->passport_id_front;
+        $passportIdBackPath = $this->passport_id_back && $this->passport_id_back instanceof \Illuminate\Http\UploadedFile ? $this->passport_id_back->store('user_ids', 'public') : $this->staff->passport_id_back;
+        
+            // Update the staff record
+            $this->staff->update([
+                'country_id'=> $this->selectedCountryId,
+                'branch_id'=> $this->selectedBranchId,
+                'designation'=> $this->designation,
+                'parent_id'  => $this->team_lead,
+                'prefix'   => $this->prefix,
+                'name' => $this->person_name ?? '',
+                'emp_code' => $this->emp_code ?? '',
+                'surname' => $this->surname ?? '',
+                'prof_name' => $this->prof_name ?? '',
+                'dob' => $this->dob ?? '',
+                'business_type' => $this->selectedBusinessType ?? '',
+                'email' => $this->email ?? '',
+                'country_code_phone' => $this->selectedCountryPhone,
+                'phone' => $this->mobile ?? '',
+                'aadhar_name' => $this->aadhaar_number ?? '',
+                'country_code_whatsapp' => $this->selectedCountryWhatsapp,
+                'whatsapp_no' => $this->whatsapp_no ?? '',
+                'image' => $imagePath ?? '',
+                'passport_id_front' => $passportIdFrontPath ?? '',
+                'passport_id_back' => $passportIdBackPath ?? '',
+                'passport_no' => $this->passport_no ?? '',
+                'visa_no' => $this->visa_no ?? '',
+                'passport_expiry_date' => !empty($this->passport_expiry_date) ? $this->passport_expiry_date : null,
+                'passport_issued_date' => !empty($this->passport_issued_date) ? $this->passport_issued_date : null,
+                'emergency_contact_person'=> $this->emergency_contact_person,
+                'country_code_emergency_mobile' => $this->selectedCountryEmergencyContact,
+                'emergency_mobile' => $this->emergency_mobile,
+                'country_code_emergency_whatsapp' => $this->selectedCountryEmergencyWhatsapp,
+                'emergency_whatsapp' => $this->emergency_whatsapp,
+                'emergency_address' => $this->emergency_address,
+                // 'country_code' => $this->country_code,
+                'country_code_alt_1' => $this->selectedCountryAlt1,
+                'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                'country_code_alt_2' => $this->selectedCountryAlt2,
+                'alternative_phone_number_2' => $this->alternative_phone_number_2,
+                
+            ]);
 
-        if($this->isWhatsappPhone){
-            $existingRecord = UserWhatsapp::where('whatsapp_number', $this->mobile)
-                                                ->where('user_id','!=', $this->staff->id)
-                                                ->exists();
-        if(!$existingRecord){
-            UserWhatsapp::updateOrCreate(
-                ['user_id' => $this->staff->id, 'whatsapp_number' => $this->mobile],
-                ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
-            ); 
-         } 
-        }else{
-            if(!empty($this->mobile)){
-                UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->mobile)->delete();
-            }
-        }
-
-
-        if($this->isWhatsappAlt1){
-            $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_1)
+            if($this->isWhatsappPhone){
+                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->mobile)
                                                     ->where('user_id','!=', $this->staff->id)
                                                     ->exists();
-        if(!$existingRecord){
-            UserWhatsapp::updateOrCreate(
-                ['user_id' => $this->staff->id, 'whatsapp_number' => $this->alternative_phone_number_1],
-                ['country_code' => $this->selectedCountryAlt1, 'updated_at' => now()]
-            ); 
-         }
-        }else{
-            if(!empty($this->alternative_phone_number_1)){
-                UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->alternative_phone_number_1)->delete();
+            if(!$existingRecord){
+                UserWhatsapp::updateOrCreate(
+                    ['user_id' => $this->staff->id, 'whatsapp_number' => $this->mobile],
+                    ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
+                ); 
+            } 
+            }else{
+                if(!empty($this->mobile)){
+                    UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->mobile)->delete();
+                }
             }
-        }
 
-        if($this->isWhatsappAlt2){
-            $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_2)
-                                                    ->where('user_id','!=', $this->staff->id)
-                                                    ->exists();
-        if(!$existingRecord){
-            UserWhatsapp::updateOrCreate(
-                ['user_id' => $this->staff->id, 'whatsapp_number' => $this->alternative_phone_number_2],
-                ['country_code' => $this->selectedCountryAlt2, 'updated_at' => now()]
-            ); 
-        }
-        }else{
-            if(!empty($this->alternative_phone_number_2)){
-                UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->alternative_phone_number_2)->delete();
+
+            if($this->isWhatsappAlt1){
+                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_1)
+                                                        ->where('user_id','!=', $this->staff->id)
+                                                        ->exists();
+            if(!$existingRecord){
+                UserWhatsapp::updateOrCreate(
+                    ['user_id' => $this->staff->id, 'whatsapp_number' => $this->alternative_phone_number_1],
+                    ['country_code' => $this->selectedCountryAlt1, 'updated_at' => now()]
+                ); 
             }
-        }
-
-        if($this->isWhatsappEmergency){
-            $existingRecord = UserWhatsapp::where('whatsapp_number', $this->emergency_mobile)
-                                                    ->where('user_id','!=', $this->staff->id)
-                                                    ->exists();
-        if(!$existingRecord){
-            UserWhatsapp::updateOrCreate(
-                ['user_id' => $this->staff->id, 'whatsapp_number' => $this->emergency_mobile],
-                ['country_code' => $this->selectedCountryEmergencyContact, 'updated_at' => now()]
-            ); 
-         }
-        }else{
-            if(!empty($this->emergency_mobile)){
-                UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->emergency_mobile)->delete();
+            }else{
+                if(!empty($this->alternative_phone_number_1)){
+                    UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->alternative_phone_number_1)->delete();
+                }
             }
+
+            if($this->isWhatsappAlt2){
+                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_2)
+                                                        ->where('user_id','!=', $this->staff->id)
+                                                        ->exists();
+            if(!$existingRecord){
+                UserWhatsapp::updateOrCreate(
+                    ['user_id' => $this->staff->id, 'whatsapp_number' => $this->alternative_phone_number_2],
+                    ['country_code' => $this->selectedCountryAlt2, 'updated_at' => now()]
+                ); 
+            }
+            }else{
+                if(!empty($this->alternative_phone_number_2)){
+                    UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->alternative_phone_number_2)->delete();
+                }
+            }
+
+            if($this->isWhatsappEmergency){
+                $existingRecord = UserWhatsapp::where('whatsapp_number', $this->emergency_mobile)
+                                                        ->where('user_id','!=', $this->staff->id)
+                                                        ->exists();
+            if(!$existingRecord){
+                UserWhatsapp::updateOrCreate(
+                    ['user_id' => $this->staff->id, 'whatsapp_number' => $this->emergency_mobile],
+                    ['country_code' => $this->selectedCountryEmergencyContact, 'updated_at' => now()]
+                ); 
+            }
+            }else{
+                if(!empty($this->emergency_mobile)){
+                    UserWhatsapp::where('user_id',$this->staff->id)->where('whatsapp_number',$this->emergency_mobile)->delete();
+                }
+            }
+
+
+
+
+            // Update bank details
+            if ($this->staff->bank) {
+                $this->staff->bank->update([
+                    'account_holder_name' => $this->account_holder_name ?? '',
+                    'bank_name' => $this->bank_name ?? '',
+                    'branch_name' => $this->branch_name ?? '',
+                    'bank_account_no' => $this->account_no ?? '',
+                    'ifsc' => $this->ifsc ?? '',
+                    'monthly_salary' => is_numeric($this->monthly_salary) ? $this->monthly_salary : null,
+                    'daily_salary' => is_numeric($this->daily_salary) ?  $this->daily_salary : null,
+                    'travelling_allowance' => is_numeric($this->travel_allowance) ? $this->travel_allowance : null,
+                ]);
+            } else {
+                // If no bank record, create a new one
+                $this->staff->bank()->create([
+                    'account_holder_name' => $this->account_holder_name ?? '',
+                    'bank_name' => $this->bank_name ?? '',
+                    'branch_name' => $this->branch_name ?? '',
+                    'bank_account_no' => $this->account_no ?? '',
+                    'ifsc' => $this->ifsc ?? '',
+                    'monthly_salary' => is_numeric($this->monthly_salary) ? $this->monthly_salary : null,
+                    'bonus' => is_numeric($this->daily_salary) ?  $this->daily_salary : null,
+                    'past_salaries' => is_numeric($this->travel_allowance) ? $this->travel_allowance : null,
+                ]);
+            }
+            // Update address details
+            if ($this->staff->address) {
+                $this->staff->address->update([
+                    'address' => $this->address ?? '',
+                    'address_type' => 1,
+                    'landmark' => $this->landmark ?? '',
+                    'state' => $this->state ?? '',
+                    'city' => $this->city ?? '',
+                    'zip_code' => $this->pincode ?? '',
+                    'country' => $this->country ?? '',
+                ]);
+            } else {
+                // If no address record, create a new one
+                $this->staff->address()->create([
+                    'address' => $this->address ?? '',
+                    'address_type' => 1,
+                    'landmark' => $this->landmark ?? '',
+                    'state' => $this->state ?? '',
+                    'city' => $this->city ?? '',
+                    'zip_code' => $this->pincode ?? '',
+                    'country' => $this->country ?? '',
+                ]);
+            }
+
+            session()->flash('message', 'Staff updated successfully');
+            return redirect()->route('staff.index');
+        } catch (\Exception $e) {
+            // If any error occurs, catch it and flash an error message
+            session()->flash('error', 'There was an error while updating the staff: ' . $e->getMessage());
+            dd($e->getMessage());
+            // Optionally log the error for debugging purposes
+            \Log::error('Staff update failed: ' . $e->getMessage());
+
+            // Redirect back to the edit page or wherever necessary
+            return back();
         }
-
-
-
-
-        // Update bank details
-        if ($this->staff->bank) {
-            $this->staff->bank->update([
-                'account_holder_name' => $this->account_holder_name ?? '',
-                'bank_name' => $this->bank_name ?? '',
-                'branch_name' => $this->branch_name ?? '',
-                'bank_account_no' => $this->account_no ?? '',
-                'ifsc' => $this->ifsc ?? '',
-                'monthly_salary' => is_numeric($this->monthly_salary) ? $this->monthly_salary : null,
-                'daily_salary' => is_numeric($this->daily_salary) ?  $this->daily_salary : null,
-                'travelling_allowance' => is_numeric($this->travel_allowance) ? $this->travel_allowance : null,
-            ]);
-        } else {
-            // If no bank record, create a new one
-            $this->staff->bank()->create([
-                'account_holder_name' => $this->account_holder_name ?? '',
-                'bank_name' => $this->bank_name ?? '',
-                'branch_name' => $this->branch_name ?? '',
-                'bank_account_no' => $this->account_no ?? '',
-                'ifsc' => $this->ifsc ?? '',
-                'monthly_salary' => is_numeric($this->monthly_salary) ? $this->monthly_salary : null,
-                'bonus' => is_numeric($this->daily_salary) ?  $this->daily_salary : null,
-                'past_salaries' => is_numeric($this->travel_allowance) ? $this->travel_allowance : null,
-            ]);
-        }
-         // Update address details
-         if ($this->staff->address) {
-            $this->staff->address->update([
-                'address' => $this->address ?? '',
-                'address_type' => 1,
-                'landmark' => $this->landmark ?? '',
-                'state' => $this->state ?? '',
-                'city' => $this->city ?? '',
-                'zip_code' => $this->pincode ?? '',
-                'country' => $this->country ?? '',
-            ]);
-        } else {
-            // If no address record, create a new one
-            $this->staff->address()->create([
-                'address' => $this->address ?? '',
-                'address_type' => 1,
-                'landmark' => $this->landmark ?? '',
-                'state' => $this->state ?? '',
-                'city' => $this->city ?? '',
-                'zip_code' => $this->pincode ?? '',
-                'country' => $this->country ?? '',
-            ]);
-        }
-
-        session()->flash('message', 'Staff updated successfully');
-        return redirect()->route('staff.index');
-    } catch (\Exception $e) {
-        // If any error occurs, catch it and flash an error message
-        session()->flash('error', 'There was an error while updating the staff: ' . $e->getMessage());
-        dd($e->getMessage());
-        // Optionally log the error for debugging purposes
-        \Log::error('Staff update failed: ' . $e->getMessage());
-
-        // Redirect back to the edit page or wherever necessary
-        return back();
     }
-}
+
     public function SameAsMobile(){
         if($this->is_wa_same == 0){
             $this->whatsapp_no = $this->mobile;
@@ -461,6 +457,7 @@ class StaffUpdate extends Component
 
     public function render()
     {
+        $this->dispatch('error_message');
         return view('livewire.staff.staff-update',['designations'=>$this->designations]);
     }
 }

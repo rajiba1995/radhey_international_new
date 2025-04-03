@@ -21,8 +21,10 @@
                             <select wire:model="created_by" class="form-control select-md bg-white"
                                 wire:change="CollectedBy($event.target.value)">
                                 <option value="" hidden="" selected="">Placed By</option>
-                                @foreach($usersWithOrders as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @foreach($placed_by as $user)
+                                    @if(in_array($user->id, $usersWithOrders))
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>

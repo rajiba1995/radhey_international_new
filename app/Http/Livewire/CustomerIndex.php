@@ -9,11 +9,13 @@ use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\UsersImport;
 use App\Exports\UsersExport;
+use App\Helpers\Helper;
 use App\Exports\UserAddressExport;
 use App\Imports\UserAddressImport;
 use App\Exports\UsersAndAddressesExport;
 use App\Imports\UsersWithAddressesImport;
 use App\Exports\SampleUserAndAddressExport;
+use Illuminate\Support\Facades\Auth;
 
 // use Livewire\WithFileUploads; // Import file upload trait
 
@@ -123,11 +125,25 @@ class CustomerIndex extends Component
 
     public function render()
     {
-        $users = User::with('customer_order')->where('user_type',1)
-        ->when($this->search, function ($query) {
-            $query->where('name', 'like', '%' . $this->search . '%');
-        })->latest()
-        ->paginate(10);
+        $auth = Auth::guard('admin')->user();
+
+        $users = User::where('user_type', 1)
+            ->where('status', 1)
+            ->where(function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('phone', 'like', '%' . $this->search . '%')
+                      ->orWhere('whatsapp_no', 'like', '%' . $this->search . '%')
+                      ->orWhere('email', 'like', '%' . $this->search . '%');
+            })
+            // ->orWhereHas('orders', function ($q) {
+            //     $q->where('order_number', 'like', '%' . $this->search . '%')
+            //       ->orWhere('customer_name', 'like', '%' . $this->search . '%')
+            //       ->orWhere('customer_email', 'like', '%' . $this->search . '%');
+            // })
+            ->when(!$auth->is_super_admin, fn($query) => $query->where('created_by', $auth->id)) // Restrict non-admins
+            ->orderBy('created_at', 'desc') // Sort by latest
+            ->paginate(10);
+        
         return view('livewire.customer-index', compact('users'));
     }
 }

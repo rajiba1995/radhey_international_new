@@ -92,6 +92,47 @@
                 </a>
             </ul>
             @endif
+            @if ($this->hasPermissionByParent('accounting_management'))
+            {{-- Expense management --}}
+            <li class="nav-item">
+                <a class="nav-link text-white {{ request()->is('admin/accounting*') ? 'active bg-gradient-primary' : '' }}"
+                    href="#AccountManagementSubmenu" data-bs-toggle="collapse"
+                    aria-expanded="{{ request()->is('admin/accounting*') ? 'true' : 'false' }}">
+                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="material-icons opacity-10">account_balance</i>
+                    </div>
+                    <span class="nav-link-text ms-1">Account Management</span>
+                </a>
+            </li>
+            <ul id="AccountManagementSubmenu"
+                class="collapse list-unstyled ms-4 {{ request()->is('admin/accounting*') ? 'show' : '' }}">
+
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ request()->is('admin/accounting/payment-collection') ? 'active' : '' }}"
+                        href="{{ route('admin.accounting.payment_collection') }}">
+                        Payment Collections
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ request()->is('admin/accounting/add-payment-receipt') ? 'active' : '' }}"
+                        href="{{ route('admin.accounting.add_payment_receipt') }}">
+                        Add Payment Receipt
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ request()->is('admin/accounting/depot-expense/list') ? 'active' : '' }}"
+                    href="{{ route('admin.accounting.list.depot_expense') }}">
+                    Depot Expense
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white {{ request()->is('admin/accounting/list-opening-balance') ? 'active' : '' }}"
+                        href="{{ route('admin.accounting.list_opening_balance') }}">
+                        Customer Opening Balance
+                    </a>
+                </li>
+            </ul>
+            @endif
             @if ($user->id==1)
             <li class="nav-item mt-3">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs text-white font-weight-bolder opacity-8">Master Modules</h6>
@@ -288,47 +329,7 @@
                 </li>
             </ul>
             @endif
-            @if ($this->hasPermissionByParent('accounting_management'))
-            {{-- Expense management --}}
-            <li class="nav-item">
-                <a class="nav-link text-white {{ request()->is('admin/accounting*') ? 'active bg-gradient-primary' : '' }}"
-                    href="#AccountManagementSubmenu" data-bs-toggle="collapse"
-                    aria-expanded="{{ request()->is('admin/accounting*') ? 'true' : 'false' }}">
-                    <div class="text-white text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="material-icons opacity-10">account_balance</i>
-                    </div>
-                    <span class="nav-link-text ms-1">Account Management</span>
-                </a>
-            </li>
-            <ul id="AccountManagementSubmenu"
-                class="collapse list-unstyled ms-4 {{ request()->is('admin/accounting*') ? 'show' : '' }}">
-
-                <li class="nav-item">
-                    <a class="nav-link text-white {{ request()->is('admin/accounting/payment-collection') ? 'active' : '' }}"
-                        href="{{ route('admin.accounting.payment_collection') }}">
-                        Payment Collections
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white {{ request()->is('admin/accounting/add-payment-receipt') ? 'active' : '' }}"
-                        href="{{ route('admin.accounting.add_payment_receipt') }}">
-                        Add Payment Receipt
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white {{ request()->is('admin/accounting/depot-expense/list') ? 'active' : '' }}"
-                    href="{{ route('admin.accounting.list.depot_expense') }}">
-                    Depot Expense
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white {{ request()->is('admin/accounting/list-opening-balance') ? 'active' : '' }}"
-                        href="{{ route('admin.accounting.list_opening_balance') }}">
-                        Customer Opening Balance
-                    </a>
-                </li>
-            </ul>
-            @endif
+            
             @if ($this->hasPermissionByParent('report_management'))
             {{-- Report management --}}
             <li class="nav-item">

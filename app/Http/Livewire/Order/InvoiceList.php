@@ -4,9 +4,11 @@ namespace App\Http\Livewire\Order;
 
 use Livewire\Component;
 use App\Models\Invoice;
+use App\Models\Order;
 use App\Models\User;
 use Livewire\WithPagination;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceList extends Component
 {
@@ -45,24 +47,44 @@ class InvoiceList extends Component
 
     public function render()
     {
-        $this->usersWithOrders = User::whereHas('orders')->get();
+        $placed_by = User::where('user_type', 0)->get();
+        $auth = Auth::guard('admin')->user();
+
+        if($auth->is_super_admin){
+            $wonOrders = order::get()->pluck('created_by')->toArray();
+        }else{
+            // Fetch orders
+            $wonOrders = $auth->orders(); // Start the query
+            // dd($wonOrders);
+            // If the user is not a super admin, filter by `created_by`
+            if (!$auth->is_super_admin) {
+                $wonOrders->where('created_by', $auth->id);
+            }
+            // Execute the query
+            $wonOrders = $wonOrders->get()->pluck('created_by')->toArray();
+        }
+        
+       
+        $this->usersWithOrders = $wonOrders;
+        // Fetch invoices with filters
         $invoices = Invoice::query()
         ->when($this->search, function ($query) {
             $query->where('invoice_no', 'like', '%' . $this->search . '%')
-                  ->orWhereHas('order', function ($q) {
-                      $q->where('order_number', 'like', '%' . $this->search . '%')
+                ->orWhereHas('order', function ($q) {
+                    $q->where('order_number', 'like', '%' . $this->search . '%')
                         ->orWhere('customer_email', 'like', '%' . $this->search . '%')
                         ->orWhere('customer_name', 'like', '%' . $this->search . '%');
-                  });
+                });
         })
-        ->when($this->created_by, function ($query) {
-            $query->where('created_by', $this->created_by);
-        })
+
+        ->when($this->created_by, fn($query) => $query->where('created_by', $this->created_by))
+        ->when(!$auth->is_super_admin, fn($query) => $query->where('created_by', $auth->id)) // Restrict non-admins
         ->orderBy('created_at', 'desc')
         ->paginate(20);
-    
+
         return view('livewire.order.invoice-list', [
             'invoices' => $invoices,
+            'placed_by' => $placed_by,
             'usersWithOrders' => $this->usersWithOrders, 
         ]);
     }

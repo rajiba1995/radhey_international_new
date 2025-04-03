@@ -39,6 +39,9 @@
                     <div class="col-auto mt-3">
                         <button type="button" wire:click="resetForm" class="btn btn-outline-danger select-md">Clear</button>
                     </div>
+                    <div class="col-auto mt-3">
+                       <a href="{{route('admin.accounting.add_payment_receipt')}}" class="btn btn-sm btn-success select-md">ADD PAYMENT RECEIPT</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -70,6 +73,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>Voucher No</th>
                                     <th>Payment Date</th>
                                     <th>Collected By</th>
                                     <th>Customer</th>
@@ -77,7 +81,6 @@
                                     <th>Collected From</th>
                                     <th>Approval</th>
                                     <th>Action</th>
-                                    <th>Entered at</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -86,6 +89,7 @@
                                
                                     <tr class="store_details_row cursor-pointer {{$active_details==$payment->id?"tr_active":""}}" wire:click="customerDetails({{$payment->id}})">   
                                         <td>{{$index+1}}</td>        
+                                        <td>{{$payment->voucher_no}}</td>        
                                             <td>
                                             <p class="small text-muted mb-1"> 
                                                 {{date('d/m/Y', strtotime($payment->cheque_date))}}
@@ -93,7 +97,7 @@
                                         </td>  
                                         <td>
                                             @if (!empty($payment->user))
-                                                <p class="small text-muted mb-1">{{ucfirst($payment->user->name)}}</p>
+                                                <p class="small text-muted mb-1">{{ucfirst($payment->user->name)}} @if($payment->user->surname){{ucfirst ($payment->user->surname)}}@endif</p>
                                             @endif                            
                                         </td>         
                                         <td>                          
@@ -127,11 +131,9 @@
                                             @if (!empty($payment->is_ledger_added))
                                                 <a href="#" wire:click="revokePayment({{$payment->id}})" class="btn btn-outline-warning select-md btn_outline">Revoke</a>
                                             @endif
+                                            <button wire:click="downloadInvoice({{ $payment->id }})" class="btn btn-outline-primary select-md btn_outline">Download Receipt</button>
                                             
                                         </td>   
-                                        <td>
-                                            <p class="small text-muted mb-1">{{ date('d/m/Y H:i A', strtotime($payment->created_at)) }} </p>
-                                        </td>  
                                     </tr> 
                                     @if($active_details==$payment->id) 
                                     <tr>                        

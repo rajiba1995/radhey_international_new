@@ -14,6 +14,7 @@ use App\Models\Journal;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithPagination;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PaymentCollectionIndex extends Component
 {
@@ -26,26 +27,31 @@ class PaymentCollectionIndex extends Component
     public $selected_customer;
     public $selected_customer_id;
     public $active_details = 0;
+    public $auth;
 
     public function mount(){
-        $this->staffs = User::where('user_type', 0)->where('designation', 2)->select('name', 'id')->orderBy('name', 'ASC')->get();
+        $this->auth = Auth::guard('admin')->user();
+        $this->staffs = User::where('user_type', 0)
+        ->when(!$this->auth->is_super_admin, fn($query) => $query->where('id', $this->auth->id))// Auth-wise filtering
+        ->select('name', 'id')
+        ->orderBy('name', 'ASC')
+        ->get();
     }
 
     public function CollectionData(){
-        $desg = Auth::guard('admin')->user()->designation;
+         // Get the authenticated user
         $paginate = 20;
         $customer_id = $this->selected_customer_id;
         $staff_id = $this->staff_id;
-    
+
+        // Query with conditions
         $query = PaymentCollection::with(['customer', 'user'])
-            ->when(!empty($customer_id), function ($query) use ($customer_id) {
-                $query->where('customer_id', $customer_id);
-            })
-            ->when(!empty($staff_id), function ($query) use ($staff_id) {
-                $query->where('user_id', $staff_id);
-            })
+            ->when(!empty($customer_id), fn($query) => $query->where('customer_id', $customer_id))
+            ->when(!empty($staff_id), fn($query) => $query->where('user_id', $staff_id))
+            ->when(!$this->auth->is_super_admin, fn($query) => $query->where('user_id', $this->auth->id)) // Auth-wise data filtering
             ->orderBy('cheque_date', 'desc');
-    
+
+        // Set total count
         $this->total = $query->count();
         return $query->paginate($paginate);
     }
@@ -219,6 +225,23 @@ class PaymentCollectionIndex extends Component
         }
     }
 
+    public function downloadInvoice($payment_id)
+    {
+        $invoice_payments = [];
+        $data = PaymentCollection::with(['customer', 'user'])
+                    ->where('id', $payment_id)
+                    ->firstOrFail();
+        if($data){
+            $invoice_payments = InvoicePayment::with('invoice')->where('voucher_no','=',$data->voucher_no)->get();
+        }
+        // Generate PDF
+        $pdf = PDF::loadView('invoice.pdf', compact('data','invoice_payments'));
+    
+        // Download the PDF
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        },  $data->voucher_no . '.pdf');
+    } 
     public function render()
     {
         $paginatedData = $this->CollectionData();

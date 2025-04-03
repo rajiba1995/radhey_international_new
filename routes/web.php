@@ -93,7 +93,7 @@ Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
         if (auth()->check()) {
             return redirect()->route('admin.dashboard'); // Ensure route name is correct
         }
-        return redirect()->route('login'); // Redirect to login if not authenticated
+        return redirect()->route('admin.login'); // Redirect to login if not authenticated
     });
     
     Route::get('dashboard', Dashboard::class)->name('admin.dashboard');
