@@ -555,7 +555,7 @@ class AuthController extends Controller
             return $user; // Return the response if the user is not authenticated
         }
         $filter = $request->keyword;
-        
+
         // Fetch filtered users
         $users = User::where('user_type', 1)
             ->where('status', 1)
@@ -585,18 +585,18 @@ class AuthController extends Controller
                 $users->prepend($order->customer);
             }
             
-            // $data = $users->map(function ($user) {
-            //     return [
-            //         'id' => $user->id,
-            //         'name' => $user->name,
-            //         'email' => $user->email,
-            //         'phone' => $user->phone,
-            //     ];
-            // });
+            $data = $users->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                ];
+            });
         return response()->json([
             'status' => true,
             'message' => 'Data fetched successfully!',
-            'data' => $users,
+            'data' => $data,
         ],200);
     }
     public function customer_store(Request $request){
@@ -658,7 +658,6 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'country_code_phone' => $request->phone_code,
                 'phone' => $request->phone,
-                'country_code_whatsapp' => $request->whatsapp_code,
                 'whatsapp_no' => $request->whatsapp_no,
                 'dob' => $request->dob,
                 'company_name' => $request->company_name,
