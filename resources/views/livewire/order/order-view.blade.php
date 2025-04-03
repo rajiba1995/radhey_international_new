@@ -99,20 +99,20 @@
                         </div>
                         <div class="row">
                             <div class="col-sm-4">
-                                <p class="small m-0"><strong>Billing Address :</strong></p>
+                                <p class="small m-0"><strong> Address :</strong></p>
                             </div>
                             <div class="col-sm-8">
                                 <p class="small m-0">{{$order->billing_address}}</p>
                             </div>
                         </div>
-                        <div class="row">
+                        {{-- <div class="row">
                             <div class="col-sm-4">
                                 <p class="small m-0"><strong>Shipping Address :</strong></p>
                             </div>
                             <div class="col-sm-8">
                                 <p class="small m-0">{{$order->shipping_address}}</p>
                             </div>
-                        </div>
+                        </div> --}}
 
                     </div>
                 </div>

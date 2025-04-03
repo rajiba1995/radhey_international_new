@@ -599,8 +599,8 @@
                                 @foreach ($items[$index]['categories'] as $category)
                                 <option value="{{ $category['id'] }}">{{ $category['title'] }}</option>
                                 @endforeach
-                                @else
-                                <option value="" disabled>No categories available</option>
+                                {{-- @else
+                                <option value="" disabled>Select Category</option> --}}
                                 @endif
                             </select>
                             @error("items.".$index.".category")

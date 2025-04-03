@@ -116,7 +116,7 @@
                         <th style="padding:8px 0; font-size: 14px; text-align:left;">Unit Price</th>
                         {{-- <th style="padding:8px 0; font-size: 14px;">Discount %</th>
                         <th style="padding:8px 0; font-size: 14px;">Taxes</th> --}}
-                        <th style="padding:8px 0; font-size: 14px; text-align:left;">Total price</th>
+                        <th style="padding:8px 0; font-size: 14px; text-align:left;">Total Price</th>
                     </thead>
                     <tbody>
                         @php
