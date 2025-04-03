@@ -26,6 +26,7 @@ class AddOrderSlip extends Component
     public $staffs =[];
     public $from_date;
     public $to_date;
+    public $document_type = 'invoice';
     public $payment_collection_id = "";
     public $readonly = "readonly";
     public $customer,$customer_id, $staff_id,$staff_name, $total_amount, $actual_amount, $voucher_no, $payment_date, $payment_mode, $chq_utr_no, $bank_name, $receipt_for = "Customer",$amount;
@@ -211,7 +212,8 @@ class AddOrderSlip extends Component
             } while (Invoice::where('invoice_no', $invoice_no)->exists()); // Ensure unique invoice_no
             
 
-        $invoice = Invoice::create([
+            $order->invoice_type = $this->document_type;
+            $invoice = Invoice::create([
                 'order_id' => $this->order->id,
                 'customer_id' => $this->customer_id,
                 'user_id' => $this->staff_id,

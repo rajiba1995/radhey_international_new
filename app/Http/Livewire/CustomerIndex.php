@@ -135,6 +135,7 @@ class CustomerIndex extends Component
                       ->orWhere('whatsapp_no', 'like', '%' . $this->search . '%')
                       ->orWhere('email', 'like', '%' . $this->search . '%');
             })
+            
             // ->orWhereHas('orders', function ($q) {
             //     $q->where('order_number', 'like', '%' . $this->search . '%')
             //       ->orWhere('customer_name', 'like', '%' . $this->search . '%')

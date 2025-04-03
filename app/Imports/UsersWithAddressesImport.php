@@ -37,16 +37,16 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
             $countryCodeAlt2 = Country::where('country_code', $row['country_code_alternet_phone_two'])->first();
             $mobileLength2 = $countryCodeAlt2->mobile_length ?? 10;
 
-            $countryCodeWhats = Country::where('country_code', $row['country_code_whatsapp'])->first();
-            $mobileLengthWhats = $countryCodeWhats->mobile_length ?? 10;
+            // $countryCodeWhats = Country::where('country_code', $row['country_code_whatsapp'])->first();
+            // $mobileLengthWhats = $countryCodeWhats->mobile_length ?? 10;
             // Perform validation
             $validator = Validator::make($row, [
                 'phone' => "nullable|numeric|digits:$mobileLength",
                 'alternet_phone_one' => "nullable|numeric|digits:$mobileLength1",
                 'alternet_phone_two' => "nullable|numeric|digits:$mobileLength2",
-                'whatsapp_number' => "nullable|numeric|digits:$mobileLengthWhats",
+                // 'whatsapp_number' => "nullable|numeric|digits:$mobileLengthWhats",
                 'email' => [
-                    'required',
+                    'nullable',
                     'email',
                     Rule::unique('users', 'email')->whereNull('deleted_at'),
                 ],
@@ -68,20 +68,21 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
             $user = User::updateOrCreate(
                 ['email' => $row['email']],
                 [
+                    'prefix' => $row['prefix'] ?? null,
                     'name' => $row['customer_name'] ?? null,
                     'dob' => $dob,
                     'user_type' => strtolower(trim($row['user_type'])) == 'staff' ? 0 : 1,
                     'company_name' => $row['company_name'] ?? null,
                     'employee_rank' => $row['rank'] ?? null,
-                    'country_code_phone' => $row['country_code_phone'] ?? null,
+                    'country_code_phone' => '+'.$row['country_code_phone'] ?? null,
                     'phone' => $row['phone'] ?? null,
-                    'country_code_alt_1' => $row['country_code_alternet_phone_one'] ?? null,
+                    'country_code_alt_1' => '+'.$row['country_code_alternet_phone_one'] ?? null,
                     'alternative_phone_number_1' => $row['alternet_phone_one'] ?? null,
-                    'country_code_alt_2' => $row['country_code_alternet_phone_two'] ?? null,
+                    'country_code_alt_2' => '+'.$row['country_code_alternet_phone_two'] ?? null,
                     'alternative_phone_number_2' => $row['alternet_phone_two'] ?? null,
                     
-                    'country_code_whatsapp' => $row['country_code_whatsapp'] ?? null,
-                    'whatsapp_no' => $row['whatsapp_number'] ?? null,
+                    // 'country_code_whatsapp' => $row['country_code_whatsapp'] ?? null,
+                    // 'whatsapp_no' => $row['whatsapp_number'] ?? null,
                 ]
             );
            
@@ -111,37 +112,6 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
     }
     
 
-    
-
-    
-
-
-    // public function rules(): array
-    // {
-    //     // return [
-    //     //     // 'name'     => 'required|string|max:255',
-    //     //     // 'email'         => 'required|email|unique:users,email',
-    //     //     // 'country_code'  => 'required|string|exists:countries,country_code',
-    //     //     'phone'         => ['required', 'numeric', function ($attribute, $value, $fail) {
-    //     //         // Get country_code from the $row array instead of request
-    //     //         $countryCode = request()->input('country_code'); // or pass it as a parameter if required
-    //     //         $country = Country::where('country_code', $countryCode)->first();
-    //     //         $expectedLength = $country ? $country->mobile_length : 10;
-    //     //         if (strlen($value) != $expectedLength) {
-    //     //             $fail("The $attribute must be exactly $expectedLength digits long.");
-    //     //         }
-    //     //     }],
-    //     //     'whatsapp_no'   => ['required', 'numeric', function ($attribute, $value, $fail) {
-    //     //         // Get country_code from the $row array instead of request
-    //     //         $countryCode = request()->input('country_code'); // or pass it as a parameter if required
-    //     //         $country = Country::where('country_code', $countryCode)->first();
-    //     //         $expectedLength = $country ? $country->mobile_length : 10;
-    //     //         if (strlen($value) != $expectedLength) {
-    //     //             $fail("The $attribute must be exactly $expectedLength digits long.");
-    //     //         }
-    //     //     }],
-    //     // ];
-    // }
      
 }
 

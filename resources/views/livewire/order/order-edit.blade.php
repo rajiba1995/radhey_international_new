@@ -137,13 +137,12 @@
                             </div>
 
                             <div class="mb-2 col-md-3">
-                                <label for="dob" class="form-label">Date Of Birth <span
-                                        class="text-danger">*</span></label>
+                                <label for="dob" class="form-label">Date Of Birth </label>
                                 <input type="date" wire:model="dob" id="dob" max="{{date('Y-m-d')}}"
                                     class="form-control form-control-sm border border-1 p-2 {{ $errorClass['dob'] ?? '' }}">
-                                @if(isset($errorMessage['dob']))
+                                {{-- @if(isset($errorMessage['dob']))
                                 <div class="text-danger">{{ $errorMessage['dob'] }}</div>
-                                @endif
+                                @endif --}}
                             </div>
 
                         <!-- Phone Number -->
@@ -288,7 +287,7 @@
                             <div class="admin__content">
                                 {{-- Billing Address --}}
                                 <aside>
-                                    <nav class="text-uppercase font-weight-bold">Billing Address</nav>
+                                    <nav class="text-uppercase font-weight-bold">Address</nav>
                                 </aside>
                                 <content>
                                     <div class="row mb-2 align-items-center">
@@ -361,7 +360,7 @@
                                     </div>
                                 </content>
                             </div>
-                            <div class="admin__content">
+                            {{-- <div class="admin__content">
                                 <aside>
 
                                 </aside>
@@ -380,7 +379,7 @@
                                         </div>
                                     </div>
                                 </content>
-                            </div>
+                            </div> --}}
                             {{-- <div class="d-flex justify-content-between mt-4">
                                 <h6 class="badge bg-danger custom_danger_badge">Shipping Address</h6>
                                 <div class="form-check">
@@ -393,7 +392,7 @@
                             </div> --}}
 
                             {{-- Shipping Address Panel --}}
-                            <div class="admin__content">
+                            {{-- <div class="admin__content">
                                 <aside>
                                     <nav class="text-uppercase font-weight-bold">Shipping Address</nav>
                                 </aside>
@@ -469,7 +468,7 @@
                                         </div>
                                     </div>
 
-                                    {{-- <div class="mb-3 col-md-4">
+                                    <div class="mb-3 col-md-4">
                                         <label for="shipping_pin" class="form-label">Zip Code <span
                                                 class="text-danger">*</span></label>
                                         <input type="number" wire:model="shipping_pin" id="shipping_pin"
@@ -478,9 +477,9 @@
                                         @if(isset($errorMessage['shipping_pin']))
                                         <div class="text-danger">{{ $errorMessage['shipping_pin'] }}</div>
                                         @endif
-                                    </div> --}}
+                                    </div>
                                 </content>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>

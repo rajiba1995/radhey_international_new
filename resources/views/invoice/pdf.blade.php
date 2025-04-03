@@ -143,7 +143,6 @@
 
         <p class="text-center">Thank you for shopping with us! </p>
     </div>
-    {{dd('here')}}
 </body>
 
 </html>

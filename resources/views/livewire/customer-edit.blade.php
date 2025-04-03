@@ -100,7 +100,7 @@
                         </div>
 
                         <div class="mb-3 col-md-3">
-                            <label for="dob" class="form-label">Date Of Birth <span class="text-danger">*</span></label>
+                            <label for="dob" class="form-label">Date Of Birth </label>
                             <input type="date" wire:model="dob" id="dob"
                                 class="form-control form-control-sm border border-1 p-2"
                                 max="{{now()->format('Y-m-d')}}">
@@ -139,7 +139,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3 col-md-3">
+                        {{-- <div class="mb-3 col-md-3">
                             <label for="whatsapp_no" class="form-label">WhatsApp Number <span
                                     class="text-danger">*</span></label>
                             <div class="extention-group">
@@ -159,7 +159,7 @@
                             @error('whatsapp_no')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
-                        </div>
+                        </div> --}}
 
                         <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">alternative phone number 1 </label>
@@ -189,7 +189,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3 col-md-4">
+                        <div class="mb-3 col-md-3">
                             <label for="mobile" class="form-label">alternative phone number 2 </label>
                             <div class="extention-group">
                                 <select wire:model="selectedCountryAlt2"
@@ -218,8 +218,7 @@
                         </div>
 
                         <div class="mb-3 col-md-4">
-                            <label for="image" class="form-label">Profile Image <span
-                                    class="text-danger">*</span></label>
+                            <label for="image" class="form-label">Profile Image </label>
                             <input type="file" wire:model="image" id="image"
                                 class="form-control form-control-sm border border-1 p-2">
                             @if($this->image)
@@ -232,7 +231,7 @@
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="mb-3 col-md-4">
+                        {{-- <div class="mb-3 col-md-4">
                             <label for="verified_video" class="form-label">Verified Video</label>
                             <input type="file" wire:model="verified_video" id="verified_video"
                                 class="form-control form-control-sm border border-1 p-2">
@@ -247,7 +246,7 @@
                             @error('verified_video')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
-                        </div>
+                        </div> --}}
                     </div>
 
                     <div class="col-12 col-md-6 mb-3">
@@ -255,7 +254,7 @@
                     </div>
                     <div class="row">
                         <div class="mb-3 col-md-6">
-                            <label for="billing_address" class="form-label">Street Address <span
+                            <label for="billing_address" class="form-label"> Address <span
                                     class="text-danger">*</span></label>
                             <input type="text" wire:model="billing_address" id="billing_address"
                                 class="form-control form-control-sm border border-1 p-2"
@@ -299,16 +298,15 @@
                             @enderror
                         </div>
                         <div class="mb-3 col-md-6">
-                            <label for="billing_pin" class="form-label">Zip Code <span
-                                    class="text-danger">*</span></label>
+                            <label for="billing_pin" class="form-label">Zip Code </label>
                             <input type="number" wire:model="billing_pin" id="billing_pin"
                                 class="form-control form-control-sm border border-1 p-2" placeholder="Enter PIN">
-                            @error('billing_pin')
+                            {{-- @error('billing_pin')
                             <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                            @enderror --}}
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between mt-4">
+                    {{-- <div class="d-flex justify-content-between mt-4">
                         <h6 class="badge bg-danger custom_danger_badge mb-3">Shipping Address</h6>
                         <div class="d-flex align-items-center custom-checkbox">
                             <input type="checkbox" wire:change="toggleShippingAddress"
@@ -380,7 +378,7 @@
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
+                    </div> --}}
                     {{-- Account Information --}}
                     {{-- <h6 class="badge bg-danger custom_danger_badge mb-3">Account information</h6>
                     <div class="row">

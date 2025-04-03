@@ -46,7 +46,7 @@ class CustomerEdit extends Component
 
             $this->countries = Country::where('status',1)->get();
             $this->selectedCountryPhone = $user->country_code_phone;
-            $this->selectedCountryWhatsapp = $user->country_code_whatsapp;
+            // $this->selectedCountryWhatsapp = $user->country_code_whatsapp;
             $this->selectedCountryAlt1 = $user->country_code_alt_1;
             $this->selectedCountryAlt2 = $user->country_code_alt_2;
 
@@ -71,9 +71,9 @@ class CustomerEdit extends Component
                 $this->mobileLengthPhone  = $mobileLength;
                 break;
 
-            case 'whatsapp':
-                $this->mobileLengthWhatsapp = $mobileLength;
-                break;
+            // case 'whatsapp':
+            //     $this->mobileLengthWhatsapp = $mobileLength;
+            //     break;
 
             case 'alt_phone_1':
                 $this->mobileLengthAlt1 = $mobileLength;
@@ -106,32 +106,32 @@ class CustomerEdit extends Component
     //     }
     // }
 
-    public function toggleShippingAddress()
-    {
-        if (!$this->is_billing_shipping_same) {
-             // Reset shipping fields if the checkbox is unchecked
-             $this->resetShippingFields();
-        } else {
-             // Populate shipping fields with billing address data when checked
-            $this->shipping_address = $this->billing_address;
-            $this->shipping_landmark = $this->billing_landmark;
-            $this->shipping_city = $this->billing_city;
-            $this->shipping_state = $this->billing_state;
-            $this->shipping_country = $this->billing_country;
-            $this->shipping_pin = $this->billing_pin;
-        }
-    }
+    // public function toggleShippingAddress()
+    // {
+    //     if (!$this->is_billing_shipping_same) {
+    //          // Reset shipping fields if the checkbox is unchecked
+    //          $this->resetShippingFields();
+    //     } else {
+    //          // Populate shipping fields with billing address data when checked
+    //         $this->shipping_address = $this->billing_address;
+    //         $this->shipping_landmark = $this->billing_landmark;
+    //         $this->shipping_city = $this->billing_city;
+    //         $this->shipping_state = $this->billing_state;
+    //         $this->shipping_country = $this->billing_country;
+    //         $this->shipping_pin = $this->billing_pin;
+    //     }
+    // }
 
-    private function resetShippingFields()
-    {
-         // Reset shipping address fields to make them empty and editable when checkbox is unchecked
-        $this->shipping_address = '';
-        $this->shipping_landmark = '';
-        $this->shipping_city = '';
-        $this->shipping_state = '';
-        $this->shipping_country = '';
-        $this->shipping_pin = '';
-    }
+    // private function resetShippingFields()
+    // {
+    //      // Reset shipping address fields to make them empty and editable when checkbox is unchecked
+    //     $this->shipping_address = '';
+    //     $this->shipping_landmark = '';
+    //     $this->shipping_city = '';
+    //     $this->shipping_state = '';
+    //     $this->shipping_country = '';
+    //     $this->shipping_pin = '';
+    // }
 
 
     
@@ -143,19 +143,19 @@ class CustomerEdit extends Component
         $this->company_name = $user->company_name ?? "";
         $this->employee_rank = $user->employee_rank ?? "";
         $this->email = $user->email ?? "";
-        $this->dob   = $user->dob ?? "";  
+        $this->dob   = $user->dob ?? null;  
         // $this->phone = $user->phone ?? "";
-        $this->whatsapp_no = $user->whatsapp_no ?? "";
+        // $this->whatsapp_no = $user->whatsapp_no ?? "";
         $this->gst_number = $user->gst_number ?? "";
         $this->credit_limit = $user->credit_limit ?? "";
         $this->credit_days = $user->credit_days ?? "";
         $this->image = $user->profile_image ? asset( $user->profile_image) : "";
-        $this->verified_video = $user->verified_video ? asset( $user->verified_video) : "";
+        // $this->verified_video = $user->verified_video ? asset( $user->verified_video) : "";
         $this->gst_certificate_image = $user->gst_certificate_image ? asset( $user->gst_certificate_image) : "";
 
     }
 
-    private function fillAddressData($billingAddress, $shippingAddress)
+    private function fillAddressData($billingAddress)
     {
         if ($billingAddress) {
             $this->billing_address = $billingAddress->address;
@@ -166,16 +166,16 @@ class CustomerEdit extends Component
             $this->billing_pin = $billingAddress->zip_code;
         }
 
-        if ($shippingAddress) {
-            $this->shipping_address = $shippingAddress->address;
-            $this->shipping_landmark = $shippingAddress->landmark;
-            $this->shipping_city = $shippingAddress->city;
-            $this->shipping_state = $shippingAddress->state;
-            $this->shipping_country = $shippingAddress->country;
-            $this->shipping_pin = $shippingAddress->zip_code;
-        }
+        // if ($shippingAddress) {
+        //     $this->shipping_address = $shippingAddress->address;
+        //     $this->shipping_landmark = $shippingAddress->landmark;
+        //     $this->shipping_city = $shippingAddress->city;
+        //     $this->shipping_state = $shippingAddress->state;
+        //     $this->shipping_country = $shippingAddress->country;
+        //     $this->shipping_pin = $shippingAddress->zip_code;
+        // }
 
-        $this->is_billing_shipping_same = $billingAddress && $shippingAddress && ($billingAddress->address == $shippingAddress->address);
+        // $this->is_billing_shipping_same = $billingAddress && $shippingAddress && ($billingAddress->address == $shippingAddress->address);
     }
     
 
@@ -185,18 +185,18 @@ class CustomerEdit extends Component
             'name' => 'required|string|max:255',
             'employee_rank'=>'nullable|string',
             'image' => $this->image instanceof \Illuminate\Http\UploadedFile ? 'nullable|mimes:jpg,jpeg,png,gif' : 'nullable',
-            'verified_video' => $this->verified_video instanceof \Illuminate\Http\UploadedFile ? 'nullable|mimes:mp4,mov,avi,wmv' : 'nullable',
+            // 'verified_video' => $this->verified_video instanceof \Illuminate\Http\UploadedFile ? 'nullable|mimes:mp4,mov,avi,wmv' : 'nullable',
             'company_name' => 'nullable|string|max:255',
             'email' => 'nullable',
-            'dob'=> 'required|date',
+            'dob'=> 'nullable|date',
             'phone' => [
                 'required',
                 'regex:/^\d{'. $this->mobileLengthPhone .'}$/',
             ],
-            'whatsapp_no' => [
-                'required',
-                'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
-            ],
+            // 'whatsapp_no' => [
+            //     'required',
+            //     'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
+            // ],
             'alternative_phone_number_1' => [
                 'nullable',
                 'regex:/^\d{'. $this->mobileLengthAlt1 .'}$/',
@@ -218,16 +218,16 @@ class CustomerEdit extends Component
 
         
 
-        if (!$this->is_billing_shipping_same) {
-            $rules = array_merge($rules, [
-                'shipping_address' => 'required|string',
-                'shipping_landmark' => 'nullable|string',
-                'shipping_city' => 'required|string',
-                'shipping_state' => 'nullable|string',
-                'shipping_country' => 'required|string',
-                'shipping_pin' => 'nullable|string',
-            ]);
-        }
+        // if (!$this->is_billing_shipping_same) {
+        //     $rules = array_merge($rules, [
+        //         'shipping_address' => 'required|string',
+        //         'shipping_landmark' => 'nullable|string',
+        //         'shipping_city' => 'required|string',
+        //         'shipping_state' => 'nullable|string',
+        //         'shipping_country' => 'required|string',
+        //         'shipping_pin' => 'nullable|string',
+        //     ]);
+        // }
 
         return $rules;
     }
@@ -328,16 +328,16 @@ class CustomerEdit extends Component
 
         $this->storeAddress($user->id, 1, $this->billing_address, $this->billing_landmark, $this->billing_city, $this->billing_state, $this->billing_country, $this->billing_pin);
 
-        $this->storeAddress(
-            $user->id,
-            2,
-            $this->is_billing_shipping_same ? $this->billing_address : $this->shipping_address,
-            $this->is_billing_shipping_same ? $this->billing_landmark : $this->shipping_landmark,
-            $this->is_billing_shipping_same ? $this->billing_city : $this->shipping_city,
-            $this->is_billing_shipping_same ? $this->billing_state : $this->shipping_state,
-            $this->is_billing_shipping_same ? $this->billing_country : $this->shipping_country,
-            $this->is_billing_shipping_same ? $this->billing_pin : $this->shipping_pin
-        );
+        // $this->storeAddress(
+        //     $user->id,
+        //     2,
+        //     $this->is_billing_shipping_same ? $this->billing_address : $this->shipping_address,
+        //     $this->is_billing_shipping_same ? $this->billing_landmark : $this->shipping_landmark,
+        //     $this->is_billing_shipping_same ? $this->billing_city : $this->shipping_city,
+        //     $this->is_billing_shipping_same ? $this->billing_state : $this->shipping_state,
+        //     $this->is_billing_shipping_same ? $this->billing_country : $this->shipping_country,
+        //     $this->is_billing_shipping_same ? $this->billing_pin : $this->shipping_pin
+        // );
 
         session()->flash('success', 'Customer information updated successfully!');
         return redirect()->route('customers.index');
@@ -355,7 +355,7 @@ class CustomerEdit extends Component
             'country_code_phone' => $this->selectedCountryPhone,
             'phone' => $this->phone,
             'country_code_whatsapp' => $this->selectedCountryWhatsapp,
-            'whatsapp_no' => $this->whatsapp_no,
+            // 'whatsapp_no' => $this->whatsapp_no,
             'gst_number' => $this->gst_number,
             'credit_limit' => $this->credit_limit === '' ? 0 : $this->credit_limit,
             'credit_days' => $this->credit_days === '' ? 0 : $this->credit_days,
@@ -381,10 +381,10 @@ class CustomerEdit extends Component
         return $this->handleFileUpload($this->image, 'profile_image');
     }
 
-    private function uploadVideo()
-    {
-        return $this->handleFileUpload($this->verified_video, 'verified_video');
-    }
+    // private function uploadVideo()
+    // {
+    //     return $this->handleFileUpload($this->verified_video, 'verified_video');
+    // }
 
     private function uploadGSTCertificate()
     {

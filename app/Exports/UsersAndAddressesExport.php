@@ -11,76 +11,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class UsersAndAddressesExport implements FromCollection, WithHeadings
 {
-    // public function collection()
-    // {
-    //     return User::leftJoin('user_address', 'users.id', '=', 'user_address.user_id')
-    //         ->select(
-    //             'users.id',
-    //             'users.name',
-    //             'users.email',
-    //             'users.phone',
-    //             'users.company_name',
-    //             'users.designation',
-    //             'user_address.address_type',
-    //             'user_address.address',
-    //             'user_address.city',
-    //             'user_address.state',
-    //             'user_address.country',
-    //             'user_address.zip_code'
-    //         )->get();
-    // }
-
-    // public function headings(): array
-    // {
-    //     return [
-    //         'User ID', 'Name', 'Email', 'Phone', 'Company Name', 'Designation',
-    //         'Address Type', 'Address', 'City', 'State', 'Country', 'Zip Code'
-    //     ];
-    // }
-    // public function collection()
-    // {
-    //     // Fetch users along with their addresses using eager loading
-    //     $users = User::with('userAddress') // Eager load the user addresses
-    //         ->where('user_type', 1) // Adjust based on the requirement, assuming 1 means customers
-    //         ->get();
-
-    //     $data = $users->flatMap(function ($user) {
     
-    //         $userType = $user->user_type == 0 ? 'Staff' : 'Customer';
-
-    //         // Check if user has addresses
-    //         return $user->userAddress->map(function ($address) use ($user, $userType) {
-    //             $addressType = $address->address_type == 1 ? 'Billing Address' : 'Shipping Address';
-
-    //             return [
-    //                 'User Name' => $user->name,
-    //                 'Company Name' => $user->company_name,
-    //                 'Email' => $user->email,
-    //                 'Rank' => $user->employee_rank,
-    //                 'Phone' => $user->phone,
-    //                 'Whatsapp Number' => $user->whatsapp_no,
-    //                 'DOB' => $user->dob,
-    //                 // 'Profile Image'=> asset('storage/' . $user->profile_image), // Full URL for profile image
-    //                 // 'Verified Video'=> asset('storage/' . $user->verified_video), // Full URL for profile image
-
-    //                 // 'Branch' => $branchName,
-    //                 // 'Country' => $countryName,
-    //                 'User Type' => $userType,
-    //                 'Address Type' => $addressType, // Billing or Shipping
-    //                 'Address' => $address->address,
-    //                 'Landmark' => $address->landmark,
-    //                 'City' => $address->city,
-    //                 'Country' => $address->country,
-    //                 'State' => $address->state,
-    //                 'Zip Code' => $address->zip_code,
-    //                 'Status' => $user->status ? 'Active' : 'Inactive', 
-    //             ];
-    //         });
-    //     });
-
-    //     // Return the collected data
-    //     return $data;
-    // }
 
     public function collection()
     {
@@ -98,18 +29,19 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
             if ($user->userAddress->isEmpty()) {
                 return [[
                     'User Type' => $userType,
+                    'Prefix'   => $user->prefix,
                     'Customer Name' => $user->name,
                     'Company Name' => $user->company_name,
                     'Rank' => $user->employee_rank,
                     'Email' => $user->email,
-                    'Country Code Phone' => $user->country_code,
+                    'Country Code Phone' => $user->country_code_phone,
                     'Phone' => $user->phone,
                     'Country Code Alternet Phone One' => $user->country_code_alt_1,
                     'Alternet Phone One' => $user->alternative_phone_number_1,
                     'Country Code Alternet Phone Two' => $user->country_code_alt_2,
                     'Alternet Phone Two' => $user->alternative_phone_number_2,
                     'Country Code Whatsapp' => $user->country_code_whatsapp, // Added here
-
+                    
                     'Whatsapp Number' => $user->whatsapp_no,
                     'DOB' => $user->dob,
                     'Address Type' => 'N/A', // No address
@@ -126,21 +58,22 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
             return $user->userAddress->map(function ($address) use ($user, $userType) {
                 return [
                     'User Type' => $userType,
+                    'Prefix'    => $user->prefix,
                     'Customer Name' => $user->name,
                     'Company Name' => $user->company_name,
                     'Rank' => $user->employee_rank,
                     'Email' => $user->email,
-                    'Country Code Phone' => $user->country_code,
+                    'Country Code Phone' => $user->country_code_phone,
                     'Phone' => $user->phone,
                     'Country Code Alternet Phone One' => $user->country_code_alt_1,
                     'Alternet Phone One' => $user->alternative_phone_number_1,
                     'Country Code Alternet Phone Two' => $user->country_code_alt_2,
                     'Alternet Phone Two' => $user->alternative_phone_number_2,
-                    'Country Code Whatsapp' => $user->country_code_whatsapp, // Added here
+                    // 'Country Code Whatsapp' => $user->country_code_whatsapp, // Added here
 
-                    'Whatsapp Number' => $user->whatsapp_no,
+                    // 'Whatsapp Number' => $user->whatsapp_no,
                     'DOB' => $user->dob,
-                    'Address Type' => 'Billing Address',
+                    // 'Address Type' => 'Billing Address',
                     'Address' => $address->address,
                     'Landmark' => $address->landmark,
                     'City' => $address->city,
@@ -160,6 +93,7 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
     {
         return [
             'User Type',
+            'Prefix',
             'Customer Name',
             'Company Name',
             'Rank',
@@ -170,11 +104,11 @@ class UsersAndAddressesExport implements FromCollection, WithHeadings
             'Alternet Phone One',
             'Country Code Alternet Phone Two',
             'Alternet Phone Two',
-            'Country Code Whatsapp', // Added here
+            // 'Country Code Whatsapp', // Added here
 
-            'Whatsapp Number',
+            // 'Whatsapp Number',
             'DOB',
-            'Address Type',
+            // 'Address Type',
             'Address',
             'Landmark',
             'City',

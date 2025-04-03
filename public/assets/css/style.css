@@ -1110,4 +1110,12 @@ table td h6.text-sm {
 .hidden{
     overflow: inherit!important;
 }
+.prefix_select{
+    max-width: 68px;
+    height: 28px;
+    appearance: auto !important; /* Ensures arrow appears */
+    -webkit-appearance: auto !important;
+    -moz-appearance: auto !important;
+    
+}
 

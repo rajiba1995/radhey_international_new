@@ -186,8 +186,7 @@
                         <div class="mb-2 col-md-6">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <select wire:model="prefix" class="form-control form-control-sm border border-1"
-                                    style="max-width: 60px;">
+                                <select wire:model="prefix" class="form-control form-control-sm border border-1 prefix_select">
                                     <option value="" selected hidden>Prefix</option>
                                     @foreach (App\Helpers\Helper::getNamePrefixes() as $prefixOption)
                                     <option value="{{$prefixOption}}">{{ $prefixOption }}</option>
@@ -228,13 +227,13 @@
                         </div>
 
                         <div class="mb-2 col-md-3">
-                            <label for="dob" class="form-label">Date Of Birth <span class="text-danger">*</span></label>
+                            <label for="dob" class="form-label">Date Of Birth</label>
                             <input type="date" autocomplete="bday" wire:model="dob" id="dob"
                                 max="{{ \Carbon\Carbon::today()->format('Y-m-d') }}"
                                 class="form-control form-control-sm border border-1 p-2 {{ $errorClass['dob'] ?? '' }}">
-                            @if(isset($errorMessage['dob']))
-                            <div class="text-danger error-message">{{ $errorMessage['dob'] }}</div>
-                            @endif
+                            {{-- @if(isset($errorMessage['dob']))
+                            <div class="text-danger">{{ $errorMessage['dob'] }}</div>
+                            @endif --}}
                         </div>
 
                         <!-- Phone Number -->
@@ -245,8 +244,8 @@
                                 <!-- Country Select Dropdown for Phone -->
                                 <select wire:model="selectedCountryPhone"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
-                                    class="form-control form-control-sm">
-                                    <option value="" selected hidden>Select Country</option>
+                                    class="form-control form-control-sm prefix_select">
+                                    <option value="" selected hidden>Code</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}"
                                         data-length="{{ $country->mobile_length }}">
@@ -272,7 +271,7 @@
                         </div>
 
                         <!-- WhatsApp Number -->
-                        <div class="mb-3 col-md-3">
+                        {{-- <div class="mb-3 col-md-3">
                             <label for="whatsapp_no" class="form-label">WhatsApp Number <span
                                     class="text-danger">*</span></label>
                             <div class="extention-group">
@@ -297,7 +296,7 @@
                             @if(isset($errorMessage['whatsapp_no']))
                             <div class="text-danger error-message">{{ $errorMessage['whatsapp_no'] }}</div>
                             @endif
-                        </div>
+                        </div> --}}
 
                         <!-- Alternative Phone Number 1 -->
                         <div class="mb-3 col-md-3">
@@ -307,8 +306,8 @@
                                 <!-- Country Select Dropdown for Alternative Phone 1 -->
                                 <select wire:model="selectedCountryAlt1"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_1')"
-                                    class="form-control form-control-sm">
-                                    <option value="" selected hidden>Select Country</option>
+                                    class="form-control form-control-sm prefix_select">
+                                    <option value="" selected hidden>Code</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}"
                                         data-length="{{ $country->mobile_length }}">
@@ -341,8 +340,8 @@
                                 <!-- Country Select Dropdown for Alternative Phone 2 -->
                                 <select wire:model="selectedCountryAlt2"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_2')"
-                                    class="form-control form-control-sm">
-                                    <option value="" selected hidden>Select Country</option>
+                                    class="form-control form-control-sm prefix_select">
+                                    <option value="" selected hidden>Code</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}"
                                         data-length="{{ $country->mobile_length }}">
@@ -375,7 +374,7 @@
                         <div class="pt-0">
                             <div class="admin__content">
                                 <aside>
-                                    <nav class="text-uppercase font-weight-bold">Billing Address</nav>
+                                    <nav class="text-uppercase font-weight-bold"> Address</nav>
                                 </aside>
                                 <content>
                                     <div class="row mb-2 align-items-center">
@@ -442,7 +441,7 @@
                                     </div>
                                 </content>
                             </div>
-                            <div class="admin__content">
+                            {{-- <div class="admin__content">
                                 <aside>
 
                                 </aside>
@@ -461,8 +460,8 @@
                                         </div>
                                     </div>
                                 </content>
-                            </div>
-                            <div class="admin__content">
+                            </div> --}}
+                            {{-- <div class="admin__content">
                                 <aside>
                                     <nav class="text-uppercase font-weight-bold">Shipping Address</nav>
                                 </aside>
@@ -533,7 +532,7 @@
                                         </div>
                                     </div>
                                 </content>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>

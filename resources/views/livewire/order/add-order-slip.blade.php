@@ -81,6 +81,18 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div class="input-group">
+                        <div class="form-check form-check-inline">
+                            <input type="radio" wire:model="document_type" id="invoice" value="invoice" class="form-check-input">
+                            <label for="invoice" class="form-check-label">Invoice</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" wire:model="document_type" id="bill" value="bill" class="form-check-input">
+                            <label for="bill" class="form-check-label">Bill</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="form-group text-end">
                         <span>ORDER AMOUNT <span class="text-danger">({{$actual_amount}})</span></span>
                         <button type="submit" id="submit_btn"

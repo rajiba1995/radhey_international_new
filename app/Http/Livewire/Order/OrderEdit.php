@@ -88,8 +88,8 @@ class OrderEdit extends Component
             $this->email = $this->orders->customer_email;
             $this->dob = $this->orders->customer->dob;
             $this->billing_address = $this->orders->billing_address;
-            $this->shipping_address = $this->orders->shipping_address;
-            $this->is_billing_shipping_same = ($this->orders->billing_address == $this->orders->shipping_address);
+            // $this->shipping_address = $this->orders->shipping_address;
+            // $this->is_billing_shipping_same = ($this->orders->billing_address == $this->orders->shipping_address);
             $this->phone = $this->orders->customer->phone;
             $this->alternative_phone_number_1 = $this->orders->customer->alternative_phone_number_1;
             $this->alternative_phone_number_2 = $this->orders->customer->alternative_phone_number_2;
@@ -198,23 +198,23 @@ class OrderEdit extends Component
         }
 
         // Split the address and assign to the properties
-        $shippingAddress = explode(',', $this->orders->shipping_address);
+        // $shippingAddress = explode(',', $this->orders->shipping_address);
 
         // Assuming the address is saved in the format: street, landmark, city, state, country - pin
-        if (count($shippingAddress) >= 5) {
-            $this->shipping_address = trim($shippingAddress[0]); // Street Address
-            $this->shipping_landmark = trim($shippingAddress[1]); // Landmark
-            $this->shipping_city = trim($shippingAddress[2]); // City
-            $this->shipping_state = trim($shippingAddress[3]); // State
-            $this->shipping_country = trim($shippingAddress[4]); // Country and PIN code
+        // if (count($shippingAddress) >= 5) {
+        //     $this->shipping_address = trim($shippingAddress[0]); // Street Address
+        //     $this->shipping_landmark = trim($shippingAddress[1]); // Landmark
+        //     $this->shipping_city = trim($shippingAddress[2]); // City
+        //     $this->shipping_state = trim($shippingAddress[3]); // State
+        //     $this->shipping_country = trim($shippingAddress[4]); // Country and PIN code
 
-            // Extract pin code from the country field (assuming it's at the end)
-            $countryAndPin = explode('-', $this->shipping_country);
-            if (count($countryAndPin) > 1) {
-                $this->shipping_country = trim($countryAndPin[0]);
-                $this->shipping_pin = trim($countryAndPin[1]);
-            }
-        }
+        //     // Extract pin code from the country field (assuming it's at the end)
+        //     $countryAndPin = explode('-', $this->shipping_country);
+        //     if (count($countryAndPin) > 1) {
+        //         $this->shipping_country = trim($countryAndPin[0]);
+        //         $this->shipping_pin = trim($countryAndPin[1]);
+        //     }
+        // }
         $this->Business_type = BusinessType::all();
         $this->selectedCountryId = $this->orders->customer->country_id;
         $this->search = Country::where('id',$this->orders->customer->country_id)->pluck('title');
@@ -234,7 +234,7 @@ class OrderEdit extends Component
         $this->email = $this->orders->customer_email;
         $this->dob = $this->orders->customer->dob;
         // $this->phone = $this->orders->customer->phone;
-        $this->whatsapp_no = $this->orders->customer->whatsapp_no;
+        // $this->whatsapp_no = $this->orders->customer->whatsapp_no;
 
         $this->customers = User::where('user_type', 1)->where('status', 1)->orderBy('name', 'ASC')->get();
         $this->categories = Category::where('status', 1)->orderBy('title', 'ASC')->get();
@@ -619,28 +619,28 @@ class OrderEdit extends Component
     }
     
 
-    public function toggleShippingAddress()
-    {
-        // When the checkbox is checked
-        if ($this->is_billing_shipping_same) {
-            // Copy billing address to shipping address
-            $this->shipping_address = $this->billing_address;
-            $this->shipping_landmark = $this->billing_landmark;
-            $this->shipping_city = $this->billing_city;
-            $this->shipping_state = $this->billing_state;
-            $this->shipping_country = $this->billing_country;
-            $this->shipping_pin = $this->billing_pin;
-        } else {
-            // Reset shipping address fields
-            $this->shipping_address = '';
-            $this->shipping_landmark = '';
-            $this->shipping_city = '';
-            $this->shipping_state = '';
-            $this->shipping_country = '';
-            $this->shipping_pin = '';
-        }
-        $this->TabChange($this->activeTab);
-    }
+    // public function toggleShippingAddress()
+    // {
+    //     // When the checkbox is checked
+    //     if ($this->is_billing_shipping_same) {
+    //         // Copy billing address to shipping address
+    //         $this->shipping_address = $this->billing_address;
+    //         $this->shipping_landmark = $this->billing_landmark;
+    //         $this->shipping_city = $this->billing_city;
+    //         $this->shipping_state = $this->billing_state;
+    //         $this->shipping_country = $this->billing_country;
+    //         $this->shipping_pin = $this->billing_pin;
+    //     } else {
+    //         // Reset shipping address fields
+    //         $this->shipping_address = '';
+    //         $this->shipping_landmark = '';
+    //         $this->shipping_city = '';
+    //         $this->shipping_state = '';
+    //         $this->shipping_country = '';
+    //         $this->shipping_pin = '';
+    //     }
+    //     $this->TabChange($this->activeTab);
+    // }
 
     public function TabChange($value)
     {
@@ -680,13 +680,13 @@ class OrderEdit extends Component
     
            
             // Validate Date of Birth
-            if (empty($this->dob)) {
-                $this->errorClass['dob'] = 'border-danger';
-                $this->errorMessage['dob'] = 'Please enter customer date of birth';
-            } else {
-                $this->errorClass['dob'] = null;
-                $this->errorMessage['dob'] = null;
-            }
+            // if (empty($this->dob)) {
+            //     $this->errorClass['dob'] = 'border-danger';
+            //     $this->errorMessage['dob'] = 'Please enter customer date of birth';
+            // } else {
+            //     $this->errorClass['dob'] = null;
+            //     $this->errorMessage['dob'] = null;
+            // }
     
            
     
@@ -703,16 +703,16 @@ class OrderEdit extends Component
         }
 
         // Validate WhatsApp Number
-        if (empty($this->whatsapp_no)) {
-            $this->errorClass['whatsapp_no'] = 'border-danger';
-            $this->errorMessage['whatsapp_no'] = 'Please enter WhatsApp number';
-        } elseif (!preg_match('/^\d{'. $this->mobileLengthWhatsapp .'}$/', $this->whatsapp_no)) {
-            $this->errorClass['whatsapp_no'] = 'border-danger';
-            $this->errorMessage['whatsapp_no'] = 'WhatsApp number must be exactly ' . $this->mobileLengthWhatsapp . ' digits';
-        } else {
-            $this->errorClass['whatsapp_no'] = null;
-            $this->errorMessage['whatsapp_no'] = null;
-        }
+        // if (empty($this->whatsapp_no)) {
+        //     $this->errorClass['whatsapp_no'] = 'border-danger';
+        //     $this->errorMessage['whatsapp_no'] = 'Please enter WhatsApp number';
+        // } elseif (!preg_match('/^\d{'. $this->mobileLengthWhatsapp .'}$/', $this->whatsapp_no)) {
+        //     $this->errorClass['whatsapp_no'] = 'border-danger';
+        //     $this->errorMessage['whatsapp_no'] = 'WhatsApp number must be exactly ' . $this->mobileLengthWhatsapp . ' digits';
+        // } else {
+        //     $this->errorClass['whatsapp_no'] = null;
+        //     $this->errorMessage['whatsapp_no'] = null;
+        // }
 
         // Validate Alternative Phone Number 1
         if (!empty($this->alternative_phone_number_1)) {
@@ -770,31 +770,31 @@ class OrderEdit extends Component
             // }
     
             // Validate Shipping Information
-            if (empty($this->shipping_address)) {
-                $this->errorClass['shipping_address'] = 'border-danger';
-                $this->errorMessage['shipping_address'] = 'Please enter shipping address';
-            } else {
-                $this->errorClass['shipping_address'] = null;
-                $this->errorMessage['shipping_address'] = null;
-            }
+            // if (empty($this->shipping_address)) {
+            //     $this->errorClass['shipping_address'] = 'border-danger';
+            //     $this->errorMessage['shipping_address'] = 'Please enter shipping address';
+            // } else {
+            //     $this->errorClass['shipping_address'] = null;
+            //     $this->errorMessage['shipping_address'] = null;
+            // }
     
-            if (empty($this->shipping_city)) {
-                $this->errorClass['shipping_city'] = 'border-danger';
-                $this->errorMessage['shipping_city'] = 'Please enter shipping city';
-            } else {
-                $this->errorClass['shipping_city'] = null;
-                $this->errorMessage['shipping_city'] = null;
-            }
+            // if (empty($this->shipping_city)) {
+            //     $this->errorClass['shipping_city'] = 'border-danger';
+            //     $this->errorMessage['shipping_city'] = 'Please enter shipping city';
+            // } else {
+            //     $this->errorClass['shipping_city'] = null;
+            //     $this->errorMessage['shipping_city'] = null;
+            // }
     
             
     
-            if (empty($this->shipping_country)) {
-                $this->errorClass['shipping_country'] = 'border-danger';
-                $this->errorMessage['shipping_country'] = 'Please enter shipping country';
-            } else {
-                $this->errorClass['shipping_country'] = null;
-                $this->errorMessage['shipping_country'] = null;
-            }
+            // if (empty($this->shipping_country)) {
+            //     $this->errorClass['shipping_country'] = 'border-danger';
+            //     $this->errorMessage['shipping_country'] = 'Please enter shipping country';
+            // } else {
+            //     $this->errorClass['shipping_country'] = null;
+            //     $this->errorMessage['shipping_country'] = null;
+            // }
     
             // if (strlen($this->shipping_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
             //     $this->errorClass['shipping_pin'] = 'border-danger';
@@ -852,15 +852,15 @@ class OrderEdit extends Component
     
 
 
-    public function SameAsMobile(){
-        if($this->is_wa_same == 0){
-            $this->whatsapp_no = $this->phone;
-            $this->is_wa_same = 1;
-        }else{
-            $this->whatsapp_no = '';
-            $this->is_wa_same = 0;
-        }
-    }
+    // public function SameAsMobile(){
+    //     if($this->is_wa_same == 0){
+    //         $this->whatsapp_no = $this->phone;
+    //         $this->is_wa_same = 1;
+    //     }else{
+    //         $this->whatsapp_no = '';
+    //         $this->is_wa_same = 0;
+    //     }
+    // }
     // public function copyMeasurements($index){
     //     if ($index > 0) {
     //         if (!empty($this->items[$index]['copy_previous_measurements'])) {
@@ -943,7 +943,7 @@ class OrderEdit extends Component
                     'email' => $this->email,
                     'dob' => $this->dob,
                     'phone' => $this->phone,
-                    'whatsapp_no' => $this->whatsapp_no,
+                    // 'whatsapp_no' => $this->whatsapp_no,
                     'user_type' => 1, // Customer
                     'alternative_phone_number_1' => $this->alternative_phone_number_1,
                     'alternative_phone_number_2' => $this->alternative_phone_number_2,
@@ -973,8 +973,8 @@ class OrderEdit extends Component
                     // 'country_id' => $this->country_id,
                     'country_code_phone' => $this->selectedCountryPhone,
                     'phone' => $this->phone,
-                    'country_code_whatsapp' => $this->selectedCountryWhatsapp,
-                    'whatsapp_no' => $this->whatsapp_no,
+                    // 'country_code_whatsapp' => $this->selectedCountryWhatsapp,
+                    // 'whatsapp_no' => $this->whatsapp_no,
                     // 'country_code' => $this->country_code,
                     'country_code_alt_1'  => $this->selectedCountryAlt1,
                     'alternative_phone_number_1' => $this->alternative_phone_number_1,
@@ -995,21 +995,21 @@ class OrderEdit extends Component
                 ]
             );
 
-            if (!$this->is_billing_shipping_same) {
-                $shippingAddress = $user->address()->updateOrCreate(
-                    ['address_type' => 2], // Shipping address
-                    [
-                        'state' => $this->shipping_state,
-                        'city' => $this->shipping_city,
-                        'address' => $this->shipping_address,
-                        'landmark' => $this->shipping_landmark,
-                        'country' => $this->shipping_country,
-                        'zip_code' => $this->shipping_pin,
-                    ]
-                );
-            }else{
-                $shippingAddress = $billingAddress;
-            }
+            // if (!$this->is_billing_shipping_same) {
+            //     $shippingAddress = $user->address()->updateOrCreate(
+            //         ['address_type' => 2], // Shipping address
+            //         [
+            //             'state' => $this->shipping_state,
+            //             'city' => $this->shipping_city,
+            //             'address' => $this->shipping_address,
+            //             'landmark' => $this->shipping_landmark,
+            //             'country' => $this->shipping_country,
+            //             'zip_code' => $this->shipping_pin,
+            //         ]
+            //     );
+            // }else{
+            //     $shippingAddress = $billingAddress;
+            // }
             // $order = Order::find($this->orders->id);
             // Update order details
             $name = $this->name;
@@ -1022,12 +1022,12 @@ class OrderEdit extends Component
             $billingCountry= $this->billing_country;
             $billingPin= $this->billing_pin;
 
-            $shippingadd = $this->shipping_address;
-            $shippingLandmark= $this->shipping_landmark;
-            $shippingCity= $this->shipping_city;
-            $shippingState= $this->shipping_state;
-            $shippingCountry= $this->shipping_country;
-            $shippingPin= $this->shipping_pin;
+            // $shippingadd = $this->shipping_address;
+            // $shippingLandmark= $this->shipping_landmark;
+            // $shippingCity= $this->shipping_city;
+            // $shippingState= $this->shipping_state;
+            // $shippingCountry= $this->shipping_country;
+            // $shippingPin= $this->shipping_pin;
 
             // $total_amount = $total_amount;
             $order = Order::find($this->orders->id);
@@ -1041,9 +1041,9 @@ class OrderEdit extends Component
                 $order->customer_name = $this->name;
                 $order->customer_email = $this->email;
                 $order->billing_address = $billingadd . ', ' . $billingLandmark . ', ' . $billingCity . ', ' . $billingState . ', ' . $billingCountry . ' - ' . $billingPin;
-                $order->shipping_address = $this->is_billing_shipping_same
-                    ? $billingadd . ', ' . $billingLandmark . ', ' . $billingCity . ', ' . $billingState . ', ' . $billingCountry . ' - ' . $billingPin
-                    : $shippingadd . ', ' . $shippingLandmark . ', ' . $shippingCity . ', ' . $shippingState . ', ' . $shippingCountry . ' - ' . $shippingPin;
+                // $order->shipping_address = $this->is_billing_shipping_same
+                //     ? $billingadd . ', ' . $billingLandmark . ', ' . $billingCity . ', ' . $billingState . ', ' . $billingCountry . ' - ' . $billingPin
+                //     : $shippingadd . ', ' . $shippingLandmark . ', ' . $shippingCity . ', ' . $shippingState . ', ' . $shippingCountry . ' - ' . $shippingPin;
                 $order->total_amount = $total_amount;
                 $order->last_payment_date = now();
                 $order->created_by = auth()->guard('admin')->user()->id;
@@ -1072,7 +1072,7 @@ class OrderEdit extends Component
                     $orderItem->order_id = $order->id;
                     $orderItem->product_name = $item['searchproduct'];
                     $orderItem->total_price = $item['price'];
-                    $orderItem->remarks = $item['remarks'];
+                    $orderItem->remarks = isset($item['remarks']) ?? null;
                     $orderItem->quantity =1;
                     $orderItem->piece_price = $item['price'];
                     $orderItem->collection = $item['selected_collection'];
@@ -1211,7 +1211,7 @@ class OrderEdit extends Component
             'email',
             'dob',
             'phone',
-            'whatsapp_no',
+            // 'whatsapp_no',
            
         ]);
     }
