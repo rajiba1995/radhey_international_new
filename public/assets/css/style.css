@@ -1107,3 +1107,7 @@ table td h6.text-sm {
     padding: 5px 10px;
 }
 
+.hidden{
+    overflow: inherit!important;
+}
+

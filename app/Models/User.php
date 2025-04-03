@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $guard = 'admin';
     protected $table = 'users';
     protected $fillable = [
+        'parent_id',
         'emergency_contact_person',
         'country_code_emergency_mobile',
         'emergency_mobile',
@@ -193,4 +194,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserWhatsapp::class, 'user_id', 'id');
     }
+
+   
 }

@@ -30,6 +30,8 @@ class UserAddress extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+   
     
 }
 

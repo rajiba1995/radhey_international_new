@@ -93,13 +93,13 @@
                                         </td>  
                                         <td>
                                             @if (!empty($payment->user))
-                                                <p class="small text-muted mb-1">{{$payment->user->name}}</p>
+                                                <p class="small text-muted mb-1">{{ucfirst($payment->user->name)}}</p>
                                             @endif                            
                                         </td>         
                                         <td>                          
                                             <p class="small text-muted mb-1">
                                                 @if (!empty($payment->customer->name))
-                                                <span><strong>{{$payment->customer->name}}</strong> </span> 
+                                                <span><strong>{{ucfirst($payment->customer->name)}}</strong> </span> 
                                                 @endif
                                             </p>                            
                                         </td>

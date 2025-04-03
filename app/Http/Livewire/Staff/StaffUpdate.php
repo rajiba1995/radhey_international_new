@@ -11,6 +11,8 @@ use App\Models\Branch;
 use App\Models\UserWhatsapp;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class StaffUpdate extends Component
@@ -36,6 +38,8 @@ class StaffUpdate extends Component
     public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2,$mobileLengthEmergencyContact,$mobileLengthEmergencyWhatsapp;
     
     public $isWhatsappPhone, $isWhatsappAlt1, $isWhatsappAlt2, $isWhatsappEmergency;
+    public $team_lead;
+    public $teamLeads = [];
 
 
     public function mount($staff_id){
@@ -43,7 +47,7 @@ class StaffUpdate extends Component
         $this->countries = Country::where('status',1)->get();
         $this->Business_type = BusinessType::all();
         $this->branchNames = Branch::all();
-       
+        $this->teamLeads = User::where('user_type',0)->get();
         // dd( $this->staff->designationDetails->id);
         $this->designations = Designation::latest()->get();
          // If staff exists, assign the data to the public variables
@@ -52,6 +56,7 @@ class StaffUpdate extends Component
             $this->selectedBusinessType = $this->staff->business_type;
             $this->selectedBranchId = $this->staff->branch_id;
             $this->designation = $this->staff->designationDetails->id;
+            $this->team_lead = $this->staff->parent_id;
             $this->prefix = $this->staff->prefix;
             $this->person_name = $this->staff->name;
             $this->surname = $this->staff->surname;
@@ -152,6 +157,15 @@ class StaffUpdate extends Component
     public function rules(){
         return [
             'designation' => 'required',
+            'team_lead' => [
+            'required',
+            'exists:users,id',
+            function ($attribute, $value, $fail) {
+                    if ($value == $this->staff->id) {
+                        $fail('You cannot set yourself as your own parent.');
+                    }
+                },
+            ],
             'prof_name' => 'required',
             'surname'  => 'required',
             'dob'  => 'required',
@@ -160,7 +174,7 @@ class StaffUpdate extends Component
             'alternative_phone_number_1' => [
                 'nullable',
                 'regex:/^\d{'. $this->mobileLengthAlt1 .'}$/',
-            ],
+            ],  
             'alternative_phone_number_2' => [
                 'nullable',
                 'regex:/^\d{'. $this->mobileLengthAlt2 .'}$/',
@@ -243,6 +257,10 @@ class StaffUpdate extends Component
 
     public function update(){
         // dd($this->all());
+        // if ($this->parent_id == Auth::id()) {
+        //     session()->flash('error', 'You cannot assign yourself as your own parent.');
+        //     return;
+        // }
         $this->validate();
 
     try {
@@ -256,6 +274,7 @@ class StaffUpdate extends Component
             'country_id'=> $this->selectedCountryId,
             'branch_id'=> $this->selectedBranchId,
             'designation'=> $this->designation,
+            'parent_id'  => $this->team_lead,
             'prefix'   => $this->prefix,
             'name' => $this->person_name ?? '',
             'emp_code' => $this->emp_code ?? '',

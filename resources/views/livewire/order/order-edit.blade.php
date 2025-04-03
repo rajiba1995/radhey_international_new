@@ -652,7 +652,7 @@
                                                     <strong>[{{ isset($measurement['short_code']) ? $measurement['short_code'] : '' }}]</strong>
                                                 </label>
                                                 <input type="text"
-                                                    class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
+                                                    class="form-control form-control-sm border border-1 customer_input measurement_input"
                                                     wire:model="items.{{ $index }}.measurements.{{ $key }}.value">
                                                 @error("items.{$index}.measurements.{$key}.value")
                                                     <div class="text-danger">{{ $message }}</div>
@@ -694,9 +694,9 @@
                                         <input type="text"
                                             wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
                                             wire:model="items.{{ $index }}.price"
-                                            class="form-control form-control-sm border border-1 customer_input text-center 
-                                                            @if(session()->has('errorPrice.' . $index)) border-danger @endif 
-                                                            @error('items.' . $index . '.price') border-danger  @enderror" placeholder="Enter Price">
+                                            class="form-control form-control-sm border border-1 customer_input 
+                                            @if(session()->has('errorPrice.' . $index)) border-danger @endif 
+                                            @error('items.' . $index . '.price') border-danger  @enderror" placeholder="Enter Price">
                                     </div>
                                     <div>
                                         <!-- Delete Button -->
@@ -725,7 +725,7 @@
                                     <label class="form-label"><strong>Price</strong></label>
                                     <input type="text" wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
                                         wire:model="items.{{ $index }}.price"
-                                        class="form-control form-control-sm border border-1 customer_input text-center @if(session()->has('errorPrice.' . $index)) border-danger @endif @error('items.' . $index . '.price') border-danger @enderror"
+                                        class="form-control form-control-sm border border-1 customer_input @if(session()->has('errorPrice.' . $index)) border-danger @endif @error('items.' . $index . '.price') border-danger @enderror"
                                         placeholder="Enter Price">
                                 </div>
                                 <div>
@@ -745,6 +745,15 @@
                             @enderror
                         </div>
                         @endif
+                        <div class="col-12 col-md-2">
+                            <label class="form-label"><strong>Remarks</strong></label>
+                            <textarea type="text" wire:model="items.{{ $index }}.remarks"
+                                class="form-control form-control-sm border border-1 customer_input"
+                                placeholder="Enter Product Remarks"></textarea>
+                            @error("items.".$index.".remarks")
+                            <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                        </div>
                         @endforeach
                         <!-- Add Item Button and Payment Section -->
                         <div class="row align-items-end mb-4" style="justify-content: end;">

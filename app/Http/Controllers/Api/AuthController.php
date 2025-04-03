@@ -295,7 +295,7 @@ class AuthController extends Controller
 
         // Remove device ID to require OTP on next login
         $userLogin->device_id = null;
-        $userLogin->mpin = null; // Optional: Remove MPIN if required
+        // $userLogin->mpin = null; // Optional: Remove MPIN if required
         $userLogin->save();
 
         // Delete API tokens if the user is authenticated
@@ -557,7 +557,7 @@ class AuthController extends Controller
         $filter = $request->keyword;
 
         // Fetch filtered users
-        $users = User::where('user_type', 1)
+        $users = User::with('billingAddress')->where('user_type', 1)
             ->where('status', 1)
             ->when($filter, function ($query) use ($filter) {
                 $query->where(function ($q) use ($filter) {
@@ -600,8 +600,11 @@ class AuthController extends Controller
         ],200);
     }
     public function customer_store(Request $request){
+        $authUser = $this->getAuthenticatedUser();
         $phone_code_length = $request->phone_code_length;
         $whatsapp_code_length = $request->whatsapp_code_length;
+        $alternative_phone_1_code_length = $request->alternative_phone_1_code_length;
+        $alternative_phone_2_code_length = $request->alternative_phone_2_code_length;
         $rules = [
             'prefix' => 'required|string|max:255',
             'name' => 'required|string|max:255',
@@ -615,6 +618,17 @@ class AuthController extends Controller
             'whatsapp_no' => [
                 'required',
                 'regex:/^\d{'. $whatsapp_code_length .'}$/',
+            ],
+            'country_code_alt_1' => 'nullable|string|max:255',
+            'alternative_phone_number_1' => [
+                'nullable',
+                'regex:/^\d{'. $alternative_phone_1_code_length .'}$/',
+            ],
+
+            'country_code_alt_2' => 'nullable|string|max:255',
+            'alternative_phone_number_2' => [
+                'nullable',
+                'regex:/^\d{'. $alternative_phone_2_code_length .'}$/',
             ],
             
             'dob' => 'required|date',
@@ -659,12 +673,16 @@ class AuthController extends Controller
                 'country_code_phone' => $request->phone_code,
                 'phone' => $request->phone,
                 'whatsapp_no' => $request->whatsapp_no,
+                'country_code_alt_1' => $request->country_code_alternative_1,
+                'alternative_phone_number_1' => $request->alternative_phone_number_1,
+                'country_code_alt_2' => $request->country_code_alternative_2,
+                'alternative_phone_number_2'  => $request->alternative_phone_number_2,
                 'dob' => $request->dob,
                 'company_name' => $request->company_name,
                 'employee_rank' => $request->employee_rank,
                 'profile_image' => $profileImagePath,
                 'user_type' => 1,
-                'created_by' => $request->created_by,
+                'created_by' => $authUser->id,
                 'verified_video' => $verifiedVideoPath,
             ]);
             // Save billing address
@@ -675,14 +693,15 @@ class AuthController extends Controller
                 'landmark' => $request->billing_landmark,
                 'city' => $request->billing_city,
                 'country' => $request->billing_country,
-                'pin' => $request->billing_pin,
+                'zip_code' => $request->billing_pin,
             ]);
             DB::commit();
+
             // Return success response
             return response()->json([
                 'status' => true,
                 'message' => 'Customer information saved successfully!',
-                'user' => $user,
+                'user' => $user->load('userAddress'),
             ]);
         } catch (\Exception $e) {
             // Log error and return response
@@ -695,6 +714,8 @@ class AuthController extends Controller
     public function customer_update($id, Request $request){
         $phone_code_length = $request->phone_code_length;
         $whatsapp_code_length = $request->whatsapp_code_length;
+        $alternative_phone_1_code_length = $request->alternative_phone_1_code_length;
+        $alternative_phone_2_code_length = $request->alternative_phone_2_code_length;
         // dd($whatsapp_code_length);
         // Validation Rules
         $rules = [
@@ -711,6 +732,18 @@ class AuthController extends Controller
                 'required',
                 "regex:/^\d{{$whatsapp_code_length}}$/",
             ],
+            'country_code_alt_1' => 'nullable|string|max:255',
+            'alternative_phone_number_1' => [
+                'nullable',
+                'regex:/^\d{'. $alternative_phone_1_code_length .'}$/',
+            ],
+
+            'country_code_alt_2' => 'nullable|string|max:255',
+            'alternative_phone_number_2' => [
+                'nullable',
+                'regex:/^\d{'. $alternative_phone_2_code_length .'}$/',
+            ],
+            
             'dob' => 'required|date',
             'company_name' => 'nullable|string|max:255',
             'employee_rank' => 'nullable|string|max:255',
@@ -773,7 +806,12 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'country_code_phone' => $request->phone_code,
                 'phone' => $request->phone,
+                'country_code_whatsapp' => $request->whatsapp_code,
                 'whatsapp_no' => $request->whatsapp_no,
+                'country_code_alt_1' => $request->country_code_alternative_1,
+                'alternative_phone_number_1' => $request->alternative_phone_number_1,
+                'country_code_alt_2' => $request->country_code_alternative_2,
+                'alternative_phone_number_2'  => $request->alternative_phone_number_2,
                 'dob' => $request->dob,
                 'company_name' => $request->company_name,
                 'employee_rank' => $request->employee_rank,
@@ -789,7 +827,7 @@ class AuthController extends Controller
                     'landmark' => $request->billing_landmark,
                     'city' => $request->billing_city,
                     'country' => $request->billing_country,
-                    'pin' => $request->billing_pin,
+                    'zip_code' => $request->billing_pin,
                 ]
             );
 
@@ -799,7 +837,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Customer information updated successfully!',
-                'user' => $user,
+                'user' => $user->load('billingAddress'),
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

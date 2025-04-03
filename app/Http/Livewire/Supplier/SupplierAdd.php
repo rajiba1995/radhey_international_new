@@ -133,7 +133,6 @@ class SupplierAdd extends Component
                 'prefix' => $this->prefix,
                 'name' => $this->name,
                 'email' => $this->email,
-                'country_id'=> $this->selectedCountryId,
                 // 'country_code'=> $this->country_code,
                 'country_code_alt_1' => $this->selectedCountryAlt1,
                 'alternative_phone_number_1' => $this->alternative_phone_number_1,
@@ -155,54 +154,7 @@ class SupplierAdd extends Component
                 'credit_days' => $this->credit_days,
             ]);
         
-        //     if($this->isWhatsappPhone){
-        //         $existingRecord = UserWhatsapp::where('whatsapp_number', $this->mobile)
-        //                                         ->where('supplier_id','!=', $supplier->id)
-        //                                         ->exists();
-        //     if(!$existingRecord){
-        //         UserWhatsapp::updateOrCreate([
-        //             'supplier_id'=> $supplier->id,
-        //             'whatsapp_number' => $this->mobile],
-        //             [
-        //             'country_code' => $this->selectedCountryPhone,
-        //             'created_at'     => now(),
-        //             'updated_at'     => now()
-        //         ]);
-        //     }
-        //   }
-
-        
-        //     if($this->isWhatsappAlt1){
-        //         $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_1)
-        //                                         ->where('supplier_id','!=', $supplier->id)
-        //                                         ->exists();
-        //     if(!$existingRecord){
-        //         UserWhatsapp::updateOrCreate([
-        //             'supplier_id'=> $supplier->id,
-        //             'whatsapp_number' => $this->alternative_phone_number_1],
-        //             [
-        //             'country_code' => $this->selectedCountryAlt1,
-        //             'created_at'     => now(),
-        //             'updated_at'     => now()
-        //         ]);
-        //      }
-        //     }
-        
-        //     if($this->isWhatsappAlt2){
-        //         $existingRecord = UserWhatsapp::where('whatsapp_number', $this->alternative_phone_number_2)
-        //                                         ->where('supplier_id','!=', $supplier->id)
-        //                                         ->exists();
-        //     if(!$existingRecord){
-        //         UserWhatsapp::updateOrCreate([
-        //             'supplier_id'=> $supplier->id,
-        //             'whatsapp_number' => $this->alternative_phone_number_2],
-        //             [
-        //             'country_code' => $this->selectedCountryAlt2,
-        //             'created_at'     => now(),
-        //             'updated_at'     => now()
-        //         ]);
-        //      }
-        //     }
+       
 
         if ($this->isWhatsappPhone) {
             $existingRecord = UserWhatsapp::where('whatsapp_number', $this->mobile)->first();

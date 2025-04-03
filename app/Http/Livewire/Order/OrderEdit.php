@@ -110,16 +110,9 @@ class OrderEdit extends Component
             // dd( $this->phone);
 
             $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
-            // $this->whatsapp_no = $this->orders->customer->whatsapp_no;
-            // $this->is_wa_same  = ($this->phone == $this->whatsapp_no);
+          
             $this->catalogues = Catalogue::with('catalogueTitle')->get()->toArray();
-            // $country = Country::find($this->orders->customer->country_id);
-            // // $country = Country::find($customer->country_id);
-            // if ($country) {
-            //     $this->selectedCountryPhone = $country->country_code;
-            //     $this->mobileLengthPhone = $country->mobile_length;
-            // }
-            // dd($this->catalogues);
+            
             $this->items = $this->orders->items->map(function ($item) {
                
                 $selected_titles = OrderMeasurement::where('order_item_id', $item->id)->pluck('measurement_name')->toArray();
@@ -161,13 +154,14 @@ class OrderEdit extends Component
                     'product_id' => $item->product_id,
                     'searchproduct' => $item->product_name,
                     'price' => round($item->total_price),
+                    'remarks' => $item->remarks,
                     'selected_collection' => $item->collection,
                     'collection' => Collection::orderBy('title', 'ASC')->whereIn('id',[1,2])->get(),
                     'selected_category' => $item->category,
                     'categories' =>Category::orderBy('title', 'ASC')->where('collection_id', $item->collection)->get(),
                     'searchTerm' => optional($selectedFabric)->title, // Set default search value
                     'searchResults' => [],
-
+                    
                     'selected_fabric' => $item->fabrics,
                     'fabrics' => $fabrics,
                     'searchTerm' => optional($selectedFabric)->title ?? '',
@@ -928,6 +922,7 @@ class OrderEdit extends Component
     
     public function update()
     {
+        // dd($this->all());
         $this->validate();
         // dd($this->items);
         DB::beginTransaction();
@@ -1077,6 +1072,7 @@ class OrderEdit extends Component
                     $orderItem->order_id = $order->id;
                     $orderItem->product_name = $item['searchproduct'];
                     $orderItem->total_price = $item['price'];
+                    $orderItem->remarks = $item['remarks'];
                     $orderItem->quantity =1;
                     $orderItem->piece_price = $item['price'];
                     $orderItem->collection = $item['selected_collection'];

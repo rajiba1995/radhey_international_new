@@ -45,7 +45,7 @@
                                     <button class="dropdown-item" type="button"
                                         wire:click="selectCustomer({{ $customer->id }})">
                                         <img src="{{ $customer->profile_image ? asset($customer->profile_image) : asset('assets/img/user.png') }}"
-                                            alt=""> {{ $customer->prefix . " ".$customer->name }} ({{ $customer->phone }})
+                                            alt=""> {{ ucfirst($customer->prefix . " ".$customer->name) }} ({{ $customer->phone }})
                                     </button>
                                     @endforeach
                                 </div>
