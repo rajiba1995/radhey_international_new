@@ -48,6 +48,7 @@
                                             @endif
                                             <div class="position-relative">
                                                 <input type="hidden" wire:model="order_item.{{$key}}.price" class="form-control form-control-sm">
+                                                <input type="hidden" wire:model="order_item.{{$key}}.air_mail" class="form-control form-control-sm">
                                                 <input type="hidden" wire:model="order_item.{{$key}}.id" class="form-control form-control-sm" value="{{$order_item->id}}">
                                                 <input type="text" value="{{$order_item->product_name}}" class="form-control form-control-sm border border-1 customer_input" {{$readonly}}>
                                             </div>

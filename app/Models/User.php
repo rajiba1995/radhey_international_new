@@ -67,6 +67,7 @@ class User extends Authenticatable
         'alternative_phone_number_1',
         'country_code_alt_2',
         'alternative_phone_number_2',
+        'customer_badge'
     ];
     
     /**
