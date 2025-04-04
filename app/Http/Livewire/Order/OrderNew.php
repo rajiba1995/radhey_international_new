@@ -81,7 +81,7 @@ class OrderNew extends Component
     public $country_code;
     public $country_id;
     public $Business_type;
-    public $selectedBusinessType;
+    public $selectedBusinessType = "TEXTILES";
     public $countries;
     public $pageItems = [];
 

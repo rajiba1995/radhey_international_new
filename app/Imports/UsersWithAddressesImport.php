@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -48,7 +49,7 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
                 'email' => [
                     'nullable',
                     'email',
-                    Rule::unique('users', 'email')->whereNull('deleted_at'),
+                    // Rule::unique('users', 'email')->whereNull('deleted_at'),
                 ],
             ]);
     
@@ -60,7 +61,7 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
                 DB::rollBack(); // Rollback transaction if validation fails
                 return null;
             }
-           
+            $auth = Auth::guard('admin')->user();
             // Convert DOB format
             // $dob = isset($row['dob']) ? Carbon::createFromFormat('m/d/Y', $row['dob'])->format('Y-m-d') : null;
             $dob = isset($row['dob']) ? Carbon::createFromFormat('d-m-Y', $row['dob'])->format('Y-m-d') : null;
@@ -80,6 +81,7 @@ class UsersWithAddressesImport implements ToModel, WithHeadingRow
                     'alternative_phone_number_1' => $row['alternet_phone_one'] ?? null,
                     'country_code_alt_2' => '+'.$row['country_code_alternet_phone_two'] ?? null,
                     'alternative_phone_number_2' => $row['alternet_phone_two'] ?? null,
+                    'created_by' => $auth->id,
                     
                     // 'country_code_whatsapp' => $row['country_code_whatsapp'] ?? null,
                     // 'whatsapp_no' => $row['whatsapp_number'] ?? null,

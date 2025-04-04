@@ -43,23 +43,26 @@
             <form wire:submit.prevent="save">
                 <div class="{{$activeTab==1?" d-block":"d-none"}}" id="tab1">
                     <div class="row align-items-center mb-3">
-                        <div class="col-md-4">
-                            <div class="d-flex justify-content-between">
-                                <!-- Search Label -->
-                                <label for="searchCustomer" class="form-label mb-0">Business Type</label>
+                        @php
+                            $auth = Auth::guard('admin')->user();
+                        @endphp
+                            <div class="col-md-4 {{ $auth->is_super_admin==1 ? "" : "d-none" }}">
+                                <div class="d-flex justify-content-between">
+                                    <!-- Search Label -->
+                                    <label for="searchCustomer" class="form-label mb-0">Business Type</label>
+                                </div>
+                                <select wire:model="selectedBusinessType"
+                                    class="form-select me-2 form-control form-control-sm border border-1 customer_input"
+                                    aria-label="Default select example">
+                                    <option selected hidden>Select Domain</option>
+                                    @foreach ($Business_type as $domain)
+                                    <option value="{{$domain->id}}">{{$domain->title}}</option>
+                                    @endforeach
+                                </select>
+                                @if(isset($errorMessage['selectedBusinessType']))
+                                <div class="text-danger error-message">{{ $errorMessage['selectedBusinessType'] }}</div>
+                                @endif
                             </div>
-                            <select wire:model="selectedBusinessType"
-                                class="form-select me-2 form-control form-control-sm border border-1 customer_input"
-                                aria-label="Default select example">
-                                <option selected hidden>Select Domain</option>
-                                @foreach ($Business_type as $domain)
-                                <option value="{{$domain->id}}">{{$domain->title}}</option>
-                                @endforeach
-                            </select>
-                            @if(isset($errorMessage['selectedBusinessType']))
-                            <div class="text-danger error-message">{{ $errorMessage['selectedBusinessType'] }}</div>
-                            @endif
-                        </div>
                         {{-- Display Order by and order number --}}
                         <!-- Ordered By Section -->
                         <div class="col-md-4">

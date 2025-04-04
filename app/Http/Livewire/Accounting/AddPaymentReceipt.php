@@ -32,7 +32,9 @@ class AddPaymentReceipt extends Component
         $this->accountingRepository = $accountingRepository;
     }
     public function mount($payment_voucher_no = ""){
+
         $payment_collection = PaymentCollection::with('customer', 'user')->where('voucher_no',$payment_voucher_no)->first();
+        
         if(!empty($payment_voucher_no)){
             if(!$payment_collection){
                 abort(404);

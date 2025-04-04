@@ -9,6 +9,7 @@ use App\Models\Country;
 use App\Models\UserWhatsapp;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UserAddressForm extends Component
 {
@@ -245,7 +246,7 @@ class UserAddressForm extends Component
             // Store user data
             $imagePath = $this->uploadImage(); 
             // $videoPath = $this->verified_video ? $this->uploadVideo() : null;
-        
+            $auth = Auth::guard('admin')->user();
             $userData = [
                 'prefix' => $this->prefix,
                 'name' => $this->name,
@@ -268,8 +269,8 @@ class UserAddressForm extends Component
                 'country_code_alt_1'  => $this->selectedCountryAlt1,
                 'alternative_phone_number_1'=> $this->alternative_phone_number_1,
                 'country_code_alt_2'  => $this->selectedCountryAlt2,
-                'alternative_phone_number_2' => $this->alternative_phone_number_2
-
+                'alternative_phone_number_2' => $this->alternative_phone_number_2,
+                'created_by' => $auth->id
             ];
         
             

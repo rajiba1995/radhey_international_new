@@ -108,7 +108,7 @@
             </tr> --}}
             <tr>
                 <td colspan="2">
-                    <h2 style="font-size: 30px; color:#acacac; font-weight: 400;">Invoice: INV/{{ date('Y') }}/{{
+                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400;">Invoice: INV/{{ date('Y') }}/{{
                         $invoice->invoice_no }}</h2>
                 </td>
             </tr>

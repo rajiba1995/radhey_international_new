@@ -126,12 +126,12 @@
                                     @else
                                         <!-- <a href="#" class="btn btn-outline-primary select-md btn_action">Edit Slip</a> -->
                                         {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Order Copy</a> --}}
-                                        @if($order->invoice_type=="invoice")
+                                        {{-- @if($order->invoice_type=="invoice") --}}
                                             <button wire:click="downloadOrderInvoice({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Invoice</button>
-                                        @endif
-                                        @if($order->invoice_type=="bill")
+                                        {{-- @endif --}}
+                                        {{-- @if($order->invoice_type=="bill") --}}
                                             <button wire:click="downloadOrderBill({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Bill</button>
-                                        @endif
+                                        {{-- @endif --}}
                                     @endif
                                     <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
 

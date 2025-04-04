@@ -172,13 +172,63 @@
                     <div class="col-xl-3 col-sm-6">
                         <div class="card data-card">
                             <a href="#">
-                                <div class="card-header p-3 pt-2">
+                                <div class="card-header p-3 pt-2 mt-3">
                                     <div class="icon icon-lg icon-shape bg-gradient-danger shadow-danger text-center border-radius-xl position-absolute">
                                         <i class="material-icons opacity-10">account_balance_wallet</i>
                                     </div>
                                     <div class="text-end pt-1">
                                         <p class="text-sm mb-0 text-capitalize">Today's Expense</p>
                                         <h4 class="mb-0">{{$todays_expense}}</h4>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    {{-- Add Expense --}}
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card data-card">
+                            <a href="{{route('admin.accounting.list.depot_expense')}}">
+                                <div class="card-header p-3 pt-2">
+                                    {{-- <div class="icon icon-lg icon-shape bg-gradient-danger shadow-danger text-center border-radius-xl position-absolute">
+                                        <i class="material-icons opacity-10">account_balance_wallet</i>
+                                    </div> --}}
+                                    <div class="text-end pt-1">
+                                        <p class="text-sm mb-0 text-capitalize">Add Expense</p>
+                                        {{-- <h4 class="mb-0">{{$todays_expense}}</h4> --}}
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Add Payment --}}
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card data-card">
+                            <a href="{{route('admin.accounting.add_payment_receipt')}}">
+                                <div class="card-header p-3 pt-2">
+                                    {{-- <div class="icon icon-lg icon-shape bg-gradient-danger shadow-danger text-center border-radius-xl position-absolute">
+                                        <i class="material-icons opacity-10">account_balance_wallet</i>
+                                    </div> --}}
+                                    <div class="text-end pt-1">
+                                        <p class="text-sm mb-0 text-capitalize">Add Payment</p>
+                                        {{-- <h4 class="mb-0">{{$todays_expense}}</h4> --}}
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Add Order --}}
+                    <div class="col-xl-3 col-sm-6">
+                        <div class="card data-card">
+                            <a href="{{route('admin.order.new')}}">
+                                <div class="card-header p-3 pt-2">
+                                    {{-- <div class="icon icon-lg icon-shape bg-gradient-danger shadow-danger text-center border-radius-xl position-absolute">
+                                        <i class="material-icons opacity-10">account_balance_wallet</i>
+                                    </div> --}}
+                                    <div class="text-end pt-1">
+                                        <p class="text-sm mb-0 text-capitalize">Add Order</p>
+                                        {{-- <h4 class="mb-0">{{$todays_expense}}</h4> --}}
                                     </div>
                                 </div>
                             </a>

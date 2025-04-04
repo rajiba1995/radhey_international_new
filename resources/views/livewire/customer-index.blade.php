@@ -225,6 +225,12 @@
                                             title="Purchase History">
                                             Order History
                                         </a>
+                                        <a href="{{route('admin.accounting.add_payment_receipt')}}"
+                                            class="btn btn-outline-primary select-md btn_action btn_outline"
+                                            data-toggle="tooltip" data-original-title="Add Payment"
+                                            title="Add Payment">
+                                            Add Payment
+                                        </a>
 
                                         <!-- Add Payment Button -->
                                         {{-- <a href="" class="btn btn-outline-success custom-btn-sm mb-0"
