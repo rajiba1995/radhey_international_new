@@ -72,6 +72,8 @@ class OrderEdit extends Component
     public $country_code;
     public $country_id;
     public $air_mail;
+    // public $remarks;
+
     public function mount($id)
     {
         $this->orders = Order::with(['items.measurements'])->findOrFail($id); // Fetch the order by ID
@@ -1082,7 +1084,7 @@ class OrderEdit extends Component
                     $orderItem->air_mail = !empty($this->air_mail) ? $this->air_mail : null;
                     $itemPrice = floatval($item['price']);
                     $orderItem->total_price = $this->air_mail > 0 ? ($itemPrice + $this->air_mail) : $itemPrice;
-                    $orderItem->remarks = isset($item['remarks']) ?? null;
+                    $orderItem->remarks = $item['remarks'] ?? null;
                     $orderItem->quantity =1;
                     $orderItem->piece_price = $item['price'];
                     $orderItem->collection = $item['selected_collection'];

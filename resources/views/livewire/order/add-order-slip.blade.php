@@ -81,7 +81,11 @@
                             @php
                                 $air_mail_price = round($order->items[0]['air_mail']) ?? '0.00';
                             @endphp
+                            @php
+                                $airMailItem = collect($order->items)->firstWhere('air_mail', '>', 0);
+                            @endphp
                             {{-- Air mail --}}
+                            @if($airMailItem)
                             <div class="col-sm-6">
                                 <table>
                                     <tr>
@@ -99,6 +103,7 @@
                                     </tr>
                                 </table>
                             </div>
+                           
                             <div class="col-sm-3">
                                 <div class="form-group mb-3">
                                     <label>Quantity</label>
@@ -112,6 +117,7 @@
                                     <input type="text" class="form-control form-control-sm" value="{{ $air_mail_price }}" readonly>
                                 </div>
                             </div>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -23,6 +23,7 @@ class OrderItem extends Model
         'product_name',
         'total_price',
         'piece_price',
+        'remarks',
         'quantity',
     ];
 

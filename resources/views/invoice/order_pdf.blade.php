@@ -30,7 +30,7 @@
             position: relative;
             z-index: 3;
             background-image: url("./assets/img/watermark-logo.png");
-            background-position: 50% 80%;
+            background-position: 50% 100%;
             background-attachment: scroll;
             background-repeat: no-repeat;
             background-size: 60%;

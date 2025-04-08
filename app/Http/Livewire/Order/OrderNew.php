@@ -988,7 +988,7 @@ class OrderNew extends Component
                 $orderItem->air_mail = !empty($this->air_mail) ? $this->air_mail : null;
                 $itemPrice = floatval($item['price']);
                 $orderItem->total_price = $this->air_mail > 0 ? ($itemPrice + $this->air_mail) : $itemPrice;
-                $orderItem->remarks  = isset($item['remarks']) ?? null;
+                $orderItem->remarks  = $item['remarks'] ?? null;
                 $orderItem->piece_price = $item['price'];
                 $orderItem->quantity = 1;
                 $orderItem->fabrics = $fabric_data ? $fabric_data->id : "";

@@ -54,8 +54,8 @@ class AddInvoice extends Component
                 'collection_id' => '',
                 'product_id' => '',
                 'quantity' => 1,
-                'unit_price' => 0,
-                'total' => 0,
+                'unit_price' => '',
+                'total' => '',
                 'products' => [],
             ],
         ];
@@ -70,13 +70,12 @@ class AddInvoice extends Component
     }
 
     public function addRow(){
-        $this->validate();
         $this->rows[] = [
             'collection_id' => '',
             'product_id' => '',
             'quantity' => 1,
-            'unit_price' => 0,
-            'total' => 0,
+            'unit_price' => '',
+            'total' => '',
             'products' => [],
         ];
     }
@@ -84,7 +83,7 @@ class AddInvoice extends Component
     public function updatePrice($index)
     {
         $quantity = (int)($this->rows[$index]['quantity'] ?? 1);
-        $unitPrice = (float)($this->rows[$index]['unit_price'] ?? 0);
+        $unitPrice = is_numeric($this->rows[$index]['unit_price']) ? (float) $this->rows[$index]['unit_price'] : 0;
 
         $this->rows[$index]['total'] = $quantity * $unitPrice;
         $this->calculateTotal();
@@ -119,6 +118,11 @@ class AddInvoice extends Component
     // {
     //     return collect($this->rows)->sum('total');
     // }
+    public function updated($propertyName)
+{
+    $this->validateOnly($propertyName);
+}
+
 
     public function updatedRows()
     {
@@ -127,7 +131,11 @@ class AddInvoice extends Component
 
     public function calculateTotal()
     {
-        $this->totalAmount = collect($this->rows)->sum('total');
+        // $this->totalAmount = collect($this->rows)->sum('total');
+        $this->totalAmount = collect($this->rows)
+        ->pluck('total')
+        ->filter(fn($val) => is_numeric($val)) // only keep numeric values
+        ->sum();
         $this->totalInWords = $this->convertNumberToWords($this->totalAmount);
     }
 

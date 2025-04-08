@@ -23,6 +23,18 @@
                     <div class="col-md-8">
                         <h6 class="badge bg-danger custom_danger_badge">Basic Information</h6>
                     </div>
+                    {{-- customer badge --}}
+                    <div class="col-md-4 text-end">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" wire:model="badge_type" id="badgeGeneral" value="general">
+                            <label class="form-check-label" for="badgeGeneral">General</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" wire:model="badge_type" id="badgePremium" value="premium">
+                            <label class="form-check-label" for="badgePremium">Premium</label>
+                        </div>
+                        @error('badge_type') <div class="text-danger">{{ $message }}</div> @enderror
+                    </div>
                     {{-- <div class="col-md-4">
                         <div class="position-relative ms-3">
                             <input type="text" wire:keyup="FindCountry($event.target.value)"

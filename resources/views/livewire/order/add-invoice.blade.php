@@ -69,24 +69,29 @@
         .print-btn {
             float: right;
         }
+
         .text-total {
             font-size: 20px;
             font-weight: bold;
         }
 
-        .text-total + h6 {
+        .text-total+h6 {
             font-size: 14px;
             color: #444;
             font-style: italic;
         }
+        /*  */
+        
 
 
         @media print {
+
             /* Hide sidebar, buttons, or any other non-print content */
             .sidebar,
             .btn,
             .action-buttons,
-            .print-hide {
+            .print-hide,
+            .print-hide-admin {
                 display: none !important;
             }
 
@@ -94,6 +99,11 @@
             .scrollable-container {
                 max-height: none !important;
                 overflow: visible !important;
+            }
+
+            table th:last-child,
+            table td:last-child {
+                display: none;
             }
 
             /* Optional: Set page size and margins for better print */
@@ -110,12 +120,9 @@
             body {
                 overflow: visible !important;
             }
-            }
-
-
+        }
     </style>
-    <div class="receipt-main">
-
+    <div class="receipt-main" id="print_div">
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center receipt-header">
             <div class="col-md-6">
@@ -141,85 +148,91 @@
             </div>
         </div>
         <div class="scrollable-container">
-        <!-- Product Table -->
-        <table class="table table-bordered" id="invoiceTable">
-            <thead>
-                <tr class="text-light">
-                    <th>Collection</th>
-                    <th>Product</th>
-                    <th>Amount</th>
-                    <th>Quantity</th>
-                    <th>Total Price</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="invoiceBody">
-                @foreach ($rows as $index => $row)
-                <tr>
-                    <td>
-                        <select class="form-control product-select" wire:model="rows.{{ $index }}.collection_id" wire:change="SelectedCollection({{ $index }},$event.target.value)">
-                            <option value="" selected hidden>Select Collection</option>
-                            @foreach ($collections as $collection)
-                             <option value="{{$collection->id}}">{{$collection->title}}</option> 
-                            @endforeach
-                        </select>
-                        @error('rows.'.$index.'.collection_id')
+            <!-- Product Table -->
+            <table class="table table-bordered" id="invoiceTable">
+                <thead>
+                    <tr class="text-light">
+                        <th>Collection</th>
+                        <th>Product</th>
+                        <th>Amount</th>
+                        <th>Quantity</th>
+                        <th>Total Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceBody">
+                    @foreach ($rows as $index => $row)
+                    <tr>
+                        <td>
+                            <select class="form-control product-select" wire:model="rows.{{ $index }}.collection_id"
+                                wire:change="SelectedCollection({{ $index }},$event.target.value)">
+                                <option value="" selected hidden>Select Collection</option>
+                                @foreach ($collections as $collection)
+                                <option value="{{$collection->id}}">{{$collection->title}}</option>
+                                @endforeach
+                            </select>
+                            @error('rows.'.$index.'.collection_id')
                             <p class="text-danger">{{$message}}</p>
-                        @enderror
-                    </td>
-                    <td>
-                        <select class="form-control product-select" wire:model="rows.{{ $index }}.product_id" >
-                            <option value="" selected hidden>Select Product</option>
-                            @foreach ($row['products'] as $product)
-                              <option value="{{$product['id']}}">{{$product['name']}}</option>
-                            @endforeach
-                        </select>
-                        @error('rows.'.$index.'.product_id')
+                            @enderror
+                        </td>
+                        <td>
+                            <select class="form-control product-select" wire:model="rows.{{ $index }}.product_id">
+                                <option value="" selected hidden>Select Product</option>
+                                @foreach ($row['products'] as $product)
+                                <option value="{{$product['id']}}">{{$product['name']}}</option>
+                                @endforeach
+                            </select>
+                            @error('rows.'.$index.'.product_id')
                             <p class="text-danger">{{$message}}</p>
-                        @enderror
-                    </td>
-                    <td>
-                        <input type="text" class="form-control amount"  wire:model="rows.{{ $index }}.unit_price" wire:keyup="updatePrice({{ $index }})">
-                        @error('rows.'.$index.'.unit_price')
+                            @enderror
+                        </td>
+                        <td>
+                            <input type="text" class="form-control amount" wire:model="rows.{{ $index }}.unit_price"
+                                wire:keyup="updatePrice({{ $index }})" placeholder="Enter Amount">
+                            @error('rows.'.$index.'.unit_price')
                             <p class="text-danger">{{$message}}</p>
-                        @enderror
-                    </td>
-                    <td>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <button class="btn btn-outline-secondary btn-qty minus" type="button"  wire:click="updateQuantity({{ $index }}, 'decrease')">-</button>
+                            @enderror
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button class="btn btn-outline-secondary btn-qty minus" type="button"
+                                        wire:click="updateQuantity({{ $index }}, 'decrease')">-</button>
+                                </div>
+                                <input type="text" class="form-control quantity text-center" value="1" min="1"
+                                    wire:model="rows.{{ $index }}.quantity" readonly>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary btn-qty plus" type="button"
+                                        wire:click="updateQuantity({{ $index }}, 'increase')">+</button>
+                                </div>
                             </div>
-                            <input type="text" class="form-control quantity text-center" value="1" min="1" wire:model="rows.{{ $index }}.quantity"  readonly>
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary btn-qty plus" type="button" wire:click="updateQuantity({{ $index }}, 'increase')">+</button>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <input type="text" class="form-control amount" value="0" readonly wire:model="rows.{{ $index }}.total">
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm remove-row" wire:click="removeRow({{$index}})"><i
-                                class="fas fa-trash-alt"></i></button>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control amount" value="0" readonly
+                                wire:model="rows.{{ $index }}.total">
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm remove-row"
+                                wire:click="removeRow({{$index}})"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
 
-        <div class="d-flex justify-content-between mt-3 align-items-start">
-            <button class="btn btn-success btn-sm" wire:click="addRow"><i class="fas fa-plus"></i> Add Row</button>
-            <div class="text-right">
-                <h5 class="text-total">
-                    <strong>Total Amount:</strong>
-                    <span id="totalAmount">{{number_format($this->totalAmount,2)}}</span>
-                </h5>
-                <h6 class="mt-2">
-                    <strong>Total (in words):</strong>
-                    <span id="totalAmount">{{$this->totalInWords}}</span>
-                </h6>
+            <div class="d-flex mt-3 align-items-start">
+                <button class="btn btn-success btn-sm" wire:click="addRow"><i class="fas fa-plus"></i> Add Row</button>
+                <div class="ms-auto text-right me-4" style="min-width: 300px;">
+                    <h5 class="text-total">
+                        <strong>Total Amount:</strong>
+                        <span id="totalAmount">{{number_format($this->totalAmount,2)}}</span>
+                    </h5>
+                    <h6 class="mt-2">
+                        <strong>Total (in words):</strong>
+                        <span id="totalAmount">{{$this->totalInWords}}</span>
+                    </h6>
+                </div>
             </div>
-        </div>
         </div>
 
         <!-- Footer -->
@@ -239,4 +252,3 @@
         window.print();
     });
 </script>
-
