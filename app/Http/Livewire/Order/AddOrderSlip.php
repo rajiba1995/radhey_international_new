@@ -41,8 +41,9 @@ class AddOrderSlip extends Component
         if($this->order){
             foreach($this->order->items as $key=>$order_item){
                 $this->order_item[$key]['id']= $order_item->id;
-                $this->order_item[$key]['price']= (int)$order_item->piece_price;
+                $this->order_item[$key]['piece_price']= (int)$order_item->piece_price;
                 $this->order_item[$key]['quantity']= $order_item->quantity;
+                $this->order_item[$key]['air_mail'] = $order_item->air_mail ?? 0;
             }
             $this->total_amount = $this->order->total_amount;
             $this->actual_amount = $this->order->total_amount;
@@ -62,18 +63,42 @@ class AddOrderSlip extends Component
     public function updateQuantity($value, $key,$price){
         if(!empty($value)){
             $this->order_item[$key]['quantity']= $value;
-            $this->order_item[$key]['price']= $price*$value;
+            $base_price = $price * $value;
+            $this->order_item[$key]['price'] = $base_price;
+
             $this->actual_amount = 0;
-            foreach($this->order_item as $key=>$item){
-                $this->actual_amount +=$item['price'];
+            $air_mail_added = false;
+            $air_mail_total = 0;
+
+            // $air_mail = $this->order_item[$key]['air_mail'] ?? 0;
+            // $this->order_item[$key]['total'] = $base_price + $air_mail;
+
+            // $this->actual_amount = 0;
+            // foreach($this->order_item as $key=>$item){
+            //     $air_mail = $item['air_mail'] ?? 0;
+            //     $this->actual_amount +=$item['price'] + $air_mail;
+            // }
+            foreach ($this->order_item as $item) {
+                $this->actual_amount += $item['price'];
+    
+                if (!$air_mail_added && !empty($item['air_mail']) && is_numeric($item['air_mail'])) {
+                    $air_mail_total = floatval($item['air_mail']);
+                    $air_mail_added = true;
+                }
             }
+    
+            $this->actual_amount += $air_mail_total;
         }
     }
 
     public function submitForm(){
+        // dd($this->all());
         $this->reset(['errorMessage']);
         $this->errorMessage = array();
         foreach ($this->order_item as $key => $item) {
+            if (!isset($item['air_mail'])) {
+                $item['air_mail'] = 0;
+            }
             if (empty($item['quantity'])) {  // Ensure 'quantity' exists
                 $this->errorMessage["order_item.$key.quantity"] = 'Please enter quantity.';
             }
@@ -168,16 +193,32 @@ class AddOrderSlip extends Component
     public function updateOrderItems()
     {
         $total_amount = 0;
+        $air_mail_added = false;
+        $air_mail_total = 0;
         foreach ($this->order_item as $item) {
-            $total_amount += $item['price'];
+            $airMail = $item['air_mail'] ?? 0;
+            $piecePrice = (float)$item['piece_price']; 
+            $quantity = (int)$item['quantity'];
+            $base_total = $piecePrice * $quantity;
+            if (!$air_mail_added && $airMail > 0) {
+                $air_mail_total = floatval($airMail);
+                $air_mail_added = true;
+            }
+            $totalPrice = $base_total;
+            // $totalPrice = ($piecePrice * $quantity) + $airMail;
             OrderItem::where('id', $item['id'])->update([
-                'total_price' => $item['price'],
-                'quantity' => $item['quantity'],
+                'total_price' =>  $totalPrice,
+                'quantity' => $quantity,
+                'air_mail' => $airMail,
+                'piece_price' => $piecePrice,
             ]);
+            $total_amount += $totalPrice; 
 
         }
+        $total_amount += $air_mail_total;
         $order = Order::find($this->order->id);
         if ($order) {
+            // $totalAmount  = $order->items()->sum('total_price');
             $order->update([
                 'total_amount' => $total_amount,
             ]);
@@ -237,7 +278,7 @@ class AddOrderSlip extends Component
                     'product_name'=> $item->product? $item->product->name : "",
                     'quantity' => $item->quantity,
                     'single_product_price'=> $item->piece_price,
-                    'total_price' => $item->total_price,
+                    'total_price' => $item->total_price + ($item->air_mail ?? 0),
                     'is_store_address_outstation' => 0,
                     'created_at' => now(),
                     'updated_at' => now(),

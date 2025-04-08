@@ -28,7 +28,16 @@
             flex-direction: column;
             height: 100vh;
             position: relative;
+            z-index: 3;
+            background-image: url("./assets/img/watermark-logo.png");
+            background-position: 50% 100%;
+            background-attachment: scroll;
+            background-repeat: no-repeat;
+            background-size: 60%;
+
         }
+
+        
 
         .table-container table {
             flex-grow: 1;
@@ -75,7 +84,7 @@
         <table class="table-custom">
             <tr>
                 <td style="width:60%;">
-                    <img src="{{  public_path('assets/img/pdf_logo.png')}}" style="width:130px; height:auto;">
+                    <img src="{{  public_path('assets/img/pdf_logo.png')}}" style="width:210px; height:auto;">
                 </td>
                 <td style="width:40%;">
                     <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">STE RADHEY'S SARL</h3>
@@ -166,12 +175,20 @@
                             <tr>
                                 <td style="width:60%; line-height: 1.6; font-size: 13px;">{{ $item->product_name }}</td>
                                 <td style="font-size: 13px;">{{ $item->quantity }} set</td>
-                                <td style="font-size: 13px;">{{ number_format( ($item->total_price)/($item->quantity) )
+                                <td style="font-size: 13px;">{{ number_format( ($item->piece_price)/($item->quantity) )
                                     }}</td>
                                 {{-- <td style="font-size: 13px;">0.00</td> --}}
-                                <td style="font-size: 13px;">{{ number_format( $item->total_price ) }} FCFA</td>
+                                <td style="font-size: 13px;">{{ number_format( $item->piece_price ) }} FCFA</td>
                             </tr>
+                            
                             @endforeach
+                            <tr>
+                                <td style="width:60%; line-height: 1.6; font-size: 13px;">Air Mail</td>
+                                <td style="font-size: 13px;">1</td>
+                                <td style="font-size: 13px;">{{ number_format($item->air_mail)}}</td>
+                                {{-- <td style="font-size: 13px;">0.00</td> --}}
+                                <td style="font-size: 13px;">{{ number_format( $item->air_mail ) }} FCFA</td>
+                            </tr>
                             @endif
                         </tbody>
                     </table>

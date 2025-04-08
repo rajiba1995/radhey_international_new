@@ -19,7 +19,7 @@ use App\Http\Livewire\StaticSignUp;
 use App\Http\Livewire\Tables;
 use App\Http\Livewire\{VirtualReality,CustomerIndex,DesignationWisePermissions};
 use GuzzleHttp\Middleware;
-use App\Http\Livewire\Order\{OrderIndex, OrderNew, OrderInvoice,OrderEdit,OrderView,LedgerView,AddOrderSlip,InvoiceList,CancelOrderList,InvoiceEdit};
+use App\Http\Livewire\Order\{OrderIndex, OrderNew, OrderInvoice,OrderEdit,OrderView,LedgerView,AddOrderSlip,InvoiceList,CancelOrderList,InvoiceEdit,AddInvoice};
 use App\Http\Livewire\Product\{MasterProduct,AddProduct,UpdateProduct,MasterCategory,MasterSubCategory,FabricIndex,CollectionIndex,GalleryIndex,MasterCatalogue,CataloguePages};
 use App\Http\Livewire\Staff\{DesignationIndex,StaffIndex,StaffAdd,StaffUpdate,StaffView,StaffTask,StaffTaskAdd,StaffCities,SalesmanBillingIndex,MasterBranch};
 use App\Http\Livewire\Expense\{ExpenseIndex,DepotExpanse,DailyExpenses,DailyCollection};
@@ -231,6 +231,7 @@ Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
         Route::get('/view/{id}', OrderView::class)->name('admin.order.view')->middleware('check.permission');
         Route::get('/ledger/{id}', LedgerView::class)->name('admin.order.ledger.view');
         Route::get('/invoice', InvoiceList::class)->name('admin.order.invoice.index')->middleware('check.permission');
+        Route::get('/add-invoice', AddInvoice::class)->name('admin.order.invoice.add');
         Route::get('/cancel-order', CancelOrderList::class)->name('admin.order.cancel-order.index')->middleware('check.permission');
     });
 });

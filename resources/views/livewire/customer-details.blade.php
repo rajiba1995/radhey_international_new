@@ -211,8 +211,8 @@
     </div>
         <div class="card shadow-sm mb-2">
             <!-- Order Details Table -->
-            <div class="row">
-                <div class="col-12 col-lg-12">
+            {{-- <div class="row"> --}}
+                {{-- <div class="col-12 col-lg-12"> --}}
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="card-title m-0">Latest 10 Orders</h5>
@@ -255,10 +255,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-               
-            </div>
+                {{-- </div> --}}
+            {{-- </div> --}}
         </div>
     </div>
 </div>

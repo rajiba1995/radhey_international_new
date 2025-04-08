@@ -92,6 +92,7 @@ class OrderNew extends Component
         // Example item structure
         // ['measurements' => [['id' => 1, 'title' => 'Measurement 1', 'value' => '']]],
     ];
+    public $air_mail;
 
     public function mount()
     {
@@ -627,7 +628,9 @@ class OrderNew extends Component
     public function updateBillingAmount()
     {
         // Recalculate the total billing amount
-        $this->billing_amount = array_sum(array_column($this->items, 'price'));
+        $itemTotal = array_sum(array_column($this->items, 'price'));
+        $airMail = floatval($this->air_mail);
+        $this->billing_amount = $airMail > 0 ? ($itemTotal + $airMail) : $itemTotal;
         $this->paid_amount = $this->billing_amount;
         $this->GetRemainingAmount($this->paid_amount);
         return;
@@ -757,10 +760,13 @@ class OrderNew extends Component
             
             // Calculate the total amount
             $total_amount = array_sum(array_column($this->items, 'price'));
-            if ($this->paid_amount > $total_amount) {
-                session()->flash('error', '🚨 The paid amount cannot exceed the total billing amount.');
-                return;
-            }
+            $airMail = floatval($this->air_mail);
+            $total_amount = $airMail > 0 ? ($total_amount + $airMail) : $total_amount;
+            // dd($total_amount);
+            // if ($this->paid_amount > $total_amount) {
+            //     session()->flash('error', '🚨 The paid amount cannot exceed the total billing amount.');
+            //     return;
+            // }
             $this->remaining_amount = $total_amount - $this->paid_amount;
 
             // Retrieve user details
@@ -980,8 +986,10 @@ class OrderNew extends Component
                 $orderItem->category = $category_data ? $category_data->id : "";
                 
                 $orderItem->product_name = $item['searchproduct'];
-                $orderItem->total_price = $item['price'];
-                $orderItem->remarks  = isset($item['remarks'])?$item['remarks']:"";
+                $orderItem->air_mail = !empty($this->air_mail) ? $this->air_mail : null;
+                $itemPrice = floatval($item['price']);
+                $orderItem->total_price = $this->air_mail > 0 ? ($itemPrice + $this->air_mail) : $itemPrice;
+                $orderItem->remarks  = $item['remarks'] ?? null;
                 $orderItem->piece_price = $item['price'];
                 $orderItem->quantity = 1;
                 $orderItem->fabrics = $fabric_data ? $fabric_data->id : "";

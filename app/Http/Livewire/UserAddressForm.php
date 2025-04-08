@@ -39,6 +39,7 @@ class UserAddressForm extends Component
     public $countries = [];
     public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
     public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
+    public $badge_type;
 
 
     public function mount(){
@@ -100,6 +101,7 @@ class UserAddressForm extends Component
             // 'verified_video' => 'nullable|mimes:mp4,mov,avi,wmv',
             'company_name'=>'nullable|string|max:255',
             'email' => 'nullable|email',
+            'badge_type' => 'required|in:general,premium',
             'dob'=> 'nullable|date',
              'phone' => [
                 'required',
@@ -250,6 +252,7 @@ class UserAddressForm extends Component
             $userData = [
                 'prefix' => $this->prefix,
                 'name' => $this->name,
+                'customer_badge' => $this->badge_type,
                 'profile_image' => $imagePath,
                 // 'verified_video' =>  $videoPath,
                 'company_name' => $this->company_name,

@@ -40,7 +40,7 @@ class OrderEdit extends Component
     
     public $customers = null;
     public $orders;
-    public $is_wa_same, $prefix, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $whatsapp_no, $phone ,$alternative_phone_number_1, $alternative_phone_number_2,
+    public $is_wa_same, $prefix, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $phone ,$alternative_phone_number_1, $alternative_phone_number_2,
     $selectedCountryPhone, $selectedCountryWhatsapp, $selectedCountryAlt1 , $selectedCountryAlt2 ,$mobileLengthPhone, $mobileLengthWhatsapp, $mobileLengthAlt1, $mobileLengthAlt2,
     $countries,
      $isWhatsappPhone, $isWhatsappAlt1 , $isWhatsappAlt2
@@ -71,12 +71,9 @@ class OrderEdit extends Component
     public $search;
     public $country_code;
     public $country_id;
-    // public $countries;
-    // public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
-    // public $selectedCountryPhone;
-    // public $mobileLengthPhone;
-    // public $isWhatsappPhone;
-    // public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
+    public $air_mail;
+    // public $remarks;
+
     public function mount($id)
     {
         $this->orders = Order::with(['items.measurements'])->findOrFail($id); // Fetch the order by ID
@@ -88,6 +85,7 @@ class OrderEdit extends Component
             $this->email = $this->orders->customer_email;
             $this->dob = $this->orders->customer->dob;
             $this->billing_address = $this->orders->billing_address;
+            $this->air_mail = $this->orders->items->sum('air_mail');
             // $this->shipping_address = $this->orders->shipping_address;
             // $this->is_billing_shipping_same = ($this->orders->billing_address == $this->orders->shipping_address);
             $this->phone = $this->orders->customer->phone;
@@ -153,7 +151,8 @@ class OrderEdit extends Component
                     'order_item_id' => $item->id, 
                     'product_id' => $item->product_id,
                     'searchproduct' => $item->product_name,
-                    'price' => round($item->total_price),
+                    // 'air_mail'  => $item->air_mail,
+                    'price' => round($item->piece_price),
                     'remarks' => $item->remarks,
                     'selected_collection' => $item->collection,
                     'collection' => Collection::orderBy('title', 'ASC')->whereIn('id',[1,2])->get(),
@@ -412,8 +411,10 @@ class OrderEdit extends Component
     public function updateBillingAmount()
     {
         // Recalculate the total billing amount
-        $this->billing_amount = array_sum(array_column($this->items, 'price'));
-        $this->paid_amount = $this->orders->paid_amount;
+        $itemTotal = array_sum(array_column($this->items, 'price'));
+        $airMail = floatval($this->air_mail);
+        $this->billing_amount = $airMail > 0 ? ($itemTotal + $airMail) : $itemTotal;
+        $this->paid_amount = $this->billing_amount;
         $this->GetRemainingAmount($this->paid_amount);
         return;
     }
@@ -928,7 +929,16 @@ class OrderEdit extends Component
         DB::beginTransaction();
         try {
             
-            $total_amount = array_sum(array_column($this->items, 'price'));
+            // $total_amount = array_sum(array_column($this->items, 'price'));
+            $total_amount = array_sum(array_map(function ($item) {
+                return floatval($item['price']);
+            }, $this->items));
+            
+            if (!empty($this->air_mail) && is_numeric($this->air_mail)) {
+                $total_amount += floatval($this->air_mail);
+            }
+            
+            // dd($total_amount);
 
             // Retrieve user details
             $user = User::find($this->customer_id);
@@ -1071,8 +1081,10 @@ class OrderEdit extends Component
                     $orderItem->product_id = $item['product_id'];
                     $orderItem->order_id = $order->id;
                     $orderItem->product_name = $item['searchproduct'];
-                    $orderItem->total_price = $item['price'];
-                    $orderItem->remarks = isset($item['remarks']) ?? null;
+                    $orderItem->air_mail = !empty($this->air_mail) ? $this->air_mail : null;
+                    $itemPrice = floatval($item['price']);
+                    $orderItem->total_price = $this->air_mail > 0 ? ($itemPrice + $this->air_mail) : $itemPrice;
+                    $orderItem->remarks = $item['remarks'] ?? null;
                     $orderItem->quantity =1;
                     $orderItem->piece_price = $item['price'];
                     $orderItem->collection = $item['selected_collection'];

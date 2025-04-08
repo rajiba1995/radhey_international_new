@@ -48,6 +48,7 @@
                                             @endif
                                             <div class="position-relative">
                                                 <input type="hidden" wire:model="order_item.{{$key}}.price" class="form-control form-control-sm">
+                                                <input type="hidden" wire:model="order_item.{{$key}}.air_mail" class="form-control form-control-sm">
                                                 <input type="hidden" wire:model="order_item.{{$key}}.id" class="form-control form-control-sm" value="{{$order_item->id}}">
                                                 <input type="text" value="{{$order_item->product_name}}" class="form-control form-control-sm border border-1 customer_input" {{$readonly}}>
                                             </div>
@@ -77,6 +78,46 @@
                                 </div>
                             </div>
                             @endforeach
+                            @php
+                                $air_mail_price = round($order->items[0]['air_mail']) ?? '0.00';
+                            @endphp
+                            @php
+                                $airMailItem = collect($order->items)->firstWhere('air_mail', '>', 0);
+                            @endphp
+                            {{-- Air mail --}}
+                            @if($airMailItem)
+                            <div class="col-sm-6">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <span class="text-sm badge bg-primary sale_grn_sl">4</span>
+                                        </td>
+                                        <td class="w-100">
+                                            <div class="form-group mb-3">
+                                                <label>AIR MAIL</label>
+                                                <div class="position-relative">
+                                                    <input type="text" value="AIR MAIL" class="form-control form-control-sm border border-1 customer_input" readonly>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                           
+                            <div class="col-sm-3">
+                                <div class="form-group mb-3">
+                                    <label>Quantity</label>
+                                    <input type="text" class="form-control form-control-sm" value="1" readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-3">
+                                <div class="form-group mb-3">
+                                    <label>Price</label>
+                                    <input type="text" class="form-control form-control-sm" value="{{ $air_mail_price }}" readonly>
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -180,7 +180,7 @@
                         </div>
 
                         <!-- WhatsApp Number -->
-                        <div class="mb-3 col-md-3">
+                        {{-- <div class="mb-3 col-md-3">
                             <label for="whatsapp_no" class="form-label">WhatsApp Number <span
                                     class="text-danger">*</span></label>
                             <div class="extention-group">
@@ -206,7 +206,7 @@
                                 @if(isset($errorMessage['whatsapp_no']))
                                 <div class="text-danger">{{ $errorMessage['whatsapp_no'] }}</div>
                                 @endif
-                        </div>
+                        </div> --}}
 
                         <!-- Alternative Phone Number 1 -->
                         <div class="mb-3 col-md-3">
@@ -772,12 +772,23 @@
                                                     style="font-size: 15px;">add</i>Add Item</button>
                                         </td>
                                     </tr>
+                                    {{-- @if ($air_mail !== null && $air_mail !== '') --}}
+                                    <tr>
+                                        <td class="w-70"><label class="form-label"><strong>Air Mail</strong></label>
+                                        </td>
+                                        <td>
+                                            <!-- Sub Total -->
+                                            <input type="number" class="form-control form-control-sm"
+                                                wire:model="air_mail"  wire:keyup="updateBillingAmount"  placeholder="Enter air mail cost">
+                                        </td>
+                                    </tr>
+                                    {{-- @endif --}}
                                     <tr>
                                         <td class="w-70"><label class="form-label"><strong>Total Amount</strong></label>
                                         </td>
                                         <td>
                                             <!-- Sub Total -->
-                                            <input type="text" class="form-control form-control-sm text-center"
+                                            <input type="text" class="form-control form-control-sm"
                                                 wire:model="billing_amount" disabled
                                                 value="{{ number_format($billing_amount, 2) }}">
                                         </td>

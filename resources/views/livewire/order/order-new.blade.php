@@ -862,6 +862,15 @@
                                         </td>
                                     </tr>
                                     <tr>
+                                        <td class="w-70"><label class="form-label"><strong>Air Mail</strong></label>
+                                        </td>
+                                        <td>
+                                            <!-- Sub Total -->
+                                            <input type="number" class="form-control form-control-sm"
+                                                wire:model="air_mail"  wire:keyup="updateBillingAmount"  placeholder="Enter air mail cost">
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td class="w-70"><label class="form-label"><strong>Total Amount</strong></label>
                                         </td>
                                         <td>

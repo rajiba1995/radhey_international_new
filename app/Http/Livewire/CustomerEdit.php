@@ -27,6 +27,7 @@ class CustomerEdit extends Component
     public $searchTerm;
     public $country_code;
     public $prefix;
+    public $badge_type;
 
     public function mount($id)
     {
@@ -43,7 +44,7 @@ class CustomerEdit extends Component
             $this->alternative_phone_number_1 = $user->alternative_phone_number_1;
             $this->alternative_phone_number_2 = $user->alternative_phone_number_2;
             $this->phone = $user->phone;
-
+            $this->badge_type = $user->customer_badge;
             $this->countries = Country::where('status',1)->get();
             $this->selectedCountryPhone = $user->country_code_phone;
             // $this->selectedCountryWhatsapp = $user->country_code_whatsapp;
@@ -346,6 +347,7 @@ class CustomerEdit extends Component
     private function prepareUserData()
     {
         return [
+            'customer_badge' => $this->badge_type,
             'prefix' => $this->prefix,
             'name' => $this->name,
             'company_name' => $this->company_name,
