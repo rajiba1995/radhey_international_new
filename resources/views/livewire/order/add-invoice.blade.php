@@ -1,254 +1,279 @@
 <div class="container-fluid px-4">
+
     <style>
-        html,
         body {
-            margin: 0;
-            padding: 20px;
-            /* height: 100%; */
-            background: #f2f2f2;
-            font-family: 'Segoe UI', sans-serif;
-            width: 100%;
-            box-sizing: border-box;
-            overflow-x: hidden;
+            font-family: "Roboto", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-variation-settings: "wdth" 100;
         }
 
-        .container {
+        table {
             width: 100%;
+            height: auto;
+            border-collapse: collapse;
+        }
+
+
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+           
+
+        }
+
+        
+
+        .table-container table {
+            flex-grow: 1;
+            width: 100%;
+            border-collapse: collapse;
+
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 75px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+
+        }
+
+        html,
+        body {
             height: 100%;
         }
 
-        .receipt-main {
-            background: #fff;
-            padding: 20px;
-            /* height: 100%; */
-            width: 100%;
-            box-sizing: border-box;
-            border-top: 5px solid #dc3545;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .receipt-main h5,
-        .receipt-main h3,
-        .receipt-main p {
-            margin: 0;
-        }
-
-        .receipt-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .receipt-header img {
-            width: 30%;
-            border-radius: 50%;
-        }
-
-        .table thead th {
-            background-color: #c6d2dd;
-            color: #fff;
-        }
-
-        .input-group .form-control {
-            max-width: 60px;
-        }
-
-        .btn-qty {
-            min-width: 30px;
-        }
-
-        .text-total {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .print-btn {
-            float: right;
-        }
-
-        .text-total {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .text-total+h6 {
-            font-size: 14px;
-            color: #444;
-            font-style: italic;
-        }
-        /*  */
-        
 
 
-        @media print {
-
-            /* Hide sidebar, buttons, or any other non-print content */
-            .sidebar,
-            .btn,
-            .action-buttons,
-            .print-hide,
-            .print-hide-admin {
-                display: none !important;
-            }
-
-            /* Ensure scrollable containers fully expand */
-            .scrollable-container {
-                max-height: none !important;
-                overflow: visible !important;
-            }
-
-            table th:last-child,
-            table td:last-child {
-                display: none;
-            }
-
-            /* Optional: Set page size and margins for better print */
-            @page {
-                size: A4;
-                margin: 1cm;
-            }
-
-            /* Prevent page breaks inside a row */
-            .invoice-row {
-                page-break-inside: avoid;
-            }
-
-            body {
-                overflow: visible !important;
-            }
+        h4,
+        h1,
+        h5,
+        h2,
+        h3,
+        h6,
+        p {
+            margin-top: 0;
+            color: #000;
         }
     </style>
-    <div class="receipt-main" id="print_div">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center receipt-header">
-            <div class="col-md-6">
-                <img src="{{ asset("assets/img/pdf_logo.png") }}" alt="Company Logo">
-            </div>
-            <div class="col-md-6 text-right">
-                <h5>Company Name</h5>
-                <p><i class="fas fa-phone"></i> +1 3649-6589</p>
-                <p><i class="fas fa-envelope"></i> company@gmail.com</p>
-                <p><i class="fas fa-map-marker-alt"></i> USA</p>
-            </div>
-        </div>
 
-        <!-- User Info -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <h5>Souvik Mandal</h5>
-                <p><strong>Mobile:</strong> 9064956744</p>
-                <p><strong>Email:</strong> souvik@gmail.com</p>
-            </div>
-            <div class="col-md-4 text-right">
-                <h3>INVOICE #102</h3>
-            </div>
-        </div>
-        <div class="scrollable-container">
-            <!-- Product Table -->
-            <table class="table table-bordered" id="invoiceTable">
-                <thead>
-                    <tr class="text-light">
-                        <th>Collection</th>
-                        <th>Product</th>
-                        <th>Amount</th>
-                        <th>Quantity</th>
-                        <th>Total Price</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="invoiceBody">
-                    @foreach ($rows as $index => $row)
-                    <tr>
-                        <td>
-                            <select class="form-control product-select" wire:model="rows.{{ $index }}.collection_id"
-                                wire:change="SelectedCollection({{ $index }},$event.target.value)">
-                                <option value="" selected hidden>Select Collection</option>
-                                @foreach ($collections as $collection)
-                                <option value="{{$collection->id}}">{{$collection->title}}</option>
-                                @endforeach
-                            </select>
-                            @error('rows.'.$index.'.collection_id')
-                            <p class="text-danger">{{$message}}</p>
-                            @enderror
-                        </td>
-                        <td>
-                            <select class="form-control product-select" wire:model="rows.{{ $index }}.product_id">
-                                <option value="" selected hidden>Select Product</option>
-                                @foreach ($row['products'] as $product)
-                                <option value="{{$product['id']}}">{{$product['name']}}</option>
-                                @endforeach
-                            </select>
-                            @error('rows.'.$index.'.product_id')
-                            <p class="text-danger">{{$message}}</p>
-                            @enderror
-                        </td>
-                        <td>
-                            <input type="text" class="form-control amount" wire:model="rows.{{ $index }}.unit_price"
-                                wire:keyup="updatePrice({{ $index }})" placeholder="Enter Amount">
-                            @error('rows.'.$index.'.unit_price')
-                            <p class="text-danger">{{$message}}</p>
-                            @enderror
-                        </td>
-                        <td>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <button class="btn btn-outline-secondary btn-qty minus" type="button"
-                                        wire:click="updateQuantity({{ $index }}, 'decrease')">-</button>
-                                </div>
-                                <input type="text" class="form-control quantity text-center" value="1" min="1"
-                                    wire:model="rows.{{ $index }}.quantity" readonly>
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary btn-qty plus" type="button"
-                                        wire:click="updateQuantity({{ $index }}, 'increase')">+</button>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control amount" value="0" readonly
-                                wire:model="rows.{{ $index }}.total">
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm remove-row"
-                                wire:click="removeRow({{$index}})"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
+
+
+    <div class="table-container">
+        <table class="table-custom">
+            <tr>
+                <td style="width:60%;">
+                    <img src="{{  asset('assets/img/pdf_logo.png')}}" style="width:210px; height:auto;">
+                </td>
+                <td style="width:40%;">
+                    <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">STE RADHEY'S SARL</h3>
+                    <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">CAPITAL: 1.000.000 FCFA
+                    </h3>
+                    <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">NIU M24000000659298E
+                    </h3>
+                    <h3 style="font-size: 15px; margin-bottom: 3px;">RCCM CG-PNR-01-2024-B12-00203</h3>
+                </td>
+            </tr>
+           
+            <tr>
+                <td colspan="2">
+                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400;">Invoice: INV/{{ date('Y') }}/</h2>
+                </td>
+            </tr>
+            {{-- <tr>
+                <td colspan="2" style="border-bottom: 1px solid #ccc; padding-bottom: 25px;">
+                    <table>
+                        <tr>
+                            <td>
+                                <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Invoice
+                                    Date:</h5>
+                                <p style="color:#000; font-size: 14px;">{{
+                                    \Carbon\Carbon::parse($invoice->created_at)->format('d-m-Y') }}</p>
+                            </td>
+                            <td>
+                                <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Due Date:
+                                </h5>
+                                <p style="color:#000; font-size: 14px;">{{
+                                    \Carbon\Carbon::parse($invoice->order->last_payment_date)->format('d-m-Y') }}</p>
+                            </td>
+                            <td>
+                                <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Source:
+                                </h5>
+                                <p style="color:#000; font-size: 14px;">{{ $invoice->order->order_number }}</p>
+                            </td>
+                            <td>
+                                <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">
+                                    Referrnce:</h5>
+                                <p style="color:#000; font-size: 14px;">{{ $invoice->order->order_number }}</p>
+                            </td>
+
+                        </tr>
+                    </table>
+                </td>
+            </tr> --}}
+
+            <tr>
+                <td colspan="2">
+                    <table>
+                        <thead style="text-align: left;">
+                            <tr>
+                                <th style="padding:8px 0; font-size: 14px; text-align: left;">Decriptions</th>
+                                <th style="padding:8px 0; font-size: 14px; text-align: left;">Quantity</th>
+                                <th style="padding:8px 0; font-size: 14px; text-align: left;">Unit Price</th>
+                                {{-- <th style="padding:8px 0; font-size: 14px;">Taxes</th> --}}
+                                <th style="padding:8px 0; font-size: 14px; text-align: left;">Total Price</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($rows as $index => $row)
+                                
+                            <tr>
+                                <td style="line-height: 1.6; font-size: 13px;">
+                                    <select class="form-control product-select" wire:model="rows.{{ $index }}.product_id">
+                                        <option value="" selected hidden>Select Product</option>
+                                        @foreach ($products as $product)
+                                        <option value="{{$product['id']}}">{{$product['name']}}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('rows.'.$index.'.product_id')
+                                    <p class="text-danger">{{$message}}</p>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <button class="btn btn-outline-secondary btn-qty minus" type="button"
+                                                wire:click="updateQuantity({{ $index }}, 'decrease')">-</button>
+                                        </div>
+                                        <input type="text" class="form-control quantity text-center" value="1" min="1"
+                                            wire:model="rows.{{ $index }}.quantity" readonly>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary btn-qty plus" type="button"
+                                                wire:click="updateQuantity({{ $index }}, 'increase')">+</button>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="font-size: 13px;">
+                                    <input type="text" class="form-control amount" wire:model="rows.{{ $index }}.unit_price"
+                                    wire:keyup="updatePrice({{ $index }})" placeholder="Enter Amount">
+                                    @error('rows.'.$index.'.unit_price')
+                                    <p class="text-danger">{{$message}}</p>
+                                    @enderror
+                                </td>
+                                {{-- <td style="font-size: 13px;">0.00</td> --}}
+                                <td style="font-size: 13px;"><input type="text" class="form-control amount" value="0" readonly
+                                    wire:model="rows.{{ $index }}.total"> FCFA</td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm remove-row"
+                                        wire:click="removeRow({{$index}})"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                            @endforeach
+                            <button class="btn btn-success btn-sm" wire:click="addRow"><i class="fas fa-plus"></i> Add Row</button>
+                        </tbody>
+                    </table>
+                    <table style="margin-top: 45px;">
+                        <tr>
+                            <td style="width:50%;"></td>
+                            <td>
+                                <table style="border-top: 1px solid #ccc;">
+                                    @php
+                                        $subtotal = collect($rows)->sum(function ($row) {
+                                            return floatval($row['total']);
+                                        });
+                                        $tva = $subtotal * 0.18;
+                                        $ca = $tva * 0.05;
+                                        $ht_amount = $subtotal - ($tva + $ca);
+                                     @endphp
+                                    <tr>
+                                        <td
+                                            style="font-weight: 600; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
+                                            Total</td>
+                                        <td
+                                            style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
+                                            {{$subtotal}} FCFA</td>
+                                    </tr>
+                                   
+
+                                    <tr>
+                                        <td
+                                            style="color:#a2a0a0; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
+                                            H.T</td>
+                                        <td
+                                            style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
+                                            {{ number_format($ht_amount, 2) }} FCFA</td>
+                                    </tr>
+                                    <tr>
+                                        <td
+                                            style="color:#a2a0a0; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
+                                            T.V.A</td>
+                                        <td
+                                            style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
+                                            {{ number_format($tva, 2) }}
+                                            FCFA</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="color:#a2a0a0; padding: 6px; font-size: 13px;">C.A</td>
+                                        <td style="text-align: right; padding: 6px; font-size: 13px;">{{
+                                            number_format($ca, 2) }}
+                                            FCFA</td>
+                                    </tr>
+                                    <tr>
+                                        <td
+                                            style="font-size: 13px; padding: 6px; font-style: italic; border-bottom: 1px solid #ccc;">
+                                            paid on {{ \Carbon\Carbon::now()->format('d-m-Y') }}
+                                            using cash</td>
+                                        <td
+                                            style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
+                                           
+                                           0 FCFA</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 6px; font-weight: 600; font-size: 13px;">Amout Due</td>
+                                        <td style="text-align: right; padding: 6px; font-size: 13px;">
+                                            {{$subtotal}} FCFA</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <p style="font-size: 13px; margin-top: 20px;">Please use the following communication for your
+                        payment: INV/{{ date('Y') }}</p>
+                </td>
+            </tr>
+        </table>
+        <div class="footer">
+            <table
+                style="border-color:#000; border-style: double; border-bottom: 0; border-right: 0; border-left:0; margin-top: 35px;">
+                <tr>
+                    <td style="font-size: 13px; padding: 4px;">PNR: Lorem Ipsum is simply dummy text of the printing
+                    </td>
+                    <td style="font-size: 13px; padding: 4px;">Mobile: +148 15265978</td>
+                    <td style="font-size: 13px; padding: 4px;">Email: info-pro@gmail.com</td>
+                </tr>
+                <tr>
+                    <td style="font-size: 13px; padding: 4px;">PNR: Lorem Ipsum is simply dummy text of the printing
+                    </td>
+                    <td style="font-size: 13px; padding: 4px;">Mobile: +148 15265978</td>
+                    <td style="font-size: 13px; padding: 4px;">Email: info-pro@gmail.com</td>
+                </tr>
             </table>
-
-            <div class="d-flex mt-3 align-items-start">
-                <button class="btn btn-success btn-sm" wire:click="addRow"><i class="fas fa-plus"></i> Add Row</button>
-                <div class="ms-auto text-right me-4" style="min-width: 300px;">
-                    <h5 class="text-total">
-                        <strong>Total Amount:</strong>
-                        <span id="totalAmount">{{number_format($this->totalAmount,2)}}</span>
-                    </h5>
-                    <h6 class="mt-2">
-                        <strong>Total (in words):</strong>
-                        <span id="totalAmount">{{$this->totalInWords}}</span>
-                    </h6>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="row mt-4">
-            <div class="col-md-8">
-                <p><strong>Date:</strong> {{ \Carbon\Carbon::now()->format('d M Y') }}</p>
-                <p class="text-muted">Thanks for shopping with us!</p>
-            </div>
-            <div class="col-md-4 text-right">
-                <button class="btn btn-primary print-btn" wire:click="printInvoice">Print</button>
-            </div>
         </div>
     </div>
 </div>
-<script>
-    window.addEventListener('triggerPrint', () => {
-        window.print();
-    });
-</script>
+
+

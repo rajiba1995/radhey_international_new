@@ -3,7 +3,6 @@
 namespace App\Http\Livewire\Order;
 
 use Livewire\Component;
-use App\Models\Collection;
 use App\Models\Product;
 use NumberToWords\NumberToWords;
 
@@ -13,13 +12,13 @@ class AddInvoice extends Component
     public $collections;
     public $totalAmount = 0;
     public $totalInWords = '';
-
+    public $products;
+    
     protected function rules()
     {
         $rules = [];
 
         foreach ($this->rows as $index => $row) {
-            $rules["rows.$index.collection_id"] = 'required|exists:collections,id';
             $rules["rows.$index.product_id"] = 'required|exists:products,id';
             $rules["rows.$index.unit_price"] = 'required|numeric';
         }
@@ -32,8 +31,6 @@ class AddInvoice extends Component
         $messages = [];
 
         foreach ($this->rows as $index => $row) {
-            $messages["rows.$index.collection_id.required"] = "Collection is required.";
-            $messages["rows.$index.collection_id.exists"]   = "Selected collection is invalid.";
 
             $messages["rows.$index.product_id.required"]    = "Product is required.";
             $messages["rows.$index.product_id.exists"]      = "Selected product is invalid.";
@@ -48,10 +45,9 @@ class AddInvoice extends Component
 
 
     public function mount(){
-        $this->collections = Collection::all();
+        $this->products = Product::all();
         $this->rows = [
             [
-                'collection_id' => '',
                 'product_id' => '',
                 'quantity' => 1,
                 'unit_price' => '',
@@ -61,17 +57,10 @@ class AddInvoice extends Component
         ];
     }
 
-    public function SelectedCollection($index, $collectionId){
-        $products = Product::where('collection_id', $collectionId)->get();
-        $this->rows[$index]['collection_id'] = $collectionId;
-        $this->rows[$index]['products'] = $products->toArray();
-        $this->rows[$index]['product_id'] = '';
-
-    }
+  
 
     public function addRow(){
         $this->rows[] = [
-            'collection_id' => '',
             'product_id' => '',
             'quantity' => 1,
             'unit_price' => '',
@@ -114,14 +103,11 @@ class AddInvoice extends Component
         $this->rows = array_values($this->rows); // Re-index the array
     }
 
-    // public function getTotalAmountProperty()
-    // {
-    //     return collect($this->rows)->sum('total');
-    // }
+    
     public function updated($propertyName)
-{
-    $this->validateOnly($propertyName);
-}
+    {
+        $this->validateOnly($propertyName);
+    }
 
 
     public function updatedRows()

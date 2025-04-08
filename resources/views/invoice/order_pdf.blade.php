@@ -165,12 +165,14 @@
                         </thead>
                         <tbody>
                             @php
-                            $totalQuantity = 0;
+                                $totalQuantity = 0;
+                                $airMail = 0;
                             @endphp
                             @if($invoice->order)
                             @foreach($invoice->order->items as $item)
                             @php
-                            $totalQuantity += $item->quantity;
+                                $totalQuantity += $item->quantity;
+                                $airMail = $item->air_mail ?? 0; 
                             @endphp
                             <tr>
                                 <td style="width:60%; line-height: 1.6; font-size: 13px;">{{ $item->product_name }}</td>
@@ -182,13 +184,15 @@
                             </tr>
                             
                             @endforeach
-                            <tr>
-                                <td style="width:60%; line-height: 1.6; font-size: 13px;">Air Mail</td>
-                                <td style="font-size: 13px;">1</td>
-                                <td style="font-size: 13px;">{{ number_format($item->air_mail)}}</td>
-                                {{-- <td style="font-size: 13px;">0.00</td> --}}
-                                <td style="font-size: 13px;">{{ number_format( $item->air_mail ) }} FCFA</td>
-                            </tr>
+                            @if ($airMail > 0)
+                                <tr>
+                                    <td style="width:60%; line-height: 1.6; font-size: 13px;">Air Mail</td>
+                                    <td style="font-size: 13px;">1</td>
+                                    <td style="font-size: 13px;">{{ number_format($airMail)}}</td>
+                                    {{-- <td style="font-size: 13px;">0.00</td> --}}
+                                    <td style="font-size: 13px;">{{ number_format( $airMail ) }} FCFA</td>
+                                </tr>
+                            @endif
                             @endif
                         </tbody>
                     </table>
