@@ -4,7 +4,13 @@ namespace App\Http\Livewire\Order;
 
 use Livewire\Component;
 use App\Models\Product;
+use App\Models\Invoice;
+use App\Models\ManualInvoice;
+use App\Models\ManualInvoiceItem;
 use NumberToWords\NumberToWords;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+
 
 class AddInvoice extends Component
 {
@@ -13,6 +19,7 @@ class AddInvoice extends Component
     public $totalAmount = 0;
     public $totalInWords = '';
     public $products;
+    public $customer_name,$invoice_date,$due_date,$source,$reference,$due_amount;
     
     protected function rules()
     {
@@ -46,6 +53,7 @@ class AddInvoice extends Component
 
     public function mount(){
         $this->products = Product::all();
+        $this->invoice_date = Carbon::now()->format('Y-m-d');
         $this->rows = [
             [
                 'product_id' => '',
@@ -56,6 +64,103 @@ class AddInvoice extends Component
             ],
         ];
     }
+
+    public function resetForm()
+    {
+        $this->customer_name = '';
+        $this->invoice_date = Carbon::now()->format('Y-m-d');
+        $this->due_date = '';
+        $this->source = '';
+        $this->reference = '';
+        $this->due_amount = 0;
+        $this->totalAmount = 0;
+        $this->totalInWords = '';
+
+        $this->rows = [
+            [
+                'product_id' => '',
+                'quantity' => 1,
+                'unit_price' => '',
+                'total' => '',
+                'products' => [],
+            ],
+        ];
+    }
+
+    public function printInvoice(){
+        // dd($this->all());
+        $this->validate();
+        DB::beginTransaction();
+
+        try {
+            $subtotal = collect($this->rows)->sum(fn($row) => floatval($row['total']));
+            $tva = $subtotal * 0.18;
+            $ca = $tva * 0.05;
+            $ht_amount = $subtotal - ($tva + $ca);
+            $due_amount = $subtotal;
+             // Save manual_invoice
+            $invoice = ManualInvoice::create([
+                'invoice_no' => $this->getPreviewInvoiceNoProperty(),
+                'customer_name' => $this->customer_name,
+                'invoice_date' => $this->invoice_date,
+                'due_date' => $this->due_date,
+                'source' => $this->source,
+                'reference' => $this->reference,
+                'total_amount' => $subtotal,
+                'ht_amount' => $ht_amount,
+                'tva_amount' => $tva,
+                'ca_amount' => $ca,
+                'paid_amount' => 0,
+                'due_amount' => $due_amount,
+            ]);
+
+             // Save manual_invoice_items
+            foreach ($this->rows as $row) {
+                ManualInvoiceItem::create([
+                    'manual_invoice_id' => $invoice->id,
+                    'product_id' => $row['product_id'],
+                    'quantity' => $row['quantity'],
+                    'unit_price' => $row['unit_price'],
+                    'total' => $row['total'],
+                ]);
+            }
+
+                DB::commit();
+             // Dispatch event to trigger JavaScript print
+             $this->dispatch('triggerPrint');
+             $this->resetForm();
+
+            }catch (\Exception $e) {
+            DB::rollBack();
+            dd($e->getMessage());
+            $this->addError('print', 'Failed to save invoice: ' . $e->getMessage());
+        }
+    }
+
+    public function getPreviewInvoiceNoProperty()
+    {
+        $year = date('Y');
+
+        $lastInvoice = Invoice::whereYear('created_at', $year)
+            ->orderByDesc('id')->first();
+
+        $lastManualInvoice = ManualInvoice::whereYear('created_at', $year)
+            ->orderByDesc('id')->first();
+
+        $lastNumberInvoice = $lastInvoice 
+            ? (int)substr($lastInvoice->invoice_no, strrpos($lastInvoice->invoice_no, '/') + 1)
+            : 0;
+
+        $lastNumberManual = $lastManualInvoice 
+            ? (int)substr($lastManualInvoice->invoice_no, strrpos($lastManualInvoice->invoice_no, '/') + 1)
+            : 0;
+
+        $nextNumber = max($lastNumberInvoice, $lastNumberManual) + 1;
+
+        return str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+    }
+
+
 
   
 
@@ -90,8 +195,10 @@ class AddInvoice extends Component
         }
 
         // Recalculate total
-        $quantity = $this->rows[$index]['quantity'];
-        $unitPrice = $this->rows[$index]['unit_price'] ?? 0;
+        $quantity = (int)$this->rows[$index]['quantity'];
+        $unitPrice = isset($this->rows[$index]['unit_price']) && is_numeric($this->rows[$index]['unit_price'])
+                        ? (float) $this->rows[$index]['unit_price']
+                        : 0;
 
         $this->rows[$index]['total'] = $quantity * $unitPrice;
         $this->calculateTotal(); 
@@ -133,13 +240,13 @@ class AddInvoice extends Component
         return ucfirst($numberTransformer->toWords($number)) . ' only';
     }
 
-    public function printInvoice()
-    {
-        $this->validate();
+    // public function printInvoice()
+    // {
+    //     $this->validate();
 
-        // Dispatch event to trigger JavaScript print
-        $this->dispatch('triggerPrint');
-    }
+    //     // Dispatch event to trigger JavaScript print
+    //     $this->dispatch('triggerPrint');
+    // }
 
 
     public function render()

@@ -21,11 +21,7 @@
             flex-direction: column;
             height: 100vh;
             position: relative;
-           
-
         }
-
-        
 
         .table-container table {
             flex-grow: 1;
@@ -64,6 +60,29 @@
             margin-top: 0;
             color: #000;
         }
+
+        @media print {
+
+            .print-hide-admin,
+            .print-btn,
+            .btn {
+                display: none !important;
+            }
+
+            #customer_name {
+                display: none !important;
+            }
+
+            .form-control {
+                border: none !important;
+                padding: 0;
+                text-align: left;
+            }
+
+            .form-control::placeholder {
+                opacity: 0;
+            }
+        }
     </style>
 
 
@@ -72,7 +91,7 @@
         <table class="table-custom">
             <tr>
                 <td style="width:60%;">
-                    <img src="{{  asset('assets/img/pdf_logo.png')}}" style="width:210px; height:auto;">
+                    <img src="{{asset('assets/img/pdf_logo.png')}}" style="width:210px; height:auto;">
                 </td>
                 <td style="width:40%;">
                     <h3 style="text-transform: uppercase; font-size: 15px; margin-bottom: 3px;">STE RADHEY'S SARL</h3>
@@ -83,43 +102,54 @@
                     <h3 style="font-size: 15px; margin-bottom: 3px;">RCCM CG-PNR-01-2024-B12-00203</h3>
                 </td>
             </tr>
-           
+
             <tr>
                 <td colspan="2">
-                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400;">Invoice: INV/{{ date('Y') }}/</h2>
+                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400;">Invoice: MINV/{{ now()->year
+                        }}/{{$this->previewInvoiceNo}}</h2>
                 </td>
             </tr>
-            {{-- <tr>
+            <tr>
                 <td colspan="2" style="border-bottom: 1px solid #ccc; padding-bottom: 25px;">
-                    <table>
+                    <table style="width: 100%; border-collapse: collapse;">
                         <tr>
-                            <td>
-                                <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Invoice
-                                    Date:</h5>
-                                <p style="color:#000; font-size: 14px;">{{
-                                    \Carbon\Carbon::parse($invoice->created_at)->format('d-m-Y') }}</p>
+                            <td style="padding: 8px;" id="customer_name">
+                                <label
+                                    style="display: block; color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Customer
+                                    Name:</label>
+                                <textarea name="customer_name" style="width: 100%; font-size: 14px;"
+                                    wire:model="customer_name" required></textarea>
                             </td>
-                            <td>
-                                <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Due Date:
-                                </h5>
-                                <p style="color:#000; font-size: 14px;">{{
-                                    \Carbon\Carbon::parse($invoice->order->last_payment_date)->format('d-m-Y') }}</p>
+                            <td style="padding: 8px;">
+                                <label
+                                    style="display: block; color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Invoice
+                                    Date:</label>
+                                <input type="date" name="invoice_date" style="width: 100%; font-size: 14px;"
+                                    wire:model="invoice_date" required max="{{ now()->format('Y-m-d') }}">
                             </td>
-                            <td>
-                                <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Source:
-                                </h5>
-                                <p style="color:#000; font-size: 14px;">{{ $invoice->order->order_number }}</p>
+                            <td style="padding: 8px;">
+                                <label
+                                    style="display: block; color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Due
+                                    Date:</label>
+                                <input type="date" name="due_date" style="width: 100%; font-size: 14px;"
+                                    wire:model="due_date" required>
                             </td>
-                            <td>
-                                <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">
-                                    Referrnce:</h5>
-                                <p style="color:#000; font-size: 14px;">{{ $invoice->order->order_number }}</p>
+                            <td style="padding: 8px;">
+                                <label
+                                    style="display: block; color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Source:</label>
+                                <input type="text" name="source" style="width: 100%; font-size: 14px;"
+                                    wire:model="source" required>
                             </td>
-
+                            <td style="padding: 8px;">
+                                <label
+                                    style="display: block; color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Reference:</label>
+                                <input type="text" name="reference" style="width: 100%; font-size: 14px;"
+                                    wire:model="reference" required>
+                            </td>
                         </tr>
                     </table>
                 </td>
-            </tr> --}}
+            </tr>
 
             <tr>
                 <td colspan="2">
@@ -136,10 +166,10 @@
                         </thead>
                         <tbody>
                             @foreach ($rows as $index => $row)
-                                
                             <tr>
                                 <td style="line-height: 1.6; font-size: 13px;">
-                                    <select class="form-control product-select" wire:model="rows.{{ $index }}.product_id">
+                                    <select class="form-control product-select"
+                                        wire:model="rows.{{ $index }}.product_id">
                                         <option value="" selected hidden>Select Product</option>
                                         @foreach ($products as $product)
                                         <option value="{{$product['id']}}">{{$product['name']}}</option>
@@ -164,22 +194,26 @@
                                     </div>
                                 </td>
                                 <td style="font-size: 13px;">
-                                    <input type="text" class="form-control amount" wire:model="rows.{{ $index }}.unit_price"
-                                    wire:keyup="updatePrice({{ $index }})" placeholder="Enter Amount">
+                                    <input type="text" class="form-control amount"
+                                        wire:model="rows.{{ $index }}.unit_price" wire:keyup="updatePrice({{ $index }})"
+                                        placeholder="Enter Amount">
                                     @error('rows.'.$index.'.unit_price')
                                     <p class="text-danger">{{$message}}</p>
                                     @enderror
                                 </td>
                                 {{-- <td style="font-size: 13px;">0.00</td> --}}
-                                <td style="font-size: 13px;"><input type="text" class="form-control amount" value="0" readonly
-                                    wire:model="rows.{{ $index }}.total"> FCFA</td>
+                                <td style="font-size: 13px;"><input type="text" class="form-control amount" value="0"
+                                        readonly wire:model="rows.{{ $index }}.total"> FCFA</td>
                                 <td>
                                     <button type="button" class="btn btn-danger btn-sm remove-row"
                                         wire:click="removeRow({{$index}})"><i class="fas fa-trash-alt"></i></button>
                                 </td>
                             </tr>
                             @endforeach
-                            <button class="btn btn-success btn-sm" wire:click="addRow"><i class="fas fa-plus"></i> Add Row</button>
+                            <button class="btn btn-success btn-sm" wire:click="addRow"><i class="fas fa-plus"></i> Add
+                                Row</button>
+                            <button class="btn btn-primary print-btn btn-sm"
+                                wire:click.prevent="printInvoice">Print</button>
                         </tbody>
                     </table>
                     <table style="margin-top: 45px;">
@@ -188,13 +222,13 @@
                             <td>
                                 <table style="border-top: 1px solid #ccc;">
                                     @php
-                                        $subtotal = collect($rows)->sum(function ($row) {
-                                            return floatval($row['total']);
-                                        });
-                                        $tva = $subtotal * 0.18;
-                                        $ca = $tva * 0.05;
-                                        $ht_amount = $subtotal - ($tva + $ca);
-                                     @endphp
+                                    $subtotal = collect($rows)->sum(function ($row) {
+                                    return floatval($row['total']);
+                                    });
+                                    $tva = $subtotal * 0.18;
+                                    $ca = $tva * 0.05;
+                                    $ht_amount = $subtotal - ($tva + $ca);
+                                    @endphp
                                     <tr>
                                         <td
                                             style="font-weight: 600; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
@@ -203,7 +237,7 @@
                                             style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
                                             {{$subtotal}} FCFA</td>
                                     </tr>
-                                   
+
 
                                     <tr>
                                         <td
@@ -235,12 +269,13 @@
                                             using cash</td>
                                         <td
                                             style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
-                                           
-                                           0 FCFA</td>
+
+                                            0 FCFA</td>
                                     </tr>
                                     <tr>
                                         <td style="padding: 6px; font-weight: 600; font-size: 13px;">Amout Due</td>
-                                        <td style="text-align: right; padding: 6px; font-size: 13px;">
+                                        <td style="text-align: right; padding: 6px; font-size: 13px;"
+                                            wire:model="due_amount">
                                             {{$subtotal}} FCFA</td>
                                     </tr>
                                 </table>
@@ -252,11 +287,11 @@
             <tr>
                 <td colspan="2">
                     <p style="font-size: 13px; margin-top: 20px;">Please use the following communication for your
-                        payment: INV/{{ date('Y') }}</p>
+                        payment: MINV/{{ now()->year }}/{{$this->previewInvoiceNo}}</p>
                 </td>
             </tr>
         </table>
-        <div class="footer">
+        {{-- <div class="footer">
             <table
                 style="border-color:#000; border-style: double; border-bottom: 0; border-right: 0; border-left:0; margin-top: 35px;">
                 <tr>
@@ -272,8 +307,11 @@
                     <td style="font-size: 13px; padding: 4px;">Email: info-pro@gmail.com</td>
                 </tr>
             </table>
-        </div>
+        </div> --}}
     </div>
 </div>
-
-
+<script>
+    window.addEventListener('triggerPrint', () => {
+        window.print();
+    });
+</script>
