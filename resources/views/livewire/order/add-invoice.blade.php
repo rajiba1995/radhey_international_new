@@ -69,9 +69,7 @@
                 display: none !important;
             }
 
-            #customer_name {
-                display: none !important;
-            }
+           
 
             .form-control {
                 border: none !important;
@@ -109,6 +107,38 @@
                         }}/{{$this->previewInvoiceNo}}</h2>
                 </td>
             </tr>
+            <div class="row">
+
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Ordered By</strong></label>
+                    <select
+                        class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
+                        wire:change="changeSalesman($event.target.value)" wire:model="salesman">
+                        <option value="" selected hidden>Choose one..</option>
+                        <!-- Set authenticated user as default -->
+    
+                        <option value="{{auth()->guard('admin')->user()->id}}" selected>
+                            {{auth()->guard('admin')->user()->name}}
+                        </option>
+                        <!-- Fetch all salesmen from the database -->
+                        @foreach ($salesmen as $salesmans)
+                        @if($salesmans->id != auth()->guard('admin')->user()->id)
+                        <option value="{{$salesmans->id}}">{{strtoupper($salesmans->name . ' '.$salesmans->surname)}}</option>
+                        @endif
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><strong>Bill Number</strong></label>
+                    <!-- Remaining Amount -->
+                    <input type="text" class="form-control form-control-sm border border-1" disabled
+                        wire:model="order_number" value="">
+                   
+                    {{-- @error('order_number')
+                       <div class="text-danger">{{ $message }}</div>
+                    @enderror --}}
+                </div>
+            </div>
             <tr>
                 <td colspan="2" style="border-bottom: 1px solid #ccc; padding-bottom: 25px;">
                     <table style="width: 100%; border-collapse: collapse;">
@@ -119,6 +149,9 @@
                                     Name:</label>
                                 <textarea name="customer_name" style="width: 100%; font-size: 14px;"
                                     wire:model="customer_name" required></textarea>
+                                    @error('customer_name')
+                                    <p class="text-danger">{{$message}}</p>
+                                    @enderror
                             </td>
                             <td style="padding: 8px;">
                                 <label
@@ -126,25 +159,37 @@
                                     Date:</label>
                                 <input type="date" name="invoice_date" style="width: 100%; font-size: 14px;"
                                     wire:model="invoice_date" required max="{{ now()->format('Y-m-d') }}">
+                                    @error('invoice_date')
+                                    <p class="text-danger">{{$message}}</p>
+                                    @enderror
                             </td>
                             <td style="padding: 8px;">
                                 <label
                                     style="display: block; color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Due
                                     Date:</label>
                                 <input type="date" name="due_date" style="width: 100%; font-size: 14px;"
-                                    wire:model="due_date" required>
+                                    wire:model="due_date" required max="{{ now()->format('Y-m-d') }}">
+                                    @error('due_date')
+                                    <p class="text-danger">{{$message}}</p>
+                                    @enderror
                             </td>
                             <td style="padding: 8px;">
                                 <label
                                     style="display: block; color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Source:</label>
                                 <input type="text" name="source" style="width: 100%; font-size: 14px;"
                                     wire:model="source" required>
+                                    @error('source')
+                                    <p class="text-danger">{{$message}}</p>
+                                    @enderror
                             </td>
                             <td style="padding: 8px;">
                                 <label
                                     style="display: block; color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Reference:</label>
                                 <input type="text" name="reference" style="width: 100%; font-size: 14px;"
                                     wire:model="reference" required>
+                                    @error('reference')
+                                    <p class="text-danger">{{$message}}</p>
+                                    @enderror
                             </td>
                         </tr>
                     </table>

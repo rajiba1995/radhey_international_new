@@ -5,11 +5,13 @@ namespace App\Http\Livewire\Order;
 use Livewire\Component;
 use App\Models\Product;
 use App\Models\Invoice;
-use App\Models\ManualInvoice;
-use App\Models\ManualInvoiceItem;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\User;
 use NumberToWords\NumberToWords;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\Helper;
 
 
 class AddInvoice extends Component
@@ -20,10 +22,21 @@ class AddInvoice extends Component
     public $totalInWords = '';
     public $products;
     public $customer_name,$invoice_date,$due_date,$source,$reference,$due_amount;
+    public $salesmen;
+    public $salesman;
+    public $bill_book = [];
+    public $order_number;
     
     protected function rules()
     {
-        $rules = [];
+        $rules = [
+            'customer_name' => 'required|string|max:255',
+            'invoice_date'  => 'required|date',
+            'due_date'      => 'required|date|after_or_equal:invoice_date',
+            'source'        => 'required|string|unique:orders,source|max:255',
+            'reference'     => 'required|string|unique:orders,reference|max:255',
+        ];
+
 
         foreach ($this->rows as $index => $row) {
             $rules["rows.$index.product_id"] = 'required|exists:products,id';
@@ -33,9 +46,21 @@ class AddInvoice extends Component
         return $rules;
     }
 
+    public function changeSalesman($value){
+        $this->bill_book = Helper::generateInvoiceBill($value);
+        $this->order_number = $this->bill_book['number'];
+        $this->bill_id = $this->bill_book['bill_id'] ?? null;
+    }
+
     protected function messages()
     {
-        $messages = [];
+        $messages = [
+            'customer_name.required' => 'Customer name is required.',
+            'invoice_date.required'  => 'Invoice date is required.',
+            'due_date.required'      => 'Due date is required.',
+            'source.required'        => 'Source is required.',
+            'reference.required'     => 'Reference is required.',
+        ];
 
         foreach ($this->rows as $index => $row) {
 
@@ -52,8 +77,16 @@ class AddInvoice extends Component
 
 
     public function mount(){
+        $this->salesmen = User::where([
+            ['user_type',0],
+            ['designation',2]
+        ])->get();
+        $this->salesman = auth()->guard('admin')->user()->id;
+        $this->bill_book = Helper::generateInvoiceBill($this->salesman);
+        $this->order_number = $this->bill_book['number'] ?? '';
         $this->products = Product::all();
         $this->invoice_date = Carbon::now()->format('Y-m-d');
+        $this->due_date = Carbon::now()->format('Y-m-d');
         $this->rows = [
             [
                 'product_id' => '',
@@ -94,16 +127,18 @@ class AddInvoice extends Component
 
         try {
             $subtotal = collect($this->rows)->sum(fn($row) => floatval($row['total']));
-            $tva = $subtotal * 0.18;
-            $ca = $tva * 0.05;
+            $tvaPercentage = floatval(env('TVA_PERCENTAGE'));
+            $caPercentage  = floatval(env('CA_PERCENTAGE'));
+            $tva = $subtotal * ($tvaPercentage /100);
+            $ca = $tva * ($caPercentage /100);
             $ht_amount = $subtotal - ($tva + $ca);
             $due_amount = $subtotal;
              // Save manual_invoice
-            $invoice = ManualInvoice::create([
-                'invoice_no' => $this->getPreviewInvoiceNoProperty(),
+            $order = Order::create([
                 'customer_name' => $this->customer_name,
-                'invoice_date' => $this->invoice_date,
+                'order_number' => $this->order_number,
                 'due_date' => $this->due_date,
+                'invoice_date' => $this->invoice_date,
                 'source' => $this->source,
                 'reference' => $this->reference,
                 'total_amount' => $subtotal,
@@ -112,16 +147,19 @@ class AddInvoice extends Component
                 'ca_amount' => $ca,
                 'paid_amount' => 0,
                 'due_amount' => $due_amount,
+                'invoice_type' => 'manual',
+                'status' => 'pending',
+                'created_by' =>  $this->salesman
             ]);
 
              // Save manual_invoice_items
             foreach ($this->rows as $row) {
-                ManualInvoiceItem::create([
-                    'manual_invoice_id' => $invoice->id,
+                OrderItem::create([
+                    'order_id' =>  $order->id,
                     'product_id' => $row['product_id'],
                     'quantity' => $row['quantity'],
-                    'unit_price' => $row['unit_price'],
-                    'total' => $row['total'],
+                    'piece_price' => $row['unit_price'],
+                    'total_price' => $row['total'],
                 ]);
             }
 
@@ -142,20 +180,14 @@ class AddInvoice extends Component
         $year = date('Y');
 
         $lastInvoice = Invoice::whereYear('created_at', $year)
-            ->orderByDesc('id')->first();
+            ->orderByDesc('id')
+            ->first();
 
-        $lastManualInvoice = ManualInvoice::whereYear('created_at', $year)
-            ->orderByDesc('id')->first();
-
-        $lastNumberInvoice = $lastInvoice 
+        $lastNumber = $lastInvoice 
             ? (int)substr($lastInvoice->invoice_no, strrpos($lastInvoice->invoice_no, '/') + 1)
             : 0;
 
-        $lastNumberManual = $lastManualInvoice 
-            ? (int)substr($lastManualInvoice->invoice_no, strrpos($lastManualInvoice->invoice_no, '/') + 1)
-            : 0;
-
-        $nextNumber = max($lastNumberInvoice, $lastNumberManual) + 1;
+        $nextNumber = $lastNumber + 1;
 
         return str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
     }
@@ -211,10 +243,10 @@ class AddInvoice extends Component
     }
 
     
-    public function updated($propertyName)
-    {
-        $this->validateOnly($propertyName);
-    }
+    // public function updated($propertyName)
+    // {
+    //     $this->validateOnly($propertyName);
+    // }
 
 
     public function updatedRows()

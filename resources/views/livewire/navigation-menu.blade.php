@@ -5,7 +5,7 @@
         <i class="fas fa-times p-3 cursor-pointer text-white opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
             aria-hidden="true" id="iconSidenav"></i>
         <a class="navbar-brand m-0 d-flex text-wrap align-items-center company-logo" href=" {{ route('admin.dashboard') }} ">
-            <img src="{{ asset('assets') }}/img/stanny.png" class="h-100" alt="main_logo">
+            <img src="{{ asset('assets') }}/img/stanny_logo.png" class="h-100" alt="main_logo">
             {{-- <span class="ms-2 font-weight-bold text-white">Radhey International</span> --}}
         </a>
     </div>
@@ -88,7 +88,7 @@
                 </a>
                 <a class="nav-link text-white {{ Request::is('admin/orders/invoice/add') ? 'active ' : '' }}"
                     href="{{route('admin.order.invoice.add')}}">
-                    Add Invoices
+                    Generate Invoices
                 </a>
                 <a class="nav-link text-white {{ Request::is('admin/orders/cancel-order') ? 'active ' : '' }}"
                     href="{{route('admin.order.cancel-order.index')}}">
