@@ -684,8 +684,8 @@
                                 </div>
                                 @endif
                             </div>
-                            <div class="col-12 col-md-2"></div>
-                            <div class="col-12 col-md-2">
+                            {{-- <div class="col-12 col-md-2"></div> --}}
+                            <div class="col-12 col-md-4">
                                 <div class="d-flex align-items-center gap-2 justify-content-end">
                                     <!-- Price Input -->
                                     <div>
@@ -714,6 +714,52 @@
                                 @error('items.' . $index . '.price')
                                 <div class="text-danger">{{ $message }}</div>
                                 @enderror
+
+                                {{-- Catalog picture capture --}}
+                                <div class="mt-2 text-end">
+                                    <button type="button" class="btn btn-cta btn-sm"
+                                        onclick="document.getElementById('catalog-upload-{{ $index }}').click()">
+                                        <i class="material-icons text-white" style="font-size: 15px;">add</i>
+                                        Upload Images
+                                    </button>
+                                    @error('imageUploads.*')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            
+                                {{-- Hidden File Input --}}
+                                <input type="file" id="catalog-upload-{{ $index }}" multiple
+                                    wire:model="imageUploads.{{ $index }}" accept="image/*"
+                                    class="d-none" />
+                            
+                                {{-- Image Preview --}}
+                                <div class="mt-2">
+                                    @if (!empty($existingImages[$index]))
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach ($existingImages[$index] as $image)
+                                            <div style="position: relative; width: 70px;">
+                                                <img src="{{ asset('storage/' . $image) }}" class="img-thumbnail" style="width: 100%;" />
+                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                                    wire:click="removeImage({{ $index }}, '{{ $loop->index }}')">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                    {{-- Show newly uploaded temporary images --}}
+                                    @if (!empty($imageUploads[$index]))
+                                    @foreach ($imageUploads[$index] as $imgIndex => $img)
+                                    <div style="position: relative; width: 70px;">
+                                        <img src="{{ $img->temporaryUrl() }}" class="img-thumbnail" style="width: 100%;" />
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                            wire:click="removeUploadedImage({{ $index }}, {{ $imgIndex }})">
+                                            &times;
+                                        </button>
+                                    </div>
+                                    @endforeach                                
+                                    @endif
+                                </div>
                             </div>
                         </div>
                         @else
@@ -742,6 +788,7 @@
                             @error('items.' . $index . '.price')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
+                            
                         </div>
                         @endif
                         <div class="col-12 col-md-2">

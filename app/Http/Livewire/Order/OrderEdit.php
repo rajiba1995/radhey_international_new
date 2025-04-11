@@ -18,20 +18,26 @@ use App\Models\Payment;
 use App\Models\SalesmanBilling;
 use App\Models\Country;
 use App\Models\BusinessType;
+use App\Models\OrderItemCatalogueImage;
 use Illuminate\Support\Facades\DB;
 use Auth;
 use App\Models\UserWhatsapp;
 use App\Models\CataloguePageItem;
+use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads;
+
 
 class OrderEdit extends Component
 {
+    use WithFileUploads;
+
     public $searchTerm = '';
     public $searchResults = [];
     public $errorClass = [];
     // public $collectionsType = [];
     public $collections = [];
     public $errorMessage = [];
-    public $activeTab = 1;
+    public $activeTab = 2;
     public $items = [];
    
     public $FetchProduct = 1;
@@ -72,11 +78,13 @@ class OrderEdit extends Component
     public $country_code;
     public $country_id;
     public $air_mail;
-    // public $remarks;
+    public $imageUploads = [];
+    public $existingImages = [];
 
     public function mount($id)
     {
         $this->orders = Order::with(['items.measurements'])->findOrFail($id); // Fetch the order by ID
+        
     //    dd($this->orders->customer->id);
         if ($this->orders) {
             $this->order_number = $this->orders->order_number;
@@ -85,7 +93,7 @@ class OrderEdit extends Component
             $this->email = $this->orders->customer_email;
             $this->dob = $this->orders->customer->dob;
             $this->billing_address = $this->orders->billing_address;
-            $this->air_mail = $this->orders->items->sum('air_mail');
+            $this->air_mail = (int)$this->orders->air_mail;
             // $this->shipping_address = $this->orders->shipping_address;
             // $this->is_billing_shipping_same = ($this->orders->billing_address == $this->orders->shipping_address);
             $this->phone = $this->orders->customer->phone;
@@ -112,13 +120,12 @@ class OrderEdit extends Component
             $this->catalogues = Catalogue::with('catalogueTitle')->get()->toArray();
             
             $this->items = $this->orders->items->map(function ($item) {
-               
                 $selected_titles = OrderMeasurement::where('order_item_id', $item->id)->pluck('measurement_name')->toArray();
                 $selected_values = OrderMeasurement::where('order_item_id', $item->id)->pluck('measurement_value')->toArray();
                 $fabrics = Fabric::join('product_fabrics', 'product_fabrics.fabric_id', '=', 'fabrics.id')
-                ->where('product_fabrics.product_id', $item->product_id)
-                ->select('fabrics.id', 'fabrics.title')
-                ->get();
+                                    ->where('product_fabrics.product_id', $item->product_id)
+                                    ->select('fabrics.id', 'fabrics.title')
+                                    ->get();
         
                 // Get the selected fabric object if exists
                 // $selectedFabric = $fabrics->firstWhere('id', $item->fabrics);
@@ -174,6 +181,7 @@ class OrderEdit extends Component
                     'page_number' => $item->cat_page_number,
                     'pageItems' => $pageItems,
                     'page_item' => $item->cat_page_item,
+                    
                 ];
             })->toArray();
         }
@@ -249,6 +257,8 @@ class OrderEdit extends Component
 
 
         foreach ($this->items as $index => $item) {
+            $this->existingImages[$index] = OrderItemCatalogueImage::where('order_item_id', $item['order_item_id'])->pluck('image_path')->toArray();
+            $this->imageUploads[$index] = [];
             $this->items[$index]['copy_previous_measurements'] = false; // Ensure checkbox is not selected
         }
     }
@@ -917,9 +927,36 @@ class OrderEdit extends Component
         }
     }
     
-    
-    
 
+    public function removeImage($index, $imageIndex)
+    {
+        
+        $orderItemId = $this->items[$index]['order_item_id'];
+
+       
+        $imagePath = OrderItemCatalogueImage::where('order_item_id', $orderItemId)
+            ->skip($imageIndex)
+            ->value('image_path');
+
+        if ($imagePath) {
+            Storage::disk('public')->delete($imagePath);
+
+            
+            OrderItemCatalogueImage::where('order_item_id', $orderItemId)
+                ->where('image_path', $imagePath)
+                ->delete();
+
+            unset($this->existingImages[$index][$imageIndex]);
+            $this->existingImages[$index] = array_values($this->existingImages[$index]);
+        }
+    }
+
+    
+    public function removeUploadedImage($index, $imageIndex){
+        // Remove the image from the uploaded images array
+        unset($this->imageUploads[$index][$imageIndex]);
+        $this->imageUploads[$index] = array_values($this->imageUploads[$index]);
+    }
     
     public function update()
     {
@@ -929,15 +966,9 @@ class OrderEdit extends Component
         DB::beginTransaction();
         try {
             
-            // $total_amount = array_sum(array_column($this->items, 'price'));
-            $total_amount = array_sum(array_map(function ($item) {
-                return floatval($item['price']);
-            }, $this->items));
-            
-            if (!empty($this->air_mail) && is_numeric($this->air_mail)) {
-                $total_amount += floatval($this->air_mail);
-            }
-            
+            $total_product_amount = array_sum(array_column($this->items, 'price'));
+            $airMail = floatval($this->air_mail);
+            $total_amount = $total_product_amount + $airMail;
             // dd($total_amount);
 
             // Retrieve user details
@@ -1051,9 +1082,8 @@ class OrderEdit extends Component
                 $order->customer_name = $this->name;
                 $order->customer_email = $this->email;
                 $order->billing_address = $billingadd . ', ' . $billingLandmark . ', ' . $billingCity . ', ' . $billingState . ', ' . $billingCountry . ' - ' . $billingPin;
-                // $order->shipping_address = $this->is_billing_shipping_same
-                //     ? $billingadd . ', ' . $billingLandmark . ', ' . $billingCity . ', ' . $billingState . ', ' . $billingCountry . ' - ' . $billingPin
-                //     : $shippingadd . ', ' . $shippingLandmark . ', ' . $shippingCity . ', ' . $shippingState . ', ' . $shippingCountry . ' - ' . $shippingPin;
+                $order->total_product_amount = $total_product_amount;
+                $order->air_mail = $airMail;
                 $order->total_amount = $total_amount;
                 $order->last_payment_date = now();
                 $order->created_by = auth()->guard('admin')->user()->id;
@@ -1081,11 +1111,10 @@ class OrderEdit extends Component
                     $orderItem->product_id = $item['product_id'];
                     $orderItem->order_id = $order->id;
                     $orderItem->product_name = $item['searchproduct'];
-                    $orderItem->air_mail = !empty($this->air_mail) ? $this->air_mail : null;
-                    $itemPrice = floatval($item['price']);
-                    $orderItem->total_price = $this->air_mail > 0 ? ($itemPrice + $this->air_mail) : $itemPrice;
                     $orderItem->remarks = $item['remarks'] ?? null;
                     $orderItem->quantity =1;
+                    $itemPrice = floatval($item['price']);
+                    $orderItem->total_price = $itemPrice * $orderItem->quantity;
                     $orderItem->piece_price = $item['price'];
                     $orderItem->collection = $item['selected_collection'];
                     $orderItem->category = $item['selected_category'];
@@ -1096,6 +1125,20 @@ class OrderEdit extends Component
                     $orderItem->cat_page_number  = $item['page_number'] ?? null;
                     $orderItem->cat_page_item  = $item['page_item'] ?? null;
                     $orderItem->save();
+
+                    if ($orderItem) {
+                        if (!empty($this->imageUploads[$key])) {
+                            foreach ($this->imageUploads[$key] as $uploadedImage) {
+                                $path = $uploadedImage->store('uploads/order_item_catalogue_images', 'public');
+                                OrderItemCatalogueImage::create([
+                                    'order_item_id' => $orderItem->id,
+                                    'image_path' => $path
+                                ]);
+                            }
+                            // Clear uploaded images after saving
+                            $this->imageUploads[$key] = [];
+                        }
+                    }
                     
 
                     foreach ($item['measurements'] as $measurement) {

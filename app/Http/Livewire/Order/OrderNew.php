@@ -23,13 +23,18 @@ use App\Models\BusinessType;
 use App\Models\UserWhatsapp;
 use App\Models\Page;
 use App\Models\CataloguePageItem;
+use App\Models\OrderItemCatalogueImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
 use Illuminate\Validation\Rule;
+use Livewire\WithFileUploads;
+
 
 class OrderNew extends Component
 {
+    use WithFileUploads;
+
     public $searchTerm = '';
     public $prefix;
     public $searchResults = [];
@@ -38,7 +43,7 @@ class OrderNew extends Component
     // public $collectionsType = [];
     public $collections = [];
     public $errorMessage = [];
-    public $activeTab = 1;
+    public $activeTab = 2;
     // public $items = [];
     public $FetchProduct = 1;
 
@@ -88,11 +93,10 @@ class OrderNew extends Component
     public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
     public $isWhatsappPhone, $isWhatsappAlt1, $isWhatsappAlt2;
     public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
-    public $items = [
-        // Example item structure
-        // ['measurements' => [['id' => 1, 'title' => 'Measurement 1', 'value' => '']]],
-    ];
+    public $items = [];
+    public $imageUploads = []; 
     public $air_mail;
+    
 
     public function mount()
     {
@@ -305,6 +309,8 @@ class OrderNew extends Component
             'order_number' => 'required|string|not_in:000|unique:orders,order_number',
             'items.*.selectedCatalogue' => 'required_if:items.*.collection,1',
             'items.*.page_number' => 'required_if:items.*.collection,1',
+            'air_mail' => 'nullable|numeric',
+            'imageUploads.*.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp', 
         ];
     }
    
@@ -750,6 +756,11 @@ class OrderNew extends Component
         }
     }
 
+    public function removeUploadedImage($index, $imageIndex){
+        unset($this->imageUploads[$index][$imageIndex]);
+        $this->imageUploads[$index] = array_values($this->imageUploads[$index]);
+    }
+
     public function save()
     {   
         // dd($this->all());
@@ -759,9 +770,9 @@ class OrderNew extends Component
         try{ 
             
             // Calculate the total amount
-            $total_amount = array_sum(array_column($this->items, 'price'));
+            $total_product_amount = array_sum(array_column($this->items, 'price'));
             $airMail = floatval($this->air_mail);
-            $total_amount = $airMail > 0 ? ($total_amount + $airMail) : $total_amount;
+            $total_amount = $total_product_amount + $airMail;
             // dd($total_amount);
             // if ($this->paid_amount > $total_amount) {
             //     session()->flash('error', '🚨 The paid amount cannot exceed the total billing amount.');
@@ -956,7 +967,8 @@ class OrderNew extends Component
             } else {
                 $order->shipping_address = $this->shipping_address . ', ' . $this->shipping_landmark . ', ' . $this->shipping_city . ', ' . $this->shipping_state . ', ' . $this->shipping_country . ' - ' . $this->shipping_pin;
             }
-
+            $order->total_product_amount = $total_product_amount;
+            $order->air_mail = $airMail;
             $order->total_amount = $total_amount;
             $order->last_payment_date = date('Y-m-d H:i:s');
             $order->created_by = (int) $this->salesman; // Explicitly cast to integer
@@ -986,14 +998,29 @@ class OrderNew extends Component
                 $orderItem->category = $category_data ? $category_data->id : "";
                 
                 $orderItem->product_name = $item['searchproduct'];
-                $orderItem->air_mail = !empty($this->air_mail) ? $this->air_mail : null;
-                $itemPrice = floatval($item['price']);
-                $orderItem->total_price = $this->air_mail > 0 ? ($itemPrice + $this->air_mail) : $itemPrice;
                 $orderItem->remarks  = $item['remarks'] ?? null;
                 $orderItem->piece_price = $item['price'];
                 $orderItem->quantity = 1;
+                $itemPrice = floatval($item['price']);
+                $orderItem->total_price = $itemPrice * $orderItem->quantity;
                 $orderItem->fabrics = $fabric_data ? $fabric_data->id : "";
                 $orderItem->save();
+
+                 // upload multiple catalogue images 
+                if(!empty($this->imageUploads)){
+                    foreach ($this->imageUploads as $images) {
+                        foreach($images as $image){
+                            $path = $image->store('uploads/order_item_catalogue_images', 'public');
+                            OrderItemCatalogueImage::create([
+                                'order_item_id' => $orderItem->id,
+                                'image_path' => $path,
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                        }
+                    }
+                }
+
                 if (isset($item['get_measurements']) && count($item['get_measurements']) > 0) {
                     $get_all_measurment_field = [];
                     $get_all_field_measurment_id = [];
@@ -1017,6 +1044,9 @@ class OrderNew extends Component
                     
                 }
             }
+
+           
+
 
             // Store WhatsApp details if the flags are set
                 if ($this->isWhatsappPhone) {
@@ -1075,8 +1105,8 @@ class OrderNew extends Component
         } catch (\Exception $e) {
             // dd($e);
             DB::rollBack();
-            \Log::error('Error saving order: ' . $e->getMessage());
             dd($e->getMessage());
+            \Log::error('Error saving order: ' . $e->getMessage());
             session()->flash('error', '🚨 Something went wrong. The operation has been rolled back.');
         }
     }

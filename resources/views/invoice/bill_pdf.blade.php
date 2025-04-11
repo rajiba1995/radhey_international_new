@@ -154,6 +154,21 @@
                                 FCFA</td>
                         </tr>
                         @endforeach
+                        @if ($invoice->order->air_mail > 0)
+                        @php
+                            $airMail = $invoice->order->air_mail;
+                            $totalPrice += $airMail;
+                        @endphp
+                        <tr>
+                            <td style="width:50%; line-height: 1.6; font-size: 13px; vertical-align: top;">
+                                Air Mail
+                            </td>
+                            <td style="font-size: 13px; vertical-align: top;">1</td>
+                            <td style="font-size: 13px; vertical-align: top;">{{ number_format($airMail)}}</td>
+                            <td style="font-size: 13px; vertical-align: top;">{{ number_format( $airMail ) }}
+                                FCFA</td>
+                        </tr>
+                        @endif
                         @endif
 
 

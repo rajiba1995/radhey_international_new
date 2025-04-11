@@ -41,7 +41,9 @@ class Order extends Model
         'ca_amount',
         'due_date',
         'invoice_date',
-        'invoice_type'
+        'invoice_type',
+        'total_product_amount',
+        'air_mail'
     ];
     public function items()
     {

@@ -178,13 +178,11 @@
                         <tbody>
                             @php
                             $totalQuantity = 0;
-                            $airMail = 0;
                             @endphp
                             @if($invoice->order)
                             @foreach($invoice->order->items as $item)
                             @php
                             $totalQuantity += $item->quantity;
-                            $airMail = $item->air_mail ?? 0;
                             @endphp
                             <tr>
                                 <td style="width:60%; line-height: 1.6; font-size: 13px;">{{ $item->product_name }}</td>
@@ -196,7 +194,10 @@
                             </tr>
 
                             @endforeach
-                            @if ($airMail > 0)
+                            @if ($invoice->order->air_mail > 0)
+                            @php
+                                $airMail = $invoice->order->air_mail;
+                            @endphp
                             <tr>
                                 <td style="width:60%; line-height: 1.6; font-size: 13px;">Air Mail</td>
                                 <td style="font-size: 13px;">1</td>

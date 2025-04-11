@@ -70,4 +70,9 @@ class OrderItem extends Model
         return $this->belongsTo(Product::class,'product_id');
     }
 
+    public function images()
+    {
+        return $this->hasMany(OrderItemImage::class,'order_item_id');
+    }
+
 }
