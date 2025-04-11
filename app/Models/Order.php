@@ -34,6 +34,14 @@ class Order extends Model
         'alternative_phone_number_2',
         'country_code_whatsapp',
         'country_code_phone',
+        'source',
+        'reference',
+        'ht_amount',
+        'tva_amount',
+        'ca_amount',
+        'due_date',
+        'invoice_date',
+        'invoice_type'
     ];
     public function items()
     {

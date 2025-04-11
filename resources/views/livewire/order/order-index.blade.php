@@ -100,7 +100,7 @@
                                 </td>
                                 <td>
                                     <p class="small text-muted mb-1">
-                                        <span>Name: <strong>{{$order->prefix ." ". $order->customer_name}}</strong> </span>
+                                        <span>Name: <strong>{{ucwords($order->prefix ." ". $order->customer_name)}}</strong> </span>
                                         <br>
                                         <span>Mobile : <strong>{{$order->customer? $order->customer->country_code_phone.' '.$order->customer->phone:""}}</strong> </span> <br>
                                         <span>WhatsApp : <strong>{{$order->customer?$order->customer->country_code_whatsapp.' '.$order->customer->whatsapp_no:""}}</strong> </span>

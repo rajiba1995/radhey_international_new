@@ -102,6 +102,12 @@
                                 \Carbon\Carbon::parse($invoice->order->created_at)->format('d-m-Y') }}</p>
                         </td>
                         <td style="width:50%;">
+                            <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Name:
+                            </h5>
+                            <p style="color:#000; word-break: break-word; white-space: normal; max-width: 200px; font-size: 14px;"> {{ $invoice->customer ?$invoice->customer->name :  "N/A" }}
+                            </p>
+                        </td>
+                        <td style="width:50%;">
                             <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Sales Person:
                             </h5>
                             <p style="color:#000; font-size: 14px;"> {{ $invoice->order?->createdBy?->name ?? "N/A" }}
