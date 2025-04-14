@@ -171,7 +171,7 @@
                                     style="display: block; color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Due
                                     Date:</label>
                                 <input type="date" name="due_date" style="width: 100%; font-size: 14px;"
-                                    wire:model="due_date" required max="{{ now()->format('Y-m-d') }}">
+                                    wire:model="due_date" required >
                                     @error('due_date')
                                     <p class="text-danger">{{$message}}</p>
                                     @enderror

@@ -281,6 +281,11 @@ class AddInvoice extends Component
     //     // Dispatch event to trigger JavaScript print
     //     $this->dispatch('triggerPrint');
     // }
+    // Add this in your Livewire component class
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
 
 
     public function render()
