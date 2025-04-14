@@ -35,7 +35,7 @@ class AddInvoice extends Component
             'due_date'      => 'required|date|after_or_equal:invoice_date',
             'source'        => 'required|string|unique:orders,source|max:255',
             'reference'     => 'required|string|unique:orders,reference|max:255',
-            'salesman'      => 'required|string',
+            'salesman'      => 'required',
             'order_number' => 'required'
         ];
 
