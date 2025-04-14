@@ -127,6 +127,9 @@
                         @endif
                         @endforeach
                     </select>
+                    @error('salesman')
+                        <p class="text-danger">{{$message}}</p>
+                    @enderror
                 </div>
                 <div class="col-md-6">
                     <label class="form-label"><strong>Bill Number</strong></label>
@@ -134,9 +137,9 @@
                     <input type="text" class="form-control form-control-sm border border-1" disabled
                         wire:model="order_number" value="">
                    
-                    {{-- @error('order_number')
+                    @error('order_number')
                        <div class="text-danger">{{ $message }}</div>
-                    @enderror --}}
+                    @enderror
                 </div>
             </div>
             <tr>
