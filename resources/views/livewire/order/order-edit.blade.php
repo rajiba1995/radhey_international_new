@@ -586,7 +586,7 @@
                             <div class="mb-3 col-md-1">
                                 <label class="form-label"><strong>Page Number</strong></label>
                                 <input type="number" wire:model="items.{{$index}}.page_number"
-                                    wire:keyup="validatePageNumber({{ $index }})" id="page_number"
+                                    wire:keyup="validatePageNumber($event.target.value,{{ $index }})" id="page_number"
                                     class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_number') border-danger @enderror"
                                     min="1"
                                     max="{{ isset($item['selectedCatalogue']) && isset($maxPages[$index][$item['selectedCatalogue']]) ? $maxPages[$index][$item['selectedCatalogue']] : '' }}">

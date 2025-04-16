@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
 use Illuminate\Validation\Rule;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Str;
 
 
 class OrderNew extends Component
@@ -40,10 +41,11 @@ class OrderNew extends Component
     public $searchResults = [];
     public $errorClass = [];
     public $existing_measurements = [];
+    public $catalogue_page_item = [];
     // public $collectionsType = [];
     public $collections = [];
     public $errorMessage = [];
-    public $activeTab = 2;
+    public $activeTab = 1;
     // public $items = [];
     public $FetchProduct = 1;
 
@@ -303,12 +305,12 @@ class OrderNew extends Component
             'items.*.category' => 'required|string',
             'items.*.searchproduct' => 'required|string',
             'items.*.product_id' => 'required|integer',
-            'items.*.page_item' => 'required_if:items.*.collection,1',
+            'items.*.selectedCatalogue' => 'required_if:items.*.collection,1',
+            'items.*.page_number' => 'required_if:items.*.collection,1',
             'items.*.price' => 'required|numeric|min:1',  
             'items.*.searchTerm' => 'required_if:items.*.collection,1',
             'order_number' => 'required|string|not_in:000|unique:orders,order_number',
-            'items.*.selectedCatalogue' => 'required_if:items.*.collection,1',
-            'items.*.page_number' => 'required_if:items.*.collection,1',
+            
             'air_mail' => 'nullable|numeric',
             'imageUploads.*.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp', 
         ];
@@ -322,7 +324,6 @@ class OrderNew extends Component
              'items.*.searchproduct.required' => 'Please select a product for the item.',
              'items.*.selectedCatalogue.required_if' => 'Please select a catalogue for the item.',
              'items.*.page_number.required_if' => 'Please select a page for the item.',
-             'items.*.page_item.required_if'  => 'Please select a page item',
              'items.*.price.required'  => 'Please enter a price for the item.',
              'items.*.collection.required' =>  'Please enter a collection for the item.',
              'items.*.searchTerm.required_if' =>  'Please enter a Fabric for the item.',
@@ -333,6 +334,9 @@ class OrderNew extends Component
             
         ];
     }
+
+   
+
 
     public function FindCustomer($term)
     {
@@ -497,14 +501,15 @@ class OrderNew extends Component
 
         // Fetch max page number from database
         $maxPage = Catalogue::where('catalogue_title_id', $catalogueId)->value('page_number');
-
         if ($maxPage) {
             $this->maxPages[$index][$catalogueId] = $maxPage;
         }
     }
 
-    public function validatePageNumber($index)
+    public function validatePageNumber($value, $index)
     {
+   
+
         if (!isset($this->items[$index]['page_number']) || !isset($this->items[$index]['selectedCatalogue'])) {
             return;
         }
@@ -520,14 +525,19 @@ class OrderNew extends Component
             ->first();
          // Fetch catalog items from `catalogue_page_item` table
          if ($page) {
-            
             $pageItems = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
                 ->whereIn('catalogue_page_items.catalogue_id', $catalogueIds) 
                 ->where('pages.page_number', $pageNumber)
                 ->select('catalogue_page_items.id', 'catalogue_page_items.catalog_item', 'pages.page_number')
                 ->get();
-            
+
             // Store fetched items in a property for dropdown use
+            if(count($pageItems)>0){
+                $this->catalogue_page_item[$index]=  $value;
+              
+            }else{
+                $this->catalogue_page_item[$index] = "";
+            }
             $this->pageItems[$index] = $pageItems;
             // dd($this->pageItems[$index]);
         } else {
@@ -546,6 +556,7 @@ class OrderNew extends Component
         } else {
             $this->resetErrorBag("items.$index.page_number");
         }
+
 
     }
 
@@ -983,6 +994,17 @@ class OrderNew extends Component
 
             // Save order items and measurements
             foreach ($this->items as $k => $item) {
+                if($item['collection']==1 && empty($item['page_item'])){
+                    $page = Page::where('catalogue_id', $item['selectedCatalogue'])->where('page_number',$item['page_number'])->first();
+                    if($page){
+                        $exist_pages = CataloguePageItem::where('page_id', $page->id)->get();
+                        if(count($exist_pages)>0 && empty($item['page_item'])){
+                            $this->addError("items.$k.page_item", "Please select a page item for this page.");
+                            return false;
+                        }
+                    }
+                  
+                }
                 $collection_data = Collection::find($item['collection']);
                 $category_data = Category::find($item['category']);
                 $sub_category_data = SubCategory::find($item['sub_category']);

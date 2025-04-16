@@ -120,7 +120,7 @@ class OrderIndex extends Component
    
     public function downloadOrderInvoice($orderId)
     {
-        $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
+        $invoice = Invoice::with(['order', 'customer.billingAddressLatest', 'user', 'packing'])
                     ->where('order_id', $orderId)
                     ->firstOrFail();
         // dd($invoice);

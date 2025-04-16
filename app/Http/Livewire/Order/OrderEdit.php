@@ -66,7 +66,7 @@ class OrderEdit extends Component
     public $remaining_amount = 0;
     public $payment_mode = null;
     public $catalogues = [];
-
+    public $catalogue_page_item = [];
     // salesmanBill
     public $salesmanBill;
     public $mobileLength;
@@ -397,7 +397,7 @@ class OrderEdit extends Component
              'items.*.searchproduct.required' => 'Please select a product for the item.',
              'items.*.selectedCatalogue.required_if' => 'Please select a catalogue for the item.',
              'items.*.page_number.required_if' => 'Please select a page for the item.',
-             'items.*.page_item.required_if' => 'Please select a page item',
+            //  'items.*.page_item.required_if' => 'Please select a page item',
              'items.*.price.required'  => 'Please enter a price for the item.',
              'items.*.selected_collection.required' =>  'Please enter a collection for the item.',
         ];
@@ -519,7 +519,7 @@ class OrderEdit extends Component
         }
     }
 
-    public function validatePageNumber($index)
+    public function validatePageNumber($value,$index)
     {
         if (!isset($this->items[$index]['page_number']) || !isset($this->items[$index]['selectedCatalogue'])) {
             return;
