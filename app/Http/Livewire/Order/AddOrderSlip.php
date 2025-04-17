@@ -100,39 +100,7 @@ class AddOrderSlip extends Component
            $this->errorMessage['staff_id'] = 'Please select a staff member.';
         }
 
-        // Validate amount
-        // if (empty($this->amount) || !is_numeric($this->amount)) {
-        //    $this->errorMessage['amount'] = 'Please enter a valid amount.';
-        // }
-        // Validate amount
-        // if (empty($this->actual_amount) || !is_numeric($this->actual_amount)) {
-        //    $this->errorMessage['actual_amount'] = 'Please enter a valid amount.';
-        // }
-
-        // Validate voucher no
-        // if (empty($this->voucher_no)) {
-        //    $this->errorMessage['voucher_no'] = 'Please enter a voucher number.';
-        // }
-
-        // Validate payment date
-        // if (empty($this->payment_date) || !$this->is_valid_date($this->payment_date)) {
-        //    $this->errorMessage['payment_date'] = 'Please select a valid payment date.';
-        // }
-
-        // Validate payment mode
-        // if (empty($this->payment_mode)) {
-        //    $this->errorMessage['payment_mode'] = 'Please select a payment mode.';
-        // }
-
-        // Validate cheque no / UTR no
-        // if ($this->payment_mode != 'cash' && empty($this->chq_utr_no)) {
-        //    $this->errorMessage['chq_utr_no'] = 'Please enter a cheque no / UTR no.';
-        // }
-
-        // Validate bank name
-        // if ($this->payment_mode != 'cash' && empty($this->bank_name)) {
-        //    $this->errorMessage['bank_name'] = 'Please enter a bank name.';
-        // }
+     
         if(count($this->errorMessage)>0){
             return $this->errorMessage;
         }else{
@@ -179,37 +147,6 @@ class AddOrderSlip extends Component
     }
     public function updateOrderItems()
     {
-        // $total_amount = 0;
-        // $air_mail_added = false;
-        // $air_mail_total = 0;
-        // foreach ($this->order_item as $item) {
-        //     $airMail = $item['air_mail'] ?? 0;
-        //     $piecePrice = (float)$item['piece_price']; 
-        //     $quantity = (int)$item['quantity'];
-        //     $base_total = $piecePrice * $quantity;
-        //     if (!$air_mail_added && $airMail > 0) {
-        //         $air_mail_total = floatval($airMail);
-        //         $air_mail_added = true;
-        //     }
-        //     $totalPrice = $base_total;
-        //     // $totalPrice = ($piecePrice * $quantity) + $airMail;
-        //     OrderItem::where('id', $item['id'])->update([
-        //         'total_price' =>  $totalPrice,
-        //         'quantity' => $quantity,
-        //         'air_mail' => $airMail,
-        //         'piece_price' => $piecePrice,
-        //     ]);
-        //     $total_amount += $totalPrice; 
-
-        // }
-        // $total_amount += $air_mail_total;
-        // $order = Order::find($this->order->id);
-        // if ($order) {
-        //     // $totalAmount  = $order->items()->sum('total_price');
-        //     $order->update([
-        //         'total_amount' => $total_amount,
-        //     ]);
-        // }
             $subtotal = 0;
             foreach ($this->order_item as $item) {
                 $piecePrice = (float)$item['piece_price'];

@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         body {
             font-family: "Roboto", sans-serif;
@@ -23,21 +22,18 @@
             border-collapse: collapse;
         }
 
-
         .table-container {
             display: flex;
             flex-direction: column;
             height: 100vh;
             position: relative;
             z-index: 3;
-            background-image: url("./assets/img/stanny_full_page.png");
+            background-image: url("./assets/img/watermark-logo.png");
             background-position: 50% 100%;
             background-attachment: scroll;
             background-repeat: no-repeat;
             background-size: 60%;
         }
-
-
 
         .table-container table {
             flex-grow: 1;
@@ -77,15 +73,6 @@
             letter-spacing: 0.5px;
         }
 
-
-
-        html,
-        body {
-            height: 100%;
-        }
-
-
-
         h4,
         h1,
         h5,
@@ -104,22 +91,19 @@
         <table class="table-custom">
             <tr>
                 <td style="width:60%;">
-                    <img src="{{  public_path('assets/img/pdf_logo.png')}}"
-                        style="width:340px; height:auto; margin-top:-60px;">
-                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400; margin-top:-30px;">Order No: {{
-                        $invoice->order->order_number }}</h2>
+                    <img src="{{  public_path('assets/img/pdf_logo.png')}}" style="width:310px; height:auto;">
                 </td>
                 <td style="width:40%;">
                     <h3
-                        style="font-size: 15px; margin-bottom:10px;display:block; vertical-align:middle; line-height:15px;">
-                        <span style="line-height: 0;">
-                            <img src="{{public_path('assets/img/phone.svg')}}" alt=""
-                                style="width: 14px; height:12px; display:inline-block;">
-                        </span>
-                        <span style="display:inline-block;"> (+242) 05 554 7777 </span>
+                    style="font-size: 15px; margin-bottom: 14px;display:block; vertical-align:middle; line-height:15px;">
+                    <span style="line-height: 0;">
+                        <img src="{{public_path('assets/img/phone.svg')}}" alt=""
+                            style="width: 14px; height:12px; display:inline-block;">
+                    </span>
+                    <span style="display:inline-block;"> (+242) 05 554 7777 </span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom: 10px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom: 14px;display:block; vertical-align:middle; line-height:15px;">
                         <span class="line-height: 0;">
                             <img src="{{public_path('assets/img/phone.svg')}}" alt=""
                                 style="width: 14px; height:12px; display:inline-block;">
@@ -129,15 +113,16 @@
                         </span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom:10px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom: 14px;display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{public_path('assets/img/mail.svg')}}" alt=""
+                                style="width: 14px; height:12px; display:inline-block;"
                                 style="width: 12px; height:12px; display:inline-block;">
                         </span>
                         <span style="display:inline-block;">contact@stannys.com</span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom:10px; display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:14px; display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{ public_path('assets/img/globe.svg')}}" alt=""
                                 style="width: 12px; height:12px; display:inline-block;"
@@ -145,7 +130,7 @@
                         </span>
                         <span style="display:inline-block;">www.stannys.com</span>
                     </h3>
-                    <h3 style="font-size: 15px; margin-bottom:10px;
+                    <h3 style="font-size: 15px; margin-bottom:14px;
                     display:inline-block; vertical-align:middle; line-height:15px; position:relative;">
                         <span style="line-height: 0; position: absolute; top:0; left:0;">
                             <img src="{{public_path('assets/img/map-pin.svg')}}" alt=""
@@ -156,7 +141,7 @@
                             Brazzaville, République du Congo
                         </span>
                     </h3>
-                    <div style="border: 1px solid #000; padding: 10px 10px 0px; border-radius: 5px; margin-top: 10px;">
+                    <div style="border: 1px solid #000; padding: 10px; border-radius: 5px; margin-top: 10px;">
                         <h3 style="font-size: 15px; margin-bottom:14px;
                             display:block; line-height:15px;">
                             <span style="line-height: 0;">
@@ -189,47 +174,45 @@
                                 @endif
                             </span>
                         </h3>
-                        <h3 style="font-size: 15px;
+                        <h3 style="font-size: 15px; margin-bottom:14px;
                             display:block; vertical-align:middle; line-height:15px;">
                             <span style="line-height: 0;">
                                 <img src="{{public_path('assets/img/phone.svg')}}" alt=""
                                     style="width: 14px; height:12px; display:inline-block;">
                             </span>
                             <span style="display:inline-block;">
-                                @if (!empty($invoice->customer->phone))
-                                  {{$invoice->customer->country_code_phone.' '.$invoice->customer->phone}}
-                                @else
-                                  Not Available
-                                @endif
+                                {{$invoice->customer->country_code_phone.' '.$invoice->customer->phone}}
                             </span>
                         </h3>
                     </div>
-
                 </td>
             </tr>
+
             <tr>
-                <td colspan="2" style="vertical-align:top; margin-top:35px;">
-                    {{--<h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400;">Invoice No: INV/{{ date('Y') }}/{{
-                        $invoice->invoice_no }}</h2>--}}
+                <td colspan="2">
+                    <h2 style="font-size: 30px; color:#acacac; font-weight: 400;">Order No: {{
+                        $invoice->order->order_number }}
+                    </h2>
                 </td>
             </tr>
             <tr>
                 <td colspan="2" style="border-bottom: 1px solid #ccc; padding-bottom: 25px;">
                     <table>
                         <tr>
-                            <td>
+                            <td style="width:50%;">
                                 <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Order
                                     Date:
                                 </h5>
-                                <p
-                                    style="color:#000; word-break: break-word; white-space: normal; max-width: 200px; font-size: 14px;">
-                                    {{ \Carbon\Carbon::parse($invoice->order->created_at)->format('d-m-Y') }}
-                                </p>
+                                <p style="color:#000; font-size: 14px;">{{
+                                    \Carbon\Carbon::parse($invoice->order->created_at)->format('d-m-Y') }}</p>
                             </td>
-                            <td>
+                       
+                            <td style="width:50%;">
                                 <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Sales
-                                    Person:</h5>
-                                <p style="color:#000; font-size: 14px;">{{$invoice->user ? $invoice->user->name : ""}}
+                                    Person:
+                                </h5>
+                                <p style="color:#000; font-size: 14px;"> {{ $invoice->order?->createdBy?->name ?? "N/A"
+                                    }}
                                 </p>
                             </td>
                         </tr>
@@ -241,44 +224,54 @@
                 <td colspan="2">
                     <table>
                         <thead style="text-align: left;">
-                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Decriptions</th>
-                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Quantity</th>
-                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Unit Price</th>
-                            {{-- <th style="padding:8px 0; font-size: 14px;">Taxes</th> --}}
-                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Total Price</th>
+                            <th style="padding:8px 0; font-size: 14px; text-align:left;">Decriptions</th>
+                            <th style="padding:8px 0; font-size: 14px; text-align:left;">Quantity</th>
+                            <th style="padding:8px 0; font-size: 14px; text-align:left;">Unit Price</th>
+                            <th style="padding:8px 0; font-size: 14px; text-align:left;">Total Price</th>
                         </thead>
                         <tbody>
                             @php
                             $totalQuantity = 0;
+                            $totalPrice = 0;
                             @endphp
                             @if($invoice->order)
                             @foreach($invoice->order->items as $item)
                             @php
                             $totalQuantity += $item->quantity;
+                            $totalPrice += $item->total_price;
                             @endphp
                             <tr>
-                                <td style="width:60%; line-height: 1.6; font-size: 13px;">{{ $item->product_name }}</td>
-                                <td style="font-size: 13px;">{{ $item->quantity }} set</td>
-                                <td style="font-size: 13px;">{{ number_format( ($item->piece_price)/($item->quantity) )
-                                    }}</td>
-                                {{-- <td style="font-size: 13px;">0.00</td> --}}
-                                <td style="font-size: 13px;">{{ number_format( $item->piece_price ) }} FCFA</td>
+                                <td style="width:50%; line-height: 1.6; font-size: 13px; vertical-align: top;">
+                                    <p>{{ $item->product_name }}</p>
+                                    <!-- <p>Coulour: Marron</p> -->
+                                <td style="font-size: 13px; vertical-align: top;">{{ $item->quantity }} pcs</td>
+                                <td style="font-size: 13px; vertical-align: top;">{{ number_format(
+                                    ($item->total_price)/($item->quantity) ) }}</td>
+                                {{-- <td style="font-size: 13px; vertical-align: top;">0.00%</td>
+                                <td style="font-size: 13px; vertical-align: top;">--</td> --}}
+                                <td style="font-size: 13px; vertical-align: top;">{{ number_format( $item->total_price )
+                                    }}
+                                    FCFA</td>
                             </tr>
-
                             @endforeach
                             @if ($invoice->order->air_mail > 0)
                             @php
                             $airMail = $invoice->order->air_mail;
+                            $totalPrice += $airMail;
                             @endphp
                             <tr>
-                                <td style="width:60%; line-height: 1.6; font-size: 13px;">Air Mail</td>
-                                <td style="font-size: 13px;">1</td>
-                                <td style="font-size: 13px;">{{ number_format($airMail)}}</td>
-                                {{-- <td style="font-size: 13px;">0.00</td> --}}
-                                <td style="font-size: 13px;">{{ number_format( $airMail ) }} FCFA</td>
+                                <td style="width:50%; line-height: 1.6; font-size: 13px; vertical-align: top;">
+                                    Air Mail
+                                </td>
+                                <td style="font-size: 13px; vertical-align: top;">1</td>
+                                <td style="font-size: 13px; vertical-align: top;">{{ number_format($airMail)}}</td>
+                                <td style="font-size: 13px; vertical-align: top;">{{ number_format( $airMail ) }}
+                                    FCFA</td>
                             </tr>
                             @endif
                             @endif
+
+
                         </tbody>
                     </table>
                     <table style="margin-top: 45px;">
@@ -292,7 +285,7 @@
                                             Total</td>
                                         <td
                                             style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
-                                            {{ number_format($invoice->net_price) }} FCFA</td>
+                                            {{ number_format( $totalPrice ) }} FCFA</td>
                                     </tr>
                                 </table>
                             </td>
@@ -302,7 +295,6 @@
             </tr>
 
         </table>
-
         <div class="footer">
             <div style="border-top: 1px solid #000; text-align: center; padding-top: 2px;">
                 <div style="margin-top: -18px; font-weight: bold; text-transform: uppercase; font-size: 14px;">
@@ -321,6 +313,7 @@
                 </div>
             </div>
         </div>
+    </div>
 </body>
 
 </html

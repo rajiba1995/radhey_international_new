@@ -60,6 +60,12 @@
             margin-top: 0;
             color: #000;
         }
+        .payment_receipt {
+            display: none;
+        }
+        .payment_receipt.visible {
+            display: block;
+        }
 
         @media print {
 
@@ -339,27 +345,98 @@
                 </td>
             </tr>
         </table>
-        {{-- <div class="footer">
-            <table
-                style="border-color:#000; border-style: double; border-bottom: 0; border-right: 0; border-left:0; margin-top: 35px;">
-                <tr>
-                    <td style="font-size: 13px; padding: 4px;">PNR: Lorem Ipsum is simply dummy text of the printing
-                    </td>
-                    <td style="font-size: 13px; padding: 4px;">Mobile: +148 15265978</td>
-                    <td style="font-size: 13px; padding: 4px;">Email: info-pro@gmail.com</td>
-                </tr>
-                <tr>
-                    <td style="font-size: 13px; padding: 4px;">PNR: Lorem Ipsum is simply dummy text of the printing
-                    </td>
-                    <td style="font-size: 13px; padding: 4px;">Mobile: +148 15265978</td>
-                    <td style="font-size: 13px; padding: 4px;">Email: info-pro@gmail.com</td>
-                </tr>
-            </table>
-        </div> --}}
+
+        <div class="card mt-2 @if(!$showPaymentReceipt) d-none @endif">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group mb-3">
+                            <label for="">Date <span class="text-danger">*</span></label>
+                            <input type="date" wire:model="payment_date" id="payment_date" max="{{date('Y-m-d')}}"
+                                class="form-control form-control-sm" value="{{date('Y-m-d')}}">
+                                @error('payment_date')
+                                    <p class="text-danger">{{$message}}</p>
+                                @enderror
+                        </div>
+                    </div>
+                </div>
+               
+                    <div class="col-sm-4">
+                        <div class="form-group mb-3">
+                            <label for="">Mode of Payment <span class="text-danger">*</span></label>
+                            <select wire:model="payment_mode" wire:change="ChangePaymentMode($event.target.value)" class="form-control form-control-sm" id="payment_mode" wire:change="ChangePaymentMode($event.target.value)">
+                                <option value="" selected hidden>Select One</option>
+                                <option value="cheque">Cheque</option>
+                                <option value="neft">NEFT</option>
+                                <option value="cash">Cash</option>
+                            </select>
+                            @error('payment_mode')
+                                <p class="text-danger">{{$message}}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    @if ($showPaymentFields) 
+                    <div class="col-sm-4">
+                        <div class="form-group mb-3">
+                            <label for="">Cheque No / UTR No </label>
+                            <input type="text" value="" wire:model="chq_utr_no" class="form-control form-control-sm"
+                                maxlength="100">
+                            @error('chq_utr_no')
+                                <p class="text-danger">{{$message}}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group mb-3">
+                            <label for="">Bank Name </label>
+                            <div id="bank_search">
+                                <input type="text" id="" placeholder="Search Bank" wire:model="bank_name"
+                                    value=""
+                                    class="form-control bank_name form-control-sm" maxlength="200">
+                                @error('bank_name')
+                                    <p class="text-danger">{{$message}}</p>
+                                @enderror    
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+                <div class="row justify-content-end">
+                    <div class="col-sm-2">
+                        <div class="form-group mb-3">
+                            <label for="">Actual Amount <span class="text-danger">*</span></label>
+                            <input type="text" value="" maxlength="20" wire:model="actual_amount" class="form-control form-control-sm" readonly>
+                            @error('actual_amount')
+                                <p class="text-danger">{{$message}}</p>
+                            @enderror  
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group mb-3">
+                            <label for="">Paid Amount<span class="text-danger">*</span></label>
+                            <input type="text" value="" maxlength="20" wire:model="amount" class="form-control form-control-sm">
+                            @error('amount')
+                                <p class="text-danger">{{$message}}</p>
+                            @enderror  
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group text-end">
+                        <button type="submit" id="submit_btn"
+                            class="btn btn-sm btn-success" wire:click.prevent="savePayment"><i class="material-icons text-white" style="font-size: 15px;">add</i>Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script>
     window.addEventListener('triggerPrint', () => {
-        window.print();
+      if(confirm("Are you sure you want to payment?")){
+        Livewire.dispatch('paymentConfirmed');
+        //   window.print();
+        }
+
     });
 </script>

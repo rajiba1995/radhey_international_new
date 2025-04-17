@@ -100,16 +100,18 @@
 </head>
 
 <body>
-    {{-- {{dd()}} --}}
     <div class="table-container">
         <table class="table-custom">
             <tr>
-                <td style="width:60%;">
-                    <img src="{{  public_path('assets/img/pdf_logo.png')}}" style="width:310px; height:auto;">
+                <td style="width:60%;" >
+                    <img src="{{  public_path('assets/img/pdf_logo.png')}}" style="width:340px; height:auto;">
+                    
+                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400; margin-top:65px;">Invoice No: INV/{{ date('Y') }}/{{
+                        $invoice->invoice_no }}</h2>
                 </td>
                 <td style="width:40%;">
                     <h3
-                        style="font-size: 15px; margin-bottom: 14px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:10px;display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{public_path('assets/img/phone.svg')}}" alt=""
                                 style="width: 14px; height:12px; display:inline-block;">
@@ -117,7 +119,7 @@
                         <span style="display:inline-block;"> (+242) 05 554 7777 </span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom: 14px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom: 10px;display:block; vertical-align:middle; line-height:15px;">
                         <span class="line-height: 0;">
                             <img src="{{public_path('assets/img/phone.svg')}}" alt=""
                                 style="width: 14px; height:12px; display:inline-block;">
@@ -127,16 +129,16 @@
                         </span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom: 14px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:10px;display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{public_path('assets/img/mail.svg')}}" alt=""
-                                style="width: 14px; height:12px; display:inline-block;"
+                                
                                 style="width: 12px; height:12px; display:inline-block;">
                         </span>
                         <span style="display:inline-block;">contact@stannys.com</span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom:14px; display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:10px; display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{ public_path('assets/img/globe.svg')}}" alt=""
                                 style="width: 12px; height:12px; display:inline-block;"
@@ -144,7 +146,7 @@
                         </span>
                         <span style="display:inline-block;">www.stannys.com</span>
                     </h3>
-                    <h3 style="font-size: 15px; margin-bottom:14px;
+                    <h3 style="font-size: 15px; margin-bottom:10px;
                     display:inline-block; vertical-align:middle; line-height:15px; position:relative;">
                         <span style="line-height: 0; position: absolute; top:0; left:0;">
                             <img src="{{public_path('assets/img/map-pin.svg')}}" alt=""
@@ -155,7 +157,7 @@
                             Brazzaville, République du Congo
                         </span>
                     </h3>
-                    <div style="border: 1px solid #000; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <div style="border: 1px solid #000; padding: 10px 10px 0px; border-radius: 5px; margin-top: 10px;">
                         <h3 style="font-size: 15px; margin-bottom:14px;
                             display:block; line-height:15px;">
                             <span style="line-height: 0;">
@@ -188,7 +190,7 @@
                                 @endif
                             </span>
                         </h3>
-                        <h3 style="font-size: 15px; margin-bottom:14px;
+                        <h3 style="font-size: 15px;
                             display:block; vertical-align:middle; line-height:15px;">
                             <span style="line-height: 0;">
                                 <img src="{{public_path('assets/img/phone.svg')}}" alt=""
@@ -227,9 +229,9 @@
                 </td>
             </tr> --}}
             <tr>
-                <td colspan="2">
-                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400;">Invoice No: INV/{{ date('Y') }}/{{
-                        $invoice->invoice_no }}</h2>
+                <td colspan="2" style="vertical-align:top; margin-top:35px;">
+                    {{--<h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400;">Invoice No: INV/{{ date('Y') }}/{{
+                        $invoice->invoice_no }}</h2>--}}
                 </td>
             </tr>
             <tr>
@@ -394,23 +396,7 @@
                 </td>
             </tr>
         </table>
-        {{-- <div class="footer">
-            <table
-                style="border-color:#000; border-style: double; border-bottom: 0; border-right: 0; border-left:0; margin-top: 35px;">
-                <tr>
-                    <td style="font-size: 13px; padding: 4px;">PNR: Lorem Ipsum is simply dummy text of the printing
-                    </td>
-                    <td style="font-size: 13px; padding: 4px;">Mobile: +148 15265978</td>
-                    <td style="font-size: 13px; padding: 4px;">Email: info-pro@gmail.com</td>
-                </tr>
-                <tr>
-                    <td style="font-size: 13px; padding: 4px;">PNR: Lorem Ipsum is simply dummy text of the printing
-                    </td>
-                    <td style="font-size: 13px; padding: 4px;">Mobile: +148 15265978</td>
-                    <td style="font-size: 13px; padding: 4px;">Email: info-pro@gmail.com</td>
-                </tr>
-            </table>
-        </div> --}}
+       
         <div class="footer">
             <div style="border-top: 1px solid #000; text-align: center; padding-top: 2px;">
                 <div style="margin-top: -18px; font-weight: bold; text-transform: uppercase; font-size: 14px;">
@@ -430,5 +416,4 @@
             </div>
         </div>
 </body>
-
 </html
