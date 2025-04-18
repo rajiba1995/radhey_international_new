@@ -27,7 +27,8 @@ class AddInvoice extends Component
     public $totalAmount = 0;
     public $totalInWords = '';
     public $products;
-    public $customer_name,$voucher_no,$payment_collection_id,$staff_id,$customer_id,$invoice_date,$due_date,$source,$reference,$due_amount,$ht_amount,$tva_amount,$ca_amount;
+    public $selectedCustomerId;
+    public $customers,$searchTerm,$customer_name,$voucher_no,$payment_collection_id,$staff_id,$customer_id,$invoice_date,$due_date,$source,$reference,$due_amount,$ht_amount,$tva_amount,$ca_amount;
     public $salesmen;
     public $salesman;
     public $bill_book = [];
@@ -50,7 +51,19 @@ class AddInvoice extends Component
     protected function rules()
     {
         $rules = [
-            'customer_name' => 'required|string|max:255',
+            'customer_name' => [
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    // If no customer is selected
+                    if (empty($this->selectedCustomerId)) {
+                        if (empty($value)) {
+                            $fail('Please enter customer name.');
+                        }
+                    }
+                    // If customer is selected, no need to validate input
+                },
+            ],
+
             'invoice_date'  => 'required|date',
             'due_date'      => 'required|date|after_or_equal:invoice_date',
             'source'        => 'required|string|unique:orders,source|max:255',
@@ -77,7 +90,7 @@ class AddInvoice extends Component
     protected function messages()
     {
         $messages = [
-            'customer_name.required' => 'Customer name is required.',
+            // 'customer_name.required' => 'Customer name is required.',
             'invoice_date.required'  => 'Invoice date is required.',
             'due_date.required'      => 'Due date is required.',
             'source.required'        => 'Source is required.',
@@ -149,6 +162,46 @@ class AddInvoice extends Component
         $this->amount = 0;
     }
 
+    public function FindCustomer($search){
+        $this->searchTerm = $search;
+        if(!empty($this->searchTerm)){
+            $users = User::where('user_type',1)->where('status',1)->where(function ($query) {
+                $query->where('name', 'like', '%' . $this->searchTerm . '%')
+                    ->orWhere('phone', 'like', '%' . $this->searchTerm . '%')
+                    ->orWhere('email', 'like', '%' . $this->searchTerm . '%');
+            })
+            ->take(20)
+            ->get();
+
+            $orderCustomers = Order::where('order_number', 'like', '%' . $this->searchTerm . '%')
+            ->with('customer')
+            ->take(5)
+            ->get()
+            ->pluck('customer')
+            ->filter();
+
+            $this->customers = $users->merge($orderCustomers)
+            ->unique('id')
+            ->values();
+        }
+
+
+    }
+
+    public function selectCustomer($customerId)
+    {
+        $customer = User::find($customerId);
+        if($customer) {
+            $this->searchTerm = $customer->name;
+            $this->customer_name = $customer->name;
+            $this->selectedCustomerId = $customerId;
+            $this->customers = []; 
+        }
+    }
+
+
+
+
     
     public function printInvoice()
     {
@@ -179,11 +232,20 @@ class AddInvoice extends Component
     public function savePayment(){
         // dd($this->all());
         $this->validate([
-            'payment_date' => 'required|date',
+            // 'payment_date' => 'required|date',
             'payment_mode' => 'required|in:cheque,neft,cash',
             'chq_utr_no' => 'required_if:payment_mode,cheque,neft',
             'bank_name' => 'required_if:payment_mode,cheque,neft',
-            'amount' => 'required|numeric|min:0|max:'.$this->actual_amount,
+            'amount' => [
+            'required',
+            'numeric',
+            'min:0',
+                function ($attribute, $value, $fail) {
+                    if ($value > $this->actual_amount) {
+                        $fail("Paid amount cannot exceed ".number_format($this->actual_amount, 2).' FCFA');
+                    }
+                },
+            ]
         ],[
             'payment_date.required' => 'Payment date is required.',
             'payment_date.date' => 'Payment date must be a valid date.',
@@ -213,7 +275,7 @@ class AddInvoice extends Component
         $this->ht_amount = $ht_amount;
         $this->tva_amount = $tva;
         $this->ca_amount = $ca;
-
+        // $this->payment_date = $this->invoice_date;
         // Show payment receipt section
         $this->showPaymentReceipt = true;
 
@@ -221,14 +283,19 @@ class AddInvoice extends Component
         DB::beginTransaction();
 
         try{
-            $user = User::create([
-                'user_type' => 1,
-                'name'     => $this->customer_name
-            ]);
+            // $this->validate();
+            if($this->selectedCustomerId){
+                $this->customer_id = $this->selectedCustomerId;
 
-            $this->customer_id = $user->id;
+            }else{
+                $user = User::create([
+                    'user_type' => 1,
+                    'name'     => $this->customer_name
+                ]);
+                $this->customer_id = $user->id;
+            }
             $order = Order::create([
-                'customer_id' => $user->id,
+                'customer_id' => $this->customer_id,
                 'created_by' => $this->salesman,
                 'order_number' => $this->order_number,
                 'customer_name' => $this->customer_name,
@@ -248,12 +315,15 @@ class AddInvoice extends Component
 
             // Create Order Items
             foreach ($this->rows as $row) {
+                $product = $this->products->firstWhere('id',$row['product_id']);
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $row['product_id'],
                     'quantity' => $row['quantity'],
                     'piece_price' => $row['unit_price'],
                     'total_price' => $row['total'],
+                    'product_name'=> $product->name
                 ]);
             }
             
@@ -265,11 +335,14 @@ class AddInvoice extends Component
             $this->voucher_no = 'PAYRECEIPT'.time();            
             $this->payment_date = $this->invoice_date;
             $this->staff_id = $this->salesman;
+            // Store in Invoice and InvoicePayment
             $this->accountingRepository->StorePaymentReceipt($this->all());
 
+       
             DB::commit();
             $this->resetForm();
-            session()->flash('message', 'Invoice and payment saved successfully.');
+            return redirect()->route('admin.order.index')->with('message','Manual Order Generated Successfully');
+            // session()->flash('message', 'Invoice and payment saved successfully.');
         }catch (\Exception $e) {
             DB::rollBack();
             dd($e->getMessage());
@@ -281,7 +354,7 @@ class AddInvoice extends Component
     public function updateOrder($order_id)
     {
         $order = Order::find($order_id); 
-
+        
         if ($order) {
             $order->update([
                 'customer_id' => $order->customer_id,

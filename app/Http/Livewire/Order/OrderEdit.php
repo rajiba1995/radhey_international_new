@@ -388,7 +388,7 @@ class OrderEdit extends Component
         'items.*.measurements.*' => 'nullable',
         'items.*.selectedCatalogue' => 'required_if:items.*.selected_collection,1', 
         'items.*.page_number' => 'required_if:items.*.selected_collection,1',
-        'items.*.page_item' => 'required_if:items.*.selected_collection,1'
+        // 'items.*.page_item' => 'required_if:items.*.selected_collection,1'
     ];
 
     protected function messages(){
@@ -535,6 +535,11 @@ class OrderEdit extends Component
                                                             ->pluck('catalogue_page_items.catalog_item')
                                                             ->toArray();
                                                             // If no items found, reset selected page item
+        if(count($this->items[$index]['pageItems'])>0){
+            $this->catalogue_page_item[$index]=  $value; 
+        }else{
+            $this->catalogue_page_item[$index] = "";
+        }
         
         if (empty($this->items[$index]['pageItems'])) {
             $this->items[$index]['page_item'] = null;
@@ -1092,11 +1097,9 @@ class OrderEdit extends Component
            
 
             foreach ($this->items as $key=>$item) {
-                // $orderItem = OrderItem::where('order_id', $order->id)->where('product_id', $item['product_id'])->first();
-                // $orderItem = OrderItem::firstOrNew([
-                //     'order_id' => $order->id,
-                //     'product_id' => $item['product_id']
-                // ]);
+                dd($item);
+                // if($item['selected_collection'] == 1 && empty($item['page_number'])){
+                // }
                 if (!empty($item['order_item_id'])) {
                     // Find the existing OrderItem by its ID
                     $orderItem = OrderItem::find($item['order_item_id']);

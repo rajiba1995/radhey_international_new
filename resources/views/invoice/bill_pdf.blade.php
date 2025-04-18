@@ -185,7 +185,7 @@
                                 {{ $invoice->customer->billingAddressLatest->country }},
                                 {{ $invoice->customer->billingAddressLatest->zip_code }}
                                 @else
-                                Not Available
+                                 N/A
                                 @endif
                             </span>
                         </h3>
@@ -196,10 +196,10 @@
                                     style="width: 14px; height:12px; display:inline-block;">
                             </span>
                             <span style="display:inline-block;">
-                                @if (!empty($invoice->customer->phone))
-                                  {{$invoice->customer->country_code_phone.' '.$invoice->customer->phone}}
+                                @if($invoice->customer && $invoice->customer->phone)
+                                 {{$invoice->customer->country_code_phone.' '.$invoice->customer->phone}}
                                 @else
-                                  Not Available
+                                  N/A 
                                 @endif
                             </span>
                         </h3>

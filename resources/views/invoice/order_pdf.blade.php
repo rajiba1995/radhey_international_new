@@ -186,7 +186,7 @@
                                 {{ $invoice->customer->billingAddressLatest->country }},
                                 {{ $invoice->customer->billingAddressLatest->zip_code }}
                                 @else
-                                Not Available
+                                 N/A
                                 @endif
                             </span>
                         </h3>
@@ -197,7 +197,11 @@
                                     style="width: 14px; height:12px; display:inline-block;">
                             </span>
                             <span style="display:inline-block;">
-                                {{$invoice->customer->country_code_phone.' '.$invoice->customer->phone}}
+                                @if($invoice->customer && $invoice->customer->phone)
+                                 {{$invoice->customer->country_code_phone.' '.$invoice->customer->phone}}
+                                @else
+                                  N/A 
+                                @endif
                             </span>
                         </h3>
                     </div>
@@ -267,12 +271,24 @@
                             <td>
                                 <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Source:
                                 </h5>
-                                <p style="color:#000; font-size: 14px;">{{ $invoice->order->order_number }}</p>
+                                <p style="color:#000; font-size: 14px;">
+                                  @if ($invoice->order->invoice_type ==  "manual")
+                                     {{ $invoice->order->source }}
+                                   @elseif($invoice->order->invoice_type ==  "invoice")   
+                                    {{ $invoice->order->order_number }}
+                                  @endif
+                                </p>
                             </td>
                             <td>
                                 <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">
                                     Reference:</h5>
-                                <p style="color:#000; font-size: 14px;">{{ $invoice->order->order_number }}</p>
+                                <p style="color:#000; font-size: 14px;">
+                                    @if ($invoice->order->invoice_type ==  "manual")
+                                    {{ $invoice->order->reference }}
+                                    @elseif($invoice->order->invoice_type ==  "invoice")   
+                                    {{ $invoice->order->order_number }}
+                                    @endif
+                                </p>
                             </td>
 
                         </tr>

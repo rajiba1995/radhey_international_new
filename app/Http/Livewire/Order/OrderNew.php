@@ -310,7 +310,6 @@ class OrderNew extends Component
             'items.*.price' => 'required|numeric|min:1',  
             'items.*.searchTerm' => 'required_if:items.*.collection,1',
             'order_number' => 'required|string|not_in:000|unique:orders,order_number',
-            
             'air_mail' => 'nullable|numeric',
             'imageUploads.*.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp', 
         ];
