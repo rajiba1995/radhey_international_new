@@ -22,6 +22,7 @@ use App\Models\OrderItemCatalogueImage;
 use Illuminate\Support\Facades\DB;
 use Auth;
 use App\Models\UserWhatsapp;
+use App\Models\Page;
 use App\Models\CataloguePageItem;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
@@ -148,9 +149,10 @@ class OrderEdit extends Component
                         $pageItems = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
                         ->where('catalogue_page_items.catalogue_id', $item->catalogue_id) 
                         ->where('pages.page_number', $item->cat_page_number)
-                        ->pluck('catalogue_page_items.catalog_item')
+                        ->pluck('catalogue_page_items.catalog_item','catalogue_page_items.id')
                         ->toArray();
                     }
+                // dd($pageItems);
 
                  
                 //  dd($item->catalogue_id);
@@ -172,7 +174,7 @@ class OrderEdit extends Component
                     'fabrics' => $fabrics,
                     'searchTerm' => optional($selectedFabric)->title ?? '',
 
-                    'searchResults' => [],
+                    'searchResults' => [],  
                     'selected_measurements_title' => $selected_titles,
                     'selected_measurements_value' => $selected_values,
                     'measurements' => $measurements,
@@ -257,6 +259,10 @@ class OrderEdit extends Component
 
 
         foreach ($this->items as $index => $item) {
+            // dd($item);
+            if(!empty($item['page_item'])){
+                $this->catalogue_page_item[$index] = $item['page_item'];
+            }
             $this->existingImages[$index] = OrderItemCatalogueImage::where('order_item_id', $item['order_item_id'])->pluck('image_path')->toArray();
             $this->imageUploads[$index] = [];
             $this->items[$index]['copy_previous_measurements'] = false; // Ensure checkbox is not selected
@@ -1097,9 +1103,16 @@ class OrderEdit extends Component
            
 
             foreach ($this->items as $key=>$item) {
-                dd($item);
-                // if($item['selected_collection'] == 1 && empty($item['page_number'])){
-                // }
+                if($item['selected_collection'] == 1 && is_null($item['page_item'])){
+                    $page = Page::where('page_number', $item['page_number'])
+                                ->where('catalogue_id', $item['selectedCatalogue'])
+                                ->first();
+                    $exists_pages = CataloguePageItem::where('page_id', $page->id)->get();
+                    if($exists_pages->isNotEmpty() && empty($item['page_item'])){
+                        $this->addError("items.$key.page_item", "Please select a page item for this page.");
+                        return false;
+                    }
+                }
                 if (!empty($item['order_item_id'])) {
                     // Find the existing OrderItem by its ID
                     $orderItem = OrderItem::find($item['order_item_id']);

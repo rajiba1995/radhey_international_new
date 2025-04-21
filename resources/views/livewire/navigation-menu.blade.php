@@ -90,6 +90,10 @@
                     href="{{route('admin.order.invoice.add')}}">
                     Generate Invoices
                 </a>
+                <a class="nav-link text-white {{ Request::is('admin/orders/proformas') ? 'active ' : '' }}"
+                    href="{{route('admin.order.proformas.index')}}">
+                    Proformas
+                </a>
                 <a class="nav-link text-white {{ Request::is('admin/orders/cancel-order') ? 'active ' : '' }}"
                     href="{{route('admin.order.cancel-order.index')}}">
                     Cancel Order
