@@ -361,7 +361,7 @@
                 <div class="col-md-4">
                     <label class="date_lable">No:</label>
 
-                    <input type="number" class="form-control form-control-sm border border-2 p-2"
+                    <input type="text" class="form-control form-control-sm border border-2 p-2"
                         wire:model="proforma_number" placeholder="Enter Proforma Number">
 
                     @error('proforma_number')
@@ -542,12 +542,22 @@
     <script src="https://cdn.ckeditor.com/ckeditor5/38.1.0/classic/ckeditor.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+                // ClassicEditor
+                //     .create(document.querySelector('#condition'))
+                //     .catch(error => {
+                //         console.error(error);
+                //     });
                 ClassicEditor
                     .create(document.querySelector('#condition'))
+                    .then(editor => {
+                        editor.model.document.on('change:data', () => {
+                            @this.set('condition', editor.getData());
+                        });
+                    })
                     .catch(error => {
                         console.error(error);
                     });
-            });
+                });
             
     </script>
 </div>

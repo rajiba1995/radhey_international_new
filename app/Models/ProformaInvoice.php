@@ -23,6 +23,6 @@ class ProformaInvoice extends Model
 
     public function items()
     {
-        return $this->hasMany(ProformaInvoiceItem::class, 'invoice_id');
+        return $this->hasMany(ProformaInvoiceItem::class, 'proforma_id');
     }
 }

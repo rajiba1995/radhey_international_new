@@ -624,7 +624,15 @@
                                         <i class="material-icons text-white" style="font-size: 15px;">add</i>
                                         Upload Images
                                     </button>
+                                    <button type="button" class="btn btn-cta btn-sm"
+                                        onclick="document.getElementById('voice-upload-{{ $index }}').click()">
+                                        <i class="material-icons text-white" style="font-size: 15px;">mic</i>
+                                        Upload Voice
+                                    </button>
                                     @error('imageUploads.*')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                    @error('voiceUploads.*')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -633,6 +641,9 @@
                                 <input type="file" id="catalog-upload-{{ $index }}" multiple
                                     wire:model="imageUploads.{{ $index }}" accept="image/*"
                                     class="d-none" />
+                                {{-- Voice Upload --}}
+                                <input type="file" id="voice-upload-{{ $index }}" multiple
+                                wire:model="voiceUploads.{{ $index }}" accept="audio/*" class="d-none" />
                             
                                 {{-- Image Preview --}}
                                 <div class="mt-2">
@@ -660,6 +671,43 @@
                                         </button>
                                     </div>
                                     @endforeach                                
+                                    @endif
+                                </div>
+                                {{-- Existing Videos Preview --}}
+                                <div class="mt-2">
+                                    @if (!empty($existingVideos[$index]))
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach ($existingVideos[$index] as $video)
+                                            <div style="position: relative; width: 150px;">
+                                                <audio controls style="width: 100%;">
+                                                    <source src="{{ asset('storage/' . $video) }}" type="audio/mpeg">
+                                                    Your browser does not support the audio element.
+                                                </audio>
+                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                                    wire:click="removeVideo({{ $index }}, '{{ $loop->index }}')">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    @endif
+
+                                    {{-- Newly Uploaded Voice Preview --}}
+                                    @if (!empty($voiceUploads[$index]))
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        @foreach ($voiceUploads[$index] as $voiceIndex => $voice)
+                                        <div style="position: relative; width: 150px;">
+                                            <audio controls style="width: 100%;">
+                                                <source src="{{ $voice->temporaryUrl() }}" type="audio/mpeg">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                                wire:click="removeUploadedVoice({{ $index }}, {{ $voiceIndex }})">
+                                                &times;
+                                            </button>
+                                        </div>
+                                        @endforeach
+                                    </div>
                                     @endif
                                 </div>
                             </div>

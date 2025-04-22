@@ -51,7 +51,7 @@ class ProformaAdd extends Component
             ],
             'condition' => 'required',
             'date' => 'required|date',
-            'proforma_number' => 'required',
+            'proforma_number' => ['required', 'regex:/^[0-9\-]+$/'],
 
             'rows.*.product_id' => 'required|exists:products,id',
             'rows.*.quantity' => 'required|integer|min:1',
@@ -102,8 +102,8 @@ class ProformaAdd extends Component
 
     public function generateProforma(){
         // dd($this->all());
+        $this->validate();
         try{
-           $this->validate();
             DB::beginTransaction();
             // 1. Create Customer
             $customer = ProformaCustomer::create([
@@ -141,6 +141,9 @@ class ProformaAdd extends Component
                     'total_price' => $row['total'],
                 ]);
             }
+
+            DB::commit();
+            return redirect()->route('admin.order.proformas.index')->with('success', 'Proforma invoice created successfully.');
 
         }catch (\Exception $e) {
             DB::rollBack();

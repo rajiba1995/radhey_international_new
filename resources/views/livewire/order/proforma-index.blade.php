@@ -55,57 +55,95 @@
 
                             <thead>
                                 <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                        Name
-                                    </th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                        Email
-                                    </th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                        Phone
-                                    </th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                    <x-table-th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                        Date & Time
+                                    </x-table-th>
+                                    <x-table-th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                        Proforma No
+                                    </x-table-th>
+                                    <x-table-th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                        Customer
+                                    </x-table-th>
+                                    <x-table-th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                       Products
+                                    </x-table-th>
+                                    <x-table-th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
+                                       Amount
+                                    </x-table-th>
+                                    <x-table-th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
                                        Action
-                                    </th>
-                                    <th class="text-secondary opacity-7"></th>
+                                    </x-table-th>
+                                    <x-table-th class="text-secondary opacity-7"></x-table-th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- @foreach($suppliers as $supplier)
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex py-1">
-                                                    <div class="d-flex flex-column justify-content-center">
-                                                        <h6 class="mb-0 text-sm">{{ $supplier->prefix." ". $supplier->name }}</h6>
+                                @foreach($invoices as $item)
+                                <tr>
+                                    <x-table-td>
+                                        <p class="small text-muted mb-1 badge bg-warning">
+                                            Created At:-  {{ \Carbon\Carbon::parse($item->date)->format('d/m/Y h:i A') }} 
+                                        </p>
+                                    </x-table-td>
+                                    <x-table-td>{{ $item->proforma_number }}</x-table-td>
+                                    <x-table-td style="word-break: break-word; white-space:normal;">{{ $item->customer ? ucwords($item->customer->name) : "" }}</x-table-td>
+                                    
+                                    <x-table-td>
+                                    <button type="button" class="btn btn-outline-success select-md btn_outline"
+                                            data-bs-toggle="modal" data-bs-target="#ProductModal{{$item->id}}"> View Items
+                                            ({{count($item->items)}}) </button>
+                                    </x-table-td>
+                                    <x-table-td>{{ number_format($item->total_amount,2) }}</x-table-td>
+                                    <x-table-td>
+                                       <button wire:click="downloadProformaInvoice({{ $item->id }})"  class="btn select-md btn-outline-success btn_outline">
+                                          Download
+                                       </button>
+                                    </x-table-td>
+                                </tr>
+                                {{-- product modal --}}
+                                <tr>
+                                    <td colspan="7">
+                                        <div class="modal fade" id="ProductModal{{ $item->id }}" tabindex="-1"
+                                            aria-labelledby="ProductModalLabel{{ $item->id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ProductModalLabel{{ $item->id }}" style="word-break: break-word; white-space:normal; max-width: 90%;">
+                                                            #{{ $item->proforma_number }} / {{ ucwords($item->customer->name) }}
+                                                        </h5>
+                                                        <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">
+                                                            Close
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <table class="table table-sm">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Product</th>
+                                                                    <th>Quantity</th>
+                                                                    <th>Piece Price</th>
+                                                                    <th>Total Amount</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ($item->items as $key => $product)
+                                                                <tr>
+                                                                    <td>{{ $key + 1 }}</td>
+                                                                    <td>{{ $product->product ? $product->product->name : ""  }}</td>
+                                                                    <td>{{ $product->quantity }}</td>
+                                                                    <td>{{ number_format($product->unit_price, 2) }}</td>
+                                                                    <td>{{ number_format($product->total_price, 2) }}</td>
+                                                                </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
                                                     </div>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <p class="text-xs font-weight-bold mb-0">{{ $supplier->email ?? 'N/A'}}</p>
-                                            </td>
-                                            <td>
-                                                <p class="text-xs font-weight-bold mb-0">{{$supplier->country_code_mobile .' '. $supplier->mobile }}</p>
-                                            </td>
-                                            <td>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input ms-auto" type="checkbox" wire:click="toggleStatus({{ $supplier->id }})" 
-                                                    @if ($supplier->status)
-                                                        checked
-                                                    @endif
-                                                    >
-                                                </div>
-                                            </td>
-                                            <td class="align-middle">
-                                            <a href="{{ route('suppliers.details', $supplier->id) }}" class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="View Details" title="View Details">
-                                             View
-                                            </a>
-                                            <a href="{{ route('suppliers.edit', $supplier->id) }}"  class="btn btn-outline-primary select-md btn_action btn_outline" data-toggle="tooltip" data-original-title="Edit supplier" title="Edit Supplier">
-                                            Edit
-                                            </a>
-                                            <a class="btn btn-outline-danger select-md btn_outline" wire:click="confirmDelete({{ $supplier->id }})" @click.stop>Delete</a>
-                                            </td>
-                                        </tr>
-                                @endforeach --}}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
                             </tbody>
 
                         </table>
@@ -119,25 +157,7 @@
             </div>
         </div>
     </div>
+    <div class="loader-container" wire:loading>
+        <div class="loader"></div>
+    </div>
 </div>
-{{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    window.addEventListener('showDeleteConfirm', function (event) {
-        // console.log(event);
-        let itemId = event.detail[0].itemId; // Assign itemId correctly
-        Swal.fire({
-            title: "Are you sure?",
-            text: "This action cannot be undone!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                @this.call('deleteSupplier', itemId); // Call Livewire method
-                Swal.fire("Deleted!", "The supplier has been deleted.", "success");
-            }
-        });
-    });
-</script> --}}
