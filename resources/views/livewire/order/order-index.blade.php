@@ -133,7 +133,10 @@
                                             <button wire:click="downloadOrderBill({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Bill</button>
                                         {{-- @endif --}}
                                     @endif
-                                    <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
+                                    @if ($order->invoice_type=="invoice")
+                                      <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
+                                        
+                                    @endif
 
                                      {{-- <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-info btn-sm custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="View product">
                                          <span class="material-icons">visibility</span>

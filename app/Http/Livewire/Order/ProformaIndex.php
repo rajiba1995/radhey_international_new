@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class ProformaIndex extends Component
 {
     public $invoices = [];
+    public $search = '';
 
     public function mount(){
         $this->invoices = ProformaInvoice::with('customer')->get();
@@ -27,9 +28,20 @@ class ProformaIndex extends Component
             }, 'proforma_' . $proforma->proforma_number . '.pdf');
       
     }
+
+    public function FindCustomer($keywords){
+        $this->search = $keywords;
+    }
+   
     
     public function render()
     {
+        $this->invoices = ProformaInvoice::with('customer')
+        ->where('proforma_number', 'like', '%' . $this->search . '%')
+        ->orWhereHas('customer', function($query) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        })
+        ->get();
         return view('livewire.order.proforma-index');
     }
 }

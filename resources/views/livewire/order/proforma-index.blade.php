@@ -20,8 +20,8 @@
                 <div class="col-auto">
                     <div class="row g-3 align-items-center">
                         <div class="col-auto mt-0">
-                            <input type="text" wire:model="search" class="form-control select-md bg-white" id="customer"
-                                placeholder="Search by supplier name or PO number" value=""
+                            <input type="text" wire:model="search" wire:keyup="FindCustomer($event.target.value)" class="form-control select-md bg-white" id="customer"
+                                placeholder="Search by customer name or proforma number" value=""
                                 style="width: 350px;">
                         </div>
                         <div class="col-md-auto mt-3">
@@ -90,7 +90,8 @@
                                     <x-table-td>
                                     <button type="button" class="btn btn-outline-success select-md btn_outline"
                                             data-bs-toggle="modal" data-bs-target="#ProductModal{{$item->id}}"> View Items
-                                            ({{count($item->items)}}) </button>
+                                            ({{count($item->items)}}) 
+                                    </button>
                                     </x-table-td>
                                     <x-table-td>{{ number_format($item->total_amount,2) }}</x-table-td>
                                     <x-table-td>

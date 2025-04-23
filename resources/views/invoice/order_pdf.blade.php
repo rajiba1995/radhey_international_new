@@ -391,13 +391,22 @@
                                             using cash</td>
                                         <td
                                             style="text-align: right; padding: 6px; border-bottom: 1px solid #ccc; font-size: 13px;">
-                                            {{ number_format($invoice->net_price - $invoice->required_payment_amount) }}
-                                            FCFA</td>
+                                             @if($invoice->order->invoice_type == "manual")
+                                                {{ number_format($invoice->order->paid_amount) }} FCFA
+                                            @else
+                                                {{ number_format($invoice->net_price - $invoice->required_payment_amount) }} FCFA
+                                            @endif
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td style="padding: 6px; font-weight: 600; font-size: 13px;">Amout Due</td>
-                                        <td style="text-align: right; padding: 6px; font-size: 13px;">{{
-                                            number_format($invoice->required_payment_amount) }} FCFA</td>
+                                        <td style="text-align: right; padding: 6px; font-size: 13px;">
+                                           @if($invoice->order->invoice_type == "manual")
+                                                {{ number_format($invoice->order->total_amount - $invoice->order->paid_amount) }} FCFA
+                                            @else
+                                                {{ number_format($invoice->required_payment_amount) }} FCFA
+                                            @endif 
+                                        </td>
                                     </tr>
                                 </table>
                             </td>

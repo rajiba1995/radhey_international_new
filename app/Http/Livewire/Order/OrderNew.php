@@ -24,6 +24,7 @@ use App\Models\UserWhatsapp;
 use App\Models\Page;
 use App\Models\CataloguePageItem;
 use App\Models\OrderItemCatalogueImage;
+use App\Models\OrderItemVoiceMessage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Helper;
@@ -97,6 +98,7 @@ class OrderNew extends Component
     public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
     public $items = [];
     public $imageUploads = []; 
+    public $voiceUploads = [];
     public $air_mail;
     
 
@@ -310,9 +312,9 @@ class OrderNew extends Component
             'items.*.price' => 'required|numeric|min:1',  
             'items.*.searchTerm' => 'required_if:items.*.collection,1',
             'order_number' => 'required|string|not_in:000|unique:orders,order_number',
-            
             'air_mail' => 'nullable|numeric',
             'imageUploads.*.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp', 
+            'voiceUploads.*.*'  => 'nullable|mimes:mp3,wav,ogg', 
         ];
     }
    
@@ -465,6 +467,8 @@ class OrderNew extends Component
         $this->items = array_values($this->items);
         $this->updateBillingAmount();  // Update billing amount after checking price
     }
+
+
 
     public function GetCategory($value,$index)
     {
@@ -772,6 +776,15 @@ class OrderNew extends Component
         $this->imageUploads[$index] = array_values($this->imageUploads[$index]);
     }
 
+    public function removeUploadedVoice($index, $voiceIndex)
+    {
+        if (isset($this->voiceUploads[$index][$voiceIndex])) {
+            unset($this->voiceUploads[$index][$voiceIndex]);
+            $this->voiceUploads[$index] = array_values($this->voiceUploads[$index]);
+        }
+    }
+
+
     public function save()
     {   
         // dd($this->all());
@@ -1042,6 +1055,22 @@ class OrderNew extends Component
                         }
                     }
                 }
+
+                if(!empty($this->voiceUploads)){
+                    foreach ($this->voiceUploads as $voice) {
+                        foreach($voice as $audio){
+                            $audioPath = $audio->store('uploads/order_item_voice_messages', 'public');
+                            OrderItemVoiceMessage::create([
+                                'order_item_id' => $orderItem->id,
+                                'voices_path' => $audioPath,
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                        }
+                    }
+                }
+
+
 
                 if (isset($item['get_measurements']) && count($item['get_measurements']) > 0) {
                     $get_all_measurment_field = [];

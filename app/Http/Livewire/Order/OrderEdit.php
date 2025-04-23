@@ -24,6 +24,7 @@ use Auth;
 use App\Models\UserWhatsapp;
 use App\Models\Page;
 use App\Models\CataloguePageItem;
+use App\Models\OrderItemVoiceMessage;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
 
@@ -38,7 +39,7 @@ class OrderEdit extends Component
     // public $collectionsType = [];
     public $collections = [];
     public $errorMessage = [];
-    public $activeTab = 1;
+    public $activeTab = 2;
     public $items = [];
    
     public $FetchProduct = 1;
@@ -81,6 +82,8 @@ class OrderEdit extends Component
     public $air_mail;
     public $imageUploads = [];
     public $existingImages = [];
+    public $voiceUploads = [];
+    public $existingVideos = [];
 
     public function mount($id)
     {
@@ -264,6 +267,7 @@ class OrderEdit extends Component
                 $this->catalogue_page_item[$index] = $item['page_item'];
             }
             $this->existingImages[$index] = OrderItemCatalogueImage::where('order_item_id', $item['order_item_id'])->pluck('image_path')->toArray();
+            $this->existingVideos[$index] = OrderItemVoiceMessage::where('order_item_id', $item['order_item_id'])->pluck('voices_path')->toArray();
             $this->imageUploads[$index] = [];
             $this->items[$index]['copy_previous_measurements'] = false; // Ensure checkbox is not selected
         }
@@ -968,6 +972,31 @@ class OrderEdit extends Component
         unset($this->imageUploads[$index][$imageIndex]);
         $this->imageUploads[$index] = array_values($this->imageUploads[$index]);
     }
+
+    public function removeVideo($index, $audioIndex){
+        $orderItemId = $this->items[$index]['order_item_id'];
+        $audioPath = OrderItemVoiceMessage::where('order_item_id', $orderItemId)
+        ->skip($audioIndex)
+        ->value('voices_path');
+
+        if ($audioPath) {
+            Storage::disk('public')->delete($audioPath);
+
+            
+            OrderItemVoiceMessage::where('order_item_id', $orderItemId)
+                ->where('voices_path', $audioPath)
+                ->delete();
+
+            unset($this->existingVideos[$index][$audioIndex]);
+            $this->existingVideos[$index] = array_values($this->existingVideos[$index]);
+        }
+    }
+
+    public function removeUploadedVoice($index, $voiceIndex){
+        // Remove the audio from the uploaded audio array
+        unset($this->voiceUploads[$index][$voiceIndex]);
+        $this->voiceUploads[$index] = array_values($this->voiceUploads[$index]);
+    }
     
     public function update()
     {
@@ -1153,6 +1182,19 @@ class OrderEdit extends Component
                             }
                             // Clear uploaded images after saving
                             $this->imageUploads[$key] = [];
+                        }
+                    }
+                    if ($orderItem) {
+                        if (!empty($this->voiceUploads[$key])) {
+                            foreach ($this->voiceUploads[$key] as $uploadedVoice) {
+                                $path = $uploadedVoice->store('uploads/order_item_voice_messages', 'public');
+                                OrderItemVoiceMessage::create([
+                                    'order_item_id' => $orderItem->id,
+                                    'voices_path' => $path
+                                ]);
+                            }
+                            // Clear uploaded audios after saving
+                            $this->voiceUploads[$key] = [];
                         }
                     }
                     

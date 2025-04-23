@@ -510,10 +510,23 @@ class AddInvoice extends Component
         ];
     }
 
+    // public function updatePrice($index)
+    // {
+    //     $quantity = (int)($this->rows[$index]['quantity'] ?? 1);
+    //     $unitPrice = is_numeric($this->rows[$index]['unit_price']) ? (float) $this->rows[$index]['unit_price'] : 0;
+
+    //     $this->rows[$index]['total'] = $quantity * $unitPrice;
+    //     $this->calculateTotal();
+    // }
+
     public function updatePrice($index)
     {
         $quantity = (int)($this->rows[$index]['quantity'] ?? 1);
-        $unitPrice = is_numeric($this->rows[$index]['unit_price']) ? (float) $this->rows[$index]['unit_price'] : 0;
+        $quantity = $quantity > 0 ? $quantity : 1;
+
+        $unitPrice = is_numeric($this->rows[$index]['unit_price']) 
+                        ? (float) $this->rows[$index]['unit_price'] 
+                        : 0;
 
         $this->rows[$index]['total'] = $quantity * $unitPrice;
         $this->calculateTotal();
