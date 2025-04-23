@@ -937,7 +937,10 @@ table td h6.text-sm {
 }
 
 .custom-sideber-design.navbar-vertical.navbar-expand-xs .navbar-collapse {
-    height: calc(100vh - 170px);
+    /*height: calc(100vh - 170px);*/
+    height:auto;
+    max-height:inherit !important;
+    padding-bottom:35px;
 }
 
 .custom-sideber-design.navbar-vertical .navbar-nav > .nav-item .nav-link.active {
@@ -1065,11 +1068,6 @@ table td h6.text-sm {
     text-align: left;
 }
 
-
-.selectBox.custom-checkbox i {
-    right: 100%;
-}
-
 /*--- 05-03-25 joy----*/
 
 .extention-group {
@@ -1078,45 +1076,18 @@ table td h6.text-sm {
 }
 
 .extention-group .input__prefix {
-    max-width: 45px;
+    max-width: 38px;
     margin-right: 4px;
 } 
-
-.checkbox-label-container{
-    pointer-events: none;
-}
-
-
-/* Ensure the error message container has a fixed height with scrolling */
-.error-container {
-    max-height: 200px; /* Fixed height for errors */
-    overflow-y: auto; /* Enable scrolling for long error lists */
-    border: 1px solid #dc3545; /* Red border to indicate error */
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f8d7da; /* Light red background */
-}
-
-/* Adjust modal width for better layout */
-.modal-lg {
-    max-width: 700px; /* Set a reasonable max width */
-}
-
-/* Button spacing */
-.btn-sm {
-    padding: 5px 10px;
-}
 
 .hidden{
     overflow: inherit!important;
 }
-.prefix_select{
-    max-width: 68px;
-    height: 28px;
-    appearance: auto !important; /* Ensures arrow appears */
-    -webkit-appearance: auto !important;
-    -moz-appearance: auto !important;
-    
-}
+
+
+
+
+
+
 
 

@@ -562,182 +562,55 @@
                                 </div>
                                 @endif
                             </div>
+                            <!-- Catalogue -->
                             @if(isset($item['selected_collection']) && $item['selected_collection'] == 1)
-                            <!-- Fabrics -->
-                            <div class="col-12 col-md-2">
-                                <label class="form-label"><strong>Fabric</strong></label>
-                                <input type="text" wire:model="items.{{ $index }}.searchTerm"
-                                    wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"
-                                    placeholder="Search by fabric name" id="searchFabric_{{ $index }}"
-                                    value="{{ optional(collect($items[$index]['fabrics'])->firstWhere('id', $items[$index]['selected_fabric']))->title }}">
-                                @error("items.". $index .".searchTerm")
-                                <div class="text-danger">{{ $message }}</div>
-                                @enderror
-
-                                @if(!empty($items[$index]['searchResults']))
-                                <div class="dropdown-menu show w-100" style="max-height: 187px; overflow-y: auto;">
-                                    @foreach ($items[$index]['searchResults'] as $fabric)
-                                    <button class="dropdown-item fabric_dropdown_item" type="button"
-                                        wire:click="selectFabric({{ $fabric->id }}, {{ $index }})">
-                                        {{ $fabric->title }}
-                                    </button>
+                            <div class="mb-3 col-md-2">
+                                <label class="form-label"><strong>Catalogue</strong></label>
+                                <select wire:model="items.{{ $index }}.selectedCatalogue"
+                                    class="form-control form-control-sm border border-1 @error('items.'.$index.'.selectedCatalogue') border-danger @enderror"
+                                    wire:change="SelectedCatalogue($event.target.value, {{ $index }})">
+                                    <option value="" selected hidden>Select Catalogue</option>
+                                    @foreach($item['catalogues'] ?? [] as $cat_log)
+                                    <option value="{{ $cat_log['id'] }}" {{ (isset($item['selectedCatalogue']) &&
+                                        $item['selectedCatalogue']==$cat_log['id']) ? 'selected' : '' }}>
+                                        {{ $cat_log['catalogue_title']['title'] ?? 'No Title' }} (1 - {{
+                                        $cat_log['page_number'] }})
+                                    </option>
                                     @endforeach
-                                </div>
-                                @endif
+                                </select>
+                                @error("items." .$index. ".selectedCatalogue")
+                                <div class="text-danger inputerror">{{ $message }}</div>
+                                @enderror
                             </div>
-                            {{-- <div class="col-12 col-md-2"></div> --}}
-                            {{-- Price --}}
-                            <div class="col-12 col-md-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <!-- Price Input -->
-                                    <div>
-                                        <label class="form-label"><strong>Price</strong></label>
-                                        <input type="text"
-                                            wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
-                                            wire:model="items.{{ $index }}.price"
-                                            class="form-control form-control-sm border border-1 customer_input 
-                                            @if(session()->has('errorPrice.' . $index)) border-danger @endif 
-                                            @error('items.' . $index . '.price') border-danger  @enderror" placeholder="Enter Price">
-                                    </div>
-                                    <div>
-                                        <!-- Delete Button -->
-                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
-                                            wire:click="removeItem({{ $index }})">
-                                            <span class="material-icons">delete</span>
-                                        </button>
-                                    </div>
-                                </div>
 
-                                <!-- Error Messages -->
-                                @if(session()->has('errorPrice.' . $index))
-                                <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
-                                @endif
-
-                                @error('items.' . $index . '.price')
+                            <div class="mb-3 col-md-1">
+                                <label class="form-label"><strong>Page Number</strong></label>
+                                <input type="number" wire:model="items.{{$index}}.page_number"
+                                    wire:keyup="validatePageNumber({{ $index }})" id="page_number"
+                                    class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_number') border-danger @enderror"
+                                    min="1"
+                                    max="{{ isset($item['selectedCatalogue']) && isset($maxPages[$index][$item['selectedCatalogue']]) ? $maxPages[$index][$item['selectedCatalogue']] : '' }}">
+                                @error("items.".$index.".page_number")
+                                <div class="text-danger inputerror">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <!-- </div> -->
+                            <div class="mb-3 col-md-2">
+                                <label class="form-label"><strong>Page Item</strong></label>
+                                <select wire:model="items.{{$index}}.page_item" 
+                                        class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_item') border-danger @enderror">
+                                    <option value="" selected hidden>Select Page Item</option>
+                                    @if(!empty($items[$index]['pageItems']))
+                                        @foreach($items[$index]['pageItems'] ?? [] as $item)
+                                            <option value="{{ $item }}" {{$items[$index]['pageItems'] == $item ? 'selected' : ''}}>
+                                                {{ $item }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                                @error("items.".$index.".page_item")
                                 <div class="text-danger">{{ $message }}</div>
                                 @enderror
-
-                                {{-- Catalog picture capture --}}
-                                <div class="mt-2 text-end">
-                                    <button type="button" class="btn btn-cta btn-sm"
-                                        onclick="document.getElementById('catalog-upload-{{ $index }}').click()">
-                                        <i class="material-icons text-white" style="font-size: 15px;">add</i>
-                                        Upload Images
-                                    </button>
-                                    <button type="button" class="btn btn-cta btn-sm"
-                                        onclick="document.getElementById('voice-upload-{{ $index }}').click()">
-                                        <i class="material-icons text-white" style="font-size: 15px;">mic</i>
-                                        Upload Voice
-                                    </button>
-                                    @error('imageUploads.*')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                    @error('voiceUploads.*')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            
-                                {{-- Hidden File Input --}}
-                                <input type="file" id="catalog-upload-{{ $index }}" multiple
-                                    wire:model="imageUploads.{{ $index }}" accept="image/*"
-                                    class="d-none" />
-                                {{-- Voice Upload --}}
-                                <input type="file" id="voice-upload-{{ $index }}" multiple
-                                wire:model="voiceUploads.{{ $index }}" accept="audio/*" class="d-none" />
-                            
-                                {{-- Image Preview --}}
-                                <div class="mt-2">
-                                    @if (!empty($existingImages[$index]))
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @foreach ($existingImages[$index] as $image)
-                                            <div style="position: relative; width: 70px;">
-                                                <img src="{{ asset('storage/' . $image) }}" class="img-thumbnail" style="width: 100%;" />
-                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                                    wire:click="removeImage({{ $index }}, '{{ $loop->index }}')">
-                                                    &times;
-                                                </button>
-                                            </div>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                    {{-- Show newly uploaded temporary images --}}
-                                    @if (!empty($imageUploads[$index]))
-                                    @foreach ($imageUploads[$index] as $imgIndex => $img)
-                                    <div style="position: relative; width: 70px;">
-                                        <img src="{{ $img->temporaryUrl() }}" class="img-thumbnail" style="width: 100%;" />
-                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                            wire:click="removeUploadedImage({{ $index }}, {{ $imgIndex }})">
-                                            &times;
-                                        </button>
-                                    </div>
-                                    @endforeach                                
-                                    @endif
-                                </div>
-                                {{-- Existing Videos Preview --}}
-                                <div class="mt-2">
-                                    @if (!empty($existingVideos[$index]))
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @foreach ($existingVideos[$index] as $video)
-                                            <div style="position: relative; width: 150px;">
-                                                <audio controls style="width: 100%;">
-                                                    <source src="{{ asset('storage/' . $video) }}" type="audio/mpeg">
-                                                    Your browser does not support the audio element.
-                                                </audio>
-                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                                    wire:click="removeVideo({{ $index }}, '{{ $loop->index }}')">
-                                                    &times;
-                                                </button>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    @endif
-
-                                    {{-- Newly Uploaded Voice Preview --}}
-                                    @if (!empty($voiceUploads[$index]))
-                                    <div class="d-flex flex-wrap gap-2 mt-2">
-                                        @foreach ($voiceUploads[$index] as $voiceIndex => $voice)
-                                        <div style="position: relative; width: 150px;">
-                                            <audio controls style="width: 100%;">
-                                                <source src="{{ $voice->temporaryUrl() }}" type="audio/mpeg">
-                                                Your browser does not support the audio element.
-                                            </audio>
-                                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
-                                                wire:click="removeUploadedVoice({{ $index }}, {{ $voiceIndex }})">
-                                                &times;
-                                            </button>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                            @else
-                            <div class="col-12 col-md-2 offset-md-10 mb-2">
-                                <div class="d-flex align-items-center gap-2 justify-content-end">
-                                    <div>
-                                        <!-- Price Input -->
-                                        <label class="form-label"><strong>Price</strong></label>
-                                        <input type="text" wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
-                                            wire:model="items.{{ $index }}.price"
-                                            class="form-control form-control-sm border border-1 customer_input @if(session()->has('errorPrice.' . $index)) border-danger @endif @error('items.' . $index . '.price') border-danger @enderror"
-                                            placeholder="Enter Price">
-                                    </div>
-                                    <div>
-                                        <!-- Delete Button -->
-                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
-                                            wire:click="removeItem({{ $index }})"><span class="material-icons">delete</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- Error Messages -->
-                                @if(session()->has('errorPrice.' . $index))
-                                <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
-                                @endif
-    
-                                @error('items.' . $index . '.price')
-                                <div class="text-danger">{{ $message }}</div>
-                                @enderror
-                                
                             </div>
                             @endif
                         </div>
@@ -788,64 +661,135 @@
                                     @endif
                                 </div>
                             </div>
-                            <!-- Catalogue -->
-                            @if(isset($item['selected_collection']) && $item['selected_collection'] == 1)
-                            {{-- Catalogue --}}
-                            <div class="mb-3 col-md-2">
-                                <label class="form-label"><strong>Catalogue</strong></label>
-                                <select wire:model="items.{{ $index }}.selectedCatalogue"
-                                    class="form-control form-control-sm border border-1 @error('items.'.$index.'.selectedCatalogue') border-danger @enderror"
-                                    wire:change="SelectedCatalogue($event.target.value, {{ $index }})">
-                                    <option value="" selected hidden>Select Catalogue</option>
-                                    @foreach($item['catalogues'] ?? [] as $cat_log)
-                                    <option value="{{ $cat_log['id'] }}" {{ (isset($item['selectedCatalogue']) &&
-                                        $item['selectedCatalogue']==$cat_log['id']) ? 'selected' : '' }}>
-                                        {{ $cat_log['catalogue_title']['title'] ?? 'No Title' }} (1 - {{
-                                        $cat_log['page_number'] }})
-                                    </option>
-                                    @endforeach
-                                </select>
-                                @error("items." .$index. ".selectedCatalogue")
-                                <div class="text-danger inputerror">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            {{-- Page number --}}
-                            <div class="mb-3 col-md-1">
-                                <label class="form-label"><strong>Page Number</strong></label>
-                                <input type="number" wire:model="items.{{$index}}.page_number"
-                                    wire:keyup="validatePageNumber($event.target.value,{{ $index }})" id="page_number"
-                                    class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_number') border-danger @enderror"
-                                    min="1"
-                                    max="{{ isset($item['selectedCatalogue']) && isset($maxPages[$index][$item['selectedCatalogue']]) ? $maxPages[$index][$item['selectedCatalogue']] : '' }}">
-                                @error("items.".$index.".page_number")
-                                <div class="text-danger inputerror">{{ $message }}</div>
-                                @enderror
-                            </div>
-                           {{-- Page item --}}
-                            <div class="mb-3 col-md-2">
-                                @if(isset($catalogue_page_item) && !empty($catalogue_page_item[$index]))
-                                <label class="form-label"><strong>Page Item</strong></label>
-                                <select wire:model="items.{{$index}}.page_item" 
-                                        class="form-control form-control-sm border border-2 @error('items.'.$index.'.page_item') border-danger @enderror">
-                                    <option value="" selected hidden>Select Page Item</option>
-                                    @if(!empty($items[$index]['pageItems']))
-                                        @foreach($items[$index]['pageItems'] ?? [] as $item)
-                                            <option value="{{ $item }}" {{$items[$index]['pageItems'] == $item ? 'selected' : ''}}>
-                                                {{ $item }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                                @error("items.".$index.".page_item")
+
+                            <!-- Fabrics -->
+                            <div class="col-12 col-md-2">
+                                <label class="form-label"><strong>Fabric</strong></label>
+                                <input type="text" wire:model="items.{{ $index }}.searchTerm"
+                                    wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"
+                                    placeholder="Search by fabric name" id="searchFabric_{{ $index }}"
+                                    value="{{ optional(collect($items[$index]['fabrics'])->firstWhere('id', $items[$index]['selected_fabric']))->title }}">
+                                @error("items.". $index .".searchTerm")
                                 <div class="text-danger">{{ $message }}</div>
                                 @enderror
+
+                                @if(!empty($items[$index]['searchResults']))
+                                <div class="dropdown-menu show w-100" style="max-height: 187px; overflow-y: auto;">
+                                    @foreach ($items[$index]['searchResults'] as $fabric)
+                                    <button class="dropdown-item fabric_dropdown_item" type="button"
+                                        wire:click="selectFabric({{ $fabric->id }}, {{ $index }})">
+                                        {{ $fabric->title }}
+                                    </button>
+                                    @endforeach
+                                </div>
                                 @endif
                             </div>
-                            @endif
+                            {{-- <div class="col-12 col-md-2"></div> --}}
+                            <div class="col-12 col-md-4">
+                                <div class="d-flex align-items-center gap-2 justify-content-end">
+                                    <!-- Price Input -->
+                                    <div>
+                                        <label class="form-label"><strong>Price</strong></label>
+                                        <input type="text"
+                                            wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
+                                            wire:model="items.{{ $index }}.price"
+                                            class="form-control form-control-sm border border-1 customer_input 
+                                            @if(session()->has('errorPrice.' . $index)) border-danger @endif 
+                                            @error('items.' . $index . '.price') border-danger  @enderror" placeholder="Enter Price">
+                                    </div>
+                                    <div>
+                                        <!-- Delete Button -->
+                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                            wire:click="removeItem({{ $index }})">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Error Messages -->
+                                @if(session()->has('errorPrice.' . $index))
+                                <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
+                                @endif
+
+                                @error('items.' . $index . '.price')
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
+
+                                {{-- Catalog picture capture --}}
+                                <div class="mt-2 text-end">
+                                    <button type="button" class="btn btn-cta btn-sm"
+                                        onclick="document.getElementById('catalog-upload-{{ $index }}').click()">
+                                        <i class="material-icons text-white" style="font-size: 15px;">add</i>
+                                        Upload Images
+                                    </button>
+                                    @error('imageUploads.*')
+                                        <div class="text-danger">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             
+                                {{-- Hidden File Input --}}
+                                <input type="file" id="catalog-upload-{{ $index }}" multiple
+                                    wire:model="imageUploads.{{ $index }}" accept="image/*"
+                                    class="d-none" />
+                            
+                                {{-- Image Preview --}}
+                                <div class="mt-2">
+                                    @if (!empty($existingImages[$index]))
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach ($existingImages[$index] as $image)
+                                            <div style="position: relative; width: 70px;">
+                                                <img src="{{ asset('storage/' . $image) }}" class="img-thumbnail" style="width: 100%;" />
+                                                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                                    wire:click="removeImage({{ $index }}, '{{ $loop->index }}')">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                    {{-- Show newly uploaded temporary images --}}
+                                    @if (!empty($imageUploads[$index]))
+                                    @foreach ($imageUploads[$index] as $imgIndex => $img)
+                                    <div style="position: relative; width: 70px;">
+                                        <img src="{{ $img->temporaryUrl() }}" class="img-thumbnail" style="width: 100%;" />
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                            wire:click="removeUploadedImage({{ $index }}, {{ $imgIndex }})">
+                                            &times;
+                                        </button>
+                                    </div>
+                                    @endforeach                                
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                         @else
-                        
+                        <div class="col-12 col-md-2 offset-md-10 mb-2">
+                            <div class="d-flex align-items-center gap-2 justify-content-end">
+                                <div>
+                                    <!-- Price Input -->
+                                    <label class="form-label"><strong>Price</strong></label>
+                                    <input type="text" wire:keyup="checkproductPrice($event.target.value, {{ $index }})"
+                                        wire:model="items.{{ $index }}.price"
+                                        class="form-control form-control-sm border border-1 customer_input @if(session()->has('errorPrice.' . $index)) border-danger @endif @error('items.' . $index . '.price') border-danger @enderror"
+                                        placeholder="Enter Price">
+                                </div>
+                                <div>
+                                    <!-- Delete Button -->
+                                    <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                        wire:click="removeItem({{ $index }})"><span class="material-icons">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Error Messages -->
+                            @if(session()->has('errorPrice.' . $index))
+                            <div class="text-danger">{{ session('errorPrice.' . $index) }}</div>
+                            @endif
+
+                            @error('items.' . $index . '.price')
+                            <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                            
+                        </div>
                         @endif
                         <div class="col-12 col-md-2">
                             <label class="form-label"><strong>Remarks</strong></label>

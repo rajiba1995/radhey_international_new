@@ -104,14 +104,14 @@
         <table class="table-custom">
             <tr>
                 <td style="width:60%;" >
-                    <img src="{{  public_path('assets/img/pdf_logo.png')}}" style="width:340px; height:auto;">
+                    <img src="{{  public_path('assets/img/pdf_logo.png')}}" style="width:250px; height:auto;">
                     
-                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400; margin-top:65px;">Invoice No: INV/{{ date('Y') }}/{{
+                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400; margin-top:15px;">Invoice No: INV/{{ date('Y') }}/{{
                         $invoice->invoice_no }}</h2>
                 </td>
                 <td style="width:40%;">
                     <h3
-                        style="font-size: 15px; margin-bottom:10px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:5px;display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{public_path('assets/img/phone.svg')}}" alt=""
                                 style="width: 14px; height:12px; display:inline-block;">
@@ -119,17 +119,17 @@
                         <span style="display:inline-block;"> (+242) 05 554 7777 </span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom: 10px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:9px;display:block; vertical-align:middle; line-height:15px;">
                         <span class="line-height: 0;">
                             <img src="{{public_path('assets/img/phone.svg')}}" alt=""
                                 style="width: 14px; height:12px; display:inline-block;">
                         </span>
                         <span class="display:inline-block;">
-                            (+242) 05 554 77 77
+                            (+242) 05 582 5555
                         </span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom:10px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:5px;display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{public_path('assets/img/mail.svg')}}" alt=""
                                 
@@ -138,7 +138,7 @@
                         <span style="display:inline-block;">contact@stannys.com</span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom:10px; display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:5px; display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{ public_path('assets/img/globe.svg')}}" alt=""
                                 style="width: 12px; height:12px; display:inline-block;"
@@ -146,7 +146,7 @@
                         </span>
                         <span style="display:inline-block;">www.stannys.com</span>
                     </h3>
-                    <h3 style="font-size: 15px; margin-bottom:10px;
+                    <h3 style="font-size: 15px; margin-bottom:5px;
                     display:inline-block; vertical-align:middle; line-height:15px; position:relative;">
                         <span style="line-height: 0; position: absolute; top:0; left:0;">
                             <img src="{{public_path('assets/img/map-pin.svg')}}" alt=""
@@ -158,7 +158,7 @@
                         </span>
                     </h3>
                     <div style="border: 1px solid #000; padding: 10px 10px 0px; border-radius: 5px; margin-top: 10px;">
-                        <h3 style="font-size: 15px; margin-bottom:14px;
+                        <h3 style="font-size: 15px; margin-bottom:12px;
                             display:block; line-height:15px;">
                             <span style="line-height: 0;">
                                 <img src="{{ public_path('assets/img/user.svg')}}" alt=""
@@ -169,7 +169,7 @@
                                 $invoice->customer->name : ""}}
                             </span>
                         </h3>
-                        <h3 style="font-size: 15px; margin-bottom:14px;
+                        <h3 style="font-size: 15px; margin-bottom:12px;
                             display:block; vertical-align:middle; line-height:15px; position:relative;">
                             <span style="line-height: 0; position: absolute; top:0; left:0;">
                                 <img src="{{ public_path('assets/img/map-pin.svg')}}" alt=""
@@ -198,9 +198,9 @@
                             </span>
                             <span style="display:inline-block;">
                                 @if($invoice->customer && $invoice->customer->phone)
-                                 {{$invoice->customer->country_code_phone.' '.$invoice->customer->phone}}
+                                  {{$invoice->customer->country_code_phone.' '.$invoice->customer->phone}}
                                 @else
-                                  N/A 
+                                  N/A
                                 @endif
                             </span>
                         </h3>
@@ -272,21 +272,21 @@
                                 <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">Source:
                                 </h5>
                                 <p style="color:#000; font-size: 14px;">
-                                  @if ($invoice->order->invoice_type ==  "manual")
+                                    @if ($invoice->order->invoice_type ==  "manual")
                                      {{ $invoice->order->source }}
                                    @elseif($invoice->order->invoice_type ==  "invoice")   
                                     {{ $invoice->order->order_number }}
-                                  @endif
+                                   @endif
                                 </p>
                             </td>
                             <td>
                                 <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;">
                                     Reference:</h5>
                                 <p style="color:#000; font-size: 14px;">
-                                    @if ($invoice->order->invoice_type ==  "manual")
-                                    {{ $invoice->order->reference }}
+                                   @if ($invoice->order->invoice_type ==  "manual")
+                                     {{ $invoice->order->reference }}
                                     @elseif($invoice->order->invoice_type ==  "invoice")   
-                                    {{ $invoice->order->order_number }}
+                                     {{ $invoice->order->order_number }}
                                     @endif
                                 </p>
                             </td>
@@ -432,4 +432,5 @@
             </div>
         </div>
 </body>
+
 </html

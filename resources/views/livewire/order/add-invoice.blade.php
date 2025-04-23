@@ -612,6 +612,10 @@
                             <p class="text-danger">{{$message}}</p>
                         @enderror
                     </div>
+                    
+                    <div class="col-md-2">
+                        <button type="submit" id="submit_btn" class="btn btn-sm btn-success" wire:click.prevent="savePayment"><i class="material-icons text-white" style="font-size: 15px;">add</i>Save</button>
+                    </div>
                 </div>
                 
                 @if ($showPaymentFields)
@@ -645,9 +649,7 @@
                 </div>
                 @endif
 
-                <div class="col-md-3">
-                    <button type="submit" id="submit_btn" class="btn btn-sm btn-success" wire:click.prevent="savePayment"><i class="material-icons text-white" style="font-size: 15px;">add</i>Save</button>
-                </div>
+               
 
             </div>
 
@@ -696,30 +698,30 @@
     // });
 
 
-    window.addEventListener('triggerPrint', () => {
-  console.log("triggerPrint event fired");
+//     window.addEventListener('triggerPrint', () => {
+//   console.log("triggerPrint event fired");
 
-  if (confirm("Are you sure you want to payment?")) {
+//   if (confirm("Are you sure you want to payment?")) {
 
-    const target = document.getElementById('slide-down');
-    if (target) {
-      const rect = target.getBoundingClientRect();
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+//     const target = document.getElementById('slide-down');
+//     if (target) {
+//       const rect = target.getBoundingClientRect();
+//       const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-      // Manually scroll to the element's position
-      window.scrollTo({
-        top: rect.top + scrollTop,
-        behavior: 'smooth'
-      });
+//       // Manually scroll to the element's position
+//       window.scrollTo({
+//         top: rect.top + scrollTop,
+//         behavior: 'smooth'
+//       });
 
-      console.log("Scrolled to targetDiv");
-    } else {
-      console.warn("targetDiv not found");
-    }
+//       console.log("Scrolled to targetDiv");
+//     } else {
+//       console.warn("targetDiv not found");
+//     }
 
-    Livewire.dispatch('paymentConfirmed');
-  }
-});
+//     Livewire.dispatch('paymentConfirmed');
+//   }
+// });
 
 
 

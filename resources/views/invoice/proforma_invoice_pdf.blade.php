@@ -103,7 +103,7 @@
     <div class="table-container">
         <table class="table-custom">
             <tr>
-                <td style="width:60%;">
+                <td style="width:60%;" >
                     <img src="{{  public_path('assets/img/pdf_logo.png')}}" style="width:250px; height:auto;">
                     
                     <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400; margin-top:15px;">Proforma No: {{

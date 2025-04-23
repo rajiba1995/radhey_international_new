@@ -655,9 +655,8 @@
                                 <div class="text-danger error-message">{{ $message }}</div>
                                 @enderror
                             </div>
-                          
+                            <!-- Catalogue -->
                             @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
-                            {{-- Fabric --}}
                             <div class="col-12 col-md-2">
                                 <label class="form-label"><strong>Fabric</strong></label>
                                 <input type="text" wire:model="items.{{ $index }}.searchTerm"
@@ -679,7 +678,6 @@
                                 @endif
                             </div>
                             {{-- <div class="col-12 col-md-2"></div> --}}
-                            {{-- Price --}}
                             <div class="col-12 col-md-3">
                                 <div class="d-flex align-items-center">
                                     <!-- Price Input -->
@@ -714,7 +712,6 @@
                             </div>
                             {{-- --}}
                             @else
-                            {{--Garment item Price --}}
                             <div class="col-12 col-md-2 offset-md-10 mb-2">
                                 <div class="d-flex align-items-center gap-2 justify-content-end">
                                     <div>
@@ -745,6 +742,7 @@
                                 @enderror
                             </div>
                             @endif
+                            <!-- Catalogue end -->
                         </div>
                         {{-- Append Measurements data --}}
                         @if(isset($this->items[$index]['product_id']) && $items[$index]['collection'] == 1)
@@ -791,7 +789,6 @@
                                     @endif
                                 </div>
                             </div>
-                            {{-- Catalogue --}}
                             <div class="mb-3 col-md-2">
                                 <label class="form-label"><strong>Catalogue</strong></label>
                                 <select wire:model="items.{{ $index }}.selectedCatalogue"
@@ -811,7 +808,6 @@
                                 @enderror
                             </div>
 
-                            {{-- Page number --}}
                             <div class="mb-3 col-md-1">
                                 <label class="form-label"><strong>Page Number</strong></label>
                                 <input type="number" wire:model="items.{{$index}}.page_number"
@@ -824,7 +820,6 @@
                                 @enderror
                             </div>
 
-                            {{-- Page Item --}}
                             <div class="mb-3 col-md-2">
                                 @if(isset($catalogue_page_item) && !empty($catalogue_page_item[$index]))
                                 <label class="form-label"><strong>Page Item</strong></label>
@@ -850,11 +845,6 @@
                                         <i class="material-icons text-white" style="font-size: 15px;">add</i>
                                         Upload Images
                                     </button>
-                                    <button type="button" class="btn btn-cta btn-sm"
-                                        onclick="document.getElementById('voice-upload-{{ $index }}').click()">
-                                        <i class="material-icons text-white" style="font-size: 15px;">mic</i>
-                                        Upload Voice
-                                    </button>
                                     @error('imageUploads.*')
                                     <div class="text-danger">{{ $message }}</div>
                                     @enderror
@@ -863,9 +853,7 @@
                                 {{-- Hidden File Input --}}
                                 <input type="file" id="catalog-upload-{{ $index }}" multiple
                                     wire:model="imageUploads.{{ $index }}" accept="image/*" class="d-none" />
-                                {{-- Voice Upload --}}
-                                <input type="file" id="voice-upload-{{ $index }}" multiple
-                                wire:model="voiceUploads.{{ $index }}" accept="audio/*" class="d-none" />
+
                                 {{-- Image Preview --}}
                                 <div class="mt-2">
                                     @if (!empty($imageUploads[$index]))
@@ -876,26 +864,6 @@
                                                 style="width: 100%;" />
                                             <button type="button" class="btn btn-sm btn-danger position-absolute"
                                                 wire:click="removeUploadedImage({{ $index }}, {{ $imgIndex }})">
-                                                &times;
-                                            </button>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                    @endif
-                                </div>
-                                {{-- Voice Preview --}}
-                                <div class="mt-2">
-                                    @if (!empty($voiceUploads[$index]))
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @foreach ($voiceUploads[$index] as $voiceIndex => $voice)
-                                        <div style="width: 150px; position: relative;">
-                                            <audio controls style="width: 100%;">
-                                                <source src="{{ $voice->temporaryUrl() }}" type="audio/mpeg">
-                                                Your browser does not support the audio element.
-                                            </audio>
-                                            <button type="button" class="btn btn-sm btn-danger position-absolute"
-                                                style="top: 0; right: 0;"
-                                                wire:click="removeUploadedVoice({{ $index }}, {{ $voiceIndex }})">
                                                 &times;
                                             </button>
                                         </div>

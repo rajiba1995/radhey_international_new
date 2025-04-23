@@ -105,13 +105,13 @@
             <tr>
                 <td style="width:60%;">
                     <img src="{{  public_path('assets/img/pdf_logo.png')}}"
-                        style="width:340px; height:auto; margin-top:-60px;">
-                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400; margin-top:-30px;">Order No: {{
+                        style="width:250px; height:auto; margin-top:0px;">
+                    <h2 style="font-size: 20px; color:#2d1e1e; font-weight: 400; margin-top:15px;">Order No: {{
                         $invoice->order->order_number }}</h2>
                 </td>
                 <td style="width:40%;">
                     <h3
-                        style="font-size: 15px; margin-bottom:10px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:5px;display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{public_path('assets/img/phone.svg')}}" alt=""
                                 style="width: 14px; height:12px; display:inline-block;">
@@ -119,17 +119,17 @@
                         <span style="display:inline-block;"> (+242) 05 554 7777 </span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom: 10px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:9px;display:block; vertical-align:middle; line-height:15px;">
                         <span class="line-height: 0;">
                             <img src="{{public_path('assets/img/phone.svg')}}" alt=""
                                 style="width: 14px; height:12px; display:inline-block;">
                         </span>
                         <span class="display:inline-block;">
-                            (+242) 05 554 77 77
+                            (+242) 05 582 5555
                         </span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom:10px;display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:5px;display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{public_path('assets/img/mail.svg')}}" alt=""
                                 style="width: 12px; height:12px; display:inline-block;">
@@ -137,7 +137,7 @@
                         <span style="display:inline-block;">contact@stannys.com</span>
                     </h3>
                     <h3
-                        style="font-size: 15px; margin-bottom:10px; display:block; vertical-align:middle; line-height:15px;">
+                        style="font-size: 15px; margin-bottom:5px; display:block; vertical-align:middle; line-height:15px;">
                         <span style="line-height: 0;">
                             <img src="{{ public_path('assets/img/globe.svg')}}" alt=""
                                 style="width: 12px; height:12px; display:inline-block;"
@@ -145,7 +145,7 @@
                         </span>
                         <span style="display:inline-block;">www.stannys.com</span>
                     </h3>
-                    <h3 style="font-size: 15px; margin-bottom:10px;
+                    <h3 style="font-size: 15px; margin-bottom:5px;
                     display:inline-block; vertical-align:middle; line-height:15px; position:relative;">
                         <span style="line-height: 0; position: absolute; top:0; left:0;">
                             <img src="{{public_path('assets/img/map-pin.svg')}}" alt=""
@@ -157,7 +157,7 @@
                         </span>
                     </h3>
                     <div style="border: 1px solid #000; padding: 10px 10px 0px; border-radius: 5px; margin-top: 10px;">
-                        <h3 style="font-size: 15px; margin-bottom:14px;
+                        <h3 style="font-size: 15px; margin-bottom:12px;
                             display:block; line-height:15px;">
                             <span style="line-height: 0;">
                                 <img src="{{ public_path('assets/img/user.svg')}}" alt=""
@@ -168,7 +168,7 @@
                                 $invoice->customer->name : ""}}
                             </span>
                         </h3>
-                        <h3 style="font-size: 15px; margin-bottom:14px;
+                        <h3 style="font-size: 15px; margin-bottom:12px;
                             display:block; vertical-align:middle; line-height:15px; position:relative;">
                             <span style="line-height: 0; position: absolute; top:0; left:0;">
                                 <img src="{{ public_path('assets/img/map-pin.svg')}}" alt=""
