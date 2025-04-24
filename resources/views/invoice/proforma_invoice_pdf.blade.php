@@ -159,12 +159,12 @@
                     </h3>
                     <div style="border: 1px solid #000; padding: 10px 10px 0px; border-radius: 5px; margin-top: 10px;">
                         <h3 style="font-size: 15px; margin-bottom:12px;
-                            display:block; line-height:15px;">
-                            <span style="line-height: 0;">
+                            display:block; line-height:15px; position:relative;">
+                            <span style="line-height: 0; position: absolute; top:0; left:0;">
                                 <img src="{{ public_path('assets/img/user.svg')}}" alt=""
                                     style="width: 14px; height:12px; display:inline-block;">
                             </span>
-                            <span style="word-break: break-word">
+                            <span style="display:inline-block; padding-left:17px;">
                                 {{$proforma->customer ?
                                 $proforma->customer->name : "N/A"}}
                             </span>
@@ -175,18 +175,18 @@
                                 <img src="{{ public_path('assets/img/map-pin.svg')}}" alt=""
                                     style="width: 14px; height:12px; display:inline-block;">
                             </span>
-                            <span style="word-break:break-word; display:block; padding-left:20px;">
+                            <span style="display:inline-block; padding-left:17px;">
                                 {{$proforma->customer ?
                                 $proforma->customer->address : "N/A"}}
                             </span>
                         </h3>
                         <h3 style="font-size: 15px;
-                            display:block; vertical-align:middle; line-height:15px;">
-                            <span style="line-height: 0;">
+                            display:block; vertical-align:middle; line-height:15px; position:relative;">
+                            <span style="line-height: 0; position:absolute; top:0; left:0;">
                                 <img src="{{public_path('assets/img/phone.svg')}}" alt=""
                                     style="width: 14px; height:12px; display:inline-block;">
                             </span>
-                            <span style="display:inline-block;">
+                            <span style="display:inline-block; padding-left:17px;">
                                 @if($proforma->customer && $proforma->customer->mobile)
                                   {{$proforma->customer->country_code.' '.$proforma->customer->mobile}}
                                 @else
@@ -195,12 +195,12 @@
                             </span>
                         </h3>
                         <h3 style="font-size: 15px;
-                            display:block; vertical-align:middle; line-height:15px;">
-                            <span style="line-height: 0;">
+                            display:block; vertical-align:middle; line-height:15px; position:relative;">
+                            <span style="line-height: 0; position:absolute; top:0; left:0;">
                                 <img src="{{public_path('assets/img/mail.svg')}}" alt=""
                                 style="width: 12px; height:12px; display:inline-block;">
                             </span>
-                            <span style="display:inline-block;">
+                            <span style="display:inline-block; padding-left:17px;">
                                 @if($proforma->customer && $proforma->customer->email)
                                   {{$proforma->customer->email}}
                                 @else
@@ -225,7 +225,7 @@
                     <table>
                         <tr>
                             
-                            <td>
+                            <td style="width:150px;">
                                 <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;"> Date:</h5>
                                 <p style="color:#000; font-size: 14px;">{{
                                     \Carbon\Carbon::parse($proforma->date)->format('d-m-Y') }}</p>
