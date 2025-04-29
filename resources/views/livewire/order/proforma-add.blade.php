@@ -485,7 +485,7 @@
                             <div class="date_lable big-label">T.V.A</div>
                         </div>
                         <div class="col-md-6 text-right p-2 border-custom">
-                            <div class="date_lable text-end big-label">{{ number_format($tva, 2) }}</div>
+                            <div class="date_lable text-end big-label">{{ number_format($tva, 2) }} FCFA</div>
                         </div>
 
                         <div class="col-md-6 text-left p-2 border-custom">
@@ -498,19 +498,14 @@
                         </div>
 
                         <div class="col-md-6 text-left p-2 border-custom">
-                            <div class="date_lable big-label"><strong>Amout Due</strong></div>
+                            <div class="date_lable big-label"><strong>Total</strong></div>
                         </div>
                         <div class="col-md-6 text-right p-2 border-custom">
                             <div class="date_lable text-end big-label">{{$subtotal}} FCFA</div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-4">
-                            <button id="terget" class="btn btn-primary print-btn btn-sm mt-5"
-                                wire:click.prevent="generateProforma">FACTURE PROFORMA</button>
-                        </div>
-                    </div>
+                    
 
 
                 </div>
@@ -522,6 +517,13 @@
                 @error('condition')
                 <p class="text-danger">{{$message}}</p>
                 @enderror
+
+                <div class="row">
+                    <div class="col-12 text-end">
+                        <button id="terget" class="btn btn-primary print-btn btn-sm mt-5"
+                            wire:click.prevent="generateProforma">GENERATE PROFORMA</button>
+                    </div>
+                </div>
             </div>
 
 
