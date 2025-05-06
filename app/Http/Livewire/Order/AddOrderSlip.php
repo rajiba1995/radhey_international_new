@@ -49,10 +49,10 @@ class AddOrderSlip extends Component
             $this->total_amount = $this->order->total_amount;
             $this->actual_amount = $this->order->total_amount;
             $this->air_mail = $this->order->air_mail;
-            $this->customer = $this->order->customer->name;
-            $this->customer_id = $this->order->customer->id;
-            $this->staff_id = $this->order->createdBy->id;
-            $this->staff_name = $this->order->createdBy->name;
+            $this->customer = optional($this->order->customer)->name;
+            $this->customer_id = optional($this->order->customer)->id;
+            $this->staff_id = optional($this->order->createdBy)->id;
+            $this->staff_name = optional($this->order->createdBy)->name;
             $this->payment_date = date('Y-m-d');
         }else{
             abort(404);

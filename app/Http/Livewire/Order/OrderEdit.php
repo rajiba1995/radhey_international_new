@@ -39,7 +39,7 @@ class OrderEdit extends Component
     // public $collectionsType = [];
     public $collections = [];
     public $errorMessage = [];
-    public $activeTab = 2;
+    public $activeTab = 1;
     public $items = [];
    
     public $FetchProduct = 1;
@@ -95,31 +95,37 @@ class OrderEdit extends Component
             $this->customer_id = $this->orders->customer_id;
             $this->name = $this->orders->customer_name;
             $this->email = $this->orders->customer_email;
-            $this->dob = $this->orders->customer->dob;
+            $this->dob = optional($this->orders->customer)->dob;
             $this->billing_address = $this->orders->billing_address;
             $this->air_mail = (int)$this->orders->air_mail;
             // $this->shipping_address = $this->orders->shipping_address;
             // $this->is_billing_shipping_same = ($this->orders->billing_address == $this->orders->shipping_address);
-            $this->phone = $this->orders->customer->phone;
-            $this->alternative_phone_number_1 = $this->orders->customer->alternative_phone_number_1;
-            $this->alternative_phone_number_2 = $this->orders->customer->alternative_phone_number_2;
+            $this->phone = optional($this->orders->customer)->phone;
+            $this->alternative_phone_number_1 = optional($this->orders->customer)->alternative_phone_number_1;
+            $this->alternative_phone_number_2 = optional($this->orders->customer)->alternative_phone_number_2;
             $this->countries = Country::where('status',1)->get();
-            $this->selectedCountryPhone =  $this->orders->customer->country_code_phone;
-            $this->selectedCountryWhatsapp =  $this->orders->customer->country_code_whatsapp;
-            $this->selectedCountryAlt1 =  $this->orders->customer->country_code_alt_1;
-            $this->selectedCountryAlt2 =  $this->orders->customer->country_code_alt_2;
+            $this->selectedCountryPhone =  optional($this->orders->customer)->country_code_phone;
+            $this->selectedCountryWhatsapp =  optional($this->orders->customer)->country_code_whatsapp;
+            $this->selectedCountryAlt1 =  optional($this->orders->customer)->country_code_alt_1;
+            $this->selectedCountryAlt2 =  optional($this->orders->customer)->country_code_alt_2;
 
             // Set mobile lengths based on selected countries
             $this->mobileLengthPhone = Country::where('country_code', $this->selectedCountryPhone)->value('mobile_length') ?? '';
             $this->mobileLengthWhatsapp = Country::where('country_code', $this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
             $this->mobileLengthAlt1 = Country::where('country_code', $this->selectedCountryAlt1)->value('mobile_length') ?? '';
             $this->mobileLengthAlt2 = Country::where('country_code', $this->selectedCountryAlt2)->value('mobile_length') ?? '';
-            
-            $this->isWhatsappPhone = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->phone)->exists();
-            $this->isWhatsappAlt1 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_1)->exists();
+            if($this->orders->customer){
+                 $this->isWhatsappPhone = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->phone)->exists();
+                 $this->isWhatsappAlt1 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_1)->exists();
+                 $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
+            }else{
+                $this->isWhatsappPhone = false;
+                $this->isWhatsappAlt1 = false;
+            }
+           
             // dd( $this->phone);
 
-            $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
+           
           
             $this->catalogues = Catalogue::with('catalogueTitle')->get()->toArray();
             
@@ -228,23 +234,23 @@ class OrderEdit extends Component
         //     }
         // }
         $this->Business_type = BusinessType::all();
-        $this->selectedCountryId = $this->orders->customer->country_id;
-        $this->search = Country::where('id',$this->orders->customer->country_id)->pluck('title');
+        $this->selectedCountryId = optional($this->orders->customer)->country_id;
+        $this->search = Country::where('id',optional($this->orders->customer)->country_id)->pluck('title');
         // $country = Country::find($this->selectedCountryId);
-
+        
         // if($country){
         //     $this->country_code = $country->country_code;
         //     $this->mobileLength = $country->mobile_length;
         // }
        
-        $this->selectedBusinessType = $this->orders->customer->business_type;
+        $this->selectedBusinessType = optional($this->orders->customer)->business_type;
         $this->customer_id = $this->orders->customer_id;
         $this->prefix = $this->orders->prefix;
         $this->name = $this->orders->customer_name;
-        $this->company_name = $this->orders->customer->company_name;
-        $this->employee_rank = $this->orders->customer->employee_rank;
+        $this->company_name = optional($this->orders->customer)->company_name;
+        $this->employee_rank = optional($this->orders->customer)->employee_rank;
         $this->email = $this->orders->customer_email;
-        $this->dob = $this->orders->customer->dob;
+        $this->dob = optional($this->orders->customer)->dob;
         // $this->phone = $this->orders->customer->phone;
         // $this->whatsapp_no = $this->orders->customer->whatsapp_no;
 
@@ -460,12 +466,12 @@ class OrderEdit extends Component
             if ($this->remaining_amount < 0) {
                 $this->remaining_amount = 0;
                 $this->paid_amount = $this->billing_amount;
-                session()->flash('errorAmount', '🚨 The paid amount exceeds the billing amount.');
+                session()->flash('errorAmount', 'ðŸš¨ The paid amount exceeds the billing amount.');
             }
         } else {
             $this->paid_amount = 0;
            
-            session()->flash('errorAmount', '🚨 Please add item amount first.');
+            session()->flash('errorAmount', 'ðŸš¨ Please add item amount first.');
         }
     }
 
@@ -594,7 +600,7 @@ class OrderEdit extends Component
         
         session()->forget('measurements_error.' . $index);
         if (count($this->items[$index]['measurements']) == 0) {
-            session()->flash('measurements_error.' . $index, '🚨 Oops! Measurement data not added for this product.');
+            session()->flash('measurements_error.' . $index, 'ðŸš¨ Oops! Measurement data not added for this product.');
             return;
         }
     }
@@ -619,12 +625,12 @@ class OrderEdit extends Component
         $category = $this->items[$index]['selected_category']; 
 
         if (empty($collection)) {
-            session()->flash('errorProduct.' . $index, '🚨 Please select a collection before searching for a product.');
+            session()->flash('errorProduct.' . $index, 'ðŸš¨ Please select a collection before searching for a product.');
             return;
         }
 
         if (empty($category)) {
-            session()->flash('errorProduct.' . $index, '🚨 Please select a category before searching for a product.');
+            session()->flash('errorProduct.' . $index, 'ðŸš¨ Please select a category before searching for a product.');
             return;
         }
     
@@ -856,7 +862,7 @@ class OrderEdit extends Component
             if ($fabricData && floatval($value) < floatval($fabricData->threshold_price)) {
                 // Error message for threshold price violation
                 session()->flash('errorPrice.' . $index, 
-                    "🚨 The price for fabric '{$fabricData->title}' cannot be less than its threshold price of {$fabricData->threshold_price}.");
+                    "ðŸš¨ The price for fabric '{$fabricData->title}' cannot be less than its threshold price of {$fabricData->threshold_price}.");
                 return;
             }
         }
@@ -870,7 +876,7 @@ class OrderEdit extends Component
         } else {
             // Reset price and show error for invalid input
             $this->items[$index]['price'] = 0;
-            session()->flash('errorPrice.' . $index, '🚨 Please enter a valid price.');
+            session()->flash('errorPrice.' . $index, 'ðŸš¨ Please enter a valid price.');
         }
     
         $this->updateBillingAmount(); // Update billing after validation
@@ -1282,7 +1288,7 @@ class OrderEdit extends Component
             \Log::error('Error updating order: ' . $e->getMessage());
             session()->flash('error', $e->getMessage());
             dd($e->getMessage());
-            session()->flash('error', '🚨 Something went wrong. The operation has been rolled back.');
+            session()->flash('error', 'ðŸš¨ Something went wrong. The operation has been rolled back.');
         }
     }
 
