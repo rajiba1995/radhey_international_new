@@ -37,7 +37,7 @@ use App\Http\Livewire\Stock\{StockIndex,UserLedger};
 use App\Http\Livewire\Report\{UserLedgerReport};
 use App\Http\Livewire\BusinessType\BusinessTypeIndex;
 use App\Http\Livewire\Country\CountryIndex;
-use App\Http\Livewire\Accounting\{AddPaymentReceipt,PaymentCollectionIndex,AddOpeningBalance,ListOpeningBalance,IndexExpense,AddExpense,EditExpense,WithdrawalAmount};
+use App\Http\Livewire\Accounting\{AddPaymentReceipt,PaymentCollectionIndex,AddOpeningBalance,ListOpeningBalance,IndexExpense,AddExpense,EditExpense,WithdrawalAmount,CashBookModule};
 // purchase Order pdf
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\PurchaseOrder;
@@ -205,7 +205,8 @@ Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
         Route::get('/list/depot-expense', IndexExpense::class)->name('admin.accounting.list.depot_expense')->middleware('check.permission');
         Route::get('/add-depot-expense', AddExpense::class)->name('admin.accounting.add_depot_expense')->middleware('check.permission');
         Route::get('/edit-depot-expense/{expenseId}', EditExpense::class)->name('admin.accounting.edit_depot_expense')->middleware('check.permission');
-        Route::get('/add-withdrawal-amount', WithdrawalAmount::class)->name('admin.accounting.add_withdrawal_amount');
+        // Route::get('/add-withdrawal-amount', WithdrawalAmount::class)->name('admin.accounting.add_withdrawal_amount');
+        Route::get('/cashbook-module', CashBookModule::class)->name('admin.accounting.cashbook_module');
     });
 
     Route::prefix('report')->group(function() {
