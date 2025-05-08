@@ -100,8 +100,17 @@ class OrderNew extends Component
     public $imageUploads = []; 
     public $voiceUploads = [];
     public $air_mail;
-    
+    public $customerType = 'new';
 
+    public function onCustomerTypeChange($value){
+        $this->customerType = $value;
+        if($value == 'new'){
+            $this->searchResults = [];
+            $this->searchTerm = '';
+        }else{
+            $this->searchResults = [];
+        }
+    }
     public function mount()
     {
         $user_id = request()->query('user_id');

@@ -176,7 +176,8 @@
                         @enderror
                     </div>
 
-                    <div class="mb-3 col-md-3">
+                    {{-- <div class
+                    ="mb-3 col-md-3">
                         <label for="whatsapp_no" class="form-label">WhatsApp <span class="text-danger">*</span></label>
                         <div class="align-items-center">
                             <div class="extention-group">
@@ -199,7 +200,7 @@
                         <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
 
-                    </div>
+                    </div> --}}
                     <div class="mb-3 col-md-3">
                         <label for="mobile" class="form-label">alternative phone number 1 </label>
                         <div class="extention-group">
@@ -311,7 +312,7 @@
                     </div>
 
                     <div class="col-md-3">
-                        <label for="dob" class="form-label">D.O.B <span class="text-danger">*</span></label>
+                        <label for="dob" class="form-label">D.O.B </label>
                         <input type="date" wire:model="dob" id="dob"
                             class="form-control form-control-sm border border-1 p-2" max="{{now()->format('Y-m-d')}}">
                         @error('dob')
@@ -379,7 +380,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4">
+                    {{-- <div class="col-md-4">
                         <label class="form-label">WhatsApp Number</label>
                         <div class="align-items-center">
                             <div class="extention-group">
@@ -402,7 +403,7 @@
                         @error('emergency_whatsapp')
                             <div class="text-danger error-message">{{ $message }}</div>
                         @enderror
-                    </div>
+                    </div> --}}
 
                     <div class="col-md-3">
                         <label class="form-label">Address</label>

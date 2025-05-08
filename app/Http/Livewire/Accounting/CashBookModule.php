@@ -19,7 +19,7 @@ class CashBookModule extends Component
     public function mount()
     {
         // Default to current month
-        $this->start_date = Carbon::now()->startOfMonth()->toDateString();
+        $this->start_date = Carbon::now()->toDateString();
         $this->end_date = Carbon::now()->toDateString();
     }
     
@@ -38,26 +38,46 @@ class CashBookModule extends Component
         ]);
     }
 
-    public function render()
+   public function render()
     {
-        // Total Collection from payment collection
+        // Get earliest transaction date (start point)
+        $firstCollectionDate = PaymentCollection::where('is_approve', 1)->orderBy('created_at')->value('created_at');
+        $firstExpenseDate = Journal::where('is_debit', 1)->orderBy('created_at')->value('created_at');
+        
+        $openingDate = min($firstCollectionDate, $firstExpenseDate);
+    
+        // Opening Balance (till day before selected start date)
+        $pastCollections = PaymentCollection::where('is_approve', 1)
+            ->whereDate('created_at', '<', $this->start_date)
+            ->sum('collection_amount');
+    
+        $pastExpenses = Journal::where('is_debit', 1)
+            ->whereDate('created_at', '<', $this->start_date)
+            ->sum('transaction_amount');
+    
+        $openingBalance = $pastCollections - $pastExpenses;
+    
+        // Today's Collections
         $collectionQuery = PaymentCollection::where('is_approve', 1);
-        if($this->start_date && $this->end_date){
+        if ($this->start_date && $this->end_date) {
             $collectionQuery->whereDate('created_at', '>=', $this->start_date)
-                             ->whereDate('created_at', '<=', $this->end_date);
+                            ->whereDate('created_at', '<=', $this->end_date);
         }
         $this->totalCollections = $collectionQuery->sum('collection_amount');
-        // Total Expenses from journals where is_debit = 1
+    
+        // Today's Expenses
         $expenseQuery = Journal::where('is_debit', 1);
-        if($this->start_date && $this->end_date){
+        if ($this->start_date && $this->end_date) {
             $expenseQuery->whereDate('created_at', '>=', $this->start_date)
                          ->whereDate('created_at', '<=', $this->end_date);
         }
         $this->totalExpenses = $expenseQuery->sum('transaction_amount');
-
-        // Calculate total wallet
-        $this->totalWallet = $this->totalCollections - $this->totalExpenses;
-
+    
+        // Final Wallet: Opening + Today’s Net Movement
+        $this->totalWallet = $openingBalance + ($this->totalCollections - $this->totalExpenses);
+    
         return view('livewire.accounting.cash-book-module');
     }
+
+
 }

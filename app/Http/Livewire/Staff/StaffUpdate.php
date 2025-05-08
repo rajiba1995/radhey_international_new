@@ -65,7 +65,7 @@ class StaffUpdate extends Component
             $this->email = $this->staff->email;
             $this->mobile = $this->staff->phone;
             $this->aadhaar_number = $this->staff->aadhar_name;
-            $this->whatsapp_no = $this->staff->whatsapp_no;
+            // $this->whatsapp_no = $this->staff->whatsapp_no;
            
             $this->image = $this->staff->image;
             $this->passport_id_front = $this->staff->passport_id_front;
@@ -168,7 +168,7 @@ class StaffUpdate extends Component
             ],
             'prof_name' => 'required',
             'surname'  => 'required',
-            'dob'  => 'required',
+            'dob'  => 'nullable',
             'person_name' => 'required|string|max:255',
             'email' => 'nullable|email',
             'alternative_phone_number_1' => [
@@ -183,18 +183,18 @@ class StaffUpdate extends Component
                 'required',
                 'regex:/^\d{'. $this->mobileLengthPhone .'}$/',
             ],
-            'whatsapp_no' => [
-                'required',
-                'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
-            ],
+            // 'whatsapp_no' => [
+            //     'required',
+            //     'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
+            // ],
             'emergency_mobile'=> [
                 'nullable',
                 'regex:/^\d{'. $this->mobileLengthEmergencyContact .'}$/', // At least VALIDATE_MOBILE digits
             ],
-            'emergency_whatsapp'=>[
-                'nullable',
-                'regex:/^\d{'. $this->mobileLengthEmergencyWhatsapp .'}$/',
-            ],
+            // 'emergency_whatsapp'=>[
+            //     'nullable',
+            //     'regex:/^\d{'. $this->mobileLengthEmergencyWhatsapp .'}$/',
+            // ],
             'emergency_contact_person' => 'nullable|string',
             'emergency_address' => 'nullable|string',
             'aadhaar_number' =>  'nullable|numeric',
@@ -226,18 +226,18 @@ class StaffUpdate extends Component
             'designation.required' => 'The designation field is required.',
             'prof_name.required' => 'The professional name is required.',
             'surname.required' => 'The surname field is required.',
-            'dob.required' => 'The date of birth is required.',
+            // 'dob.required' => 'The date of birth is required.',
             'person_name.required' => 'The person name is required.',
             'person_name.max' => 'The person name may not be greater than 255 characters.',
             'email.email' => 'Please enter a valid email address.',
             'mobile.required' => 'The mobile number is required.',
             'mobile.regex' => 'The mobile number must be exactly ' . $this->mobileLengthPhone . ' digits.',
-            'whatsapp_no.required' => 'The WhatsApp number is required.',
-            'whatsapp_no.regex' => 'The WhatsApp number must be exactly ' . $this->mobileLengthWhatsapp . ' digits.',
+            // 'whatsapp_no.required' => 'The WhatsApp number is required.',
+            // 'whatsapp_no.regex' => 'The WhatsApp number must be exactly ' . $this->mobileLengthWhatsapp . ' digits.',
             'alternative_phone_number_1.regex' => 'The alternative phone number must be exactly ' . $this->mobileLengthAlt1 . ' digits.',
             'alternative_phone_number_2.regex' => 'The alternative phone number must be exactly ' . $this->mobileLengthAlt2 . ' digits.',
             'emergency_mobile.regex' => 'The emergency mobile number must be exactly ' . $this->mobileLengthEmergencyContact . ' digits.',
-            'emergency_whatsapp.regex' => 'The emergency WhatsApp number must be exactly ' . $this->mobileLengthEmergencyWhatsapp . ' digits.',
+            // 'emergency_whatsapp.regex' => 'The emergency WhatsApp number must be exactly ' . $this->mobileLengthEmergencyWhatsapp . ' digits.',
             'aadhaar_number.numeric' => 'The Aadhaar number must be a valid number.',
             'passport_no.numeric' => 'The passport number must be a valid number.',
             'visa_no.numeric' => 'The visa number must be a valid number.',
@@ -275,14 +275,14 @@ class StaffUpdate extends Component
                 'emp_code' => $this->emp_code ?? '',
                 'surname' => $this->surname ?? '',
                 'prof_name' => $this->prof_name ?? '',
-                'dob' => $this->dob ?? '',
+                'dob' => $this->dob ?: null,
                 'business_type' => $this->selectedBusinessType ?? '',
                 'email' => $this->email ?? '',
                 'country_code_phone' => $this->selectedCountryPhone,
                 'phone' => $this->mobile ?? '',
                 'aadhar_name' => $this->aadhaar_number ?? '',
-                'country_code_whatsapp' => $this->selectedCountryWhatsapp,
-                'whatsapp_no' => $this->whatsapp_no ?? '',
+                // 'country_code_whatsapp' => $this->selectedCountryWhatsapp,
+                // 'whatsapp_no' => $this->whatsapp_no ?? '',
                 'image' => $imagePath ?? '',
                 'passport_id_front' => $passportIdFrontPath ?? '',
                 'passport_id_back' => $passportIdBackPath ?? '',
@@ -293,8 +293,8 @@ class StaffUpdate extends Component
                 'emergency_contact_person'=> $this->emergency_contact_person,
                 'country_code_emergency_mobile' => $this->selectedCountryEmergencyContact,
                 'emergency_mobile' => $this->emergency_mobile,
-                'country_code_emergency_whatsapp' => $this->selectedCountryEmergencyWhatsapp,
-                'emergency_whatsapp' => $this->emergency_whatsapp,
+                // 'country_code_emergency_whatsapp' => $this->selectedCountryEmergencyWhatsapp,
+                // 'emergency_whatsapp' => $this->emergency_whatsapp,
                 'emergency_address' => $this->emergency_address,
                 // 'country_code' => $this->country_code,
                 'country_code_alt_1' => $this->selectedCountryAlt1,
@@ -435,15 +435,15 @@ class StaffUpdate extends Component
         }
     }
 
-    public function SameAsMobile(){
-        if($this->is_wa_same == 0){
-            $this->whatsapp_no = $this->mobile;
-            $this->is_wa_same =1;
-        }else{
-            $this->whatsapp_no = '';
-            $this->is_wa_same = 0;
-        }
-    }
+    // public function SameAsMobile(){
+    //     if($this->is_wa_same == 0){
+    //         $this->whatsapp_no = $this->mobile;
+    //         $this->is_wa_same =1;
+    //     }else{
+    //         $this->whatsapp_no = '';
+    //         $this->is_wa_same = 0;
+    //     }
+    // }
 
     public function sameAsContact(){
         if($this->same_as_contact){

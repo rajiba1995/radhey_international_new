@@ -103,7 +103,7 @@
                                         <span>Name: <strong>{{ucwords($order->prefix ." ". $order->customer_name)}}</strong> </span>
                                         <br>
                                         <span>Mobile : <strong>{{$order->customer? $order->customer->country_code_phone.' '.$order->customer->phone:""}}</strong> </span> <br>
-                                        <span>WhatsApp : <strong>{{$order->customer?$order->customer->country_code_whatsapp.' '.$order->customer->whatsapp_no:""}}</strong> </span>
+                                        {{-- <span>WhatsApp : <strong>{{$order->customer?$order->customer->country_code_whatsapp.' '.$order->customer->whatsapp_no:""}}</strong> </span> --}}
                                     </p>
                                 </td>
                                 <td><p class="text-xs font-weight-bold mb-0">{{ $order->total_amount }}</p></td>

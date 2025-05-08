@@ -22,28 +22,6 @@
                      <div class="col-md-8">
                         <h6 class="badge bg-danger custom_danger_badge">Basic Information</h6>
                     </div>
-                    {{-- <div class="col-md-4">
-                        <div class="position-relative">
-                            <input type="text" wire:keyup="FindCountry($event.target.value)"
-                               wire:model.debounce.500ms="searchTerm"
-                                class="form-control form-control-sm border border-1 customer_input"
-                                placeholder="Search By Country">
-                            @error('searchTerm')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                           @if(!empty($filteredCountries))
-                            <div id="fetch_customer_details" class="dropdown-menu show w-100"
-                                style="max-height: 200px; overflow-y: auto;">
-                                @foreach ($filteredCountries as $countries)
-                                <button class="dropdown-item" type="button"
-                                    wire:click="selectCountry({{ $countries->id }})">
-                                     {{$countries->title}}({{$countries->country_code}})
-                                </button>
-                                @endforeach
-                            </div>
-                            @endif 
-                        </div>
-                    </div> --}}
                 </div>
             </div>
             
@@ -77,7 +55,7 @@
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="mb-3 col-md-3">
+                        <div class="mb-3 col-md-4">
                             <label for="mobile" class="form-label">Phone Number <span class="text-danger">*</span></label>
                             <div class="extention-group">
                                 <select wire:model="selectedCountryPhone"
@@ -103,7 +81,7 @@
                                 <label for="is_whatsapp1" class="form-check-label ms-2">Is Whatsapp</label>
                             </div>
                         </div>
-                        <div class="mb-3 col-md-3">
+                        {{-- <div class="mb-3 col-md-3">
                             <label for="" class="form-label">WhatsApp number <span class="text-danger">*</span></label>
                                 <div class="align-items-center">
                                     <div class="extention-group">
@@ -118,17 +96,14 @@
                                         </select>
                                         <input type="text" wire:model="whatsapp_no" id="whatsapp_no" class="form-control form-control-sm border border-2 p-2 me-2" placeholder="Enter WhatsApp number" maxLength={{$mobileLengthWhatsapp}}>
                                     </div>
-                                {{-- <div class="custon-input-group">
-                                    <input type="checkbox" id="is_wa_same" wire:change="SameAsMobile" value="0" @if ($is_wa_same) checked @endif>
-                                    <label for="is_wa_same" class="form-check-label ms-2" >Same as Mobile</label>
-                                </div> --}}
+                                
                             </div>
                             @error('whatsapp_no')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
-                        </div>
+                        </div> --}}
 
-                        <div class="mb-3 col-md-3">
+                        <div class="mb-3 col-md-4">
                             <label for="mobile" class="form-label">alternative phone number 1 </label>
                             <div class="extention-group">
                                 <select wire:model="selectedCountryAlt1"
@@ -154,7 +129,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3 col-md-3">
+                        <div class="mb-3 col-md-4">
                             <label for="mobile" class="form-label">alternative phone number 2 </label>
                             <div class="extention-group">
                                 <select wire:model="selectedCountryAlt2"

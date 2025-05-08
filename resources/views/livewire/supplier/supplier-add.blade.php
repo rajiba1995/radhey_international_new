@@ -55,7 +55,7 @@
                             @enderror
                         </div>
                         
-                        <div class="mb-3 col-md-3">
+                        <div class="mb-3 col-md-4">
                             <label for="mobile" class="form-label">Phone Number <span class="text-danger">*</span></label>
                             <div class="extention-group">
                                 <select wire:model="selectedCountryPhone"
@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         
-                        <div class="mb-3 col-md-3">
+                        {{-- <div class="mb-3 col-md-4">
                             <label for="is_wa_same" class="form-label">WhatsApp Number <span class="text-danger">*</span></label>
                                 <div class="align-items-center">
                                     <div class="extention-group">
@@ -97,18 +97,15 @@
                                         </select>
                                         <input type="text" wire:model="whatsapp_no" id="whatsapp_no" class="form-control form-control-sm border border-1 p-2 me-2" placeholder="Enter WhatsApp Number" maxLength={{$mobileLengthWhatsapp}}>
                                     </div>
-                                {{-- <div class="custon-input-group">
-                                    <input type="checkbox" id="">
-                                    <label for="" class="form-check-label ms-2" >Same as Mobile</label>
-                                </div> --}}
+                                
                                
                             </div>
                             @error('whatsapp_no')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror        
-                        </div>
+                        </div> --}}
 
-                        <div class="mb-3 col-md-3">
+                        <div class="mb-3 col-md-4">
                             <label for="mobile" class="form-label">alternative phone number 1 </label>
                             <div class="extention-group">
                                 <select wire:model="selectedCountryAlt1"
@@ -133,7 +130,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3 col-md-3">
+                        <div class="mb-3 col-md-4">
                             <label for="mobile" class="form-label">alternative phone number 2 </label>
                             <div class="extention-group">
                                 <select wire:model="selectedCountryAlt2"

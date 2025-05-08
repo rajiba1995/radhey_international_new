@@ -5,20 +5,7 @@
         <section class="admin__title">
             <h5>Staff</h5>
         </section>
-      {{-- <div class="row align-items-center my-sm-3">
-        <div class="col-lg-6 col-md-6 text-start">
-            <h4 class="block-heading mb-0">Staff</h4>
-        </div>
-        <div class="col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
-            <div class="nav-wrapper position-relative end text-end">
-                <!-- Single Button -->
-                <a class="btn btn-outline-success select-md" href="{{route('staff.add')}}" role="button" >
-                    {{-- <i class="material-icons text-white" style="font-size: 15px;">add</i> --}}
-                    {{-- <span class="ms-1">Add New Staff</span>
-                </a>
-            </div>
-        </div>
-      </div> --}} 
+      
       {{-- search filter --}}
       <div class="search__filter">
         <div class="row align-items-center justify-content-end">
@@ -106,7 +93,7 @@
                                             <td><p class="text-xs font-weight-bold mb-0">{{ ucwords($member->designationDetails->name ?? 'N/A')  }}</p></td>
                                             <td>
                                                 <p class="text-xs font-weight-bold mb-0"><span>Mobile:</span><strong> {{ $member->country_code_phone.' '.$member->phone ?? 'N/A' }}</strong> <br>
-                                                <span>WhatsApp:</span><strong> {{ $member->country_code_whatsapp.' '.$member->whatsapp_no ?? 'N/A' }}</strong></p> 
+                                                {{-- <span>WhatsApp:</span><strong> {{ $member->country_code_whatsapp.' '.$member->whatsapp_no ?? 'N/A' }}</strong></p>  --}}
                                             </td>
                                             <td>
                                                 <div class="form-check form-switch">

@@ -158,7 +158,7 @@ class PaymentCollectionIndex extends Component
                     if($amount == $payment_amount){
                         // die('Full Covered');
                         Invoice::where('id',$inv->id)->update([
-                            'required_payment_amount'=>'',
+                            'required_payment_amount'=>0,
                             'payment_status' => 2,
                             'is_paid'=>1
                         ]);
@@ -166,11 +166,11 @@ class PaymentCollectionIndex extends Component
                             'invoice_id' => $inv->id,
                             'payment_collection_id' => $payment_collection_id,
                             'invoice_no' => $inv->invoice_no,
-                            'voucher_no' => $payments['vouchar_no'],
+                            'voucher_no' => $payments['voucher_no'],
                             'invoice_amount' => $inv->net_price,
                             'vouchar_amount' => $payment_amount,
                             'paid_amount' => $amount,
-                            'rest_amount' => '',
+                            'rest_amount' => 0,
                             'created_at' => $payments['created_at'],
                             'updated_at' => $payments['created_at']
                         ]);
@@ -180,7 +180,7 @@ class PaymentCollectionIndex extends Component
                         if($amount_after_settlement>$amount && $amount_after_settlement>0){
                             $amount_after_settlement=$amount_after_settlement-$amount;
                             Invoice::where('id',$inv->id)->update([
-                                'required_payment_amount'=>'',
+                                'required_payment_amount'=>0,
                                 'payment_status' => 2,
                                 'is_paid'=>1
                             ]);    
@@ -188,11 +188,11 @@ class PaymentCollectionIndex extends Component
                                 'invoice_id' => $inv->id,
                                 'payment_collection_id' => $payment_collection_id,
                                 'invoice_no' => $inv->invoice_no,
-                                'voucher_no' => $payments['vouchar_no'],
+                                'voucher_no' => $payments['voucher_no'],
                                 'invoice_amount' => $inv->net_price,
                                 'vouchar_amount' => $payment_amount,
                                 'paid_amount' => $amount,
-                                'rest_amount' => '',
+                                'rest_amount' => 0,
                                 'created_at' => $payments['created_at'],
                                 'updated_at' => $payments['created_at']
                             ]);
@@ -207,7 +207,7 @@ class PaymentCollectionIndex extends Component
                                 'invoice_id' => $inv->id,
                                 'payment_collection_id' => $payment_collection_id,
                                 'invoice_no' => $inv->invoice_no,
-                                'voucher_no' => $payments['vouchar_no'],
+                                'voucher_no' => $payments['voucher_no'],
                                 'invoice_amount' => $inv->net_price,
                                 'vouchar_amount' => $payment_amount,
                                 'paid_amount' => $amount_after_settlement,

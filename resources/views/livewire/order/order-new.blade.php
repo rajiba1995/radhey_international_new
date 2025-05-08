@@ -42,6 +42,18 @@
         <div class="card-body" id="sales_order_data">
             <form wire:submit.prevent="save">
                 <div class="{{$activeTab==1?" d-block":"d-none"}}" id="tab1">
+                    {{-- checkbox section --}}
+                    <div class="mb-3">
+                        <label><strong>Select Customer Type:</strong></label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio"  wire:change="onCustomerTypeChange($event.target.value)" wire:model="customerType" id="newCustomer" value="new" checked>
+                            <label class="form-check-label" for="newCustomer">New Customer</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio"  wire:change="onCustomerTypeChange($event.target.value)" wire:model="customerType" id="existingCustomer" value="existing">
+                            <label class="form-check-label" for="existingCustomer">Existing Customer</label>
+                        </div>
+                    </div>
                     <div class="row align-items-center mb-3">
                         @php
                         $auth = Auth::guard('admin')->user();
@@ -104,6 +116,7 @@
                             @enderror --}}
                         </div>
 
+                        @if ($customerType == 'existing')
                         <!-- Search Label and Select2 -->
                         <div class="col-md-6 mt-2">
                             <div class="d-flex justify-content-between">
@@ -133,7 +146,7 @@
                                 @endif
                             </div>
                         </div>
-
+                        @endif
 
                     </div>
 
@@ -187,7 +200,7 @@
                     </div>
                     <!-- Customer Details -->
                     <div class="row">
-                        <div class="mb-2 col-md-6">
+                        <div class="mb-2 col-md-3">
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <select wire:model="prefix"
@@ -208,7 +221,7 @@
                             <div class="text-danger error-message">{{ $errorMessage['name'] }}</div>
                             @endif
                         </div>
-
+                        
                         <div class="mb-2 col-md-4">
                             <label for="company_name" class="form-label">Company Name</label>
                             <input type="text" wire:model="company_name" id="company_name"
