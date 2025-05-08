@@ -74,12 +74,18 @@
                             <div class="col-sm-4">
                                 <div class="form-group mb-3">
                                     <label for="" id="">Collected By <span class="text-danger">*</span></label>
-                                    <select wire:model="staff_id" class="form-control form-control-sm" {{$readonly}}>
-                                        <option value="">Choose an user</option>
-                                        @foreach($staffs as $staff)
-                                        <option value="{{$staff->id}}">{{ucwords($staff->name)}}</option>
-                                        @endforeach
-                                    </select>
+                                    @if ($my_designation == 1)
+                                        <select wire:model="staff_id" class="form-control form-control-sm" readonly>
+                                            <option value="">Choose an user</option>
+                                            @foreach($staffs as $staff)
+                                            <option value="{{$staff->id}}">{{ucwords($staff->name)}}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <input type="text" class="form-control form-control-sm" value="{{ $staffs->first()->name }}" disabled>
+                                        <input type="hidden" wire:model="staff_id">
+                                    @endif
+                                   
                                     @if(isset($errorMessage['staff_id']))
                                     <div class="text-danger">{{ $errorMessage['staff_id'] }}</div>
                                     @endif
