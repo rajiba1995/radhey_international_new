@@ -764,7 +764,7 @@
                         @if(isset($this->items[$index]['product_id']) && $items[$index]['collection'] == 1)
                         <div class="row">
                             <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
-                                <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
+                                <h6 class="badge bg-danger custom_success_badge">Measurements</h6> <span class="text-danger">*</span>
                                 <!-- Checkbox to Copy Previous Measurements -->
                                 @if($index > 0)
                                 <!-- Show checkbox only for second item onwards -->
@@ -799,7 +799,7 @@
                                     @endforeach
                                     @endif
                                     @if (session()->has('measurements_error.' . $index))
-                                    <div class="alert alert-danger">
+                                    <div class="alert alert-danger mt-2">
                                         {{ session('measurements_error.' . $index) }}
                                     </div>
                                     @endif

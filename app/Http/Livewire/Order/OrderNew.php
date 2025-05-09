@@ -1097,10 +1097,10 @@ class OrderNew extends Component
                     }
                     $missing_measurements = array_diff($get_all_measurment_field, $get_all_field_measurment_id);
 
-                    // if (!empty($missing_measurements)) {
-                    //     session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
-                    //     return;
-                    // }
+                    if (!empty($missing_measurements)) {
+                        session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
+                        return;
+                    }
                     
                 }
             }

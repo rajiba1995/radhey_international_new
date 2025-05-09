@@ -699,6 +699,11 @@
                                     </div>
                                     @endforeach
                                     @endif
+                                    @if (session()->has('measurements_error.' . $index))
+                                    <div class="alert alert-danger mt-2">
+                                        {{ session('measurements_error.' . $index) }}
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
                             <!-- Catalogue -->

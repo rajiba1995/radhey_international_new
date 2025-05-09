@@ -862,7 +862,7 @@ class OrderEdit extends Component
             if ($fabricData && floatval($value) < floatval($fabricData->threshold_price)) {
                 // Error message for threshold price violation
                 session()->flash('errorPrice.' . $index, 
-                    "ðŸš¨ The price for fabric '{$fabricData->title}' cannot be less than its threshold price of {$fabricData->threshold_price}.");
+                    "The price for fabric '{$fabricData->title}' cannot be less than its threshold price of {$fabricData->threshold_price}.");
                 return;
             }
         }
@@ -1206,6 +1206,11 @@ class OrderEdit extends Component
                     
 
                     foreach ($item['measurements'] as $measurement) {
+                        if (!isset($measurement['value']) || $measurement['value'] === '') {
+                            session()->flash('measurements_error.' . $key, "🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.");
+                            return;
+                        }
+                        
                         $measurementValue = $measurement['value'] ?? null;
                         $measurementName = $measurement['title'] ?? null;
                         $measurementShortCode = $measurement['short_code'] ?? null;
