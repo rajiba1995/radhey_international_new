@@ -39,7 +39,7 @@ class UserAddressForm extends Component
     public $countries = [];
     public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
     public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
-    public $badge_type;
+    public $badge_type = "general";
 
 
     public function mount(){
