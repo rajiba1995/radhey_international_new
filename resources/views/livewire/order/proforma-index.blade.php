@@ -81,7 +81,7 @@
                                 <tr>
                                     <x-table-td>
                                         <p class="small text-muted mb-1 badge bg-warning">
-                                            Created At:-  {{ \Carbon\Carbon::parse($item->date)->format('d/m/Y h:i A') }} 
+                                            {{-- Created At:- --}} {{ \Carbon\Carbon::parse($item->date)->format('d/m/Y h:i A') }} 
                                         </p>
                                     </x-table-td>
                                     <x-table-td>{{ $item->proforma_number }}</x-table-td>

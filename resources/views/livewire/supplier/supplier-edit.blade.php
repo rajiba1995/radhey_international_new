@@ -32,7 +32,7 @@
                         <div class="mb-3 col-md-6">
                             <label for="name" class="form-label">Supplier Name <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 60px;">
+                                <select wire:model="prefix" class="form-control form-control-sm border border-1" style="max-width: 90px">
                                     <option value="" selected hidden>Prefix</option>
                                     @foreach (App\Helpers\Helper::getNamePrefixes() as $prefix)
                                         <option value="{{$prefix}}">{{ $prefix }}</option>
@@ -74,11 +74,11 @@
                             @error('mobile')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
-                            <div>
+                            <div class="form-check-label-group">
                                 <input type="checkbox" id="is_whatsapp1" wire:model="isWhatsappPhone" @if ($isWhatsappPhone)
                                     checked
                                 @endif>
-                                <label for="is_whatsapp1" class="form-check-label ms-2">Is Whatsapp</label>
+                                <label for="is_whatsapp1" class="form-check-label ms-1">Is Whatsapp</label>
                             </div>
                         </div>
                         {{-- <div class="mb-3 col-md-3">
@@ -121,11 +121,11 @@
                             @error('alternative_phone_number_1')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
-                            <div>
+                            <div class="form-check-label-group">
                                 <input type="checkbox" id="is_whatsapp2" wire:model="isWhatsappAlt1" @if ($isWhatsappAlt1)
                                     checked
                                 @endif>
-                                <label for="is_whatsapp2" class="form-check-label ms-2">Is Whatsapp</label>
+                                <label for="is_whatsapp2" class="form-check-label ms-1">Is Whatsapp</label>
                             </div>
                         </div>
 
@@ -147,11 +147,11 @@
                             @error('alternative_phone_number_2')
                             <div class="text-danger">{{ $message }}</div>
                             @enderror
-                            <div>
+                            <div class="form-check-label-group">
                                 <input type="checkbox" id="is_whatsapp3" wire:model="isWhatsappAlt2" @if($isWhatsappAlt2)
                                     checked
                                 @endif>
-                                <label for="is_whatsapp3" class="form-check-label ms-2">Is Whatsapp</label>
+                                <label for="is_whatsapp3" class="form-check-label ms-1">Is Whatsapp</label>
                             </div>
                         </div>
                     </div>

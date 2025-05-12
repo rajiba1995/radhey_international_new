@@ -225,7 +225,7 @@
                     <table>
                         <tr>
                             
-                            <td style="width:150px;">
+                            <td style="width:150px">
                                 <h5 style="color:#000; font-size: 16px; font-weight: 600; margin-bottom: 6px;"> Date:</h5>
                                 <p style="color:#000; font-size: 14px;">{{
                                     \Carbon\Carbon::parse($proforma->date)->format('d-m-Y') }}</p>

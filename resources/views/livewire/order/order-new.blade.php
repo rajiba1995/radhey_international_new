@@ -59,10 +59,8 @@
                         $auth = Auth::guard('admin')->user();
                         @endphp
                         <div class="col-md-4 {{ $auth->is_super_admin==1 ? "" : " d-none" }}">
-                            <div class="d-flex justify-content-between">
-                                <!-- Search Label -->
-                                <label for="searchCustomer" class="form-label mb-0">Business Type</label>
-                            </div>
+                            <!-- Search Label -->
+                            <label for="searchCustomer" class="form-label mb-0">Business Type</label>
                             <select wire:model="selectedBusinessType"
                                 class="form-select me-2 form-control form-control-sm border border-1 customer_input"
                                 aria-label="Default select example">
@@ -204,7 +202,7 @@
                             <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <select wire:model="prefix"
-                                    class="form-control form-control-sm border border-1 prefix_select">
+                                    class="form-control form-control-sm border border-1 prefix_select flex-30">
                                     <option value="" selected hidden>Prefix</option>
                                     @foreach (App\Helpers\Helper::getNamePrefixes() as $prefixOption)
                                     <option value="{{$prefixOption}}">{{ $prefixOption }}</option>
@@ -262,7 +260,7 @@
                                 <!-- Country Select Dropdown for Phone -->
                                 <select wire:model="selectedCountryPhone"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'phone')"
-                                    class="form-control form-control-sm prefix_select">
+                                    class="form-control form-control-sm prefix_select flex-30">
                                     <option value="" selected hidden>Code</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}"
@@ -282,9 +280,9 @@
                             @if(isset($errorMessage['phone']))
                             <div class="text-danger error-message">{{ $errorMessage['phone'] }}</div>
                             @endif
-                            <div>
+                            <div class="form-check-label-group">
                                 <input type="checkbox" id="is_whatsapp1" wire:model="isWhatsappPhone">
-                                <label for="is_whatsapp1" class="form-check-label ms-2">Is Whatsapp</label>
+                                <label for="is_whatsapp1" class="form-check-label ms-1">Is Whatsapp</label>
                             </div>
                         </div>
 
@@ -324,7 +322,7 @@
                                 <!-- Country Select Dropdown for Alternative Phone 1 -->
                                 <select wire:model="selectedCountryAlt1"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_1')"
-                                    class="form-control form-control-sm prefix_select">
+                                    class="form-control form-control-sm prefix_select flex-30">
                                     <option value="" selected hidden>Code</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}"
@@ -345,9 +343,9 @@
                             <div class="text-danger error-message">{{ $errorMessage['alternative_phone_number_1'] }}
                             </div>
                             @endif
-                            <div>
+                            <div class="form-check-label-group">
                                 <input type="checkbox" id="is_whatsapp2" wire:model="isWhatsappAlt1">
-                                <label for="is_whatsapp2" class="form-check-label ms-2">Is Whatsapp</label>
+                                <label for="is_whatsapp2" class="form-check-label ms-1">Is Whatsapp</label>
                             </div>
                         </div>
 
@@ -359,7 +357,7 @@
                                 <!-- Country Select Dropdown for Alternative Phone 2 -->
                                 <select wire:model="selectedCountryAlt2"
                                     wire:change="GetCountryDetails($event.target.selectedOptions[0].getAttribute('data-length'), 'alt_phone_2')"
-                                    class="form-control form-control-sm prefix_select">
+                                    class="form-control form-control-sm prefix_select flex-30">
                                     <option value="" selected hidden>Code</option>
                                     @foreach($countries as $country)
                                     <option value="{{ $country->country_code }}"
@@ -378,9 +376,9 @@
                             <div class="text-danger error-message">{{ $errorMessage['alternative_phone_number_2'] }}
                             </div>
                             @endif
-                            <div>
+                            <div class="form-check-label-group">
                                 <input type="checkbox" id="is_whatsapp3" wire:model="isWhatsappAlt2">
-                                <label for="is_whatsapp3" class="form-check-label ms-2">Is Whatsapp</label>
+                                <label for="is_whatsapp3" class="form-check-label ms-1">Is Whatsapp</label>
                             </div>
                         </div>
 
@@ -1129,7 +1127,7 @@
                                 class="material-icons text-white">add</i>Generate Order</button>
                         @endif
                         @if($activeTab==1)
-                        <button type="button" id="nextTab" class="btn btn-sm btn-cta mx-2"
+                        <button type="button" id="nextTab" class="btn btn-sm btn-success mx-2"
                             wire:click="TabChange({{$activeTab+1}})">Next<i
                                 class="material-icons text-white">chevron_right</i></button>
                         @endif

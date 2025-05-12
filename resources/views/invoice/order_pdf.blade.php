@@ -384,7 +384,7 @@
                                             number_format($ca, 2) }}
                                             FCFA</td>
                                     </tr>
-                                    <tr>
+                                   <tr>
                                         <td
                                             style="font-size: 13px; padding: 6px; font-style: italic; border-bottom: 1px solid #ccc;">
                                             paid on {{ \Carbon\Carbon::parse($invoice->created_at)->format('d-m-Y') }}

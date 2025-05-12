@@ -1085,9 +1085,81 @@ table td h6.text-sm {
 }
 
 
+/*--- 09-05-2025 Soumik ---*/
 
-
-
-
-
-
+select.form-control {
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+    appearance: auto;
+    min-height: 27.6px;
+}
+select.form-control + input.form-control {
+    margin-left: 5px;
+}
+.input-group select.form-control + input.form-control {
+    margin-left: 5px !important;
+}
+.input-group select.form-control:first-child {
+    border-radius: 5px !important;
+}
+.input-group input.form-control:not(:first-child) {
+    border-radius: 5px !important;
+}
+.flex-30 {
+    flex: 0 0 30% !important;
+}
+.form-check-label-group {
+    display: flex;
+    align-items: center;
+}
+.form-check-label-group label.form-check-label input {
+    height: 13px;
+}
+label.form-check-label {
+    font-size: 0.75rem;
+}
+.card-body form button[type="submit"] {
+    display: flex;
+    align-items: center;
+    line-height: 18px;
+}
+.form-select {
+    font-size: 0.75rem;
+}
+.section-header-filter {
+    display: flex;
+    align-items: center;
+}
+.section-header-filter label {
+    white-space: nowrap;
+}
+.measurement-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    padding-bottom: 10px;
+}
+.measurement_input {
+    font-size: 14px !important;
+}
+.custom-checkbox {
+    line-height: 21px;
+    padding-left: 25px !important;
+}
+.custom-checkbox input[type="checkbox"] {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    margin: 0 !important;
+}
+.custom-checkbox i {
+    top: 1.5px;
+    left: 0;
+}
+.search-input {
+    height: 27.6px;
+}
+.card .card-header {
+    background: transparent;
+}

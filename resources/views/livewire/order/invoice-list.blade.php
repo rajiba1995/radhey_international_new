@@ -99,11 +99,11 @@
                         <tr>
                             <x-table-td>
                                 <p class="small text-muted mb-1 badge bg-warning">
-                                    Created At:- {{date('d/m/Y h:i A', strtotime($item->created_at))}}
+                                    {{-- Created At:- --}} {{date('d/m/Y h:i A', strtotime($item->created_at))}}
                                 </p>
                                 @if (!empty($item->updated_by))
                                 <p class="small text-muted mb-1 badge bg-warning">
-                                    Updated At:- {{date('d/m/Y h:i A', strtotime($item->updated_at))}}
+                                    {{-- Updated At:- --}} {{date('d/m/Y h:i A', strtotime($item->updated_at))}}
                                 </p>
                                 @endif
                             </x-table-td>

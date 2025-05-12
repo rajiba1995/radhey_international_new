@@ -212,7 +212,6 @@ class ProformaAdd extends Component
             'products' => [],
         ];
     }
-    
     public function updatePrice($index)
     {
         $quantity = (int)($this->rows[$index]['quantity'] ?? 1);

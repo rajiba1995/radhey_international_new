@@ -473,7 +473,7 @@
                                 <label class="date_lable">Unit Price</label>
                                 <input type="text" class="form-control amount"
 
-                                wire:model.lazy="rows.{{ $index }}.unit_price" wire:blur="updatePrice({{ $index }})"
+                                 wire:model.lazy="rows.{{ $index }}.unit_price" wire:blur="updatePrice({{ $index }})"
 
                                 placeholder="Enter Amount">
 

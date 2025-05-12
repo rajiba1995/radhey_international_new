@@ -517,7 +517,6 @@
                 @error('condition')
                 <p class="text-danger">{{$message}}</p>
                 @enderror
-
                 <div class="row">
                     <div class="col-12 text-end">
                         <button id="terget" class="btn btn-primary print-btn btn-sm mt-5"

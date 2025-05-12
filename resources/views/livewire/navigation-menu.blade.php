@@ -139,18 +139,12 @@
                         Customer Opening Balance
                     </a>
                 </li>
-                <li class="nav-item">
+                 <li class="nav-item">
                     <a class="nav-link text-white {{ request()->is('admin/accounting/cashbook-module') ? 'active' : '' }}"
                         href="{{ route('admin.accounting.cashbook_module') }}">
                        Cashbook Module
                     </a>
                 </li>
-                {{-- <li class="nav-item">
-                    <a class="nav-link text-white {{ request()->is('admin/accounting/add-withdrawal-amount') ? 'active' : '' }}"
-                        href="{{ route('admin.accounting.add_withdrawal_amount') }}">
-                        Withdrawal
-                    </a>
-                </li> --}}
             </ul>
             @endif
             @if ($user->id==1)

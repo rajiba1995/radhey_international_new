@@ -72,9 +72,9 @@
                             </div>
                         </div>
                         <hr class="dark horizontal my-0">
-                        <div class="card-footer p-3">
+                        {{-- <div class="card-footer p-3">
 
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
                 {{-- Total Expenses --}}
@@ -92,11 +92,11 @@
                             </div>
                         </div>
                         <hr class="dark horizontal my-0">
-                        <div class="card-footer p-3 d-flex justify-content-between align-items-center">
-                            {{-- <p class="mb-0"><span class="text-danger text-sm font-weight-bolder">-2%</span>
+                        {{-- <div class="card-footer p-3 d-flex justify-content-between align-items-center">
+                             <p class="mb-0"><span class="text-danger text-sm font-weight-bolder">-2%</span>
                                 than
-                                yesterday</p> --}}
-                        </div>
+                                yesterday</p> 
+                        </div> --}}
                     </div>
                 </div>
                 {{-- @endif --}}
@@ -118,11 +118,11 @@
                             </div>
                         </div>
                         <hr class="dark horizontal my-0">
-                        <div class="card-footer p-3 d-flex justify-content-between align-items-center">
-                            {{-- <p class="mb-0"><span class="text-danger text-sm font-weight-bolder">-2%</span>
+                        {{-- <div class="card-footer p-3 d-flex justify-content-between align-items-center">
+                             <p class="mb-0"><span class="text-danger text-sm font-weight-bolder">-2%</span>
                                 than
-                                yesterday</p> --}}
-                        </div>
+                                yesterday</p> 
+                        </div> --}}
                     </div>
                 </div>
                 {{-- @endif --}}

@@ -65,9 +65,9 @@
                                             @endif
                                         @endif
                                     </div>
-                                    <div class="is-filled text-end">
+                                    <div class="is-filled form-check-label-group ">
                                         <input type="checkbox" id="new_customer" wire:model="new_customer" wire:change="changeNewCustomer">
-                                        <label for="new_customer" class="mt-0 text-primary cursor-pointer">New Customer</label>
+                                        <label for="new_customer" class="mt-0 text-primary cursor-pointer ms-1">New Customer</label>
                                     </div>
                                 </div>
                             </div>
@@ -75,7 +75,7 @@
                                 <div class="form-group mb-3">
                                     <label for="" id="">Collected By <span class="text-danger">*</span></label>
                                     @if ($my_designation == 1)
-                                        <select wire:model="staff_id" class="form-control form-control-sm" readonly>
+                                        <select wire:model="staff_id" class="form-control form-control-sm">
                                             <option value="">Choose an user</option>
                                             @foreach($staffs as $staff)
                                             <option value="{{$staff->id}}">{{ucwords($staff->name)}}</option>
@@ -85,7 +85,6 @@
                                         <input type="text" class="form-control form-control-sm" value="{{ $staffs->first()->name }}" disabled>
                                         <input type="hidden" wire:model="staff_id">
                                     @endif
-                                   
                                     @if(isset($errorMessage['staff_id']))
                                     <div class="text-danger">{{ $errorMessage['staff_id'] }}</div>
                                     @endif
@@ -138,7 +137,7 @@
                                         <option value="neft" {{$payment_mode=="neft"?"selected":"hidden"}}>NEFT</option>
                                         <option value="cash" {{$payment_mode=="cash"?"selected":"hidden"}}>Cash</option>
                                         @else
-                                            <option value="" selected="" hidden="">Select One</option>
+                                            <option value="" selected="" hidden="">Select Payment Method</option>
                                             <option value="cheque">Cheque</option>
                                             <option value="neft">NEFT</option>
                                             <option value="cash">Cash</option>

@@ -32,7 +32,7 @@
                 <div class="col-auto">
                     <div class="row g-3 align-items-center">
                         <div class="col-auto mt-0">
-                            <input type="text" wire:model="search" class="form-control select-md bg-white" id="customer"
+                            <input type="text" wire:model="search" class="form-control select-md bg-white search-input" id="customer"
                                 placeholder="Search by customer detail or Order number" value="" style="width: 350px;"
                                 wire:keyup="FindCustomer($event.target.value)">
                         </div>
@@ -103,7 +103,7 @@
                                         <span>Name: <strong>{{ucwords($order->prefix ." ". $order->customer_name)}}</strong> </span>
                                         <br>
                                         <span>Mobile : <strong>{{$order->customer? $order->customer->country_code_phone.' '.$order->customer->phone:""}}</strong> </span> <br>
-                                        {{-- <span>WhatsApp : <strong>{{$order->customer?$order->customer->country_code_whatsapp.' '.$order->customer->whatsapp_no:""}}</strong> </span> --}}
+                                        <!--<span>WhatsApp : <strong>{{$order->customer?$order->customer->country_code_whatsapp.' '.$order->customer->whatsapp_no:""}}</strong> </span>-->
                                     </p>
                                 </td>
                                 <td><p class="text-xs font-weight-bold mb-0">{{ $order->total_amount }}</p></td>
@@ -133,11 +133,9 @@
                                             <button wire:click="downloadOrderBill({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Bill</button>
                                         {{-- @endif --}}
                                     @endif
-                                    @if ($order->invoice_type=="invoice")
-                                      <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
-                                        
+                                     @if ($order->invoice_type=="invoice")
+                                       <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
                                     @endif
-
                                      {{-- <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-info btn-sm custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="View product">
                                          <span class="material-icons">visibility</span>
                                     </a>

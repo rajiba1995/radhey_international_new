@@ -32,7 +32,7 @@ class AddPaymentReceipt extends Component
         $this->accountingRepository = $accountingRepository;
     }
     public function mount($payment_voucher_no = ""){
-        $user = Auth::guard('admin')->user();
+          $user = Auth::guard('admin')->user();
         $this->my_designation = $user->designation;
         $payment_collection = PaymentCollection::with('customer', 'user')->where('voucher_no',$payment_voucher_no)->first();
         
@@ -45,13 +45,12 @@ class AddPaymentReceipt extends Component
      
         $this->payment_voucher_no = $payment_voucher_no;
         $this->voucher_no = 'PAYRECEIPT'.time();
-        if($user->designation == 1){
+         if($user->designation == 1){
             $this->staffs = User::where('user_type', 0)->whereIn('designation', [2,12])->select('name', 'id','designation')->orderBy('name', 'ASC')->get();
         }else{
             $this->staffs = collect([$user]); // Only themselves
             $this->staff_id = $user->id;
         }
-
         if($payment_collection){
             $this->payment_collection_id = $payment_collection->id;
             $this->customer = $payment_collection->customer->name;

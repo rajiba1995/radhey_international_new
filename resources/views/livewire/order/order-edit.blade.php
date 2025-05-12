@@ -45,7 +45,7 @@
                     <div class="row d-flex justify-content-between align-items-center mb-2">
                         <!-- Customer Information Badge -->
                         <div class="col-md-4">
-                            <h6 class="badge bg-danger custom_danger_badge">Basic Information</h6>
+                            <h6 class="badge bg-danger custom_danger_badge mb-0">Basic Information</h6>
                         </div>
                         <div class="col-md-8 d-flex justify-content-end gap-3">
                             {{--
@@ -73,10 +73,10 @@
                                     @endif
                                 </div>
                             </div> --}}
-                            <div>
+                            <div class="section-header-filter">
                                 <!-- Search Label -->
-                                <label for="searchCustomer" class="form-label mb-0">Business Type</label>
-                                <select wire:model="selectedBusinessType" class="form-select me-2 form-control"
+                                <label for="searchCustomer" class="form-label mb-0">Business Type:&nbsp;</label>
+                                <select wire:model="selectedBusinessType" class="form-select form-control"
                                     aria-label="Default select example">
                                     <option selected hidden>Select Domain</option>
                                     @foreach ($Business_type as $domain)
@@ -90,7 +90,7 @@
                         </div>
                     </div>
                     <!-- Customer Details -->
-                    <div class="container">
+                    {{-- <div class="container"> --}}
                         <!-- Customer Details -->
                         <div class="row">
                             <div class="mb-2 col-md-6">
@@ -146,7 +146,7 @@
                             </div>
 
                             <!-- Phone Number -->
-                            <div class="mb-3 col-md-3">
+                            <div class="mb-2 col-md-3">
                                 <label for="phone" class="form-label">Phone Number <span
                                         class="text-danger">*</span></label>
                                 <div class="extention-group">
@@ -173,9 +173,9 @@
                                 @if(isset($errorMessage['phone']))
                                 <div class="text-danger">{{ $errorMessage['phone'] }}</div>
                                 @endif
-                                <div>
+                                <div class="form-check-label-group">
                                     <input type="checkbox" id="is_whatsapp1" wire:model="isWhatsappPhone">
-                                    <label for="is_whatsapp1" class="form-check-label ms-2">Is Whatsapp</label>
+                                    <label for="is_whatsapp1" class="form-check-label ms-1">Is Whatsapp</label>
                                 </div>
                             </div>
 
@@ -208,7 +208,7 @@
                             </div> --}}
 
                             <!-- Alternative Phone Number 1 -->
-                            <div class="mb-3 col-md-3">
+                            <div class="mb-2 col-md-3">
                                 <label for="alternative_phone_number_1" class="form-label">Alternative Phone Number
                                     1</label>
                                 <div class="extention-group">
@@ -235,14 +235,14 @@
                                 @if(isset($errorMessage['alternative_phone_number_1']))
                                 <div class="text-danger">{{ $errorMessage['alternative_phone_number_1'] }}</div>
                                 @endif
-                                <div>
+                                <div class="form-check-label-group">
                                     <input type="checkbox" id="is_whatsapp2" wire:model="isWhatsappAlt1">
-                                    <label for="is_whatsapp2" class="form-check-label ms-2">Is Whatsapp</label>
+                                    <label for="is_whatsapp2" class="form-check-label ms-1">Is Whatsapp</label>
                                 </div>
                             </div>
 
                             <!-- Alternative Phone Number 2 -->
-                            <div class="mb-3 col-md-3">
+                            <div class="mb-2 col-md-3">
                                 <label for="alternative_phone_number_2" class="form-label">Alternative Phone Number
                                     2</label>
                                 <div class="extention-group">
@@ -267,15 +267,15 @@
                                 @if(isset($errorMessage['alternative_phone_number_2']))
                                 <div class="text-danger">{{ $errorMessage['alternative_phone_number_2'] }}</div>
                                 @endif
-                                <div>
+                                <div class="form-check-label-group">
                                     <input type="checkbox" id="is_whatsapp3" wire:model="isWhatsappAlt2">
-                                    <label for="is_whatsapp3" class="form-check-label ms-2">Is Whatsapp</label>
+                                    <label for="is_whatsapp3" class="form-check-label ms-1">Is Whatsapp</label>
                                 </div>
                             </div>
 
                         </div>
 
-                    </div>
+                    {{-- </div> --}}
 
                     <div class="">
                         <div class="">
@@ -492,7 +492,7 @@
                     @foreach($items as $index => $item)
                     <div class="row align-items-center my-3">
                         <!-- Collection -->
-                        <div class="mb-3 col-md-2">
+                        <div class="mb-2 col-md-2">
                             <label class="form-label"><strong>Collection </strong><span
                                     class="text-danger">*</span></label>
                             <select wire:model="items.{{ $index }}.selected_collection"
@@ -514,7 +514,7 @@
                         </div>
 
                         <!-- Category -->
-                        <div class="mb-3 col-md-2">
+                        <div class="mb-2 col-md-2">
                             <label class="form-label"><strong>Category</strong></label>
                             <select wire:model="items.{{ $index }}.selected_category"
                                 class="form-select form-control-sm border border-1"
@@ -531,9 +531,9 @@
                         </div>
                         <!-- Product -->
                         @if(isset($item['selected_collection']) && $item['selected_collection'] == 1)
-                        <div class="mb-3 col-md-3">
+                        <div class="mb-2 col-md-3">
                             @else
-                            <div class="mb-3 col-md-8">
+                            <div class="mb-2 col-md-3">
                                 @endif
                                 <label class="form-label"><strong>Product</strong></label>
                                 <input type="text" wire:keyup="FindProduct($event.target.value, {{ $index }})"
@@ -563,7 +563,7 @@
                             </div>
                             @if(isset($item['selected_collection']) && $item['selected_collection'] == 1)
                             <!-- Fabrics -->
-                            <div class="col-12 col-md-2">
+                            <div class="mb-2 col-12 col-md-2">
                                 <label class="form-label"><strong>Fabric</strong></label>
                                 <input type="text" wire:model="items.{{ $index }}.searchTerm"
                                     wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"
@@ -587,8 +587,8 @@
                             </div>
                             {{-- <div class="col-12 col-md-2"></div> --}}
                             {{-- Price --}}
-                            <div class="col-12 col-md-3">
-                                <div class="d-flex align-items-center gap-2">
+                            <div class="mb-2 col-12 col-md-3">
+                                <div class="d-flex align-items-end gap-2">
                                     <!-- Price Input -->
                                     <div>
                                         <label class="form-label"><strong>Price</strong></label>
@@ -601,7 +601,7 @@
                                     </div>
                                     <div>
                                         <!-- Delete Button -->
-                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                        <button type="button" class="btn btn-danger btn-sm danger_btn mb-0"
                                             wire:click="removeItem({{ $index }})">
                                             <span class="material-icons">delete</span>
                                         </button>
@@ -620,8 +620,8 @@
 
                             </div>
                             @else
-                            <div class="col-12 col-md-2 offset-md-10 mb-2">
-                                <div class="d-flex align-items-center gap-2 justify-content-end">
+                            <div class="col-12 col-md-2 mb-2">
+                                <div class="d-flex align-items-end gap-2 justify-content-end">
                                     <div>
                                         <!-- Price Input -->
                                         <label class="form-label"><strong>Price</strong></label>
@@ -633,7 +633,7 @@
                                     </div>
                                     <div>
                                         <!-- Delete Button -->
-                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                        <button type="button" class="btn btn-danger btn-sm danger_btn mb-0"
                                             wire:click="removeItem({{ $index }})"><span
                                                 class="material-icons">delete</span>
                                         </button>
@@ -654,56 +654,60 @@
                         <!-- Measurements -->
                         @if(isset($this->items[$index]['product_id']) && $items[$index]['selected_collection'] == 1)
                         <div class="row">
-                            <div class="col-12 col-md-6 mb-2 mb-md-0 measurement_div">
-                                <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
-
-                                @if($index > 0)
-                                <!-- Show checkbox only for second item onwards -->
-                                <div class="form-check mb-2">
-
-
-                                    <input type="checkbox" class="form-check-input"
-                                        wire:model="items.{{ $index }}.copy_previous_measurements"
-                                        wire:change="copyMeasurements({{ $index }})"
-                                        id="copy_measurements_{{ $index }}">
-
-                                    <label class="form-check-label" for="copy_measurements_{{ $index }}">
-                                        Use previous measurements
-                                    </label>
-                                </div>
-
-                                <!-- Display error if copying measurements failed due to product mismatch -->
-                                @if (session()->has('measurements_error.' . $index))
-                                <div class="alert alert-danger">
-                                    {{ session('measurements_error.' . $index) }}
-                                </div>
-                                @endif
-                                @endif
-
-                                <div class="row">
-                                    @if(isset($items[$index]['measurements']) && count($items[$index]['measurements']) >
-                                    0)
-                                    @foreach ($items[$index]['measurements'] as $key => $measurement)
-                                    <div class="col-md-3">
-                                        <label>
-                                            {{ isset($measurement['title']) ? $measurement['title'] : 'N/A' }}
-                                            <strong>[{{ isset($measurement['short_code']) ? $measurement['short_code'] :
-                                                '' }}]</strong>
+                            <div class="col-12 col-md-6 mb-2 mb-md-0">
+                                <div class="measurement_div">
+                                    <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
+    
+                                    @if($index > 0)
+                                    <!-- Show checkbox only for second item onwards -->
+                                    <div class="form-check mb-2">
+    
+    
+                                        <input type="checkbox" class="form-check-input"
+                                            wire:model="items.{{ $index }}.copy_previous_measurements"
+                                            wire:change="copyMeasurements({{ $index }})"
+                                            id="copy_measurements_{{ $index }}">
+    
+                                        <label class="form-check-label" for="copy_measurements_{{ $index }}">
+                                            Use previous measurements
                                         </label>
-                                        <input type="text"
-                                            class="form-control form-control-sm border border-1 customer_input measurement_input"
-                                            wire:model="items.{{ $index }}.measurements.{{ $key }}.value">
-                                        @error("items.{$index}.measurements.{$key}.value")
-                                        <div class="text-danger">{{ $message }}</div>
-                                        @enderror
                                     </div>
-                                    @endforeach
-                                    @endif
+    
+                                    <!-- Display error if copying measurements failed due to product mismatch -->
                                     @if (session()->has('measurements_error.' . $index))
-                                    <div class="alert alert-danger mt-2">
+                                    <div class="alert alert-danger">
                                         {{ session('measurements_error.' . $index) }}
                                     </div>
                                     @endif
+                                    @endif
+    
+                                    <div class="row">
+                                        @if(isset($items[$index]['measurements']) && count($items[$index]['measurements']) >
+                                        0)
+                                        @foreach ($items[$index]['measurements'] as $key => $measurement)
+                                        <div class="col-md-3">
+                                            <div class="measurement-col">
+                                                <label>
+                                                    {{ isset($measurement['title']) ? $measurement['title'] : 'N/A' }}
+                                                    <strong>[{{ isset($measurement['short_code']) ? $measurement['short_code'] :
+                                                        '' }}]</strong>
+                                                </label>
+                                                <input type="text"
+                                                    class="form-control form-control-sm border border-1 customer_input measurement_input"
+                                                    wire:model="items.{{ $index }}.measurements.{{ $key }}.value">
+                                                @error("items.{$index}.measurements.{$key}.value")
+                                                <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                        @endif
+                                        @if (session()->has('measurements_error.' . $index))
+                                        <div class="alert alert-danger mt-2">
+                                            {{ session('measurements_error.' . $index) }}
+                                        </div>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                             <!-- Catalogue -->
@@ -878,14 +882,16 @@
                         @else
 
                         @endif
-                        <div class="col-12 col-md-2">
-                            <label class="form-label"><strong>Remarks</strong></label>
-                            <textarea type="text" wire:model="items.{{ $index }}.remarks"
-                                class="form-control form-control-sm border border-1 customer_input"
-                                placeholder="Enter Product Remarks"></textarea>
-                            @error("items.".$index.".remarks")
-                            <div class="text-danger">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label"><strong>Remarks</strong></label>
+                                <textarea type="text" wire:model="items.{{ $index }}.remarks"
+                                    class="form-control form-control-sm border border-1 customer_input"
+                                    placeholder="Enter Product Remarks" rows="4"></textarea>
+                                @error("items.".$index.".remarks")
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                         @endforeach
                         <!-- Add Item Button and Payment Section -->
