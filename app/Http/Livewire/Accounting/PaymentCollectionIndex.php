@@ -28,6 +28,8 @@ class PaymentCollectionIndex extends Component
     public $selected_customer_id;
     public $active_details = 0;
     public $auth;
+    protected $listeners = ['revoke-payment-confirmed' => 'revokePayment'];
+
 
     public function mount(){
         $this->auth = Auth::guard('admin')->user();

@@ -596,9 +596,9 @@
 
                     <!-- Loop through items -->
                     @foreach($items as $index => $item)
-                    <div class="row align-items-center mt-3">
+                    <div class="row align-items-top mt-3">
                         <!-- Collection  -->
-                        <div class="mb-3 col-md-2">
+                        <div class="col-md-2 col-12 mb-3">
                             <label class="form-label"><strong>Collection </strong><span
                                     class="text-danger">*</span></label>
                             <select wire:model="items.{{ $index }}.collection"
@@ -616,7 +616,7 @@
                         </div>
 
                         <!-- Category -->
-                        <div class="mb-3 col-md-2">
+                        <div class="col-md-2 col-12 mb-3">
                             <label class="form-label"><strong>Category</strong> <span
                                     class="text-danger">*</span></label>
                             <select wire:model="items.{{ $index }}.category"
@@ -640,7 +640,7 @@
                         @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
                         <div class="mb-3 col-md-3">
                             @else
-                            <div class="mb-3 col-md-8">
+                            <div class="col-md-3 col-12 mb-3">
                                 @endif
                                 <label class="form-label"><strong>Product</strong></label>
                                 <input type="text" wire:keyup="FindProduct($event.target.value, {{ $index }})"
@@ -669,7 +669,7 @@
 
                             @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
                             {{-- Fabric --}}
-                            <div class="col-12 col-md-2">
+                            <div class="col-md-2 col-12 mb-3">
                                 <label class="form-label"><strong>Fabric</strong></label>
                                 <input type="text" wire:model="items.{{ $index }}.searchTerm"
                                     wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"
@@ -692,8 +692,8 @@
                             </div>
                             {{-- <div class="col-12 col-md-2"></div> --}}
                             {{-- Price --}}
-                            <div class="col-12 col-md-3">
-                                <div class="d-flex align-items-center">
+                            <div class="col-md-3 col-12 mb-3">
+                                <div class="d-flex align-items-end gap-2">
                                     <!-- Price Input -->
                                     <div>
                                         <label class="form-label"><strong>Price</strong></label>
@@ -706,7 +706,7 @@
                                     </div>
                                     <div>
                                         <!-- Delete Button -->
-                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                        <button type="button" class="btn btn-danger btn-sm danger_btn mb-0"
                                             wire:click="removeItem({{ $index }})">
                                             <span class="material-icons">delete</span>
                                         </button>
@@ -727,8 +727,8 @@
                             {{-- --}}
                             @else
                             {{--Garment item Price --}}
-                            <div class="col-12 col-md-2 offset-md-10 mb-2">
-                                <div class="d-flex align-items-center gap-2 justify-content-end">
+                            <div class="col-md-3 col-12 mb-3">
+                                <div class="d-flex align-items-end gap-2">
                                     <div>
                                         <!-- Price Input -->
                                         <label class="form-label"><strong>Price</strong></label>
@@ -741,7 +741,7 @@
                                     </div>
                                     <div>
                                         <!-- Delete Button -->
-                                        <button type="button" class="btn btn-danger btn-sm danger_btn"
+                                        <button type="button" class="btn btn-danger btn-sm danger_btn mb-0"
                                             wire:click="removeItem({{ $index }})"><span
                                                 class="material-icons">delete</span>
                                         </button>
@@ -782,17 +782,19 @@
                                     @foreach ($items[$index]['measurements'] as $measurement)
                                     <div class="col-md-3">
                                         {{-- {{dd($measurement)}} --}}
-                                        <label>{{ $measurement['title'] }}
-                                            <strong>[{{$measurement['short_code']}}]</strong></label>
-                                        <input type="hidden"
-                                            wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.title"
-                                            value="{{ $measurement['title'] }}">
-                                        <input type="text"
-                                            class="form-control form-control-sm border border-1 customer_input measurement_input"
-                                            wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
-                                        @error('items.' . $index . '.get_measurements.' .$measurement['id'])
-                                        <div class="text-danger error-message">{{ $message }}</div>
-                                        @enderror
+                                        <div class="measurement-col">
+                                            <label>{{ $measurement['title'] }}
+                                                <strong>[{{$measurement['short_code']}}]</strong></label>
+                                            <input type="hidden"
+                                                wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.title"
+                                                value="{{ $measurement['title'] }}">
+                                            <input type="text"
+                                                class="form-control form-control-sm border border-1 customer_input measurement_input"
+                                                wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
+                                            @error('items.' . $index . '.get_measurements.' .$measurement['id'])
+                                            <div class="text-danger error-message">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                     @endforeach
                                     @endif
@@ -1011,14 +1013,16 @@
                         @else
 
                         @endif
-                        <div class="col-12 col-md-2">
-                            <label class="form-label"><strong>Remarks</strong></label>
-                            <textarea type="text" wire:model="items.{{ $index }}.remarks"
-                                class="form-control form-control-sm border border-1 customer_input"
-                                placeholder="Enter Product Remarks"></textarea>
-                            @error("items.".$index.".remarks")
-                            <div class="text-danger error-message">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-12 col-md-2">
+                                <label class="form-label"><strong>Remarks</strong></label>
+                                <textarea type="text" wire:model="items.{{ $index }}.remarks"
+                                    class="form-control form-control-sm border border-1 customer_input"
+                                    placeholder="Enter Product Remarks"></textarea>
+                                @error("items.".$index.".remarks")
+                                <div class="text-danger error-message">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                         @endforeach
                         <!-- Add Item Button -->
