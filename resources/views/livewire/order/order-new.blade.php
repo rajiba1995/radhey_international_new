@@ -76,10 +76,14 @@
                         {{-- Display Order by and order number --}}
                         <!-- Ordered By Section -->
                         <div class="col-md-4">
+                            @php
+                                $loggedInUser = Auth::guard('admin')->user();
+                            @endphp
                             <label class="form-label"><strong>Ordered By</strong></label>
                             <select
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
-                                wire:change="changeSalesman($event.target.value)" wire:model="salesman">
+                                wire:change="changeSalesman($event.target.value)" wire:model="salesman"
+                                {{$loggedInUser->is_super_admin==1 ? "" : "disabled"}}>
                                 <option value="" selected hidden>Choose one..</option>
                                 <!-- Set authenticated user as default -->
                                 @if(auth()->guard('admin')->check())

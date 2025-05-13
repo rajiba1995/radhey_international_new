@@ -121,23 +121,7 @@
                                 <button type="button" class="btn btn-outline-success select-md btn_outline"
                                     data-bs-toggle="modal" data-bs-target="#ViewProductModal{{$item->id}}"> View Items
                                     ({{count($item->order->items)}}) </button>
-                            </x-table-td>
-                            <x-table-td>{{number_format($item->net_price,2)}} </x-table-td>
-                            <x-table-td>
-                                {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Edit</a> --}}
-                                <button wire:click="downloadOrderInvoice({{ $item->order_id }})"
-                                    class="btn select-md btn-outline-success btn_outline">Download</button>
-                                {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Download Slip</a>
-                                --}}
-                                {{-- <a href="#" class="btn select-md btn-outline-warning btn_outline"
-                                    onclick="return confirm('Are you sure want to revoke?');">Revoke</a> --}}
-                            </x-table-td>
-                        </tr>
-
-                        {{-- View Product Modal --}}
-                        <tr>
-                            <td colspan="7">
-                                <div class="modal fade" id="ViewProductModal{{$item->id}}" tabindex="-1"
+                                    <div class="modal fade" id="ViewProductModal{{$item->id}}" tabindex="-1"
                                     aria-labelledby="ViewProductModalLabel{{$item->id}}" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-lg">
                                         <div class="modal-content">
@@ -177,8 +161,25 @@
                                         </div>
                                     </div>
                                 </div>
-                            </td>
+                            </x-table-td>
+                            <x-table-td>{{number_format($item->net_price,2)}} </x-table-td>
+                            <x-table-td>
+                                {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Edit</a> --}}
+                                <button wire:click="downloadOrderInvoice({{ $item->order_id }})"
+                                    class="btn select-md btn-outline-success btn_outline">Download</button>
+                                {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Download Slip</a>
+                                --}}
+                                {{-- <a href="#" class="btn select-md btn-outline-warning btn_outline"
+                                    onclick="return confirm('Are you sure want to revoke?');">Revoke</a> --}}
+                            </x-table-td>
                         </tr>
+
+                        {{-- View Product Modal --}}
+                        {{-- <tr>
+                            <td colspan="7">
+                                
+                            </td>
+                        </tr> --}}
                         @endforeach
                     </tbody>
                 </table>

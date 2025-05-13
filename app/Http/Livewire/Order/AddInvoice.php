@@ -575,16 +575,16 @@ class AddInvoice extends Component
         ->pluck('total')
         ->filter(fn($val) => is_numeric($val)) // only keep numeric values
         ->sum();
-        $this->totalInWords = $this->convertNumberToWords($this->totalAmount);
+        // $this->totalInWords = $this->convertNumberToWords($this->totalAmount);
     }
 
-    public function convertNumberToWords($number)
-    {
-        $numberToWords = new NumberToWords();
-        $numberTransformer = $numberToWords->getNumberTransformer('en');
+    // public function convertNumberToWords($number)
+    // {
+    //     $numberToWords = new NumberToWords();
+    //     $numberTransformer = $numberToWords->getNumberTransformer('en');
     
-        return ucfirst($numberTransformer->toWords($number)) . ' only';
-    }
+    //     return ucfirst($numberTransformer->toWords($number)) . ' only';
+    // }
 
     
     public function updated($propertyName)

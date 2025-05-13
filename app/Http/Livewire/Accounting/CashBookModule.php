@@ -201,74 +201,97 @@ class CashBookModule extends Component
     } 
     
 
-   public function render()
+      public function render()
     {
-         $user = Auth::guard('admin')->user();
-
-        // Get earliest transaction date (start point)
-        $firstCollectionDate = PaymentCollection::where('is_approve', 1)->orderBy('created_at')->value('created_at');
-        $firstExpenseDate = Journal::where('is_debit', 1)->orderBy('created_at')->value('created_at');
-        
-        $openingDate = min($firstCollectionDate, $firstExpenseDate);
+        $user = Auth::guard('admin')->user();
     
-        // Opening Balance (till day before selected start date)
+        // Get earliest transaction date (start point)
+        $firstCollectionDate = PaymentCollection::where('is_approve', 1)
+            ->when(!$user->is_super_admin, function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->orderBy('created_at')
+            ->value('created_at');
+    
+        $firstExpenseDate = Journal::where('is_debit', 1)
+            ->when(!$user->is_super_admin, function ($query) use ($user) {
+                $query->whereHas('payment', function ($q) use ($user) {
+                    $q->where('stuff_id', $user->id);
+                });
+            })
+            ->orderBy('created_at')
+            ->value('created_at');
+    
+        // Opening Balance (Past Collections)
         $pastCollections = PaymentCollection::where('is_approve', 1)
             ->whereDate('created_at', '<', $this->start_date)
+            ->when(!$user->is_super_admin, function ($query) use ($user) {
+                $query->where('user_id', $user->id); // Staff's collections
+            })
             ->sum('collection_amount');
     
+        // Opening Balance (Past Expenses)
         $pastExpenses = Journal::where('is_debit', 1)
             ->whereDate('created_at', '<', $this->start_date)
+            ->when(!$user->is_super_admin, function ($query) use ($user) {
+                $query->whereHas('payment', function ($q) use ($user) {
+                    $q->whereNotNull('stuff_id')->where('stuff_id', $user->id); // Staff's expenses
+                });
+            })
             ->sum('transaction_amount');
     
         $openingBalance = $pastCollections - $pastExpenses;
     
         // Today's Collections
-        $collectionQuery = PaymentCollection::where('is_approve', 1);
+        $collectionQuery = PaymentCollection::where('is_approve', 1)
+            ->when(!$user->is_super_admin, function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            });
+    
         if ($this->start_date && $this->end_date) {
-            $collectionQuery->whereDate('created_at', '>=', $this->start_date)
-                            ->whereDate('created_at', '<=', $this->end_date);
+            $collectionQuery->whereBetween('created_at', [$this->start_date, $this->end_date]);
         }
         $this->totalCollections = $collectionQuery->sum('collection_amount');
     
         // Today's Expenses
-        $expenseQuery = Journal::where('is_debit', 1);
+        $expenseQuery = Journal::where('is_debit', 1)
+            ->when(!$user->is_super_admin, function ($query) use ($user) {
+                $query->whereHas('payment', function ($q) use ($user) {
+                    $q->whereNotNull('stuff_id')->where('stuff_id', $user->id);
+                     // Staff's expenses
+                });
+            });
+    
         if ($this->start_date && $this->end_date) {
-            $expenseQuery->whereDate('created_at', '>=', $this->start_date)
-                         ->whereDate('created_at', '<=', $this->end_date);
+            $expenseQuery->whereBetween('created_at', [$this->start_date, $this->end_date]);
         }
         $this->totalExpenses = $expenseQuery->sum('transaction_amount');
     
-        // Final Wallet: Opening + Today’s Net Movement
+        // Final Wallet
         $this->totalWallet = $openingBalance + ($this->totalCollections - $this->totalExpenses);
-        
-        // payment collection table data 
-        $paymentQuery = PaymentCollection::where('is_approve', 1);
-        
-        // Add user filter if not super admin
-        if (!$user->is_super_admin) {
-            $paymentQuery->where('user_id', $user->id);
+    
+        // Payment Collections Table
+        $paymentQuery = PaymentCollection::where('is_approve', 1)
+            ->when(!$user->is_super_admin, function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            });
+    
+        if ($this->start_date && $this->end_date) {
+            $paymentQuery->whereBetween('created_at', [$this->start_date, $this->end_date]);
         }
-
-        if($this->start_date && $this->end_date) {
-            $paymentQuery->whereDate('created_at', '>=', $this->start_date)
-                         ->whereDate('created_at', '<=', $this->end_date);
+        $this->paymentCollections = $paymentQuery->orderByDesc('created_at')->get();
+    
+        // Expenses Table
+        $paymentExpenseQuery = Payment::where('payment_for', 'debit')
+            ->when(!$user->is_super_admin, function ($query) use ($user) {
+                $query->where('stuff_id', $user->id);
+            });
+    
+        if ($this->start_date && $this->end_date) {
+            $paymentExpenseQuery->whereBetween('created_at', [$this->start_date, $this->end_date]);
         }
-        $this->paymentCollections = $paymentQuery->orderBy('created_at', 'desc')->get();
-
-        // Payment table data for expense
-        $paymentExpenseQuery = Payment::where('payment_for','debit');
-        
-         // Add user filter if not super admin
-        if (!$user->is_super_admin) {
-            $paymentExpenseQuery->where('stuff_id', $user->id);
-        }
-
-        if($this->start_date && $this->end_date) {
-            $paymentExpenseQuery->whereDate('created_at', '>=', $this->start_date)
-                         ->whereDate('created_at', '<=', $this->end_date);
-        }
-        $this->paymentExpenses = $paymentExpenseQuery->orderBy('created_at', 'desc')->get();
-
+        $this->paymentExpenses = $paymentExpenseQuery->orderByDesc('created_at')->get();
+    
         return view('livewire.accounting.cash-book-module');
     }
 
