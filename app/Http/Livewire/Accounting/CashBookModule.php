@@ -203,6 +203,8 @@ class CashBookModule extends Component
 
    public function render()
     {
+         $user = Auth::guard('admin')->user();
+
         // Get earliest transaction date (start point)
         $firstCollectionDate = PaymentCollection::where('is_approve', 1)->orderBy('created_at')->value('created_at');
         $firstExpenseDate = Journal::where('is_debit', 1)->orderBy('created_at')->value('created_at');
@@ -241,6 +243,12 @@ class CashBookModule extends Component
         
         // payment collection table data 
         $paymentQuery = PaymentCollection::where('is_approve', 1);
+        
+        // Add user filter if not super admin
+        if (!$user->is_super_admin) {
+            $paymentQuery->where('user_id', $user->id);
+        }
+
         if($this->start_date && $this->end_date) {
             $paymentQuery->whereDate('created_at', '>=', $this->start_date)
                          ->whereDate('created_at', '<=', $this->end_date);
@@ -249,6 +257,12 @@ class CashBookModule extends Component
 
         // Payment table data for expense
         $paymentExpenseQuery = Payment::where('payment_for','debit');
+        
+         // Add user filter if not super admin
+        if (!$user->is_super_admin) {
+            $paymentExpenseQuery->where('stuff_id', $user->id);
+        }
+
         if($this->start_date && $this->end_date) {
             $paymentExpenseQuery->whereDate('created_at', '>=', $this->start_date)
                          ->whereDate('created_at', '<=', $this->end_date);
