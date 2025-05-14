@@ -10,6 +10,7 @@ use App\Models\Journal;
 use App\Models\Ledger;
 use App\Models\Payment;
 use App\Models\PaymentRevoke;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -29,6 +30,10 @@ class CashBookModule extends Component
 
     public $start_date;
     public $end_date;
+    public $searchStaff = '';
+    public $selectedStaffId = null;
+    public $staffSuggestions = [];
+
     protected $listeners = ['revoke-payment-confirmed' => 'revokePayment'];
 
     public function mount()
@@ -199,12 +204,32 @@ class CashBookModule extends Component
             echo $pdf->output();
         },  $data->voucher_no . '.pdf');
     } 
+
+    public function SearchStaff($value){
+        if(strlen($value) > 1){
+            $this->staffSuggestions = User::where('user_type', 0)
+                ->where('name', 'like', '%' . $value . '%')
+                ->limit(10)
+                ->get();
+        }else{
+            $this->staffSuggestions = [];
+        }
+    }
+
+    public function selectStaff($staffId,$name){
+        $this->selectedStaffId = $staffId;
+        $this->searchStaff = $name;
+        $this->staffSuggestions = [];
+    }
     
 
       public function render()
     {
         $user = Auth::guard('admin')->user();
-    
+        
+        $startDate = Carbon::parse($this->start_date)->startOfDay();
+        $endDate = Carbon::parse($this->end_date)->endOfDay();
+
         // Get earliest transaction date (start point)
         $firstCollectionDate = PaymentCollection::where('is_approve', 1)
             ->when(!$user->is_super_admin, function ($query) use ($user) {
@@ -212,7 +237,7 @@ class CashBookModule extends Component
             })
             ->orderBy('created_at')
             ->value('created_at');
-    
+            
         $firstExpenseDate = Journal::where('is_debit', 1)
             ->when(!$user->is_super_admin, function ($query) use ($user) {
                 $query->whereHas('payment', function ($q) use ($user) {
@@ -221,7 +246,7 @@ class CashBookModule extends Component
             })
             ->orderBy('created_at')
             ->value('created_at');
-    
+            
         // Opening Balance (Past Collections)
         $pastCollections = PaymentCollection::where('is_approve', 1)
             ->whereDate('created_at', '<', $this->start_date)
@@ -229,7 +254,7 @@ class CashBookModule extends Component
                 $query->where('user_id', $user->id); // Staff's collections
             })
             ->sum('collection_amount');
-    
+            
         // Opening Balance (Past Expenses)
         $pastExpenses = Journal::where('is_debit', 1)
             ->whereDate('created_at', '<', $this->start_date)
@@ -249,7 +274,7 @@ class CashBookModule extends Component
             });
     
         if ($this->start_date && $this->end_date) {
-            $collectionQuery->whereBetween('created_at', [$this->start_date, $this->end_date]);
+            $collectionQuery->whereBetween('created_at', [$startDate, $endDate]);
         }
         $this->totalCollections = $collectionQuery->sum('collection_amount');
     
@@ -263,7 +288,7 @@ class CashBookModule extends Component
             });
     
         if ($this->start_date && $this->end_date) {
-            $expenseQuery->whereBetween('created_at', [$this->start_date, $this->end_date]);
+            $expenseQuery->whereBetween('created_at', [$startDate, $endDate]);
         }
         $this->totalExpenses = $expenseQuery->sum('transaction_amount');
     
@@ -274,10 +299,14 @@ class CashBookModule extends Component
         $paymentQuery = PaymentCollection::where('is_approve', 1)
             ->when(!$user->is_super_admin, function ($query) use ($user) {
                 $query->where('user_id', $user->id);
+            })
+            ->when($this->selectedStaffId, function($query){
+                $query->where('user_id', $this->selectedStaffId);
             });
+            
     
         if ($this->start_date && $this->end_date) {
-            $paymentQuery->whereBetween('created_at', [$this->start_date, $this->end_date]);
+            $paymentQuery->whereBetween('created_at', [$startDate, $endDate]);
         }
         $this->paymentCollections = $paymentQuery->orderByDesc('created_at')->get();
     
@@ -285,10 +314,13 @@ class CashBookModule extends Component
         $paymentExpenseQuery = Payment::where('payment_for', 'debit')
             ->when(!$user->is_super_admin, function ($query) use ($user) {
                 $query->where('stuff_id', $user->id);
+            })
+              ->when($this->selectedStaffId, function($query){
+                $query->where('stuff_id', $this->selectedStaffId);
             });
     
         if ($this->start_date && $this->end_date) {
-            $paymentExpenseQuery->whereBetween('created_at', [$this->start_date, $this->end_date]);
+            $paymentExpenseQuery->whereBetween('created_at', [$startDate, $endDate]);
         }
         $this->paymentExpenses = $paymentExpenseQuery->orderByDesc('created_at')->get();
     

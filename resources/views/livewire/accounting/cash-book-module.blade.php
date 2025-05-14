@@ -24,7 +24,31 @@
         <div class="row justify-content-end">
             <div class="col-auto">
                 <div class="d-flex align-items-center gap-2">
-
+                    @php
+                        $user = Auth::guard('admin')->user();
+                    @endphp
+                    @if ($user && $user->is_super_admin == 1)
+                    <div class="mb-4 position-relative">
+                        <label for="searchStaff" class="form-label   mb-0">Staff</label>
+                        <input type="text" wire:model.debounce.300ms="searchStaff"
+                            class="form-control select-md bg-white" placeholder="Staff name"
+                            wire:keyup="SearchStaff($event.target.value)">
+                        
+                        @if (!empty($staffSuggestions))
+                        <ul class="list-group position-absolute z-index-1 w-100"
+                            style="max-height: 200px; overflow-y:auto;">
+                            @forelse ($staffSuggestions as $staff)
+                            <li class="list-group-item list-group-item-action" style="cursor: pointer;"
+                                wire:click="selectStaff({{ $staff->id }}, '{{ $staff->name }}')">
+                                {{ $staff->name }}
+                            </li>
+                            @empty
+                               <li class="list-group-item text-muted">No results found</li>
+                            @endforelse
+                        </ul>
+                        @endif
+                    </div>
+                    @endif
                     {{-- Start Date --}}
                     <div class="mb-4">
                         <label for="start_date" class="form-label mb-1">Start Date</label>
@@ -282,11 +306,14 @@
                                                     $expenseAt = '';
 
                                                     if ($item->stuff_id && $item->staff) {
-                                                    $expenseAt = 'Staff Name: <strong>' . ucwords($item->staff->name) .'</strong>';
+                                                    $expenseAt = 'Staff Name: <strong>' . ucwords($item->staff->name)
+                                                        .'</strong>';
                                                     } elseif ($item->customer_id && $item->customer) {
-                                                    $expenseAt = 'Customer Name: <strong>' . ucwords($item->customer->name) .'</strong>';
+                                                    $expenseAt = 'Customer Name: <strong>' .
+                                                        ucwords($item->customer->name) .'</strong>';
                                                     } elseif ($item->supplier_id && $item->supplier) {
-                                                    $expenseAt = 'Supplier Name: <strong>' . ucwords($item->supplier->name) .'</strong>';
+                                                    $expenseAt = 'Supplier Name: <strong>' .
+                                                        ucwords($item->supplier->name) .'</strong>';
                                                     }
                                                     @endphp
 
@@ -348,7 +375,7 @@
 
                                                     <td><span>Updated By: <strong>{{
                                                                 ucwords($item->updater->name)}}</strong></span></td>
-    
+
                                                     <td><span>Updated At: <strong>{{ date('d/m/Y h:i A',
                                                                 strtotime($item->updated_at)) }}</strong></span></td>
 
