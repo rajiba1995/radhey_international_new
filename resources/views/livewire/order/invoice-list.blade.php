@@ -107,7 +107,7 @@
                                 </p>
                                 @endif
                             </x-table-td>
-                            <x-table-td>{{$item->invoice_no}} </x-table-td>
+                            <x-table-td>{{"INV/2025/".$item->invoice_no}} </x-table-td>
                             <x-table-td>
                                 <a href="{{ route('admin.order.view', $item->order_id) }}"
                                     class="btn btn-outline-secondary select-md btn_outline">{{$item->order->order_number}}</a>
@@ -121,7 +121,7 @@
                                 <button type="button" class="btn btn-outline-success select-md btn_outline"
                                     data-bs-toggle="modal" data-bs-target="#ViewProductModal{{$item->id}}"> View Items
                                     ({{count($item->order->items)}}) </button>
-                                    <div class="modal fade" id="ViewProductModal{{$item->id}}" tabindex="-1"
+                                <div class="modal fade" id="ViewProductModal{{$item->id}}" tabindex="-1"
                                     aria-labelledby="ViewProductModalLabel{{$item->id}}" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-lg">
                                         <div class="modal-content">
@@ -177,7 +177,7 @@
                         {{-- View Product Modal --}}
                         {{-- <tr>
                             <td colspan="7">
-                                
+
                             </td>
                         </tr> --}}
                         @endforeach
@@ -206,22 +206,23 @@
                         <tr>
                             <x-table-td>
                                 <p class="small text-muted mb-1 badge bg-warning">
-                                    Created At:-  {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y h:i A') }} 
+                                    Created At:- {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y h:i A') }}
                                 </p>
                             </x-table-td>
                             <x-table-td>{{ $item->invoice_no }}</x-table-td>
                             <x-table-td>{{ $item->reference }}</x-table-td>
                             <x-table-td>{{ ucwords($item->customer_name) }}</x-table-td>
                             <x-table-td>
-                            <button type="button" class="btn btn-outline-success select-md btn_outline"
+                                <button type="button" class="btn btn-outline-success select-md btn_outline"
                                     data-bs-toggle="modal" data-bs-target="#ManualProductModal{{$item->id}}"> View Items
                                     ({{count($item->items)}}) </button>
                             </x-table-td>
                             <x-table-td>{{ number_format($item->total_amount,2) }}</x-table-td>
                             <x-table-td>
-                               <button wire:click="downloadManualInvoice({{ $item->id }})"  class="btn select-md btn-outline-success btn_outline">
-                                  Download
-                               </button>
+                                <button wire:click="downloadManualInvoice({{ $item->id }})"
+                                    class="btn select-md btn-outline-success btn_outline">
+                                    Download
+                                </button>
                             </x-table-td>
                         </tr>
                         <tr>
@@ -234,7 +235,8 @@
                                                 <h5 class="modal-title" id="ManualProductModalLabel{{ $item->id }}">
                                                     #{{ $item->invoice_no }} / {{ ucfirst($item->customer_name) }}
                                                 </h5>
-                                                <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal">
+                                                <button type="button" class="btn btn-danger btn-sm"
+                                                    data-bs-dismiss="modal">
                                                     Close
                                                 </button>
                                             </div>
@@ -253,7 +255,8 @@
                                                         @foreach ($item->items as $key => $product)
                                                         <tr>
                                                             <td>{{ $key + 1 }}</td>
-                                                            <td>{{ $product->product ? $product->product->name : ""  }}</td>
+                                                            <td>{{ $product->product ? $product->product->name : "" }}
+                                                            </td>
                                                             <td>{{ $product->quantity }}</td>
                                                             <td>{{ number_format($product->unit_price, 2) }}</td>
                                                             <td>{{ number_format($product->total, 2) }}</td>
