@@ -310,7 +310,7 @@ class OrderNew extends Component
 
     // Define rules for validation
     public function rules(){
-        return[
+       $rules = [
             'items' => 'required|min:1',     
             'items.*.collection' => 'required|string',
             'items.*.category' => 'required|string',
@@ -325,6 +325,13 @@ class OrderNew extends Component
             'imageUploads.*.*'  => 'nullable|image|mimes:jpg,jpeg,png,webp', 
             'voiceUploads.*.*'  => 'nullable|mimes:mp3,wav,ogg', 
         ];
+
+        return $rules;
+    }
+
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName, $this->rules());
     }
    
 
@@ -1085,7 +1092,10 @@ class OrderNew extends Component
                     $get_all_measurment_field = [];
                     $get_all_field_measurment_id = [];
                     foreach ($item['get_measurements'] as $mindex => $measurement) {
-                        $get_all_field_measurment_id[]= $mindex;
+                        if($measurement['value']){
+                            $get_all_field_measurment_id[]= $mindex;
+                        }
+                        
                         $measurement_data = Measurement::find($mindex);
                         $get_all_measurment_field = Measurement::where('product_id', $measurement_data->product_id)->pluck('id')->toArray();
                         $orderMeasurement = new OrderMeasurement();
@@ -1095,8 +1105,9 @@ class OrderNew extends Component
                         $orderMeasurement->measurement_value = $measurement['value'];
                         $orderMeasurement->save();
                     }
+                    
                     $missing_measurements = array_diff($get_all_measurment_field, $get_all_field_measurment_id);
-
+                    
                     if (!empty($missing_measurements)) {
                         session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
                         return;
