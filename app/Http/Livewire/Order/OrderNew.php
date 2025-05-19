@@ -353,31 +353,30 @@ class OrderNew extends Component
         ];
     }
 
-   
 
 
     public function FindCustomer($term)
     {
-        $this->searchTerm = $term;
+        // $this->searchTerm = $term;
         $this->reset('searchResults');
 
-        if (!empty($this->searchTerm)) {
+        if (!empty($term)) {
             // Fetch users based on search term
             $users = User::where('user_type', 1)
                 ->where('status', 1)
-                ->where(function ($query) {
-                    $query->where('name', 'like', '%' . $this->searchTerm . '%')
-                        ->orWhere('phone', 'like', '%' . $this->searchTerm . '%')
+                ->where(function ($query) use ($term) {
+                    $query->where('name', 'like', '%' . $term . '%')
+                        ->orWhere('phone', 'like', '%' . $term . '%')
                         // ->orWhere('whatsapp_no', 'like', '%' . $this->searchTerm . '%')
-                        ->orWhere('email', 'like', '%' . $this->searchTerm . '%');
+                        ->orWhere('email', 'like', '%' . $term . '%');
                 })
                 ->take(20)
                 ->get();
 
             // Fetch orders based on search term
-            $orders = Order::where('order_number', 'like', '%' . $this->searchTerm . '%')
-                ->orWhereHas('customer', function ($query) {
-                    $query->where('name', 'like', '%' . $this->searchTerm . '%');
+            $orders = Order::where('order_number', 'like', '%' . $term . '%')
+                ->orWhereHas('customer', function ($query) use ($term) {
+                    $query->where('name', 'like', '%' . $term . '%');
                 })
                 ->latest()
                 ->take(1)
@@ -655,7 +654,7 @@ class OrderNew extends Component
             session()->forget('errorPrice.' . $index);
         } else {
             // Reset price and show error for invalid input
-            $this->items[$index]['price'] = 0;
+            $this->items[$index]['price'] = '';
             session()->flash('errorPrice.' . $index, '🚨 Please enter a valid price.');
         }
 

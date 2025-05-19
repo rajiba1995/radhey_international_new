@@ -76,14 +76,10 @@
                         {{-- Display Order by and order number --}}
                         <!-- Ordered By Section -->
                         <div class="col-md-4">
-                            @php
-                                $loggedInUser = Auth::guard('admin')->user();
-                            @endphp
                             <label class="form-label"><strong>Ordered By</strong></label>
                             <select
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
-                                wire:change="changeSalesman($event.target.value)" wire:model="salesman"
-                                {{$loggedInUser->is_super_admin==1 ? "" : "disabled"}}>
+                                wire:change="changeSalesman($event.target.value)" wire:model="salesman">
                                 <option value="" selected hidden>Choose one..</option>
                                 <!-- Set authenticated user as default -->
                                 @if(auth()->guard('admin')->check())
@@ -673,7 +669,7 @@
 
                             @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
                             {{-- Fabric --}}
-                            <div class="col-md-2 col-12 mb-3">
+                            <div class="col-md-2 col-12 mb-3 position-relative">
                                 <label class="form-label"><strong>Fabric</strong></label>
                                 <input type="text" wire:model="items.{{ $index }}.searchTerm"
                                     wire:keyup="searchFabrics({{ $index }})" class="form-control form-control-sm"

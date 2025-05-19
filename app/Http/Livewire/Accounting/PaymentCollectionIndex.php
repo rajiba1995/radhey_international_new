@@ -230,7 +230,7 @@ class PaymentCollectionIndex extends Component
     public function downloadInvoice($payment_id)
     {
         $invoice_payments = [];
-        $data = PaymentCollection::with(['customer', 'user'])
+        $data = PaymentCollection::with(['customer.billingAddressLatest', 'user'])
                     ->where('id', $payment_id)
                     ->firstOrFail();
         if($data){

@@ -82,7 +82,19 @@ class AuthController extends Controller
        // dd('hi');
         $validator = Validator::make($request->all(),[
             'country_code' => 'required',
-            'mobile' => 'required|numeric|exists:users,phone',
+            'mobile' => [
+            'required',
+            'numeric',
+            function ($attribute, $value, $fail) {
+                $exists = User::where('phone', $value)
+                            ->where('user_type', 1)
+                            ->exists();
+
+                if (! $exists) {
+                    $fail('The selected mobile number is invalid or does not belong to a valid user.');
+                }
+            },
+        ],
             'device_id' => 'required'
         ]);
         if ($validator->fails()) {

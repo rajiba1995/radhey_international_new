@@ -110,7 +110,7 @@
                             <x-table-td>{{"INV/2025/".$item->invoice_no}} </x-table-td>
                             <x-table-td>
                                 <a href="{{ route('admin.order.view', $item->order_id) }}"
-                                    class="btn btn-outline-secondary select-md btn_outline">{{$item->order->order_number}}</a>
+                                    class="btn btn-outline-secondary select-md btn_outline">{{$item->order ? $item->order->order_number : ""}}</a>
                             </x-table-td>
                             <x-table-td>
                                 <p class="small text-muted mb-1">

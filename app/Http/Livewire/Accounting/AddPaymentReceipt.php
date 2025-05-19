@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\PaymentCollection;
+use App\Models\Country;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -16,6 +17,7 @@ class AddPaymentReceipt extends Component
 {   
     protected $accountingRepository;
     public $searchResults = [];
+    public $errorClass = [];
     public $errorMessage = [];
     public $activePayementMode = 'cash';
     public $staffs =[];
@@ -26,6 +28,7 @@ class AddPaymentReceipt extends Component
     public $payment_collection_id = "";
     public $readonly = "readonly";
     public $customer,$customer_id, $customer_name, $staff_id, $amount, $voucher_no, $payment_date, $payment_mode, $chq_utr_no, $bank_name, $receipt_for = "Customer";
+    public $mobileLengthPhone,$countries,$selectedCountryPhone,$phone,$customer_email,$customer_company,$customer_address;
 
     public function boot(AccountingRepositoryInterface $accountingRepository)
     {
@@ -68,6 +71,16 @@ class AddPaymentReceipt extends Component
         if(empty($payment_voucher_no)){
             $this->readonly = "";
         }
+
+        $this->countries = Country::where('status',1)->get();
+    }
+
+    public function GetCountryDetails($mobileLength, $field){
+        switch($field){
+            case 'phone':
+                $this->mobileLengthPhone  = $mobileLength;
+                break;
+        }
     }
 
     public function changeNewCustomer(){
@@ -76,6 +89,7 @@ class AddPaymentReceipt extends Component
    
     public function submitForm()
     {
+        // dd($this->all());
         $this->reset(['errorMessage']);
         $this->errorMessage = array();
         // Validate customer
@@ -83,6 +97,14 @@ class AddPaymentReceipt extends Component
             if (empty($this->customer_name)) {
                 $this->errorMessage['customer_name'] = 'Please enter customer name.';
             }
+             if (empty($this->phone)) {
+                $this->errorMessage['phone'] = 'Please enter mobile number.';
+            } elseif (!ctype_digit($this->phone)) {
+                $this->errorMessage['phone'] = 'Phone number must contain only digits.';
+            } elseif (strlen($this->phone) != $this->mobileLengthPhone) {
+                $this->errorMessage['phone'] = 'Phone number must be exactly ' . $this->mobileLengthPhone . ' digits.';
+            }
+
         }else{
             if (empty($this->customer_id)) {
                 $this->errorMessage['customer_id'] = 'Please select a customer.';
@@ -132,6 +154,12 @@ class AddPaymentReceipt extends Component
                 if($this->new_customer){
                     $user = new User;
                     $user->name = ucwords($this->customer_name);
+                    $user->country_code_phone = $this->selectedCountryPhone;
+                    $user->phone = $this->phone;
+                    $user->email = $this->customer_email ?? null;
+                    $user->company_name = $this->customer_company ?? null;
+                    $user->location = $this->customer_address ?? null;
+                    $user->user_type = 1; // Assuming 1 is for customers
                     $user->save();
                     $this->customer_id = $user->id;
                 }
