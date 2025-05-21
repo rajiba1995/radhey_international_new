@@ -627,17 +627,13 @@ class AuthController extends Controller
         $rules = [
             'prefix' => 'required|string|max:255',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'nullable|email|unique:users,email',
             'phone_code' => 'required|string|max:255',
             'phone' => [
                 'required',
                 'regex:/^\d{'. $phone_code_length .'}$/',
             ],
-            'whatsapp_code' => 'required|string|max:255',
-            'whatsapp_no' => [
-                'required',
-                'regex:/^\d{'. $whatsapp_code_length .'}$/',
-            ],
+            
             'country_code_alt_1' => 'nullable|string|max:255',
             'alternative_phone_number_1' => [
                 'nullable',
@@ -650,7 +646,7 @@ class AuthController extends Controller
                 'regex:/^\d{'. $alternative_phone_2_code_length .'}$/',
             ],
             
-            'dob' => 'required|date',
+            'dob' => 'nullable|date',
             'company_name' => 'nullable|string|max:255',
             'employee_rank' => 'nullable|string|max:255',
            
@@ -659,7 +655,7 @@ class AuthController extends Controller
             'billing_city' => 'required|string|max:255',
             'billing_country' => 'required|string|max:255',
             'billing_pin' => 'nullable|string|max:10',
-            'profile_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'verified_video' => 'nullable|file|mimes:mp4,avi,mkv|max:10240',
         ];
 
@@ -741,17 +737,13 @@ class AuthController extends Controller
         $rules = [
             'prefix' => 'required|string|max:255',
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
+            'email' => 'nullable|email|unique:users,email,' . $id,
             'phone_code' => 'required|string|max:10',
             'phone' => [
                 'required',
                 "regex:/^\d{{$phone_code_length}}$/",
             ],
-            'whatsapp_code' => 'required|string|max:10',
-            'whatsapp_no' => [
-                'required',
-                "regex:/^\d{{$whatsapp_code_length}}$/",
-            ],
+           
             'country_code_alt_1' => 'nullable|string|max:255',
             'alternative_phone_number_1' => [
                 'nullable',
@@ -764,7 +756,7 @@ class AuthController extends Controller
                 'regex:/^\d{'. $alternative_phone_2_code_length .'}$/',
             ],
             
-            'dob' => 'required|date',
+            'dob' => 'nullable|date',
             'company_name' => 'nullable|string|max:255',
             'employee_rank' => 'nullable|string|max:255',
             'billing_address' => 'required|string',
