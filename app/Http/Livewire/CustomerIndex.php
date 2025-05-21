@@ -34,6 +34,10 @@ class CustomerIndex extends Component
     public function confirmDelete($id){
         $this->dispatch('showDeleteConfirm',['itemId' => $id]);
     }
+    public function updatingSearch()
+    {
+        $this->resetPage(); 
+    }
 
     public function deleteCustomer($id)
     {
