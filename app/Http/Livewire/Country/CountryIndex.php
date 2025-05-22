@@ -17,6 +17,11 @@ class CountryIndex extends Component
     protected $paginationTheme = 'bootstrap';
     public $search = '';
 
+     public function updatingSearch()
+    {
+        $this->resetPage(); 
+    }
+    
     public function FindCountry($keyword){
         $this->search = $keyword;
     }

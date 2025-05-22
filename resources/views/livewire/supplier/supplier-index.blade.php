@@ -74,7 +74,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($suppliers as $supplier)
+                                @foreach($supplier_data as $supplier)
                                         <tr>
                                             <td>
                                                 <div class="d-flex py-1">
@@ -116,6 +116,7 @@
                     </div>
                     <div class="mt-3">
                         <nav aria-label="Page navigation">
+                            {{ $supplier_data->links() }}
                         </nav>
                     </div>
                 </div>

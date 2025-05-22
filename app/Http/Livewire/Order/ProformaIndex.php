@@ -5,16 +5,21 @@ namespace App\Http\Livewire\Order;
 use Livewire\Component;
 use App\Models\ProformaInvoice;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Livewire\WithPagination;
 
 
 class ProformaIndex extends Component
 {
+    use WithPagination;
+
     public $invoices = [];
     public $search = '';
+    protected $paginationTheme = 'bootstrap'; 
 
-    public function mount(){
-        $this->invoices = ProformaInvoice::with('customer')->get();
-    }
+
+    // public function mount(){
+    //     $this->invoices = ProformaInvoice::with('customer')->get();
+    // }
 
     public function downloadProformaInvoice($proformaId)
     {
@@ -36,12 +41,14 @@ class ProformaIndex extends Component
     
     public function render()
     {
-        $this->invoices = ProformaInvoice::with('customer')
+        $invoice_data = ProformaInvoice::with('customer')
         ->where('proforma_number', 'like', '%' . $this->search . '%')
         ->orWhereHas('customer', function($query) {
             $query->where('name', 'like', '%' . $this->search . '%');
         })
-        ->get();
-        return view('livewire.order.proforma-index');
+        ->paginate(20);
+        return view('livewire.order.proforma-index',[
+            'invoice_data' => $invoice_data
+        ]);
     }
 }

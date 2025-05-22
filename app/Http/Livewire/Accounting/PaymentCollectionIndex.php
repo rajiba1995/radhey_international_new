@@ -29,8 +29,12 @@ class PaymentCollectionIndex extends Component
     public $active_details = 0;
     public $auth;
     protected $listeners = ['revoke-payment-confirmed' => 'revokePayment'];
+    protected $paginationTheme = 'bootstrap'; 
 
-
+     public function updatingSearch()
+    {
+        $this->resetPage(); 
+    }
     public function mount(){
         $this->auth = Auth::guard('admin')->user();
         $this->staffs = User::where('user_type', 0)

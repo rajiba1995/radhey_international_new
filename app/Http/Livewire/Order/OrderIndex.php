@@ -37,6 +37,12 @@ class OrderIndex extends Component
     public function resetForm(){
         $this->reset(['search', 'start_date','end_date','created_by']);
     }
+
+    public function updatingSearch()
+    {
+        $this->resetPage(); 
+    }
+    
     public function mount($customer_id = null)
     {
         $this->customer_id = $customer_id; // Store the customer_id if provided
