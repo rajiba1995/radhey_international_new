@@ -78,10 +78,12 @@ class PaymentCollectionIndex extends Component
             $this->reset(['selected_customer','selected_customer_id']);
         }
         $this->searchResults = [];
+        $this->resetPage();
     }
 
     public function CollectedBy($value){
         $this->staff_id = $value;
+        $this->resetPage();
     }
 
     public function customerDetails($id){
