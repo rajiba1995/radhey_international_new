@@ -382,53 +382,16 @@ class OrderNew extends Component
                 ->take(1)
                 ->get();
 
-            if ($orders->count()) {
-                // Store orders in the class property
-                $this->orders = $orders;
-
-                // Extract customer from the first order
-                $customerFromOrder = $orders->first()->customer;
-                if ($customerFromOrder) {
-                    $this->prefix = $customerFromOrder->prefix ?? '';
-                    $this->selectedBusinessType = $customerFromOrder->business_type;
-                    $this->selectedCountryPhone = $customerFromOrder->country_code_phone;
-                    $this->selectedCountryWhatsapp = $customerFromOrder->country_code_whatsapp;
-                    $this->selectedCountryAlt1 = $customerFromOrder->country_code_alt_1;
-                    $this->selectedCountryAlt2 = $customerFromOrder->country_code_alt_2;
-
-                     // Assign phone numbers FIRST
-                    $this->phone = $customerFromOrder->phone;
-                    $this->alternative_phone_number_1 = $customerFromOrder->alternative_phone_number_1;
-                    $this->alternative_phone_number_2 = $customerFromOrder->alternative_phone_number_2;
-
-                    // Set mobile length for respective fields
-                    $this->mobileLengthPhone = Country::where('country_code',$this->selectedCountryPhone)->value('mobile_length') ?? '';
-                    $this->mobileLengthWhatsapp = Country::where('country_code',$this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
-                    $this->mobileLengthAlt1 = Country::where('country_code',$this->selectedCountryAlt1)->value('mobile_length') ?? '';
-                    $this->mobileLengthAlt2 = Country::where('country_code',$this->selectedCountryAlt2)->value('mobile_length') ?? '';
-                    
-                     // checkbox pre-selected if the number is also a whatsapp number
-                     $this->isWhatsappPhone = UserWhatsapp::where('user_id', $customerFromOrder->id)
-                     ->where('whatsapp_number', $this->phone)
-                     ->exists();
-             
-                    $this->isWhatsappAlt1 = UserWhatsapp::where('user_id', $customerFromOrder->id)
-                        ->where('whatsapp_number', $this->alternative_phone_number_1)
-                        ->exists();
-                
-                    $this->isWhatsappAlt2 = UserWhatsapp::where('user_id', $customerFromOrder->id)
-                     ->where('whatsapp_number', $this->alternative_phone_number_2)
-                     ->exists();
-             
-                }
-
-                // Add the customer to search results
-                $users->prepend($customerFromOrder);
-                session()->flash('orders-found', 'Orders found for this customer.');
-            } else {
-                $this->orders = collect(); // No orders found
-                session()->flash('no-orders-found', 'No orders found for this customer.');
+            $this->orders = $orders;
+              if ($orders->count()) {
+            $customerFromOrder = $orders->first()->customer;
+            if ($customerFromOrder) {
+                $users->prepend($customerFromOrder); // Just for listing
             }
+            session()->flash('orders-found', 'Orders found for this customer.');
+        } else {
+            session()->flash('no-orders-found', 'No orders found for this customer.');
+        }
 
             // Remove duplicate users by `id`
             $this->searchResults = $users->unique('id')->values();
@@ -578,6 +541,55 @@ class OrderNew extends Component
 
 
     }
+
+    // public function validateMeasurement($itemIndex, $measurementId)
+    // {
+    //     $value = trim($this->items[$itemIndex]['get_measurements'][$measurementId]['value'] ?? '');
+
+    //     if (!is_numeric($value) || floatval($value) <= 0) {
+    //         $this->addError("items.$itemIndex.get_measurements.$measurementId.value", 'Value must be a number greater than 0.');
+    //     } else {
+    //         $this->resetErrorBag("items.$itemIndex.get_measurements.$measurementId.value");
+    //     }
+    // }
+
+    public function validateMeasurement($itemIndex, $measurementId)
+    {
+        $measurement = $this->items[$itemIndex]['get_measurements'][$measurementId] ?? null;
+
+        if ($measurement) {
+            $value = trim($measurement['value'] ?? '');
+
+            if ($value === '') {
+                $this->addError("items.$itemIndex.get_measurements.$measurementId.value", 'Measurement value is required.');
+            } elseif (!is_numeric($value) || floatval($value) < 1) {
+                $this->addError("items.$itemIndex.get_measurements.$measurementId.value", 'Measurement must be a number greater than 0.');
+            } else {
+                $this->resetErrorBag("items.$itemIndex.get_measurements.$measurementId.value");
+            }
+
+            // Check if all required measurements for the product are present
+            $productId = $this->items[$itemIndex]['product_id'] ?? null;
+
+            if ($productId) {
+                $expectedMeasurementIds = Measurement::where('product_id', $productId)->pluck('id')->toArray();
+
+                $enteredMeasurementIds = array_keys(array_filter($this->items[$itemIndex]['get_measurements'] ?? [], function ($m) {
+                    return isset($m['value']) && is_numeric($m['value']) && floatval($m['value']) > 0;
+                }));
+
+                $missing = array_diff($expectedMeasurementIds, $enteredMeasurementIds);
+
+                if (!empty($missing)) {
+                    session()->flash("measurements_error.$itemIndex", '🚨 Oops! All measurement data should be mandatory.');
+                } else {
+                    session()->forget("measurements_error.$itemIndex");
+                }
+            }
+        }
+    }
+
+
 
     
 
@@ -1108,12 +1120,64 @@ class OrderNew extends Component
                     $missing_measurements = array_diff($get_all_measurment_field, $get_all_field_measurment_id);
                     
                     if (!empty($missing_measurements)) {
-                        session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.');
+                        session()->flash('measurements_error.' . $k, '🚨 Oops! All measurement data should be mandatory.');
                         return;
                     }
                     
                 }
+
+                // if (isset($item['get_measurements']) && count($item['get_measurements']) > 0) {
+                //     $errors = [];
+                //     $get_all_field_measurment_id = [];
+                //     $get_all_measurment_field = [];
+
+                //     foreach ($item['get_measurements'] as $mindex => $measurement) {
+                //         $value = trim($measurement['value'] ?? '');
+                       
+
+                //         $measurement_data = Measurement::find($mindex);
+                //         // if (!$measurement_data) {
+                //         //    $errors[] = "Measurement #$mindex is invalid";
+                //         //     continue;
+                //         // }
+
+                //         // Collect all expected measurement IDs for this product
+                //         if (empty($get_all_measurment_field)) {
+                //             $get_all_measurment_field = Measurement::where('product_id', $measurement_data->product_id)
+                //                                                 ->pluck('id')
+                //                                                 ->toArray();
+                //         }
+
+                //         // Validate the value
+                //         if ($value === '') {
+                //             $errors[] = "{$measurement_data->title}: Value is required";
+                //         } elseif (!is_numeric($value) || floatval($value) <= 0) {
+                //             $errors[] = "{$measurement_data->title}: Must be greater than 0";
+                //         } else {
+                //             $get_all_field_measurment_id[] = $mindex;
+                            
+                //             // Save the valid measurement
+                //             $orderMeasurement = new OrderMeasurement();
+                //             $orderMeasurement->order_item_id = $orderItem->id;
+                //             $orderMeasurement->measurement_name = $measurement_data->title ?? '';
+                //             $orderMeasurement->measurement_title_prefix = $measurement_data->short_code ?? '';
+                //             $orderMeasurement->measurement_value = $value;
+                //             $orderMeasurement->save();
+                //         }
+                //     }
+
+                //     if(!empty($get_all_measurment_field)){
+                //         // Check for missing measurement fields
+                //         $missing_measurements = array_diff($get_all_measurment_field, $get_all_field_measurment_id);
+                //         if (!empty($missing_measurements)) {
+                //             session()->flash("measurements_error.$k", '🚨 Oops! All measurement data should be mandatory.');
+                //             return;
+                //         }
+                //     }
+                // }
+
             }
+
 
            
 
@@ -1196,6 +1260,13 @@ class OrderNew extends Component
            
         ]);
     }
+    public function updateMobileLengths()
+    {
+        $this->mobileLengthPhone = Country::where('country_code', $this->selectedCountryPhone)->value('mobile_length') ?? '';
+        $this->mobileLengthAlt1 = Country::where('country_code', $this->selectedCountryAlt1)->value('mobile_length') ?? '';
+        $this->mobileLengthAlt2 = Country::where('country_code', $this->selectedCountryAlt2)->value('mobile_length') ?? '';
+    }
+
 
     public function selectCustomer($customerId)
     {
@@ -1214,7 +1285,13 @@ class OrderNew extends Component
             $this->dob = $customer->dob;
             $this->phone = $customer->phone;
             // $this->whatsapp_no = $customer->whatsapp_no;
+            $this->selectedCountryPhone = $customer->country_code_phone;
+            $this->selectedCountryAlt1 = $customer->country_code_alt_1;
+            $this->alternative_phone_number_1 = $customer->alternative_phone_number_1;
+            $this->selectedCountryAlt2 = $customer->country_code_alt_2;
+            $this->alternative_phone_number_2 = $customer->alternative_phone_number_2;
 
+            $this->updateMobileLengths();
             // Fetch billing address (address_type = 1)
             $billingAddress = $customer->address()->where('address_type', 1)->first();
             $this->populateAddress('billing', $billingAddress);

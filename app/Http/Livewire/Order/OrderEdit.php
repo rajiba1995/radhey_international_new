@@ -401,7 +401,7 @@ class OrderEdit extends Component
         'items.*.price' => 'required|numeric|min:1',  // Ensuring that price is a valid number (and greater than or equal to 0).
         // 'paid_amount' => 'required|numeric|min:1',   // Ensuring that price is a valid number (and greater than or equal to 0).
         // 'payment_mode' => 'required|string',  // Ensuring that price is a valid number (and greater than or equal to 0).
-        'items.*.measurements.*' => 'nullable',
+       'items.*.measurements.*.value' => 'required|numeric|lt:1',
         'items.*.selectedCatalogue' => 'required_if:items.*.selected_collection,1', 
         'items.*.page_number' => 'required_if:items.*.selected_collection,1',
         // 'items.*.page_item' => 'required_if:items.*.selected_collection,1'
@@ -1003,6 +1003,24 @@ class OrderEdit extends Component
         unset($this->voiceUploads[$index][$voiceIndex]);
         $this->voiceUploads[$index] = array_values($this->voiceUploads[$index]);
     }
+
+    public function validateMeasurement($itemIndex, $measurementKey)
+    {
+        $value = trim($this->items[$itemIndex]['measurements'][$measurementKey]['value'] ?? '');
+
+        $errorKey = "items.$itemIndex.measurements.$measurementKey.value";
+
+        if ($value === '') {
+            $this->addError($errorKey, 'Measurement value is required.');
+        } elseif (!is_numeric($value)) {
+            $this->addError($errorKey, 'Measurement must be numeric.');
+        } elseif (floatval($value) < 1) {
+            $this->addError($errorKey, 'Measurement must be a number greater than 0.');
+        } else {
+             $this->resetValidation([$errorKey]);   // clears the error when it becomes valid
+        }
+    }
+
     
     public function update()
     {
@@ -1207,7 +1225,7 @@ class OrderEdit extends Component
 
                     foreach ($item['measurements'] as $measurement) {
                         if (!isset($measurement['value']) || $measurement['value'] === '') {
-                            session()->flash('measurements_error.' . $key, "🚨 Oops! All measurement data should be mandatory, or all fields should be filled with 0.");
+                            session()->flash('measurements_error.' . $key, "🚨 Oops! All measurement data should be mandatory.");
                             return;
                         }
                         

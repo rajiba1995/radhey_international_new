@@ -127,10 +127,10 @@
                                         <!-- <a href="#" class="btn btn-outline-primary select-md btn_action">Edit Slip</a> -->
                                         {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Order Copy</a> --}}
                                         {{-- @if($order->invoice_type=="invoice") --}}
-                                            <button wire:click="downloadOrderInvoice({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Invoice</button>
+                                            <a href="{{route('admin.order.download_invoice',$order->id)}}" target="_blank" class="btn btn-outline-primary select-md btn_outline">Invoice</a>
                                         {{-- @endif --}}
                                         {{-- @if($order->invoice_type=="bill") --}}
-                                            <button wire:click="downloadOrderBill({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Bill</button>
+                                            <a href="{{route('admin.order.download_bill',$order->id)}}" target="_blank" class="btn btn-outline-primary select-md btn_outline">Bill</a>
                                         {{-- @endif --}}
                                     @endif
                                      @if ($order->invoice_type=="invoice")

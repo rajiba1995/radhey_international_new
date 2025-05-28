@@ -692,9 +692,10 @@
                                                     <strong>[{{ isset($measurement['short_code']) ? $measurement['short_code'] :
                                                         '' }}]</strong>
                                                 </label>
-                                                <input type="text"
+                                                <input type="number" required
                                                     class="form-control form-control-sm border border-1 customer_input measurement_input"
-                                                    wire:model="items.{{ $index }}.measurements.{{ $key }}.value">
+                                                    wire:model="items.{{ $index }}.measurements.{{ $key }}.value" 
+                                                     wire:keyup="validateMeasurement({{ $index }}, {{ $key }})">
                                                 @error("items.{$index}.measurements.{$key}.value")
                                                 <div class="text-danger">{{ $message }}</div>
                                                 @enderror

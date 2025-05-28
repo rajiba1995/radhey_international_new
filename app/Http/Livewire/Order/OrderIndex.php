@@ -134,9 +134,9 @@ class OrderIndex extends Component
         $pdf = PDF::loadView('invoice.order_pdf', compact('invoice'));
     
         // Download the PDF
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->output();
-        }, 'invoice_' . $invoice->invoice_no . '.pdf');
+         return response($pdf->output(), 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="invoice_' . $invoice->invoice_no . '.pdf"');
     }   
     public function downloadOrderBill($orderId)
     {
@@ -148,9 +148,9 @@ class OrderIndex extends Component
         $pdf = PDF::loadView('invoice.bill_pdf', compact('invoice'));
     
         // Download the PDF
-        return response()->streamDownload(function () use ($pdf) {
-            echo $pdf->output();
-        }, 'bill_' . $invoice->order->order_number . '.pdf');
+        return response($pdf->output(), 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="bill_' . $invoice->order->order_number . '.pdf"');
     }  
 
     

@@ -236,5 +236,9 @@ Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
         Route::get('/cancel-order', CancelOrderList::class)->name('admin.order.cancel-order.index')->middleware('check.permission');
         Route::get('/proformas', ProformaIndex::class)->name('admin.order.proformas.index');
         Route::get('/proformas/add', ProformaAdd::class)->name('admin.order.proformas.add');
+        // order invoice and bill
+        Route::get('{order}/invoice', [OrderIndex::class, 'downloadOrderInvoice'])->name('admin.order.download_invoice');
+        Route::get('{order}/bill', [OrderIndex::class, 'downloadOrderBill']) ->name('admin.order.download_bill');
+  
     });
 });

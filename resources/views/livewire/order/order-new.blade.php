@@ -79,7 +79,7 @@
                             <label class="form-label"><strong>Ordered By</strong></label>
                             <select
                                 class="form-control border border-2 p-2 form-control-sm @error('salesman') border-danger  @enderror"
-                                wire:change="changeSalesman($event.target.value)" wire:model="salesman">
+                                wire:change="changeSalesman($event.target.value)" wire:model="salesman" disabled>
                                 <option value="" selected hidden>Choose one..</option>
                                 <!-- Set authenticated user as default -->
                                 @if(auth()->guard('admin')->check())
@@ -771,6 +771,7 @@
                                         wire:model="items.{{ $index }}.copy_previous_measurements"
                                         wire:change="copyMeasurements({{ $index }})"
                                         id="copy_measurements_{{ $index }}">
+                                        
                                     <label class="form-check-label" for="copy_measurements_{{ $index }}">
                                         Use previous measurements
                                     </label>
@@ -788,10 +789,11 @@
                                             <input type="hidden"
                                                 wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.title"
                                                 value="{{ $measurement['title'] }}">
-                                            <input type="text"
+                                            <input type="number" required
                                                 class="form-control form-control-sm border border-1 customer_input measurement_input"
-                                                wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value">
-                                            @error('items.' . $index . '.get_measurements.' .$measurement['id'])
+                                                wire:model="items.{{ $index }}.get_measurements.{{ $measurement['id'] }}.value"
+                                                  wire:keyup="validateMeasurement({{ $index }}, {{ $measurement['id'] }})">
+                                            @error('items.' . $index . '.get_measurements.' .$measurement['id'].'.value')
                                             <div class="text-danger error-message">{{ $message }}</div>
                                             @enderror
                                         </div>
