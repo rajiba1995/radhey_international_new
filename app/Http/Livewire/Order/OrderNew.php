@@ -1101,20 +1101,47 @@ class OrderNew extends Component
                 if (isset($item['get_measurements']) && count($item['get_measurements']) > 0) {
                     $get_all_measurment_field = [];
                     $get_all_field_measurment_id = [];
-                    foreach ($item['get_measurements'] as $mindex => $measurement) {
-                        if($measurement['value']){
-                            $get_all_field_measurment_id[]= $mindex;
-                        }
+                    // foreach ($item['get_measurements'] as $mindex => $measurement) {
+                    //     if($measurement['value']){
+                    //         $get_all_field_measurment_id[]= $mindex;
+                    //     }
                         
+                    //     $measurement_data = Measurement::find($mindex);
+                    //     $get_all_measurment_field = Measurement::where('product_id', $measurement_data->product_id)->pluck('id')->toArray();
+                    //     $orderMeasurement = new OrderMeasurement();
+                    //     $orderMeasurement->order_item_id = $orderItem->id;
+                    //     $orderMeasurement->measurement_name = $measurement_data ? $measurement_data->title : "";
+                    //     $orderMeasurement->measurement_title_prefix = $measurement_data ? $measurement_data->short_code : "";
+                    //     $orderMeasurement->measurement_value = $measurement['value'];
+                    //     $orderMeasurement->save();
+                    // }
+                    foreach ($item['get_measurements'] as $mindex => $measurement) {
+                        if (!isset($measurement['value'])) {
+                            session()->flash('measurements_error.' . $k, '🚨 Measurement value is missing.');
+                            return;
+                        }
+
+                        $value = trim($measurement['value']);
+
+                        if ($value === '' || !is_numeric($value) || floatval($value) < 1) {
+                            $measurement_data = Measurement::find($mindex);
+                            $title = $measurement_data->title ?? 'Unknown';
+                            session()->flash('measurements_error.' . $k, '🚨 Oops! Measurement "' . $title . '" must be numeric and greater than 0.');
+                            return;
+                        }
+
+                        // Now store only validated value
                         $measurement_data = Measurement::find($mindex);
-                        $get_all_measurment_field = Measurement::where('product_id', $measurement_data->product_id)->pluck('id')->toArray();
+                        if (!$measurement_data) continue;
+
                         $orderMeasurement = new OrderMeasurement();
                         $orderMeasurement->order_item_id = $orderItem->id;
-                        $orderMeasurement->measurement_name = $measurement_data ? $measurement_data->title : "";
-                        $orderMeasurement->measurement_title_prefix = $measurement_data ? $measurement_data->short_code : "";
-                        $orderMeasurement->measurement_value = $measurement['value'];
+                        $orderMeasurement->measurement_name = $measurement_data->title;
+                        $orderMeasurement->measurement_title_prefix = $measurement_data->short_code;
+                        $orderMeasurement->measurement_value = $value; // Use validated value
                         $orderMeasurement->save();
                     }
+
                     
                     $missing_measurements = array_diff($get_all_measurment_field, $get_all_field_measurment_id);
                     

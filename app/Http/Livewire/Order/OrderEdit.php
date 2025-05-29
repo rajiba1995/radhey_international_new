@@ -1224,8 +1224,14 @@ class OrderEdit extends Component
                     
 
                     foreach ($item['measurements'] as $measurement) {
-                        if (!isset($measurement['value']) || $measurement['value'] === '') {
+                        if (!isset($measurement['value']) || $measurement['value'] === '' ) {
                             session()->flash('measurements_error.' . $key, "🚨 Oops! All measurement data should be mandatory.");
+                            return;
+                        }elseif (!is_numeric($measurement['value'])) {
+                            session()->flash('measurements_error.' . $key, "🚨 Oops! Measurement must be numeric.");
+                            return;
+                        } elseif (floatval($measurement['value']) < 1) {
+                            session()->flash('measurements_error.' . $key, "🚨 Oops! Measurement must be greater than 0.");
                             return;
                         }
                         
