@@ -1013,17 +1013,16 @@ class OrderNew extends Component
             $order->customer_email = $this->email;
             $order->billing_address = $this->billing_address . ', ' . $this->billing_landmark . ', ' . $this->billing_city . ', ' . $this->billing_state . ', ' . $this->billing_country . ' - ' . $this->billing_pin;
 
-            if ($this->is_billing_shipping_same) {
-                $order->shipping_address = $order->billing_address;
-            } else {
-                $order->shipping_address = $this->shipping_address . ', ' . $this->shipping_landmark . ', ' . $this->shipping_city . ', ' . $this->shipping_state . ', ' . $this->shipping_country . ' - ' . $this->shipping_pin;
-            }
+            
             $order->total_product_amount = $total_product_amount;
             $order->air_mail = $airMail;
             $order->total_amount = $total_amount;
             $order->last_payment_date = date('Y-m-d H:i:s');
             $order->created_by = (int) $this->salesman; // Explicitly cast to integer
-
+            // for team-lead id
+            $loggedInAdmin = auth()->guard('admin')->user();
+            $order->team_lead_id = $loggedInAdmin->parent_id ?? null;
+            // dd($order);
             $order->save();
 
             $update_bill_book = SalesmanBilling::where('id',$this->bill_id)->first();

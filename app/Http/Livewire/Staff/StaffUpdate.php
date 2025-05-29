@@ -9,6 +9,7 @@ use App\Models\Designation;
 use App\Models\BusinessType;
 use App\Models\Branch;
 use App\Models\UserWhatsapp;
+use App\Models\ChangeLog;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
@@ -43,7 +44,7 @@ class StaffUpdate extends Component
 
 
     public function mount($staff_id){
-        $this->staff = User::with(['branch','businessType','bank','address','designationDetails'])->find($staff_id);
+        $this->staff = User::with(['branch','businessType','bank','address','designationDetails','userWhatsapp'])->find($staff_id);
         $this->countries = Country::where('status',1)->get();
         $this->Business_type = BusinessType::all();
         $this->branchNames = Branch::all();
@@ -259,11 +260,79 @@ class StaffUpdate extends Component
         $this->validate();
 
         try {
-        // Store the files
-        $imagePath = $this->image && $this->image instanceof \Illuminate\Http\UploadedFile ? $this->image->store('images', 'public') : $this->staff->image;
-        $passportIdFrontPath = $this->passport_id_front && $this->passport_id_front instanceof \Illuminate\Http\UploadedFile ? $this->passport_id_front->store('user_ids', 'public') : $this->staff->passport_id_front;
-        $passportIdBackPath = $this->passport_id_back && $this->passport_id_back instanceof \Illuminate\Http\UploadedFile ? $this->passport_id_back->store('user_ids', 'public') : $this->staff->passport_id_back;
-        
+            // Capture OLD data before update
+            $oldStaffData = $this->staff->toArray();
+            $oldBankData = $this->staff->bank ? $this->staff->bank->toArray() : [];
+            $oldAddressData = $this->staff->address ? $this->staff->address->toArray() : [];
+            $oldWhatsappNumbers = $this->staff->userWhatsapp ? $this->staff->userWhatsapp->toArray() : [];
+               // Prepare old data for changelog
+            $oldData = [
+                'old_staff' => $oldStaffData,
+                'old_bank' => $oldBankData,
+                'old_address' => $oldAddressData,
+                'old_whatsapp_numbers' => $oldWhatsappNumbers,
+                'form_data_before_update' => [
+                    'branch_id' => $this->staff->branch_id,
+                    'designation' => $this->staff->designation,
+                    'team_lead' => $this->staff->parent_id,
+                    'prefix' => $this->staff->prefix,
+                    'person_name' => $this->staff->name.' '.$this->staff->surname,
+                    'emp_code' => $this->staff->emp_code,
+                    'prof_name' => $this->staff->prof_name,
+                    'email' => $this->staff->email,
+                    'mobile' => $this->staff->phone,
+                    'aadhaar_number' => $this->staff->aadhar_name,
+                    'passport_no' => $this->staff->passport_no,
+                    'dob' => $this->staff->dob,
+                    'passport_issued_date' => $this->staff->passport_issued_date,
+                    'visa_no' => $this->staff->visa_no,
+                    'emergency_contact_person' => $this->staff->emergency_contact_person,
+                    'emergency_mobile' => $this->staff->emergency_mobile,
+                    'emergency_whatsapp' => $this->staff->emergency_whatsapp,
+                    'emergency_address' => $this->staff->emergency_address,
+                    'alternative_phone_number_1' => $this->staff->alternative_phone_number_1,
+                    'alternative_phone_number_2' => $this->staff->alternative_phone_number_2,
+                    'selectedCountryPhone' => $this->staff->country_code_phone,
+                    'selectedCountryWhatsapp' => $this->staff->country_code_whatsapp,
+                    'selectedCountryAlt1' => $this->staff->country_code_alt_1,
+                    'selectedCountryAlt2' => $this->staff->country_code_alt_2,
+                    'selectedCountryEmergencyContact' => $this->staff->country_code_emergency_mobile,
+                    'selectedCountryEmergencyWhatsapp' => $this->staff->country_code_emergency_whatsapp,
+                    'image' => $this->staff->image,
+                    'passport_id_front' => $this->staff->passport_id_front,
+                    'passport_id_back' => $this->staff->passport_id_back,
+                    'passport_expiry_date' => $this->staff->passport_expiry_date,
+                    'account_holder_name' => $this->account_holder_name,
+                    'bank_name' => $this->bank_name,
+                    'branch_name' => $this->branch_name,
+                    'account_no' => $this->account_no,
+                    'ifsc' => $this->ifsc,
+                    'monthly_salary' => $this->monthly_salary,
+                    'daily_salary' => $this->daily_salary,
+                    'travel_allowance' => $this->travel_allowance,
+                    'address' => $this->address,
+                    'landmark' => $this->landmark,
+                    'state' => $this->state,
+                    'city' => $this->city,
+                    'pincode' => $this->pincode,
+                    'country' => $this->country,
+                    'selectedCountryId' => $this->selectedCountryId,
+                    'selectedBusinessType' => $this->selectedBusinessType,
+                    'isWhatsappPhone' => $this->isWhatsappPhone,
+                    'isWhatsappAlt1' => $this->isWhatsappAlt1,
+                    'isWhatsappAlt2' => $this->isWhatsappAlt2,
+                    'isWhatsappEmergency' => $this->isWhatsappEmergency,
+                ]
+            ];
+
+             $teamLead = User::find($this->team_lead);
+            $oldData['team_lead_name'] = $teamLead ? $teamLead->name : 'N/A';
+
+            // Store the files
+            $imagePath = $this->image && $this->image instanceof \Illuminate\Http\UploadedFile ? $this->image->store('images', 'public') : $this->staff->image;
+            $passportIdFrontPath = $this->passport_id_front && $this->passport_id_front instanceof \Illuminate\Http\UploadedFile ? $this->passport_id_front->store('user_ids', 'public') : $this->staff->passport_id_front;
+            $passportIdBackPath = $this->passport_id_back && $this->passport_id_back instanceof \Illuminate\Http\UploadedFile ? $this->passport_id_back->store('user_ids', 'public') : $this->staff->passport_id_back;
+            
             // Update the staff record
             $this->staff->update([
                 'country_id'=> $this->selectedCountryId,
@@ -420,6 +489,13 @@ class StaffUpdate extends Component
                     'country' => $this->country ?? '',
                 ]);
             }
+
+            // Create changelog with OLD data
+            ChangeLog::create([
+                'done_by' => auth()->guard('admin')->user()->id,
+                'purpose' => 'staff_update',
+                'data_details' => json_encode($oldData)
+            ]);
 
             session()->flash('message', 'Staff updated successfully');
             return redirect()->route('staff.index');

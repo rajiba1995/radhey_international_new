@@ -11,6 +11,7 @@ use App\Models\Country;
 use App\Models\Branch;
 use App\Models\BusinessType;
 use App\Models\UserWhatsapp;
+use App\Models\ChangeLog;
 use App\Helpers\Helper;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
@@ -324,7 +325,7 @@ class StaffAdd extends Component
             
 
             // 2. Save the data into the user_banks table
-            UserBank::create([
+           $bank = UserBank::create([
                 'user_id' => $user->id,
                 'account_holder_name' => $this->account_holder_name ?? "",
                 'bank_name' => $this->bank_name ?? "",
@@ -337,7 +338,7 @@ class StaffAdd extends Component
             ]);
 
             // 3. Save the data into the user_address table
-            UserAddress::create([
+          $address = UserAddress::create([
                 'user_id' => $user->id,
                 'address_type' => 1, //for Staff
                 'address' => $this->address ?? "",
@@ -346,6 +347,81 @@ class StaffAdd extends Component
                 'city' => $this->city ?? "",
                 'zip_code' => $this->pincode ?? "",
                 'country' => $this->country ?? "",
+            ]);
+
+            // prepare all the data for changelog
+            $allData = [
+                'user' => $user->toArray(),
+                'bank' => $bank->toArray(),
+                'address' => $address->toArray(),
+                'form_data' => [
+                    'employee_id' => $this->employee_id,
+                    'emp_code' => $this->emp_code,
+                    'dob' => $this->dob,
+                    'branch_id' => $this->branch_id,
+                    'passport_issued_date' => $this->passport_issued_date,
+                    'designation' => $this->designation,
+                    'prefix' => $this->prefix,
+                    'person_name' => $this->person_name.' '.$this->surname,
+                    'prof_name' => $this->prof_name,
+                    'email' => $this->email,
+                    'mobile' => $this->mobile,
+                    'aadhaar_number' => $this->aadhaar_number,
+                    'whatsapp_no' => $this->whatsapp_no,
+                    'is_wa_same' => $this->is_wa_same,
+                    'user_id' => $this->user_id,
+                    'passport_no' => $this->passport_no,
+                    'visa_no' => $this->visa_no,
+                    'account_holder_name' => $this->account_holder_name,
+                    'bank_name' => $this->bank_name,
+                    'branch_name' => $this->branch_name,
+                    'account_no' => $this->account_no,
+                    'ifsc' => $this->ifsc,
+                    'monthly_salary' => $this->monthly_salary,
+                    'daily_salary' => $this->daily_salary,
+                    'travel_allowance' => $this->travel_allowance,
+                    'address' => $this->address,
+                    'landmark' => $this->landmark,
+                    'state' => $this->state,
+                    'city' => $this->city,
+                    'pincode' => $this->pincode,
+                    'country' => $this->country,
+                    'emergency_contact_person' => $this->emergency_contact_person,
+                    'emergency_mobile' => $this->emergency_mobile,
+                    'emergency_whatsapp' => $this->emergency_whatsapp,
+                    'emergency_address' => $this->emergency_address,
+                    'selectedCountryId' => $this->selectedCountryId,
+                    'selectedBusinessType' => $this->selectedBusinessType,
+                    'alternative_phone_number_1' => $this->alternative_phone_number_1,
+                    'alternative_phone_number_2' => $this->alternative_phone_number_2,
+                    'selectedCountryPhone' => $this->selectedCountryPhone,
+                    'selectedCountryWhatsapp' => $this->selectedCountryWhatsapp,
+                    'selectedCountryAlt1' => $this->selectedCountryAlt1,
+                    'selectedCountryAlt2' => $this->selectedCountryAlt2,
+                    'selectedCountryEmergencyContact' => $this->selectedCountryEmergencyContact,
+                    'selectedCountryEmergencyWhatsapp' => $this->selectedCountryEmergencyWhatsapp,
+                    'isWhatsappPhone' => $this->isWhatsappPhone,
+                    'isWhatsappAlt1' => $this->isWhatsappAlt1,
+                    'isWhatsappAlt2' => $this->isWhatsappAlt2,
+                    'isWhatsappEmergency' => $this->isWhatsappEmergency,
+                    'team_lead' => $this->team_lead,
+                    'image_path' => $imagePath,
+                    'passport_id_front_path' => $passportIdFrontPath,
+                    'passport_id_back_path' => $passportIdBackPath,
+                    'passport_expiry_date' => $this->passport_expiry_date,
+                    'password' => $this->password 
+                ]
+            ];
+
+
+           
+             $teamLead = User::find($this->team_lead);
+              $allData['team_lead_name'] = $teamLead ? $teamLead->name : 'N/A';
+            // 4. Save the data into changelog table
+            ChangeLog::create([
+                'done_by' => auth()->guard('admin')->user()->id,
+                'purpose' => 'staff_add',
+                'data_details' => json_encode($allData)
             ]);
 
             // Commit the transaction if everything is successful

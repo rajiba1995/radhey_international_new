@@ -28,6 +28,7 @@ class Order extends Model
         'status',
         'business_type',
         'created_by' ,
+        'team_lead_id',
         'country_code_alt_1',
         'alternative_phone_number_1',
         'country_code_alt_2',
