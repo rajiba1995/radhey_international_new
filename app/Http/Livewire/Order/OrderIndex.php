@@ -99,20 +99,29 @@ class OrderIndex extends Component
         // ->where('status', '!=' , 'Cancelled') // Uncomment if needed
         ->when($this->customer_id, fn($query) => $query->where('customer_id', $this->customer_id)) // Filter by customer ID
         ->when($this->search, function ($query) {
-            $query->where('order_number', 'like', '%' . $this->search . '%')
-                  ->orWhereHas('customer', function ($q) {
-                      $q->where(function ($subQuery) {
-                          $subQuery->where('name', 'like', '%' . $this->search . '%')
-                                   ->orWhere('email', 'like', '%' . $this->search . '%')
-                                   ->orWhere('phone', 'like', '%' . $this->search . '%')
-                                   ->orWhere('whatsapp_no', 'like', '%' . $this->search . '%'); 
-                      });
-                  });
+            $query->where(function ($q) {
+                $q->where('order_number', 'like', '%' . $this->search . '%')
+                ->orWhereHas('customer', function ($q2) {
+                    $q2->where(function ($subQuery) {
+                        $subQuery->where('name', 'like', '%' . $this->search . '%')
+                                ->orWhere('email', 'like', '%' . $this->search . '%')
+                                ->orWhere('phone', 'like', '%' . $this->search . '%')
+                                ->orWhere('whatsapp_no', 'like', '%' . $this->search . '%'); 
+                    });
+                });
+            });
         })
+
         ->when($this->created_by, fn($query) => $query->where('created_by', $this->created_by)) // Filter by creator
         ->when($this->start_date, fn($query) => $query->whereDate('created_at', '>=', $this->start_date)) // Start date filter
         ->when($this->end_date, fn($query) => $query->whereDate('created_at', '<=', $this->end_date)) // End date filter
-        ->when(!$auth->is_super_admin, fn($query) => $query->where('created_by', $auth->id)) // Restrict non-admins
+        // ->when(!$auth->is_super_admin, fn($query) => $query->where('created_by', $auth->id)) // Restrict non-admins
+        ->when(!$auth->is_super_admin, function ($query) use ($auth) {
+            $query->where(function ($subQuery) use ($auth) {
+                $subQuery->where('created_by', $auth->id)
+                        ->orWhere('team_lead_id', $auth->id);
+            });
+        })
         ->orderBy('created_at', 'desc')
         ->paginate(20);
 

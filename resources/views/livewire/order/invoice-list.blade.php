@@ -42,11 +42,11 @@
             wire:click="setActiveTab('normal')">
             Normal
         </button>
-        <button
+        {{-- <button
             class="btn btn-outline-success select-md btn_outline {{ $activeTab === 'manual' ? 'btn-primary' : 'btn-outline-secondary' }}"
             wire:click="setActiveTab('manual')">
             Manual
-        </button>
+        </button> --}}
 
 
     </div>

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Branch;
 use App\Models\Designation;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Auth;
 
 
 class StaffIndex extends Component
@@ -67,7 +68,18 @@ class StaffIndex extends Component
             ->where('user_type', 0)
             ->orderBy('name', 'ASC');
 
-        // Apply search filter (Search by name, email, phone)
+            $auth = Auth::guard('admin')->user();
+
+            // Apply self + team filter only if not super admin
+            if (!$auth->is_super_admin) {
+                $query->where(function ($q) use ($auth) {
+                    $q->where('id', $auth->id)
+                    ->orWhere('parent_id', $auth->id);
+                });
+            }
+
+            $query->orderBy('name', 'ASC');
+            // Apply search filter (Search by name, email, phone)
         if (!empty($this->search)) {
             $query->where(function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%')
