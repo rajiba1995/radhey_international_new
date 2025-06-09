@@ -58,7 +58,8 @@
                         @php
                         $auth = Auth::guard('admin')->user();
                         @endphp
-                        <div class="col-md-4 {{ $auth->is_super_admin==1 ? "" : " d-none" }}">
+                        {{-- <div class="col-md-4 {{ $auth->is_super_admin==1 ? "" : " d-none" }}"> --}}
+                        <div class="col-md-4">
                             <!-- Search Label -->
                             <label for="searchCustomer" class="form-label mb-0">Business Type</label>
                             <select wire:model="selectedBusinessType"

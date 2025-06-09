@@ -7,20 +7,13 @@ use Livewire\WithPagination;
 use App\Models\Order;
 use App\Helpers\Helper;
 use App\Models\User;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\OrdersExport;
 use App\Models\Invoice;
-
 use Illuminate\Support\Facades\Auth;
-// use Barryvdh\DomPDF\Facade as PDF;
-// use Barryvdh\DomPDF\PDF;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 
-
-class OrderIndex extends Component
+class ProductionOrderIndex extends Component
 {
-    use WithPagination;
+     use WithPagination;
     
     public $customer_id;
     public $created_by, $search,$status,$start_date,$end_date; 
@@ -48,22 +41,7 @@ class OrderIndex extends Component
         $this->resetPage(); 
     }
 
-    // public function markAsReceived($orderId)
-    // {
-    //     $order = Order::find($orderId);
-    //     if ($order && $order->status === 'Confirmed') {
-    //         $order->status = 'Received';
-    //         $order->save();
-
-    //         // Optional: add status log or notification
-    //         session()->flash('message', 'Order marked as Received.');
-    //     } else {
-    //         session()->flash('error', 'Order not eligible for receiving.');
-    //     }
-    // }
-
-    
-    public function mount($customer_id = null)
+     public function mount($customer_id = null)
     {
         $this->customer_id = $customer_id; // Store the customer_id if provided
     }
@@ -79,24 +57,10 @@ class OrderIndex extends Component
     public function CollectedBy($staff_id){
         $this->created_by = $staff_id;
     }
-    
-    public function export()
-    {
-        return Excel::download(new OrdersExport(
-            $this->customer_id,
-            $this->created_by,
-            $this->start_date,
-            $this->end_date,
-            $this->search
-        ), 'orders.csv');
-    }
 
-   
-
-    
     public function render()
     {
-        $placed_by = User::where('user_type', 0)->get();
+         $placed_by = User::where('user_type', 0)->get();
         $auth = Auth::guard('admin')->user();
 
         if($auth->is_super_admin){
@@ -144,67 +108,10 @@ class OrderIndex extends Component
         })
         ->orderBy('created_at', 'desc')
         ->paginate(20);
-
-        return view('livewire.order.order-index', [
-            'placed_by' => $placed_by,
+        return view('livewire.order.production-order-index',[
+             'placed_by' => $placed_by,
             'orders' => $orders,
             'usersWithOrders' => $this->usersWithOrders, 
         ]);
     }
-
-   
-    public function downloadOrderInvoice($orderId)
-    {
-        $invoice = Invoice::with(['order', 'customer.billingAddressLatest', 'user', 'packing'])
-                    ->where('order_id', $orderId)
-                    ->firstOrFail();
-        // dd($invoice);
-        // Generate PDF
-        $pdf = PDF::loadView('invoice.order_pdf', compact('invoice'));
-    
-        // Download the PDF
-         return response($pdf->output(), 200)
-        ->header('Content-Type', 'application/pdf')
-        ->header('Content-Disposition', 'inline; filename="invoice_' . $invoice->invoice_no . '.pdf"');
-    }   
-    public function downloadOrderBill($orderId)
-    {
-        $invoice = Invoice::with(['order', 'customer', 'user', 'packing'])
-                    ->where('order_id', $orderId)
-                    ->firstOrFail();
-        // dd($invoice);
-        // Generate PDF
-        $pdf = PDF::loadView('invoice.bill_pdf', compact('invoice'));
-    
-        // Download the PDF
-        return response($pdf->output(), 200)
-        ->header('Content-Type', 'application/pdf')
-        ->header('Content-Disposition', 'inline; filename="bill_' . $invoice->order->order_number . '.pdf"');
-    }  
-
-    
-
-    public function confirmCancelOrder($id = null)
-    {
-        if (!$id) {
-            throw new \Exception("Order ID is missing in confirmCancelOrder.");
-        }
-
-        $this->dispatch('confirmCancel', orderId: $id);
-    }
-
-    public function cancelOrder($orderId = null)
-    {
-        \Log::info("cancelOrder method triggered with Order ID: " . ($orderId ?? 'NULL'));
-
-        if (!$orderId) {
-            throw new \Exception("Order ID is required but received null.");
-        }
-
-        // Perform order cancellation logic here
-         Order::where('id', $orderId)->update(['status' => 'Cancelled']);
-
-        session()->flash('message', 'Order has been cancelled successfully.');
-    }
-
-} 
+}

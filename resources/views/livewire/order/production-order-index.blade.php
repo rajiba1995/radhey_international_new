@@ -17,10 +17,7 @@
                             <input type="date" wire:model="end_date" wire:change="AddEndDate($event.target.value)"
                                 class="form-control select-md bg-white" placeholder="End Date">
                         </div>
-                        <div class="col-md-auto mt-3">
-                            <a href="{{route('admin.order.new')}}" class="btn btn-outline-success select-md">Place New
-                                Order</a>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -36,25 +33,12 @@
                                 placeholder="Search by customer detail or Order number" value="" style="width: 350px;"
                                 wire:keyup="FindCustomer($event.target.value)">
                         </div>
-                        <div class="col-auto mt-0">
-                            <select wire:model="created_by" class="form-control select-md bg-white"
-                                wire:change="CollectedBy($event.target.value)">
-                                <option value="" hidden="" selected="">Placed By</option>
-                                @foreach($placed_by as $user)
-                                    @if(in_array($user->id, $usersWithOrders))
-                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
-                        </div>
+                        
                         <div class="col-auto mt-3">
                             <button type="button" wire:click="resetForm"
                                 class="btn btn-outline-danger select-md">Clear</button>
                         </div>
-                        <div class="col-auto">
-                            <a href="javscript:void(0)" wire:click="export" class="btn btn-outline-success select-md"><i
-                                    class="fas fa-file-csv me-1"></i>Export</a>
-                        </div>
+                      
                     </div>
                 </div>
             </div>
@@ -125,49 +109,17 @@
                                         <span>Name: <strong>{{ucwords($order->prefix ." ". $order->customer_name)}}</strong> </span>
                                         <br>
                                         <span>Mobile : <strong>{{$order->customer? $order->customer->country_code_phone.' '.$order->customer->phone:""}}</strong> </span> <br>
-                                        <!--<span>WhatsApp : <strong>{{$order->customer?$order->customer->country_code_whatsapp.' '.$order->customer->whatsapp_no:""}}</strong> </span>-->
                                     </p>
                                 </td>
                                 <td><p class="text-xs font-weight-bold mb-0">{{ $order->total_amount }}</p></td>
                                 <td>
                                    <p class="small text-muted mb-1 text-uppercase">{{$order->createdBy?strtoupper($order->createdBy->name .' '.$order->createdBy->surname):""}}</p>
                                 </td>
-                                {{-- <td class="{{$order->remaining_amount>0?"text-danger":""}}"><p class="text-xs font-weight-bold mb-0">{{ $order->remaining_amount }}</p></td> --}}
                                 <td>
                                     <span class="badge bg-{{ $order->status_class }}">{{ $order->status_label }}</span>
                                 </td>
                             <td class="text-center">
-                                    @if(empty($order->packingslip))
-                                        @if($order->status!="Cancelled")
-                                            <a href="{{route('admin.order.add_order_slip', $order->id)}}" class="btn btn-outline-primary select-md btn_action btn_outline">Approve Order</a>
-                                            <a href="{{route('admin.order.edit', $order->id)}}" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Edit</a>
-                                            
-                                            <button  wire:click="confirmCancelOrder({{ $order->id }})"
-                                            class="btn btn-outline-danger select-md btn_outline">Cancel Order</button >
-                                        @endif
-                                    @else
-                                        <!-- <a href="#" class="btn btn-outline-primary select-md btn_action">Edit Slip</a> -->
-                                        {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Order Copy</a> --}}
-                                        {{-- @if($order->invoice_type=="invoice") --}}
-                                            <a href="{{route('admin.order.download_invoice',$order->id)}}" target="_blank" class="btn btn-outline-primary select-md btn_outline">Invoice</a>
-                                        {{-- @endif --}}
-                                        {{-- @if($order->invoice_type=="bill") --}}
-                                            <a href="{{route('admin.order.download_bill',$order->id)}}" target="_blank" class="btn btn-outline-primary select-md btn_outline">Bill</a>
-                                        {{-- @endif --}}
-                                    @endif
-                                     @if ($order->invoice_type=="invoice")
-                                       <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
-                                    @endif
-                                     {{-- <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-info btn-sm custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="View product">
-                                         <span class="material-icons">visibility</span>
-                                    </a>
-                                    @if($order->status=="Pending")
-                                    <a href="{{route('admin.order.edit', $order->id)}}" class="btn btn-outline-info btn-sm custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="Edit product">
-                                        <span class="material-icons">edit</span>
-                                    </a>
-                                    @endif
-                                    <a href="{{route('admin.order.invoice', $order->id)}}" target="_blank" class="btn btn-outline-info btn-sm custom-btn-sm mb-0">Invoice</a> --}}
-                                </td>
+                                    
                             </tr>
                         @endforeach  
                     </tbody>
@@ -187,26 +139,4 @@
     @endif
     
 </div>
-@push('js')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        window.addEventListener('confirmCancel', function(event) {
-            console.log("Received confirmCancel Event:", event.detail);
 
-            if (event.detail && event.detail.orderId) {
-                console.log("Order ID from Event:", event.detail.orderId);
-            } else {
-                console.error("Order ID is missing in the event.");
-                return;
-            }
-
-            if (confirm('Are you sure you want to cancel the order?')) {
-                console.log("Dispatching cancelOrder event with Order ID:", event.detail.orderId);
-                Livewire.dispatch('cancelOrder', { orderId: event.detail.orderId });
-            }
-        });
-    });
-
-
-    </script>
-@endpush
