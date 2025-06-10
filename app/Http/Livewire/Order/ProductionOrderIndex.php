@@ -25,9 +25,25 @@ class ProductionOrderIndex extends Component
     public $tab = 'all';
     // protected $listeners = ['cancelOrder'];
     protected $listeners = ['cancelOrder'];
+    
 
     protected $paginationTheme = 'bootstrap'; // Optional: For Bootstrap styling
     
+     public function markReceivedConfirmed($data)
+    {
+        $orderId = $data['orderId'];
+        $order = Order::find($orderId);
+        if ($order && $order->status === 'Confirmed') {
+            $order->status = 'Mark As Received';
+            $order->save();
+
+            // Optional: add status log or notification
+            session()->flash('message', 'Order marked as Received.');
+        } else {
+            session()->flash('error', 'Order not eligible for receiving.');
+        }
+    }
+
     public function changeTab($status){
         $this->tab = $status;
         $this->resetPage();
@@ -80,6 +96,7 @@ class ProductionOrderIndex extends Component
        
         $this->usersWithOrders = $wonOrders;
         $orders = Order::query()
+        ->where('status','Confirmed')
         // ->where('status', '!=' , 'Cancelled') // Uncomment if needed
         ->when($this->customer_id, fn($query) => $query->where('customer_id', $this->customer_id)) // Filter by customer ID
         ->when($this->search, function ($query) {
@@ -96,18 +113,12 @@ class ProductionOrderIndex extends Component
             });
         })
 
-        ->when($this->created_by, fn($query) => $query->where('created_by', $this->created_by)) // Filter by creator
-        ->when($this->start_date, fn($query) => $query->whereDate('created_at', '>=', $this->start_date)) // Start date filter
-        ->when($this->end_date, fn($query) => $query->whereDate('created_at', '<=', $this->end_date)) // End date filter
-        // ->when(!$auth->is_super_admin, fn($query) => $query->where('created_by', $auth->id)) // Restrict non-admins
-        ->when(!$auth->is_super_admin, function ($query) use ($auth) {
-            $query->where(function ($subQuery) use ($auth) {
-                $subQuery->where('created_by', $auth->id)
-                        ->orWhere('team_lead_id', $auth->id);
-            });
-        })
+        ->when($this->created_by, fn($query) => $query->where('created_by', $this->created_by))
+        ->when($this->start_date, fn($query) => $query->whereDate('created_at', '>=', $this->start_date)) 
+        ->when($this->end_date, fn($query) => $query->whereDate('created_at', '<=', $this->end_date))
         ->orderBy('created_at', 'desc')
         ->paginate(20);
+        
         return view('livewire.order.production-order-index',[
              'placed_by' => $placed_by,
             'orders' => $orders,

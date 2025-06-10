@@ -48,19 +48,7 @@ class OrderIndex extends Component
         $this->resetPage(); 
     }
 
-    // public function markAsReceived($orderId)
-    // {
-    //     $order = Order::find($orderId);
-    //     if ($order && $order->status === 'Confirmed') {
-    //         $order->status = 'Received';
-    //         $order->save();
-
-    //         // Optional: add status log or notification
-    //         session()->flash('message', 'Order marked as Received.');
-    //     } else {
-    //         session()->flash('error', 'Order not eligible for receiving.');
-    //     }
-    // }
+   
 
     
     public function mount($customer_id = null)

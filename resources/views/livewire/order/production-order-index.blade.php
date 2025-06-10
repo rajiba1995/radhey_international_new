@@ -119,7 +119,9 @@
                                     <span class="badge bg-{{ $order->status_class }}">{{ $order->status_label }}</span>
                                 </td>
                             <td class="text-center">
-                                    
+                                 @if ($order->status == 'Confirmed')
+                                     <button wire:click="confirmMarkAsReceived({{ $order->id }})" class="btn btn-outline-success select-md btn_outline">Mark As Received</button>
+                                 @endif   
                             </tr>
                         @endforeach  
                     </tbody>
@@ -139,4 +141,21 @@
     @endif
     
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmMarkAsReceived(orderId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will mark the order as received.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, mark it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Livewire.dispatch('markReceivedConfirmed', { orderId: orderId });
+            }
+        });
+    }
+</script>
 
