@@ -28,12 +28,23 @@ class Order extends Model
         'status',
         'business_type',
         'created_by' ,
+        'team_lead_id',
         'country_code_alt_1',
         'alternative_phone_number_1',
         'country_code_alt_2',
         'alternative_phone_number_2',
         'country_code_whatsapp',
         'country_code_phone',
+        'source',
+        'reference',
+        'ht_amount',
+        'tva_amount',
+        'ca_amount',
+        'due_date',
+        'invoice_date',
+        'invoice_type',
+        'total_product_amount',
+        'air_mail'
     ];
     public function items()
     {
@@ -68,6 +79,7 @@ class Order extends Model
    
     protected $status_classes = [
         "Confirmed"          => ["Received", "success"], 
+        "Mark As Received"   => ["Mark As Received", "success"], 
         "Pending"            => ["Pending", "warning"], 
         "In Production"      => ["In Production", "primary"], 
         "Ready for Delivery" => ["Ready for Delivery", "info"], 

@@ -40,7 +40,7 @@
                         <button type="button" wire:click="resetForm" class="btn btn-outline-danger select-md">Clear</button>
                     </div>
                     <div class="col-auto mt-3">
-                       <a href="{{route('admin.accounting.add_payment_receipt')}}" class="btn btn-sm btn-success select-md">ADD PAYMENT RECEIPT</a>
+                       <a href="{{route('admin.accounting.add_payment_receipt')}}" class="btn btn-sm btn-success select-md"> <i class="material-icons">add</i>ADD PAYMENT RECEIPT</a>
                     </div>
                 </div>
             </div>
@@ -129,7 +129,7 @@
                                             @endif
                                             
                                             @if (!empty($payment->is_ledger_added))
-                                                <a href="#" wire:click="revokePayment({{$payment->id}})" class="btn btn-outline-warning select-md btn_outline">Revoke</a>
+                                                <a href="#" wire:click="$dispatch('confirm-revoke',{{$payment->id}})" class="btn btn-outline-warning select-md btn_outline">Revoke</a>
                                             @endif
                                             <button wire:click="downloadInvoice({{ $payment->id }})" class="btn btn-outline-primary select-md btn_outline">Download Receipt</button>
                                             
@@ -195,7 +195,24 @@
     <div class="loader-container" wire:loading>
         <div class="loader"></div>
     </div>
-</div>
-@push('js')
+{{-- script --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    window.addEventListener('confirm-revoke', event => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will revoke the payment and reset linked invoices and payments!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, revoke it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Livewire.dispatch('revoke-payment-confirmed', { id: event.detail });
+            }
+        });
+    });
 </script>
-@endpush
+</div>
+

@@ -48,7 +48,7 @@
                                             @endif
                                             <div class="position-relative">
                                                 <input type="hidden" wire:model="order_item.{{$key}}.price" class="form-control form-control-sm">
-                                                <input type="hidden" wire:model="order_item.{{$key}}.air_mail" class="form-control form-control-sm">
+                                                <input type="hidden" wire:model="air_mail" class="form-control form-control-sm">
                                                 <input type="hidden" wire:model="order_item.{{$key}}.id" class="form-control form-control-sm" value="{{$order_item->id}}">
                                                 <input type="text" value="{{$order_item->product_name}}" class="form-control form-control-sm border border-1 customer_input" {{$readonly}}>
                                             </div>
@@ -78,19 +78,18 @@
                                 </div>
                             </div>
                             @endforeach
-                            @php
-                                $air_mail_price = round($order->items[0]['air_mail']) ?? '0.00';
-                            @endphp
-                            @php
-                                $airMailItem = collect($order->items)->firstWhere('air_mail', '>', 0);
-                            @endphp
+                           
+                            
                             {{-- Air mail --}}
-                            @if($airMailItem)
+                            @if($order->air_mail > 0)
+                            @php
+                              $air_mail_price = round($order->air_mail);
+                            @endphp
                             <div class="col-sm-6">
                                 <table>
                                     <tr>
                                         <td>
-                                            <span class="text-sm badge bg-primary sale_grn_sl">4</span>
+                                            <span class="text-sm badge bg-primary sale_grn_sl">{{$order->items->count() +1}}</span>
                                         </td>
                                         <td class="w-100">
                                             <div class="form-group mb-3">
@@ -121,7 +120,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                {{-- <div class="row">
                     <div class="input-group">
                         <div class="form-check form-check-inline">
                             <input type="radio" wire:model="document_type" id="invoice" value="invoice" class="form-check-input">
@@ -132,7 +131,7 @@
                             <label for="bill" class="form-check-label">Bill</label>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <div class="row">
                     <div class="form-group text-end">
                         <span>ORDER AMOUNT <span class="text-danger">({{$actual_amount}})</span></span>
