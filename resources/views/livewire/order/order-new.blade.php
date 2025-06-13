@@ -747,7 +747,7 @@
                                 @enderror
 
                                 @if(!empty($items[$index]['searchResults']))
-                                <div class="dropdown-menu show w-100" style="max-height: 187px; overflow-y: auto;">
+                                <div class="dropdown-menu show w-100" style="max-height: 187px; max-width: 100px; overflow-y: auto;">
                                     @foreach ($items[$index]['searchResults'] as $fabric)
                                     <button class="dropdown-item fabric_dropdown_item" type="button"
                                         wire:click="selectFabric({{ $fabric->id }}, {{ $index }})">
@@ -867,7 +867,7 @@
                                         <td>
                                             <!-- Sub Total -->
                                             <input type="number" class="form-control form-control-sm"
-                                                wire:model="air_mail"  wire:keyup="updateBillingAmount"  placeholder="Enter air mail cost">
+                                                wire:model="air_mail"  wire:keyup="updateBillingAmount"  placeholder="Enter the airmail cost">
                                         </td>
                                     </tr>
                                     <tr>

@@ -906,7 +906,7 @@ table td h6.text-sm {
     margin-bottom: -18px;
 }
 .fabric_dropdown_item{
-    width: 187px;
+    width: 150px;
     background: #f6f6f6;
 }
 .fabric_dropdown_item:hover{
@@ -1118,5 +1118,4 @@ table td h6.text-sm {
     -moz-appearance: auto !important;
     
 }
-
 
