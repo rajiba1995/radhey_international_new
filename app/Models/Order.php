@@ -79,6 +79,7 @@ class Order extends Model
    
     protected $status_classes = [
         "Confirmed"          => ["Received", "success"], 
+        "Mark As Received"   => ["Mark As Received", "success"], 
         "Pending"            => ["Pending", "warning"], 
         "In Production"      => ["In Production", "primary"], 
         "Ready for Delivery" => ["Ready for Delivery", "info"], 

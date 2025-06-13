@@ -21,6 +21,8 @@ class ProductionOrderIndex extends Component
     public $orderId;
     public $totalPrice;
     public $auth;
+    public $stockOrderId;
+    public $showStockModal = false;
     
     public $tab = 'all';
     // protected $listeners = ['cancelOrder'];
@@ -28,12 +30,15 @@ class ProductionOrderIndex extends Component
     
 
     protected $paginationTheme = 'bootstrap'; // Optional: For Bootstrap styling
-    
-     public function markReceivedConfirmed($data)
+
+    public function confirmMarkAsReceived($id){
+        $this->dispatch('showMarkAsReceived',['orderId' => $id]);
+    }
+
+     public function markReceivedConfirmed($orderId)
     {
-        $orderId = $data['orderId'];
         $order = Order::find($orderId);
-        if ($order && $order->status === 'Confirmed') {
+        if ($order && $order->status == 'Confirmed') {
             $order->status = 'Mark As Received';
             $order->save();
 
@@ -44,10 +49,25 @@ class ProductionOrderIndex extends Component
         }
     }
 
+    
+    public function openStockModal($orderNumber)
+    {
+        $this->stockOrderId = $orderNumber;
+        $this->dispatch('showStockModal');
+    }
+
+    public function closeStockModal()
+    {
+        $this->reset(['stockOrderId']);
+        $this->dispatch('hideStockModal');
+    }
+
+
     public function changeTab($status){
         $this->tab = $status;
         $this->resetPage();
     }
+    
     public function resetForm(){
         $this->reset(['search', 'start_date','end_date','created_by']);
     }
@@ -96,7 +116,7 @@ class ProductionOrderIndex extends Component
        
         $this->usersWithOrders = $wonOrders;
         $orders = Order::query()
-        ->where('status','Confirmed')
+        ->whereIn('status',['Confirmed','Mark As Received'])
         // ->where('status', '!=' , 'Cancelled') // Uncomment if needed
         ->when($this->customer_id, fn($query) => $query->where('customer_id', $this->customer_id)) // Filter by customer ID
         ->when($this->search, function ($query) {
