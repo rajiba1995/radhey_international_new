@@ -64,7 +64,7 @@
                 @endif
             </div>
             {{-- tab --}}
-            <ul class="nav nav-tabs mb-2" id="orderTabs">
+            {{-- <ul class="nav nav-tabs mb-2" id="orderTabs">
                 <li class="nav-item">
                     <a class="nav-link {{ $tab == 'all' ? 'active' : '' }}" href="#"
                         wire:click.prevent="changeTab('all')">All</a>
@@ -89,7 +89,7 @@
                     <a class="nav-link {{ $tab == 'completed' ? 'active' : '' }}" href="#"
                         wire:click.prevent="changeTab('completed')">Completed</a>
                 </li>
-            </ul>
+            </ul> --}}
 
             <div class="table-responsive p-0">
                 <table class="table table-sm table-hover">
@@ -136,7 +136,16 @@
                                     '.$order->createdBy->surname):""}}</p>
                             </td>
                             <td>
-                                <span class="badge bg-{{ $order->status_class }}">{{ $order->status_label }}</span>
+                                @if ($order->status_label == 'Confirmed')
+                                    <span class="badge bg-warning">
+                                        Waiting for Confirmed
+                                    </span>
+                                @else
+                                   <span class="badge bg-{{ $order->status_class }}">
+                                    {{ $order->status_label }}
+                                   </span>
+                                @endif
+                               
                             </td>
                             <td class="text-center">
                                 @if ($order->status == 'Confirmed')
@@ -145,10 +154,7 @@
                                         Received
                                     </button>
                                 @elseif($order->status == 'Mark As Received')
-                                    <button wire:click="openStockModal('{{ $order->order_number }}')"
-                                        class="btn btn-outline-success select-md btn_outline">
-                                        Enter Stock
-                                    </button>
+                                    <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
                                 @endif
                             </td>
                         </tr>

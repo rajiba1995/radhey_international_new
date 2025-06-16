@@ -401,7 +401,7 @@ class OrderEdit extends Component
         'items.*.price' => 'required|numeric|min:1',  // Ensuring that price is a valid number (and greater than or equal to 0).
         // 'paid_amount' => 'required|numeric|min:1',   // Ensuring that price is a valid number (and greater than or equal to 0).
         // 'payment_mode' => 'required|string',  // Ensuring that price is a valid number (and greater than or equal to 0).
-       'items.*.measurements.*.value' => 'required|numeric|lt:1',
+    //    'items.*.measurements.*.value' => 'required|numeric|lt:1',
         'items.*.selectedCatalogue' => 'required_if:items.*.selected_collection,1', 
         'items.*.page_number' => 'required_if:items.*.selected_collection,1',
         // 'items.*.page_item' => 'required_if:items.*.selected_collection,1'
