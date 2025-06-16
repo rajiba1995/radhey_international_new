@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Order;
 use App\Models\Order;
 use \App\Models\Product;
 use \App\Models\Invoice;
+use \App\Models\StockFabric;
 use Livewire\Component;
 
 class ProductionOrderDetails extends Component
@@ -11,6 +12,7 @@ class ProductionOrderDetails extends Component
      public $oderId;
     public $latestOrders = [];
     public $order;
+    public $available_meter;
 
     public function mount($id){
         $this->orderId = $id;
@@ -22,12 +24,25 @@ class ProductionOrderDetails extends Component
             $this->order->paid_amount = $invoicePayment->net_price - $invoicePayment->required_payment_amount;
             $this->order->remaining_amount = $invoicePayment->required_payment_amount;
         }
+
+        $this->rows = [];
+         foreach($this->order->items as $stockitem){
+            $stock = StockFabric::where('fabric_id',$stockitem->fabrics)->first();
+            // $this->available_meter = $stock ? $stock->qty_in_meter : 0; 
+            $this->rows[] =[
+                 'collection_title' => $stockitem->collection_title,
+                 'fabric_title' => $stockitem->fabric->title ?? '',
+                 'available_meter' => $stockitem?->qty_in_meter ?? 0,
+            ];
+         }
          // Fetch the latest 5 orders for the user (customer)
          $this->latestOrders = Order::where('customer_id',$this->order->customer_id)
                                      ->latest()
                                      ->where('id', '!=', $this->order->id)
                                      ->take(5)
                                      ->get();
+        
+
     }
 
     public function render()

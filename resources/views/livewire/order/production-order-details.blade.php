@@ -167,46 +167,78 @@
                             <td><span>{{number_format($item['price']*$item['quantity'], 2)}}</span></td>
                         </tr>
                         @if($item['collection_id']==1)
-                            <tr>
-                                <td colspan="2">
-                                    <div class="col-12 mb-2 measurement_div" style="background: #fdfdfd !important;">
-                                        <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
-                                        <div class="row">
-                                            
-                                            @foreach ($item['measurements'] as $index => $measurement)
-                                            <div class="col-md-3">
-                                                <label>
-                                                    {{$measurement['measurement_name']}}
-                                                    <strong>[{{$measurement['measurement_title_prefix']}}]</strong>
-                                                </label>
-                                                <input type="text"
-                                                    class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
-                                                    value="{{ $measurement['measurement_value'] }}">
-                                            </div>
-                                            @endforeach
-                                        
-                                        </div>
-                                    </div>
-                                </td>
-                                <td colspan="3" class="pt-4" style="vertical-align: text-top !important;">
-                                    <p>FABRIC : <strong>{{$item['fabrics']->title}}</strong></p>
-                                    <p>CATLOGUE : <strong>{{ optional(optional($item['catalogue'])->catalogueTitle)->title }}</strong> (PAGE:
-                                        <strong>{{$item['cat_page_number']}}</strong>)
-                                    </p>
+                        <tr>
+                            <td colspan="2">
+                                <div class="col-12 mb-2 measurement_div" style="background: #fdfdfd !important;">
+                                    <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
+                                    <div class="row">
 
-                                   
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="5">
-                                    <div class="card mt-2 mb-2">
-                                        <div class="card-body">
-                                            <h6>Stock Entry Interface </h6>
-                                           
+                                        @foreach ($item['measurements'] as $index => $measurement)
+                                        <div class="col-md-3">
+                                            <label>
+                                                {{$measurement['measurement_name']}}
+                                                <strong>[{{$measurement['measurement_title_prefix']}}]</strong>
+                                            </label>
+                                            <input type="text"
+                                                class="form-control form-control-sm border border-1 customer_input text-center measurement_input"
+                                                value="{{ $measurement['measurement_value'] }}">
+                                        </div>
+                                        @endforeach
+
+                                    </div>
+                                </div>
+                            </td>
+                            <td colspan="3" class="pt-4" style="vertical-align: text-top !important;">
+                                <p>FABRIC : <strong>{{$item['fabrics']->title}}</strong></p>
+                                <p>CATLOGUE : <strong>{{ optional(optional($item['catalogue'])->catalogueTitle)->title
+                                        }}</strong> (PAGE:
+                                    <strong>{{$item['cat_page_number']}}</strong>)
+                                </p>
+
+
+                            </td>
+                        </tr>
+                        @foreach ($rows as $index => $row)
+                        <tr>
+                            <td colspan="5">
+                                <div class="card mt-2 mb-2">
+                                    <div class="card-body">
+                                        <h6>Stock Entry Interface </h6>
+                                        <div class="row mb-3">
+                                            <div class="col-md-3">
+                                                <label for=""
+                                                    class="form-label"><strong>Collection</strong>
+                                                    <span class="text-danger">*</span></label>
+                                                    <input type="text" value="{{$row['collection_title']}}"  class="form-control form-control-sm border border-1 p-2" disabled>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="fabric_0" class="form-label"><strong>Fabric</strong> <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" value="{{$row['fabric_title']->title}}"  class="form-control form-control-sm border border-1 p-2" disabled>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label for=""
+                                                    class="form-label">Available Meter </label>
+                                                <input type="number" value="{{$row['available_meter']}}" wire:model="available_meter" disabled  class="form-control form-control-sm border border-1 p-2">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label for=""
+                                                    class="form-label">Updated Meter </label>
+                                                <input type="number" wire:model="rows.{{ $index }}.pcs_per_mtr"
+                                                    wire:keyup="updateRowAmount({{$index}})" id="pcs_per_mtr_0"
+                                                    class="form-control form-control-sm border border-1 p-2">
+                                            </div>
+                                            <div class="col-md-2 mt-4">
+                                            <button class="btn btn-outline-success select-md" wire:click="updateRowAmount({{ $index }})" >
+                                                Update
+                                            </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </td>
-                            </tr>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
                         @endif
                         @endforeach
                         @else
