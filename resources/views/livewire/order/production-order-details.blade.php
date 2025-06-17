@@ -3,6 +3,7 @@
         <h5>Order detail</h5>
     </section>
     <section>
+        
         <ul class="breadcrumb_menu">
             <li><a href="{{route('admin.order.index')}}">Orders</a></li>
             <li>Order detail :- <span>#{{$order->order_number}}</span></li>
@@ -198,7 +199,10 @@
 
                             </td>
                         </tr>
-                        @foreach ($rows as $index => $row)
+                     
+                        
+                        @endif
+                        @if($item['collection_id'] == 1 || $item['collection_id'] == 2)
                         <tr>
                             <td colspan="5">
                                 <div class="card mt-2 mb-2">
@@ -209,36 +213,55 @@
                                                 <label for=""
                                                     class="form-label"><strong>Collection</strong>
                                                     <span class="text-danger">*</span></label>
-                                                    <input type="text" value="{{$row['collection_title']}}"  class="form-control form-control-sm border border-1 p-2" disabled>
+                                                    <input type="text" value="{{$item['collection_title']}}"  class="form-control form-control-sm border border-1 p-2" disabled >
                                             </div>
                                             <div class="col-md-3">
-                                                <label for="fabric_0" class="form-label"><strong>Fabric</strong> <span
+                                                <label for="fabric_0" class="form-label"><strong>
+                                                    @if ($item['collection_id'] == 2)
+                                                        Product
+                                                    @else
+                                                        Fabric
+                                                    @endif
+                                                </strong> <span
                                                         class="text-danger">*</span></label>
-                                                <input type="text" value="{{$row['fabric_title']->title}}"  class="form-control form-control-sm border border-1 p-2" disabled>
+                                                <input type="text" value="@if($item['collection_id'] == 2) {{ $item['product']->name }} @else {{ $item['fabrics']->title }} @endif"  class="form-control form-control-sm border border-1 p-2" disabled>
                                             </div>
                                             <div class="col-md-2">
                                                 <label for=""
-                                                    class="form-label">Available Meter </label>
-                                                <input type="number" value="{{$row['available_meter']}}" wire:model="available_meter" disabled  class="form-control form-control-sm border border-1 p-2">
+                                                    class="form-label">{{ $item['stock_entry_data']['available_label'] }} </label>
+                                                <input type="number" value="{{ $item['stock_entry_data']['available_value'] }}" disabled  class="form-control form-control-sm border border-1 p-2">
                                             </div>
                                             <div class="col-md-2">
                                                 <label for=""
-                                                    class="form-label">Updated Meter </label>
-                                                <input type="number" wire:model="rows.{{ $index }}.pcs_per_mtr"
-                                                    wire:keyup="updateRowAmount({{$index}})" id="pcs_per_mtr_0"
-                                                    class="form-control form-control-sm border border-1 p-2">
+                                                    class="form-label">{{$item['stock_entry_data']['updated_label']}} </label>
+                                                    @php
+                                                        $inputName = 'row_'.$loop->index.'_'.$item['stock_entry_data']['input_name'];
+                                                    @endphp
+                                                   <input type="text"  wire:model="rows.{{ $inputName }}"
+                                                     wire:keyup="checkQuantity({{ $loop->index }}, '{{ $inputName }}', {{ $item['stock_entry_data']['available_value'] }})"
+                                                    class="form-control form-control-sm border border-1 p-2 @if(isset($rows['is_valid_'.$inputName]) && !$rows['is_valid_'.$inputName]) is-invalid @endif">
+                                                    @if(isset($rows['is_valid_'.$inputName]) && !$rows['is_valid_'.$inputName])
+                                                        <div class="invalid-feedback">
+                                                            Entered quantity must be less than or equal to available.
+                                                        </div>
+                                                    @endif
                                             </div>
                                             <div class="col-md-2 mt-4">
-                                            <button class="btn btn-outline-success select-md" wire:click="updateRowAmount({{ $index }})" >
-                                                Update
-                                            </button>
+                                               @if(
+                                                    !isset($rows['is_valid_'.$inputName]) 
+                                                    || $rows['is_valid_'.$inputName] === true
+                                                )
+                                                    <button class="btn btn-outline-success select-md"  wire:click="updateStock({{ $loop->index }}, '{{ $inputName }}')">
+                                                        Update
+                                                    </button>
+                                                 @endif
+                                                    <button class="btn btn-outline-danger select-md" wire:click="revertBackStock()">Revert Back</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                        @endforeach
                         @endif
                         @endforeach
                         @else
