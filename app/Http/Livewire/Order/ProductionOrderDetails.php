@@ -11,7 +11,7 @@ use \App\Models\ChangeLog;
 use Livewire\Component;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Validator;
 
 class ProductionOrderDetails extends Component
 {
@@ -63,6 +63,32 @@ class ProductionOrderDetails extends Component
         $item = $this->orderItems[$index];
         $orderItemId = $item['id'];
         $enteredQuantity = $this->rows[$inputName] ?? 0;
+
+        $validator = Validator::make(
+            [$inputName => $enteredQuantity],
+            [
+                $inputName => [
+                    'required',
+                    'numeric',
+                    'min:1',
+                    'max:'.$item['stock_entry_data']['available_value'],
+                ],
+            ],
+            [
+                $inputName.'.required' => 'Quantity is required.',
+                $inputName.'.numeric' => 'Quantity must be numeric.',
+                $inputName.'.min' => 'Quantity must be at least 1.',
+                $inputName.'.max' => 'Quantity must be less than or equal to available.',
+            ]
+        );
+
+        if ($validator->fails()) {
+            //  Mark invalid for red border + feedback
+            $this->rows['is_valid_'.$inputName] = false;
+            $this->addError($inputName, $validator->errors()->first($inputName));
+            DB::rollBack();
+            return;
+        }
         //1. Insert into order_stock_entries
         $stock_entry = OrderStockEntry::create([
             'order_id'     => $this->orderId,
@@ -93,32 +119,67 @@ class ProductionOrderDetails extends Component
         // Stock Out log status
         ChangeLog::create([
             'done_by' => auth()->guard('admin')->user()->id,
-              'purpose' => 'stock_entry_update',
-              'data_details' => json_encode($stock_entry)
+            'purpose' => 'stock_entry_update',
+            'data_details' => json_encode($stock_entry)
         ]);
 
             DB::commit();
-
-            
+        $this->rows['is_done_'.$inputName] = true;
+        $this->resetPage($inputName);
+        $this->loadOrderItems();
+                
         }catch (\Throwable $e) {
             DB::rollBack();
             dd($e->getMessage());
         }
     }
 
-    public function render()
-    {
-         // Fetch the order and its related items
-        //  $order = Order::with('items')->findOrFail($this->orderId);
-         
-         // Fetch product details for each order item
-         $this->orderItems = $this->order->items->map(function ($item) {
+    public function revertBackStock($index,$inputName){
+         try {
+           DB::beginTransaction();
+           $item = $this->orderItems[$index];
+            $orderItemId = $item['id'];
+            $enteredQuantity = $this->rows[$inputName] ?? 0;
+
+            // Find the latest stock entry for this order item
+            $stockEntry = OrderStockEntry::where('order_item_id', $orderItemId)
+                            ->latest()->first();
+            if ($stockEntry) {
+            // Revert the stock
+            if ($item['collection_id'] == 1) {
+                $stock = StockFabric::where('fabric_id', $stockEntry->fabric_id)->first();
+                $stock->update(['qty_in_meter' => $stock->qty_in_meter + $stockEntry->quantity]);
+            } elseif ($item['collection_id'] == 2) {
+                $stock = StockProduct::where('product_id', $stockEntry->product_id)->first();
+                $stock->update(['qty_in_pieces' => $stock->qty_in_pieces + $stockEntry->quantity]);
+            }
+
+            $stockEntry->delete();
+
+           
+        }
+           DB::commit(); 
+            // Reset and reload
+            $this->resetPage($inputName);
+            $this->loadOrderItems();
+
+         }catch (\Throwable $e) {
+            DB::rollBack();
+            dd($e->getMessage());
+        }
+    }
+
+    public function loadOrderItems(){
+        $this->orderItems = $this->order->items->map(function ($item) {
             $product = Product::find($item->product_id);
             $stockData = Helper::getStockEntryData(
                 $item->collection,
                 $item->fabrics,
-                $item->product_id
+                $item->product_id,
+                $this->orderId,
+                $item->id
             );
+           $hasStockEntry = OrderStockEntry::where('order_item_id', $item->id)->exists();
             return [
                 'id' => $item->id,
                 'product_name' => $item->product_name ?? $product->name,
@@ -133,11 +194,29 @@ class ProductionOrderDetails extends Component
                 'price' => $item->piece_price,
                 'quantity' => $item->quantity,
                 'product_image' => $product ? $product->product_image : null,
-                'stock_entry_data' => $stockData
+                'stock_entry_data' => $stockData,
+                'has_stock_entry'  => $hasStockEntry
             ];
         });
+        
+    }
+
+    public function resetPage($inputName){
+         // Clear the input field
+        $this->rows[$inputName] = '';
+         // Reset validation for this input
+        unset($this->rows['is_valid_'.$inputName]);
+    }   
+
+    public function render()
+    {
+         // Fetch the order and its related items
+        //  $order = Order::with('items')->findOrFail($this->orderId);
+         
+         // Fetch product details for each order item
+         $this->loadOrderItems();
         return view('livewire.order.production-order-details',[
-             'order' => $this->order,
+            //  'order' => $this->order,
             'orderItems' => $this->orderItems,
             'latestOrders'=>$this->latestOrders,
         ]);

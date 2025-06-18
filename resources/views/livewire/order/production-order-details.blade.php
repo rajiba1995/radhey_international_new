@@ -3,12 +3,12 @@
         <h5>Order detail</h5>
     </section>
     <section>
-        
+
         <ul class="breadcrumb_menu">
             <li><a href="{{route('admin.order.index')}}">Orders</a></li>
             <li>Order detail :- <span>#{{$order->order_number}}</span></li>
             <li class="back-button">
-                <a href="{{ url()->previous() }}"
+                <a href="{{route('production.order.index')}}"
                     class="btn btn-sm btn-danger select-md text-light font-weight-bold mb-0">Back </a>
             </li>
         </ul>
@@ -26,14 +26,14 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="row">
+                        {{-- <div class="row">
                             <div class="col-sm-4">
                                 <p class="small m-0"><strong>Order Amount :</strong></p>
                             </div>
                             <div class="col-sm-8">
                                 <p class="small m-0">{{number_format($order->total_amount, 2)}}</p>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="row">
                             <div class="col-sm-4">
                                 <p class="small m-0"><strong>Order Time :</strong></p>
@@ -129,10 +129,10 @@
                             <th class="" rowspan="1" colspan="1" style="width: 65px;" aria-label="price">Collection</th>
                             <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">Order
                                 Items</th>
-                            <th class="" rowspan="1" colspan="1" style="width: 65px;" aria-label="price">price</th>
+                            {{-- <th class="" rowspan="1" colspan="1" style="width: 65px;" aria-label="price">price</th> --}}
                             <th class="" rowspan="1" colspan="1" style="width: 50px;" aria-label="qty">
                                 qty</th>
-                            <th class="" rowspan="1" colspan="1" style="width: 80px;" aria-label="total">total</th>
+                            {{-- <th class="" rowspan="1" colspan="1" style="width: 80px;" aria-label="total">total</th> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -163,9 +163,9 @@
                                     </div>
                                 </div>
                             </td>
-                            <td><span>{{number_format($item['price'], 2)}}</span></td>
+                            {{-- <td><span>{{number_format($item['price'], 2)}}</span></td> --}}
                             <td><span>{{$item['quantity']}}</span></td>
-                            <td><span>{{number_format($item['price']*$item['quantity'], 2)}}</span></td>
+                            {{-- <td><span>{{number_format($item['price']*$item['quantity'], 2)}}</span></td> --}}
                         </tr>
                         @if($item['collection_id']==1)
                         <tr>
@@ -199,8 +199,8 @@
 
                             </td>
                         </tr>
-                     
-                        
+
+
                         @endif
                         @if($item['collection_id'] == 1 || $item['collection_id'] == 2)
                         <tr>
@@ -210,52 +210,62 @@
                                         <h6>Stock Entry Interface </h6>
                                         <div class="row mb-3">
                                             <div class="col-md-3">
-                                                <label for=""
-                                                    class="form-label"><strong>Collection</strong>
+                                                <label for="" class="form-label"><strong>Collection</strong>
                                                     <span class="text-danger">*</span></label>
-                                                    <input type="text" value="{{$item['collection_title']}}"  class="form-control form-control-sm border border-1 p-2" disabled >
+                                                <input type="text" value="{{$item['collection_title']}}"
+                                                    class="form-control form-control-sm border border-1 p-2" disabled>
                                             </div>
                                             <div class="col-md-3">
                                                 <label for="fabric_0" class="form-label"><strong>
-                                                    @if ($item['collection_id'] == 2)
+                                                        @if ($item['collection_id'] == 2)
                                                         Product
-                                                    @else
+                                                        @else
                                                         Fabric
-                                                    @endif
-                                                </strong> <span
-                                                        class="text-danger">*</span></label>
-                                                <input type="text" value="@if($item['collection_id'] == 2) {{ $item['product']->name }} @else {{ $item['fabrics']->title }} @endif"  class="form-control form-control-sm border border-1 p-2" disabled>
+                                                        @endif
+                                                    </strong> <span class="text-danger">*</span></label>
+                                                <input type="text"
+                                                    value="@if($item['collection_id'] == 2) {{ $item['product']->name }} @else {{ $item['fabrics']->title }} @endif"
+                                                    class="form-control form-control-sm border border-1 p-2" disabled>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label for="" class="form-label">{{
+                                                    $item['stock_entry_data']['available_label'] }} </label>
+                                                <input type="number"
+                                                    value="{{ $item['stock_entry_data']['available_value'] }}" disabled
+                                                    class="form-control form-control-sm border border-1 p-2">
                                             </div>
                                             <div class="col-md-2">
                                                 <label for=""
-                                                    class="form-label">{{ $item['stock_entry_data']['available_label'] }} </label>
-                                                <input type="number" value="{{ $item['stock_entry_data']['available_value'] }}" disabled  class="form-control form-control-sm border border-1 p-2">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label for=""
-                                                    class="form-label">{{$item['stock_entry_data']['updated_label']}} </label>
-                                                    @php
-                                                        $inputName = 'row_'.$loop->index.'_'.$item['stock_entry_data']['input_name'];
-                                                    @endphp
-                                                   <input type="text"  wire:model="rows.{{ $inputName }}"
-                                                     wire:keyup="checkQuantity({{ $loop->index }}, '{{ $inputName }}', {{ $item['stock_entry_data']['available_value'] }})"
+                                                    class="form-label">{{$item['stock_entry_data']['updated_label']}}
+                                                </label>
+                                                @php
+                                                $inputName =
+                                                'row_'.$loop->index.'_'.$item['stock_entry_data']['input_name'];
+                                                @endphp
+                                                <input type="text" wire:model="rows.{{ $inputName }}"
+                                                    wire:keyup="checkQuantity({{ $loop->index }}, '{{ $inputName }}', {{ $item['stock_entry_data']['available_value'] }})"
                                                     class="form-control form-control-sm border border-1 p-2 @if(isset($rows['is_valid_'.$inputName]) && !$rows['is_valid_'.$inputName]) is-invalid @endif">
-                                                    @if(isset($rows['is_valid_'.$inputName]) && !$rows['is_valid_'.$inputName])
-                                                        <div class="invalid-feedback">
-                                                            Entered quantity must be less than or equal to available.
-                                                        </div>
-                                                    @endif
+                                                @if(isset($rows['is_valid_'.$inputName]) &&
+                                                    !$rows['is_valid_'.$inputName])
+                                                    <div class="invalid-feedback">
+                                                        Entered quantity must be less than or equal to available.
+                                                    </div>
+                                                @endif
                                             </div>
                                             <div class="col-md-2 mt-4">
-                                               @if(
-                                                    !isset($rows['is_valid_'.$inputName]) 
-                                                    || $rows['is_valid_'.$inputName] === true
+                                                @if(
+                                                !isset($rows['is_valid_'.$inputName])
+                                                || $rows['is_valid_'.$inputName] === true
                                                 )
-                                                    <button class="btn btn-outline-success select-md"  wire:click="updateStock({{ $loop->index }}, '{{ $inputName }}')">
-                                                        Update
-                                                    </button>
-                                                 @endif
-                                                    <button class="btn btn-outline-danger select-md" wire:click="revertBackStock()">Revert Back</button>
+                                                <button class="btn btn-outline-success select-md"
+                                                    wire:click="updateStock({{ $loop->index }}, '{{ $inputName }}')">
+                                                    Update
+                                                </button>
+                                                @endif
+                                                @if($item['has_stock_entry'])
+                                                <button class="btn btn-outline-danger select-md"
+                                                    wire:click="$dispatch('confirm-revert-back', { index: {{ $loop->index }}, inputName: '{{ $inputName }}' })">Revert Back</button>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -271,7 +281,7 @@
                             </td>
                         </tr>
                         @endif
-                        <tr>
+                        {{-- <tr>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -293,10 +303,31 @@
                             <td class="text-left"><small>Remaining Amount:</small></td>
                             <td><strong class="text-danger">{{number_format($order->remaining_amount, 2)}}</strong></td>
                         </tr>
-                        @endif
+                        @endif --}}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    window.addEventListener('confirm-revert-back', event => {
+        const { index, inputName } = event.detail;
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will revert the stock entry update.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, revert it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // use @this.call to run the Livewire method
+                @this.call('revertBackStock', index, inputName);
+            }
+        });
+    });
+</script>

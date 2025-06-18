@@ -227,7 +227,7 @@
             });
         });
 </script>
-<script>
+{{-- <script>
     // Listen for Livewire event and show Bootstrap modal
     window.addEventListener('showStockModal', event => {
         var myModal = new bootstrap.Modal(document.getElementById('stockEntryModal'));
@@ -241,6 +241,6 @@
             myModal.hide();
         }
     });
-</script>
+</script> --}}
 
 
