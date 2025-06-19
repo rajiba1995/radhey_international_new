@@ -209,13 +209,13 @@
                                     <div class="card-body">
                                         <h6>Stock Entry Interface </h6>
                                         <div class="row mb-3">
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label for="" class="form-label"><strong>Collection</strong>
                                                     <span class="text-danger">*</span></label>
                                                 <input type="text" value="{{$item['collection_title']}}"
                                                     class="form-control form-control-sm border border-1 p-2" disabled>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label for="fabric_0" class="form-label"><strong>
                                                         @if ($item['collection_id'] == 2)
                                                         Product
@@ -264,7 +264,12 @@
                                                 @endif
                                                 @if($item['has_stock_entry'])
                                                 <button class="btn btn-outline-danger select-md"
-                                                    wire:click="$dispatch('confirm-revert-back', { index: {{ $loop->index }}, inputName: '{{ $inputName }}' })">Revert Back</button>
+                                                    wire:click="$dispatch('confirm-revert-back', { index: {{ $loop->index }}, inputName: '{{ $inputName }}' })">
+                                                    Revert Back
+                                                </button>
+                                                <button class="btn btn-outline-success select-md" wire:model="$dispatch('con')">
+                                                   Delivery
+                                                </button>
                                                 @endif
                                             </div>
                                         </div>
