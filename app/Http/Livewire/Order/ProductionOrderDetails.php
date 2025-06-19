@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductionOrderDetails extends Component
 {
+    public $showModal = false;
+    public $selectedItem = [];
     public $orderItems = [];
     public $rows = [];
     public $orderId;
@@ -207,6 +209,23 @@ class ProductionOrderDetails extends Component
          // Reset validation for this input
         unset($this->rows['is_valid_'.$inputName]);
     }   
+
+    public function openStockModal($index){
+        $item =  $this->orderItems[$index];
+         $this->selectedItem = [
+            'index' => $index,
+            'collection_title' => $item['collection_title'],
+            'collection_id' => $item['collection_id'],
+            'product_name' => $item['product']['name'] ?? '',
+            'fabric_title' => $item['fabrics']['title'] ?? '',
+            'available_label' => $item['stock_entry_data']['available_label'],
+            'available_value' => $item['stock_entry_data']['available_value'],
+            'updated_label' => $item['stock_entry_data']['updated_label'],
+            'input_name' => 'row_' . $index . '_' . $item['stock_entry_data']['input_name'],
+            'has_stock_entry' => $item['has_stock_entry'],
+      ]; 
+        $this->dispatch('open-stock-modal');
+    }
 
     public function render()
     {

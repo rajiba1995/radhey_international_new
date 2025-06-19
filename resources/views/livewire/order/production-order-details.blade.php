@@ -191,12 +191,12 @@
                             </td>
                             <td colspan="3" class="pt-4" style="vertical-align: text-top !important;">
                                 <p>FABRIC : <strong>{{$item['fabrics']->title}}</strong></p>
-                                <p>CATLOGUE : <strong>{{ optional(optional($item['catalogue'])->catalogueTitle)->title
+                                <p>CATALOGUE : <strong>{{ optional(optional($item['catalogue'])->catalogueTitle)->title
                                         }}</strong> (PAGE:
                                     <strong>{{$item['cat_page_number']}}</strong>)
                                 </p>
 
-
+                               
                             </td>
                         </tr>
 
@@ -204,6 +204,14 @@
                         @endif
                         @if($item['collection_id'] == 1 || $item['collection_id'] == 2)
                         <tr>
+                            <td>
+                                <div>
+                                     <button class="btn btn-outline-success select-md"
+                                wire:click="openStockModal({{$loop->index}})">Enter Stock</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {{-- <tr>
                             <td colspan="5">
                                 <div class="card mt-2 mb-2">
                                     <div class="card-body">
@@ -267,7 +275,7 @@
                                                     wire:click="$dispatch('confirm-revert-back', { index: {{ $loop->index }}, inputName: '{{ $inputName }}' })">
                                                     Revert Back
                                                 </button>
-                                                <button class="btn btn-outline-success select-md" wire:model="$dispatch('con')">
+                                                <button class="btn btn-outline-success select-md" wire:model="">
                                                    Delivery
                                                 </button>
                                                 @endif
@@ -276,7 +284,7 @@
                                     </div>
                                 </div>
                             </td>
-                        </tr>
+                        </tr> --}}
                         @endif
                         @endforeach
                         @else
@@ -311,6 +319,86 @@
                         @endif --}}
                     </tbody>
                 </table>
+                {{-- Stock Entry Modal --}}
+                <div wire:ignore.self class="modal fade" id="stockEntryModal" tabindex="-1" aria-labelledby="stockEntryModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="stockEntryModalLabel">Stock Entry Sheet - {{$order->order_number}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                   <div class="modal-body">
+                        @if ($selectedItem)
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>Stock Entry Interface</h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">
+                                            <strong>Collection</strong> <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" value="{{ $selectedItem['collection_title'] ?? '' }}"
+                                            class="form-control form-control-sm border border-1 p-2" disabled>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">
+                                            <strong>{{ $selectedItem['collection_id'] == 2 ? 'Product' : 'Fabric' }}</strong>
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                            value="{{ $selectedItem['collection_id'] == 2 ? $selectedItem['product_name'] : $selectedItem['fabric_title'] }}"
+                                            class="form-control form-control-sm border border-1 p-2" disabled>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">{{ $selectedItem['available_label'] }}</label>
+                                        <input type="number" value="{{ $selectedItem['available_value'] }}"
+                                            class="form-control form-control-sm border border-1 p-2" disabled>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">{{ $selectedItem['updated_label'] }}</label>
+                                        <input type="text"
+                                            wire:model="rows.{{ $selectedItem['input_name'] }}"
+                                            wire:keyup="checkQuantity({{ $selectedItem['index'] }}, '{{ $selectedItem['input_name'] }}', {{ $selectedItem['available_value'] }})"
+                                            class="form-control form-control-sm border border-1 p-2 @if(isset($rows['is_valid_'.$selectedItem['input_name']]) && !$rows['is_valid_'.$selectedItem['input_name']]) is-invalid @endif">
+                                        @if(isset($rows['is_valid_'.$selectedItem['input_name']]) && !$rows['is_valid_'.$selectedItem['input_name']])
+                                            <div class="invalid-feedback">
+                                                Entered quantity must be less than or equal to available.
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-2 mt-4">
+                                        @if(!isset($rows['is_valid_'.$selectedItem['input_name']]) || $rows['is_valid_'.$selectedItem['input_name']] === true)
+                                        <button class="btn btn-outline-success select-md"
+                                            wire:click="updateStock({{ $selectedItem['index'] }}, '{{ $selectedItem['input_name'] }}')">
+                                            Update
+                                        </button>
+                                        @endif
+                                        @if($selectedItem['has_stock_entry'])
+                                        <button class="btn btn-outline-danger select-md"
+                                            wire:click="$dispatch('confirm-revert-back', { index: {{ $selectedItem['index'] }}, inputName: '{{ $selectedItem['input_name'] }}' })">
+                                            Revert Back
+                                        </button>
+                                        <button class="btn btn-outline-success select-md">
+                                            Delivery
+                                        </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @else
+                        <p class="text-muted">No data loaded.</p>
+                        @endif
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" wire:click="saveStock" class="btn btn-primary">Save Stock</button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -334,5 +422,16 @@
                 @this.call('revertBackStock', index, inputName);
             }
         });
+    });
+</script>
+<script>
+    window.addEventListener('open-stock-modal',event=>{
+        let myModal = new bootstrap.Modal(document.getElementById('stockEntryModal'));
+        myModal.show();
+    });
+
+     window.addEventListener('close-stock-modal',event=>{
+        let myModal = new bootstrap.Modal(document.getElementById('stockEntryModal'));
+        myModal.hide();
     });
 </script>
