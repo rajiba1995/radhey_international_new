@@ -197,7 +197,7 @@ class Helper
 
             return [
                 'available_label' => 'Available Meter',
-                'updated_label'   => 'Updated Meter',
+                'updated_label'   => 'Required Meter',
                 'available_value' => max($globalAvailable - $reserved, 0),
                 'input_name'      => 'updated_meter',
                 'type'            => 'meter'
@@ -213,7 +213,7 @@ class Helper
 
             return [
                 'available_label' => 'Available Pcs',
-                'updated_label'   => 'Updated Pcs',
+                'updated_label'   => 'Required Pcs',
                 'available_value' => max($globalAvailable - $reserved, 0),
                 'input_name'      => 'updated_pcs',
                 'type'            => 'pcs'

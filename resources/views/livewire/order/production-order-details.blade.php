@@ -1,4 +1,10 @@
 <div class="container">
+    <style>
+        
+      .no-padding-td tr td{
+        padding: 12px 6px !important;
+      }
+    </style>
     <section class="admin__title">
         <h5>Order detail</h5>
     </section>
@@ -123,7 +129,7 @@
     <div class="card">
         <div class="table-responsive">
             <div class="card-body">
-                <table class="table table-sm ledger">
+                <table class="table table-sm ledger no-padding-td">
                     <thead>
                         <tr>
                             <th class="" rowspan="1" colspan="1" style="width: 65px;" aria-label="price">Collection</th>
@@ -132,12 +138,16 @@
                             {{-- <th class="" rowspan="1" colspan="1" style="width: 65px;" aria-label="price">price</th> --}}
                             <th class="" rowspan="1" colspan="1" style="width: 50px;" aria-label="qty">
                                 qty</th>
+                            <th class="" rowspan="1" colspan="1" style="width: 50px;" aria-label="used">
+                                Total Used</th>
+                            <th class="" rowspan="1" colspan="1" style="width: 50px;" aria-label="">
+                                Action</th>
                             {{-- <th class="" rowspan="1" colspan="1" style="width: 80px;" aria-label="total">total</th> --}}
                         </tr>
                     </thead>
                     <tbody>
                         @if ($orderItems->isNotEmpty())
-
+                        
                         @foreach ($orderItems as $item)
                         {{-- {{dd()}} --}}
                         <tr class="odd" style="background-color: #f2f2f2;">
@@ -165,7 +175,42 @@
                             </td>
                             {{-- <td><span>{{number_format($item['price'], 2)}}</span></td> --}}
                             <td><span>{{$item['quantity']}}</span></td>
-                            {{-- <td><span>{{number_format($item['price']*$item['quantity'], 2)}}</span></td> --}}
+                            @if ($item['has_stock_entry'])
+                            
+                                <td>
+                                    @php
+                                        $inputName = 'row_' . $loop->index . '_' . $item['stock_entry_data']['input_name'];
+                                        $required = $item['stock_entry_data']['available_value'] ?? 0;
+                                        $totalUsed = $item['total_used'] ?? 0;
+                                        $isFabric = $item['collection_id'] == 1;
+                                        $unit = $isFabric ? 'meters' : 'pieces';
+                                    @endphp
+                                    <span>{{$totalUsed}} {{$unit}}</span>
+
+                                   
+                                </td>
+                            @else
+                              <td>0</td>
+                            @endif
+                           <td>
+                                <div>
+                                    <button class="btn btn-outline-success select-md"
+                                        wire:click="openStockModal({{$loop->index}})">
+                                        @if ($item['has_stock_entry'])
+                                        Update Stock
+                                        @else
+                                        Enter Stock  
+                                        @endif 
+                                    </button>
+                                    @if ($item['has_stock_entry'])
+                                        <button class="btn btn-outline-success select-md"
+                                        wire:click="openDeliveryModal({{ $loop->index }})">
+                                            Delivery
+                                        </button>
+                                    @endif
+                                    
+                                </div>
+                            </td>
                         </tr>
                         @if($item['collection_id']==1)
                         <tr>
@@ -202,90 +247,7 @@
 
 
                         @endif
-                        @if($item['collection_id'] == 1 || $item['collection_id'] == 2)
-                        <tr>
-                            <td>
-                                <div>
-                                     <button class="btn btn-outline-success select-md"
-                                wire:click="openStockModal({{$loop->index}})">Enter Stock</button>
-                                </div>
-                            </td>
-                        </tr>
-                        {{-- <tr>
-                            <td colspan="5">
-                                <div class="card mt-2 mb-2">
-                                    <div class="card-body">
-                                        <h6>Stock Entry Interface </h6>
-                                        <div class="row mb-3">
-                                            <div class="col-md-2">
-                                                <label for="" class="form-label"><strong>Collection</strong>
-                                                    <span class="text-danger">*</span></label>
-                                                <input type="text" value="{{$item['collection_title']}}"
-                                                    class="form-control form-control-sm border border-1 p-2" disabled>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label for="fabric_0" class="form-label"><strong>
-                                                        @if ($item['collection_id'] == 2)
-                                                        Product
-                                                        @else
-                                                        Fabric
-                                                        @endif
-                                                    </strong> <span class="text-danger">*</span></label>
-                                                <input type="text"
-                                                    value="@if($item['collection_id'] == 2) {{ $item['product']->name }} @else {{ $item['fabrics']->title }} @endif"
-                                                    class="form-control form-control-sm border border-1 p-2" disabled>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label for="" class="form-label">{{
-                                                    $item['stock_entry_data']['available_label'] }} </label>
-                                                <input type="number"
-                                                    value="{{ $item['stock_entry_data']['available_value'] }}" disabled
-                                                    class="form-control form-control-sm border border-1 p-2">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <label for=""
-                                                    class="form-label">{{$item['stock_entry_data']['updated_label']}}
-                                                </label>
-                                                @php
-                                                $inputName =
-                                                'row_'.$loop->index.'_'.$item['stock_entry_data']['input_name'];
-                                                @endphp
-                                                <input type="text" wire:model="rows.{{ $inputName }}"
-                                                    wire:keyup="checkQuantity({{ $loop->index }}, '{{ $inputName }}', {{ $item['stock_entry_data']['available_value'] }})"
-                                                    class="form-control form-control-sm border border-1 p-2 @if(isset($rows['is_valid_'.$inputName]) && !$rows['is_valid_'.$inputName]) is-invalid @endif">
-                                                @if(isset($rows['is_valid_'.$inputName]) &&
-                                                    !$rows['is_valid_'.$inputName])
-                                                    <div class="invalid-feedback">
-                                                        Entered quantity must be less than or equal to available.
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-2 mt-4">
-                                                @if(
-                                                !isset($rows['is_valid_'.$inputName])
-                                                || $rows['is_valid_'.$inputName] === true
-                                                )
-                                                <button class="btn btn-outline-success select-md"
-                                                    wire:click="updateStock({{ $loop->index }}, '{{ $inputName }}')">
-                                                    Update
-                                                </button>
-                                                @endif
-                                                @if($item['has_stock_entry'])
-                                                <button class="btn btn-outline-danger select-md"
-                                                    wire:click="$dispatch('confirm-revert-back', { index: {{ $loop->index }}, inputName: '{{ $inputName }}' })">
-                                                    Revert Back
-                                                </button>
-                                                <button class="btn btn-outline-success select-md" wire:model="">
-                                                   Delivery
-                                                </button>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr> --}}
-                        @endif
+                       
                         @endforeach
                         @else
                         <tr>
@@ -359,28 +321,32 @@
                                         <input type="text"
                                             wire:model="rows.{{ $selectedItem['input_name'] }}"
                                             wire:keyup="checkQuantity({{ $selectedItem['index'] }}, '{{ $selectedItem['input_name'] }}', {{ $selectedItem['available_value'] }})"
-                                            class="form-control form-control-sm border border-1 p-2 @if(isset($rows['is_valid_'.$selectedItem['input_name']]) && !$rows['is_valid_'.$selectedItem['input_name']]) is-invalid @endif">
-                                        @if(isset($rows['is_valid_'.$selectedItem['input_name']]) && !$rows['is_valid_'.$selectedItem['input_name']])
+                                            class="form-control form-control-sm border border-1 p-2 @error($selectedItem['input_name']) is-invalid @enderror">
+                                        {{-- @if(isset($rows['is_valid_'.$selectedItem['input_name']]) && !$rows['is_valid_'.$selectedItem['input_name']])
                                             <div class="invalid-feedback">
                                                 Entered quantity must be less than or equal to available.
                                             </div>
-                                        @endif
+                                        @endif --}}
+                                        @error( $selectedItem['input_name'])
+                                             <div class="invalid-feedback">
+                                                 {{$message}}
+                                            </div>
+                                        @enderror
                                     </div>
                                     <div class="col-md-2 mt-4">
-                                        @if(!isset($rows['is_valid_'.$selectedItem['input_name']]) || $rows['is_valid_'.$selectedItem['input_name']] === true)
+                                        
                                         <button class="btn btn-outline-success select-md"
                                             wire:click="updateStock({{ $selectedItem['index'] }}, '{{ $selectedItem['input_name'] }}')">
                                             Update
                                         </button>
-                                        @endif
                                         @if($selectedItem['has_stock_entry'])
                                         <button class="btn btn-outline-danger select-md"
                                             wire:click="$dispatch('confirm-revert-back', { index: {{ $selectedItem['index'] }}, inputName: '{{ $selectedItem['input_name'] }}' })">
                                             Revert Back
                                         </button>
-                                        <button class="btn btn-outline-success select-md">
+                                        {{-- <button class="btn btn-outline-success select-md">
                                             Delivery
-                                        </button>
+                                        </button> --}}
                                         @endif
                                     </div>
                                 </div>
@@ -393,12 +359,67 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" wire:click="saveStock" class="btn btn-primary">Save Stock</button>
+                        {{-- <button type="button"  class="btn btn-primary">Save Stock</button> --}}
                     </div>
                     </div>
                 </div>
                 </div>
 
+                {{-- Delivery Process Modal --}}
+                <div wire:ignore.self class="modal fade" id="delieveryProcessModal" tabindex="-1" aria-labelledby="delieveryProcessModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="delieveryProcessModalLabel">Process Delivery - {{$order->order_number}}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                   <div class="modal-body">
+                        <div class="card">
+                           <div class="card-body">
+                                <!-- Row for Stock Validation -->
+                                <div class="row align-items-center mb-4">
+                                    <div class="col-md-6">
+                                        <strong>Planned Usage:</strong> 20 meters
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="actualUsage" class="form-label mb-1">Actual Usage (meters)</label>
+                                        <input type="number" class="form-control" id="actualUsage" placeholder="0">
+                                    </div>
+                                </div>
+
+                                <!-- Row for Delivery Type -->
+                                <div class="row">
+                                    <label class="form-label mb-2">Delivery Type</label>
+                                    <div class="col-auto">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="deliveryType" id="fullyDelivered" value="full" checked>
+                                            <label class="form-check-label" for="fullyDelivered">
+                                                Fully Delivered
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="deliveryType" id="partlyDelivered" value="partial">
+                                            <label class="form-check-label" for="partlyDelivered">
+                                                Partly Delivered
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                       
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        {{-- <button type="button"  class="btn btn-primary">Save Stock</button> --}}
+                    </div>
+                    </div>
+                </div>
+                </div>
             </div>
         </div>
     </div>
@@ -425,6 +446,7 @@
     });
 </script>
 <script>
+    // for the stock modal open and close
     window.addEventListener('open-stock-modal',event=>{
         let myModal = new bootstrap.Modal(document.getElementById('stockEntryModal'));
         myModal.show();
@@ -434,4 +456,11 @@
         let myModal = new bootstrap.Modal(document.getElementById('stockEntryModal'));
         myModal.hide();
     });
+
+    // for the delivery modal open and close
+    // window.addEventListener('open-delivery-modal',event=>{
+    //     let myModal = new bootstrap.Modal(document.getElementById('delieveryProcessModal'));
+    //     myModal.show();
+    // });
+
 </script>
