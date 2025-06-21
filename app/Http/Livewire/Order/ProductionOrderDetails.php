@@ -8,6 +8,7 @@ use \App\Models\StockFabric;
 use \App\Models\StockProduct;
 use \App\Models\OrderStockEntry;
 use \App\Models\ChangeLog;
+use \App\Models\Delivery;
 use Livewire\Component;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,10 @@ class ProductionOrderDetails extends Component
     public $latestOrders = [];
     public $order;
     public $available_meter;
+    public $selectedDeliveryItem = [];
+    public $actualUsage;
+    public $deliveryType = 'full';
+    public $showExtraStockPrompt;
 
     public function mount($id){
         $this->orderId = $id;
@@ -61,131 +66,7 @@ class ProductionOrderDetails extends Component
 
    
 
-    // public function updateStock($index, $inputName)
-    // {
-    //     try {
-    //         DB::beginTransaction();
-    //         $item = $this->orderItems[$index];
-    //         $orderItemId = $item['id'];
-    //         $enteredQuantity = $this->rows[$inputName] ?? 0;
-
-    //         $validator = Validator::make(
-    //             [$inputName => $enteredQuantity],
-    //             [
-    //                 $inputName => [
-    //                     'required',
-    //                     'numeric',
-    //                     'min:1',
-    //                     // 'max:' . $item['stock_entry_data']['available_value'],
-    //                 ],
-    //             ],
-    //             [
-    //                 $inputName . '.required' => 'Quantity is required.',
-    //                 $inputName . '.numeric' => 'Quantity must be numeric.',
-    //                 $inputName . '.min' => 'Quantity must be at least 1.',
-    //                 // $inputName . '.max' => 'Quantity must be less than or equal to available.',
-    //             ]
-    //         );
-
-    //         if ($validator->fails()) {
-    //             $this->rows['is_valid_' . $inputName] = false;
-    //             $this->addError($inputName, $validator->errors()->first($inputName));
-    //             DB::rollBack();
-    //             return;
-    //         }
-
-    //         //   $stockEntry = OrderStockEntry::where('order_item_id',$orderItemId)->first();
-    //         // if ($item['collection_id'] == 1) {
-    //         //     $fabricId = $item['fabrics']->id;
-    //         //     $stock = StockFabric::where('fabric_id', $fabricId)->first();
-                
-
-    //         // } elseif ($item['collection_id'] == 2) {
-    //         //      $productId = $item['product']->id;
-    //         //     $stock = StockProduct::where('product_id', $productId)->first();
-    //         // }
-
-           
-           
-    //         //  Use updateOrCreate
-    //         $stock_entry = OrderStockEntry::where([
-    //             'order_id' => $this->orderId,
-    //             'order_item_id' => $orderItemId,
-    //             'fabric_id' => $item['collection_id'] == 1 ? $item['fabrics']->id : null,
-    //             'product_id' => $item['collection_id'] == 2 ? $item['product']->id : null,
-    //         ])->first();
-
-    //         if ($stock_entry) {
-    //             //  Add to existing quantity
-    //             $stock_entry->update([
-    //                 'quantity' => $stock_entry->quantity + $enteredQuantity,
-    //                 'unit' => $item['stock_entry_data']['type'],
-    //                 'created_by' => auth()->guard('admin')->user()->id,
-    //             ]);
-    //         } else {
-    //             //  Create new entry
-    //             OrderStockEntry::create([
-    //                 'order_id'     => $this->orderId,
-    //                 'order_item_id'=> $orderItemId,
-    //                 'fabric_id'    => $item['collection_id'] == 1 ? $item['fabrics']->id : null,
-    //                 'product_id'   => $item['collection_id'] == 2 ? $item['product']->id : null,
-    //                 'quantity'     => $enteredQuantity,
-    //                 'unit'         => $item['stock_entry_data']['type'],
-    //                 'created_by'   => auth()->guard('admin')->user()->id,
-    //             ]);
-    //         }
-
-
-    //         //  Adjust stock properly:
-    //         if ($item['collection_id'] == 1) {
-    //             $fabricId = $item['fabrics']->id;
-    //             $stock = StockFabric::where('fabric_id', $fabricId)->first();
-
-    //             // Calculate total used for this fabric in this order
-    //             $totalUsed = OrderStockEntry::where('fabric_id', $fabricId)
-    //                 ->where('order_id', $this->orderId)
-    //                 ->sum('quantity');
-
-    //             // Update stock: original - total used
-    //             $initial = $stock->qty_in_meter + $totalUsed - $enteredQuantity; // previous value before this update
-    //             $newQty = max($initial - $totalUsed, 0);
-    //             $stock->update(['qty_in_meter' => $newQty]);
-
-    //         } elseif ($item['collection_id'] == 2) {
-    //             $productId = $item['product']->id;
-    //             $stock = StockProduct::where('product_id', $productId)->first();
-
-    //             // Calculate total used for this product in this order
-    //             $totalUsed = OrderStockEntry::where('product_id', $productId)
-    //                 ->where('order_id', $this->orderId)
-    //                 ->sum('quantity');
-
-    //             $initial = $stock->qty_in_pieces + $totalUsed - $enteredQuantity;
-    //             $newQty = max($initial - $totalUsed, 0);
-    //             $stock->update(['qty_in_pieces' => $newQty]);
-    //         }
-
-    //         // Log
-    //         ChangeLog::create([
-    //             'done_by' => auth()->guard('admin')->user()->id,
-    //             'purpose' => 'stock_entry_update',
-    //             'data_details' => json_encode($stock_entry)
-    //         ]);
-
-    //         DB::commit();
-
-    //         $this->rows['is_done_' . $inputName] = true;
-    //         $this->resetPage($inputName);
-    //         $this->loadOrderItems();
-    //         $this->openStockModal($index);
-
-    //         return redirect()->route('production.order.details', $this->orderId);
-
-    //     } catch (\Throwable $e) {
-    //         DB::rollBack();
-    //         dd($e->getMessage());
-    //     }
-    // }
+ 
 
     public function updateStock($index, $inputName)
     {
@@ -427,9 +308,94 @@ class ProductionOrderDetails extends Component
         $this->dispatch('open-stock-modal');
     }
 
-    public function openDeliveryModal($index){
+    public function openDeliveryModal($index)
+    {
+        $item = $this->orderItems[$index];
+
+        $fabricId = $item['collection_id'] == 1 ? ($item['fabrics']->id ?? null) : null;
+        $productId = $item['collection_id'] == 2 ? ($item['product']->id ?? null) : null;
+
+        $plannedUsage = OrderStockEntry::query()
+            ->where('order_item_id', $item['id'])
+            ->when($fabricId, fn($q) => $q->where('fabric_id', $fabricId))
+            ->when($productId, fn($q) => $q->where('product_id', $productId))
+            ->sum('quantity');
+
+        $unit = $item['collection_id'] == 1 ? 'meters' : 'pieces';
+        
+        $this->selectedDeliveryItem = [
+            'item_id' => $item['id'],
+            'index' => $index,
+            'collection_id' => $item['collection_id'],
+            'collection_title' => $item['collection_title'],
+            'product_name' => $item['product']['name'] ?? '',
+            'fabric_title' => $item['fabrics']['title'] ?? '',
+            'product_id'   => $productId,
+            'fabric_id'    => $fabricId,
+            'planned_usage' => $plannedUsage,
+            'unit' => $unit,
+        ];
+
         $this->dispatch('open-delivery-modal');
     }
+
+    public function checkActualUsage()
+    {   
+        $planned = $this->selectedDeliveryItem['planned_usage'] ?? 0;
+        if ($this->actualUsage > $planned) {
+            $this->showExtraStockPrompt = true;
+        } else {
+            $this->showExtraStockPrompt = false;
+        }
+    }
+
+    public function updatedActualUsage()
+    {
+        $planned = $this->selectedDeliveryItem['planned_usage'] ?? 0;
+        $this->showExtraStockPrompt = $this->actualUsage > $planned;
+    }
+
+    public function addExtraStock(){
+        $index = $this->selectedDeliveryItem['index'] ?? null;
+
+        if ($index !== null) {
+            $this->dispatch('close-delivery-modal');
+
+            $this->openStockModal($index);
+            // Also hide the prompt:
+            $this->showExtraStockPrompt = false;
+        }
+    }
+
+    public function processDelivery(){
+       
+       $this->validate([
+        'actualUsage' => 'required|numeric|min:1',
+       ]);
+
+       $item = $this->selectedDeliveryItem;
+       $actual = $this->actualUsage;
+       $deliverType = $this->deliveryType ?? 'full';
+       
+     //    Create the delivery
+       Delivery::create([
+           'order_id' => $this->orderId,
+           'order_item_id' => $item['item_id'],
+           'delivery_type' => $deliverType,
+           'product_id'    => $item['collection_id'] == 2 ? ($item['product_id'] ?? null)  : null,
+           'fabric_id'     => $item['collection_id'] == 1 ? ($item['fabric_id'] ?? null)   : null,
+           'delivered_quantity'=> $actual,
+           'unit'   => $item['unit'],
+           'delivered_by' => auth()->guard('admin')->user()->id,
+           'delivered_at' => now()
+       ]);
+
+        $this->actualUsage = null;
+         $this->loadOrderItems();
+         $this->dispatch('close-delivery-modal');
+         return redirect()->route('production.order.details',$this->orderId);
+    }
+
 
     public function render()
     {

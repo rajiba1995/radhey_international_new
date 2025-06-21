@@ -281,6 +281,7 @@
                         @endif --}}
                     </tbody>
                 </table>
+
                 {{-- Stock Entry Modal --}}
                 <div wire:ignore.self class="modal fade" id="stockEntryModal" tabindex="-1" aria-labelledby="stockEntryModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
@@ -379,20 +380,34 @@
                                 <!-- Row for Stock Validation -->
                                 <div class="row align-items-center mb-4">
                                     <div class="col-md-6">
-                                        <strong>Planned Usage:</strong> 20 meters
+                                        <strong>Total Usage:</strong> 
+                                        {{-- 20 meters --}}
+                                        {{ $selectedDeliveryItem['planned_usage'] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }}
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="actualUsage" class="form-label mb-1">Actual Usage (meters)</label>
-                                        <input type="number" class="form-control" id="actualUsage" placeholder="0">
+                                        <label for="actualUsage" class="form-label mb-1">Actual Usage ({{ $selectedDeliveryItem['unit'] ?? '' }})</label>
+                                        <input type="number" class="form-control @error('actualUsage') is-invalid @enderror" id="actualUsage" wire:model="actualUsage" 
+                                        wire:keyup="checkActualUsage">
+                                        @error('actualUsage')
+                                            <p class="small text-danger">{{$message}}</p>
+                                        @enderror
                                     </div>
                                 </div>
+
+                                @if ($showExtraStockPrompt)
+                                    <div class="bg-danger p-3 rounded mt-3 mb-2">
+                                         <i class="material-icons text-warning me-2" style="font-size: 20px;">warning</i>
+                                        Actual usage ({{$actualUsage}} {{$selectedDeliveryItem['unit'] ?? ''}}) exceeds total usage ({{$selectedDeliveryItem['planned_usage']}} {{$selectedDeliveryItem['unit'] ?? ''}}). 
+                                        Please add extra stock entries before proceeding.
+                                    </div>
+                                @endif
 
                                 <!-- Row for Delivery Type -->
                                 <div class="row">
                                     <label class="form-label mb-2">Delivery Type</label>
                                     <div class="col-auto">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="deliveryType" id="fullyDelivered" value="full" checked>
+                                            <input class="form-check-input" type="radio" wire:model="deliveryType" id="fullyDelivered" value="full" checked>
                                             <label class="form-check-label" for="fullyDelivered">
                                                 Fully Delivered
                                             </label>
@@ -400,7 +415,7 @@
                                     </div>
                                     <div class="col-auto">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="deliveryType" id="partlyDelivered" value="partial">
+                                            <input class="form-check-input" type="radio" wire:model="deliveryType"   id="partlyDelivered" value="partial">
                                             <label class="form-check-label" for="partlyDelivered">
                                                 Partly Delivered
                                             </label>
@@ -408,14 +423,24 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-                       
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        {{-- <button type="button"  class="btn btn-primary">Save Stock</button> --}}
+                        <button type="button" class="btn btn-sm btn-outline-dark" data-bs-dismiss="modal">Close</button>
+                        @if($showExtraStockPrompt)
+                             <button type="button" 
+                                    class="btn btn-sm btn-outline-primary mt-2"
+                                    wire:click="addExtraStock">
+                                Add Extra Stock
+                            </button>
+                        @else
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-primary mt-2"
+                                    wire:click="processDelivery">
+                                Process Delivery
+                            </button>
+                        @endif
                     </div>
                     </div>
                 </div>
@@ -458,9 +483,15 @@
     });
 
     // for the delivery modal open and close
-    // window.addEventListener('open-delivery-modal',event=>{
-    //     let myModal = new bootstrap.Modal(document.getElementById('delieveryProcessModal'));
-    //     myModal.show();
-    // });
+     window.addEventListener('open-delivery-modal',event=>{
+        let myModal = new bootstrap.Modal(document.getElementById('delieveryProcessModal'));
+         myModal.show();
+     });
+
+       window.addEventListener('close-delivery-modal',event=>{
+        let myModal = new bootstrap.Modal(document.getElementById('delieveryProcessModal'));
+         myModal.show();
+     });
+
 
 </script>
