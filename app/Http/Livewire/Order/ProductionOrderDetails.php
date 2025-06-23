@@ -25,8 +25,8 @@ class ProductionOrderDetails extends Component
     public $order;
     public $available_meter;
     public $selectedDeliveryItem = [];
-    public $actualUsage;
-    public $deliveryType = 'full';
+    public $actualUsage = [];
+    // public $deliveryType = 'full';
     public $showExtraStockPrompt;
 
     public function mount($id){
@@ -51,22 +51,7 @@ class ProductionOrderDetails extends Component
 
     }
 
-    public function checkQuantity($index,$inputName, $available)
-    {
-        // Find the item
-       
-        $entered = $this->rows[$inputName] ?? 0;
-
-        if ($entered > $available) {
-            $this->rows['is_valid_'.$inputName] = false;
-        } else {
-            $this->rows['is_valid_'.$inputName] = true;
-        }
-    }
-
-   
-
- 
+  
 
     public function updateStock($index, $inputName)
     {
@@ -228,7 +213,7 @@ class ProductionOrderDetails extends Component
                 $item->id
             );
            $hasStockEntry = OrderStockEntry::where('order_item_id', $item->id)->exists();
-
+            
            $stock = null;
            $totalStock = 0;
            $used = 0;
@@ -237,11 +222,17 @@ class ProductionOrderDetails extends Component
                 $stock = StockFabric::where('fabric_id',$item->fabrics)->first();
                 $totalStock = $stock ? $stock->qty_in_meter : 0;
                 $used = OrderStockEntry::where('order_item_id', $item->id)->sum('quantity');
+                $isDelivered = Delivery::where('order_item_id', $item->id)
+                                        ->where('fabric_id', $item->fabrics)
+                                        ->exists();
             }elseif ($item->collection == 2) {
                 // Product
                 $stock = StockProduct::where('product_id', $item->product_id)->first();
                 $totalStock = $stock ? $stock->qty_in_pieces : 0;
                 $used = OrderStockEntry::where('order_item_id', $item->id)->sum('quantity');
+                $isDelivered = Delivery::where('order_item_id', $item->id)
+                                            ->where('product_id', $item->product_id)
+                                            ->exists();
            }
 
             $initialStock = $totalStock + $used; // initial = current + used
@@ -264,7 +255,8 @@ class ProductionOrderDetails extends Component
                 'stock_entry_data' => $stockData,
                 'has_stock_entry'  => $hasStockEntry,
                 'total_used' => $totalUsed,
-                'initial_stock' => $initialStock
+                'initial_stock' => $initialStock,
+                'is_delivered' => $isDelivered,
             ];
         });
         
@@ -308,21 +300,37 @@ class ProductionOrderDetails extends Component
         $this->dispatch('open-stock-modal');
     }
 
-    public function openDeliveryModal($index)
+   
+
+        public function openDeliveryModal($index)
     {
         $item = $this->orderItems[$index];
 
-        $fabricId = $item['collection_id'] == 1 ? ($item['fabrics']->id ?? null) : null;
-        $productId = $item['collection_id'] == 2 ? ($item['product']->id ?? null) : null;
+        $plannedUsage = 0;
+        $unit = '';
+        $fabricId = null;
+        $productId = null;
 
-        $plannedUsage = OrderStockEntry::query()
-            ->where('order_item_id', $item['id'])
-            ->when($fabricId, fn($q) => $q->where('fabric_id', $fabricId))
-            ->when($productId, fn($q) => $q->where('product_id', $productId))
-            ->sum('quantity');
+        $stockProduct = 0;
+        if ($item['collection_id'] == 1) {
+            $fabricId = $item['fabrics']->id ?? null;
+            $plannedUsage = OrderStockEntry::query()
+                ->where('order_item_id', $item['id'])
+                ->when($fabricId, fn($q) => $q->where('fabric_id', $fabricId))
+                ->sum('quantity');
+             $unit = 'meters';
+             $this->actualUsage[$item['id']] = null;
+             $stockProduct = StockFabric::where('fabric_id', $fabricId)->sum('qty_in_meter');
+        } elseif ($item['collection_id'] == 2) {
+            $productId = $item['product']->id ?? null;
+            $stockProduct = StockProduct::where('product_id',$productId)->sum('qty_in_pieces');
+            $plannedUsage = $item['quantity'];
+            $unit = 'pieces';
 
-        $unit = $item['collection_id'] == 1 ? 'meters' : 'pieces';
-        
+            // For collection_id == 2, prefill actualUsage:
+            $this->actualUsage[$item['id']] = $plannedUsage;
+        }
+
         $this->selectedDeliveryItem = [
             'item_id' => $item['id'],
             'index' => $index,
@@ -333,21 +341,33 @@ class ProductionOrderDetails extends Component
             'product_id'   => $productId,
             'fabric_id'    => $fabricId,
             'planned_usage' => $plannedUsage,
+            'stock_product' => $stockProduct,
             'unit' => $unit,
         ];
+        // dd($this->selectedDeliveryItem);
 
         $this->dispatch('open-delivery-modal');
     }
 
-    public function checkActualUsage()
-    {   
-        $planned = $this->selectedDeliveryItem['planned_usage'] ?? 0;
-        if ($this->actualUsage > $planned) {
-            $this->showExtraStockPrompt = true;
+   
+
+
+ 
+
+        public function checkActualUsage()
+    {
+        if ($this->selectedDeliveryItem['collection_id'] == 1) {
+            $planned = $this->selectedDeliveryItem['planned_usage'] ?? 0;
+            $itemId = $this->selectedDeliveryItem['item_id'] ?? null;
+            $actual = floatval($this->actualUsage[$itemId] ?? 0);
+
+            $this->showExtraStockPrompt = $actual > $planned;
         } else {
             $this->showExtraStockPrompt = false;
         }
     }
+
+
 
     public function updatedActualUsage()
     {
@@ -360,28 +380,41 @@ class ProductionOrderDetails extends Component
 
         if ($index !== null) {
             $this->dispatch('close-delivery-modal');
-
+             // Reset delivery state
+            $this->reset(['actualUsage', 'showExtraStockPrompt']);
             $this->openStockModal($index);
             // Also hide the prompt:
-            $this->showExtraStockPrompt = false;
+            // $this->showExtraStockPrompt = false;
         }
     }
 
     public function processDelivery(){
        
+        $item = $this->selectedDeliveryItem;
+         $itemId = $item['item_id'];
        $this->validate([
-        'actualUsage' => 'required|numeric|min:1',
-       ]);
+        'actualUsage.' . $itemId => 'required|numeric|min:1',
+    ],
+    [
+        'actualUsage.*.required' => 'Please enter the actual usage.',
+        'actualUsage.*.numeric'  => 'The actual usage must be a number.',
+        'actualUsage.*.min'      => 'The actual usage must be at least 1.',
+    ]);
 
-       $item = $this->selectedDeliveryItem;
-       $actual = $this->actualUsage;
-       $deliverType = $this->deliveryType ?? 'full';
-       
+        $actual = $this->actualUsage[$itemId];
+        $availableStock = $item['stock_product'] ?? 0;
+        $plannedUsage = $item['planned_usage'] ?? 0;
+
+        if ($availableStock < $plannedUsage) {
+            // Add error to session (shows automatically in Blade)
+            session()->flash('stock_error', 'Available stock ('. $availableStock .') is less than the required usage ('. $plannedUsage .'). Please add stock first.');
+            return;
+        }       
      //    Create the delivery
        Delivery::create([
            'order_id' => $this->orderId,
-           'order_item_id' => $item['item_id'],
-           'delivery_type' => $deliverType,
+           'order_item_id' => $itemId,
+        //    'delivery_type' => $deliverType,
            'product_id'    => $item['collection_id'] == 2 ? ($item['product_id'] ?? null)  : null,
            'fabric_id'     => $item['collection_id'] == 1 ? ($item['fabric_id'] ?? null)   : null,
            'delivered_quantity'=> $actual,
@@ -390,7 +423,11 @@ class ProductionOrderDetails extends Component
            'delivered_at' => now()
        ]);
 
-        $this->actualUsage = null;
+    //    $stco
+
+
+
+        unset($this->actualUsage[$itemId]);
          $this->loadOrderItems();
          $this->dispatch('close-delivery-modal');
          return redirect()->route('production.order.details',$this->orderId);

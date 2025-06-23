@@ -639,9 +639,32 @@
 
                         <!-- Product -->
                         @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
-                        <div class="mb-3 col-md-3">
+                        <div class="col-md-2 col-12 mb-3">
+                            <label class="form-label"><strong>Quantity</strong><span class="text-danger">*</span></label>
+                            <input type="number"
+                                wire:model="items.{{ $index }}.quantity"
+                                class="form-control form-control-sm border border-1 customer_input 
+                                @error('items.' . $index . '.quantity') border-danger @enderror"
+                                placeholder="Enter quantity" min="1">
+                            @error('items.' . $index . '.quantity')
+                            <div class="text-danger error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3 col-md-2">
                             @else
-                            <div class="col-md-3 col-12 mb-3">
+                             <div class="col-md-2 col-12 mb-3">
+                                <label class="form-label"><strong>Quantity</strong><span class="text-danger">*</span></label>
+                                <input type="number"
+                                    wire:model="items.{{ $index }}.quantity"
+                                    class="form-control form-control-sm border border-1 customer_input 
+                                    @error('items.' . $index . '.quantity') border-danger @enderror"
+                                    placeholder="Enter quantity" min="1">
+                                @error('items.' . $index . '.quantity')
+                                <div class="text-danger error-message">{{ $message }}</div>
+                                @enderror
+                             </div>
+
+                            <div class="col-md-2 col-12 mb-3">
                                 @endif
                                 <label class="form-label"><strong>Product</strong></label>
                                 <input type="text" wire:keyup="FindProduct($event.target.value, {{ $index }})"
@@ -667,7 +690,7 @@
                                 <div class="text-danger error-message">{{ $message }}</div>
                                 @enderror
                             </div>
-
+                           
                             @if(isset($items[$index]['collection']) && $items[$index]['collection'] == 1)
                             {{-- Fabric --}}
                             <div class="col-md-2 col-12 mb-3 position-relative">
@@ -693,7 +716,7 @@
                             </div>
                             {{-- <div class="col-12 col-md-2"></div> --}}
                             {{-- Price --}}
-                            <div class="col-md-3 col-12 mb-3">
+                            <div class="col-md-2 col-12 mb-3">
                                 <div class="d-flex align-items-end gap-2">
                                     <!-- Price Input -->
                                     <div>

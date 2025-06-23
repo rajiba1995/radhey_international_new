@@ -316,6 +316,7 @@ class OrderNew extends Component
             'items.*.category' => 'required|string',
             'items.*.searchproduct' => 'required|string',
             'items.*.product_id' => 'required|integer',
+            'items.*.quantity' => 'required|numeric|min:1',
             'items.*.selectedCatalogue' => 'required_if:items.*.collection,1',
             'items.*.page_number' => 'required_if:items.*.collection,1',
             'items.*.price' => 'required|numeric|min:1',  
@@ -340,6 +341,7 @@ class OrderNew extends Component
             'items.required' => 'Please add at least one item to the order.',
              'items.*.category.required' => 'Please select a category for the item.',
              'items.*.searchproduct.required' => 'Please select a product for the item.',
+              'items.*.quantity' => 'Please select a quantity for the item.',
              'items.*.selectedCatalogue.required_if' => 'Please select a catalogue for the item.',
              'items.*.page_number.required_if' => 'Please select a page for the item.',
              'items.*.price.required'  => 'Please enter a price for the item.',
@@ -1061,7 +1063,7 @@ class OrderNew extends Component
                 $orderItem->product_name = $item['searchproduct'];
                 $orderItem->remarks  = $item['remarks'] ?? null;
                 $orderItem->piece_price = $item['price'];
-                $orderItem->quantity = 1;
+                $orderItem->quantity = $item['quantity'];
                 $itemPrice = floatval($item['price']);
                 $orderItem->total_price = $itemPrice * $orderItem->quantity;
                 $orderItem->fabrics = $fabric_data ? $fabric_data->id : "";

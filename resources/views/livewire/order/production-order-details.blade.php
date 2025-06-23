@@ -32,14 +32,7 @@
                                 </p>
                             </div>
                         </div>
-                        {{-- <div class="row">
-                            <div class="col-sm-4">
-                                <p class="small m-0"><strong>Order Amount :</strong></p>
-                            </div>
-                            <div class="col-sm-8">
-                                <p class="small m-0">{{number_format($order->total_amount, 2)}}</p>
-                            </div>
-                        </div> --}}
+                       
                         <div class="row">
                             <div class="col-sm-4">
                                 <p class="small m-0"><strong>Order Time :</strong></p>
@@ -96,14 +89,7 @@
                                 <p class="small m-0"> {{$order->customer? $order->customer->phone: ""}}</p>
                             </div>
                         </div>
-                        {{-- <div class="row">
-                            <div class="col-sm-4">
-                                <p class="small m-0"><strong>WhatsApp :</strong></p>
-                            </div>
-                            <div class="col-sm-8">
-                                <p class="small m-0"> {{$order->customer? $order->customer->whatsapp_no: ""}}</p>
-                            </div>
-                        </div> --}}
+                       
                         <div class="row">
                             <div class="col-sm-4">
                                 <p class="small m-0"><strong> Address :</strong></p>
@@ -112,14 +98,7 @@
                                 <p class="small m-0">{{$order->billing_address}}</p>
                             </div>
                         </div>
-                        {{-- <div class="row">
-                            <div class="col-sm-4">
-                                <p class="small m-0"><strong>Shipping Address :</strong></p>
-                            </div>
-                            <div class="col-sm-8">
-                                <p class="small m-0">{{$order->shipping_address}}</p>
-                            </div>
-                        </div> --}}
+                       
 
                     </div>
                 </div>
@@ -194,6 +173,7 @@
                             @endif
                            <td>
                                 <div>
+                                    @if ($item['collection_id'] == 1)
                                     <button class="btn btn-outline-success select-md"
                                         wire:click="openStockModal({{$loop->index}})">
                                         @if ($item['has_stock_entry'])
@@ -202,11 +182,32 @@
                                         Enter Stock  
                                         @endif 
                                     </button>
-                                    @if ($item['has_stock_entry'])
-                                        <button class="btn btn-outline-success select-md"
-                                        wire:click="openDeliveryModal({{ $loop->index }})">
-                                            Delivery
-                                        </button>
+                                    @endif
+
+                                    @if ($item['collection_id'] == 1 && $item['has_stock_entry'])
+                                        @if ($item['is_delivered'] ?? false)
+                                            <button class="btn btn-success select-md" disabled>
+                                                Delivered
+                                            </button>
+                                        @else
+                                            <button class="btn btn-outline-success select-md"
+                                            wire:click="openDeliveryModal({{ $loop->index }})">
+                                                Delivery
+                                            </button>
+                                        @endif
+                                    @endif
+
+                                    @if ($item['collection_id'] == 2)
+                                        @if ($item['is_delivered'] ?? false)
+                                            <button class="btn btn-success select-md" disabled>
+                                                Delivered
+                                            </button>
+                                        @else
+                                            <button class="btn btn-outline-success select-md"
+                                            wire:click="openDeliveryModal({{ $loop->index }})">
+                                                Delivery
+                                            </button>
+                                        @endif
                                     @endif
                                     
                                 </div>
@@ -240,8 +241,6 @@
                                         }}</strong> (PAGE:
                                     <strong>{{$item['cat_page_number']}}</strong>)
                                 </p>
-
-                               
                             </td>
                         </tr>
 
@@ -256,29 +255,7 @@
                             </td>
                         </tr>
                         @endif
-                        {{-- <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td class="text-left"><small>Total Amount:</small></td>
-                            <td><strong>{{number_format($order->total_amount, 2)}}</strong></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td class="text-left"><small>Paid Amount:</small></td>
-                            <td><strong>{{number_format($order->paid_amount, 2)}}</strong></td>
-                        </tr>
-                        @if ($order->remaining_amount > 0)
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td class="text-left"><small>Remaining Amount:</small></td>
-                            <td><strong class="text-danger">{{number_format($order->remaining_amount, 2)}}</strong></td>
-                        </tr>
-                        @endif --}}
+                       
                     </tbody>
                 </table>
 
@@ -321,13 +298,8 @@
                                         <label class="form-label">{{ $selectedItem['updated_label'] }}</label>
                                         <input type="text"
                                             wire:model="rows.{{ $selectedItem['input_name'] }}"
-                                            wire:keyup="checkQuantity({{ $selectedItem['index'] }}, '{{ $selectedItem['input_name'] }}', {{ $selectedItem['available_value'] }})"
                                             class="form-control form-control-sm border border-1 p-2 @error($selectedItem['input_name']) is-invalid @enderror">
-                                        {{-- @if(isset($rows['is_valid_'.$selectedItem['input_name']]) && !$rows['is_valid_'.$selectedItem['input_name']])
-                                            <div class="invalid-feedback">
-                                                Entered quantity must be less than or equal to available.
-                                            </div>
-                                        @endif --}}
+                                        
                                         @error( $selectedItem['input_name'])
                                              <div class="invalid-feedback">
                                                  {{$message}}
@@ -380,30 +352,36 @@
                                 <!-- Row for Stock Validation -->
                                 <div class="row align-items-center mb-4">
                                     <div class="col-md-6">
-                                        <strong>Total Usage:</strong> 
+                                        <strong>Total Stock:</strong> 
                                         {{-- 20 meters --}}
-                                        {{ $selectedDeliveryItem['planned_usage'] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }}
+                                        {{ $selectedDeliveryItem['stock_product'] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }}
                                     </div>
                                     <div class="col-md-6">
                                         <label for="actualUsage" class="form-label mb-1">Actual Usage ({{ $selectedDeliveryItem['unit'] ?? '' }})</label>
-                                        <input type="number" class="form-control @error('actualUsage') is-invalid @enderror" id="actualUsage" wire:model="actualUsage" 
-                                        wire:keyup="checkActualUsage">
-                                        @error('actualUsage')
-                                            <p class="small text-danger">{{$message}}</p>
+                                        <input type="number" class="form-control @error('actualUsage') is-invalid @enderror" id="actualUsage" wire:model="actualUsage.{{ $selectedDeliveryItem['item_id'] ?? 'default' }}" 
+                                        wire:keyup="checkActualUsage" 
+                                        @if (isset($selectedDeliveryItem['collection_id']) && $selectedDeliveryItem['collection_id'] == 2) disabled @endif>
+                                        @error('actualUsage.' . ($selectedDeliveryItem['item_id'] ?? 'default'))
+                                            <p class="small text-danger">{{ $message }}</p>
                                         @enderror
+                                        @if (session()->has('stock_error'))
+                                            <p class="small text-danger">{{ session('stock_error') }}</p>
+                                        @endif
+
                                     </div>
                                 </div>
 
-                                @if ($showExtraStockPrompt)
-                                    <div class="bg-danger p-3 rounded mt-3 mb-2">
-                                         <i class="material-icons text-warning me-2" style="font-size: 20px;">warning</i>
-                                        Actual usage ({{$actualUsage}} {{$selectedDeliveryItem['unit'] ?? ''}}) exceeds total usage ({{$selectedDeliveryItem['planned_usage']}} {{$selectedDeliveryItem['unit'] ?? ''}}). 
-                                        Please add extra stock entries before proceeding.
-                                    </div>
-                                @endif
+                               @if ($showExtraStockPrompt)
+                                <div class="bg-danger p-3 rounded mt-3 mb-2">
+                                    <i class="material-icons text-warning me-2" style="font-size: 20px;">warning</i>
+                                    Actual usage ({{ $actualUsage[$selectedDeliveryItem['item_id']] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }})
+                                    exceeds total usage ({{ $selectedDeliveryItem['planned_usage'] }} {{ $selectedDeliveryItem['unit'] ?? '' }}).
+                                    Please add extra stock entries before proceeding.
+                                </div>
+                            @endif
 
                                 <!-- Row for Delivery Type -->
-                                <div class="row">
+                                {{-- <div class="row">
                                     <label class="form-label mb-2">Delivery Type</label>
                                     <div class="col-auto">
                                         <div class="form-check">
@@ -421,7 +399,7 @@
                                             </label>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
@@ -488,10 +466,12 @@
          myModal.show();
      });
 
-       window.addEventListener('close-delivery-modal',event=>{
-        let myModal = new bootstrap.Modal(document.getElementById('delieveryProcessModal'));
-         myModal.show();
-     });
+      window.addEventListener('close-delivery-modal', event => {
+        let deliveryModal = bootstrap.Modal.getInstance(document.getElementById('delieveryProcessModal'));
+        if (deliveryModal) {
+            deliveryModal.hide();
+        }
+    });
 
 
 </script>
