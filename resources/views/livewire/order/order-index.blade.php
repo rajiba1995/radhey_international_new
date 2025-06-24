@@ -28,11 +28,11 @@
                 <div class="col-auto">
                     <p class="text-sm font-weight-bold">{{count($orders)}} Items</p>
                 </div>
-                
+
                 <div class="col-auto">
                     <div class="row g-3 align-items-center">
                         <div class="col-auto mt-0">
-                            <input type="text" wire:model="search" class="form-control select-md bg-white" id="customer"
+                            <input type="text" wire:model="search" class="form-control select-md bg-white search-input" id="customer"
                                 placeholder="Search by customer detail or Order number" value="" style="width: 350px;"
                                 wire:keyup="FindCustomer($event.target.value)">
                         </div>
@@ -79,6 +79,28 @@
                     </div>
                 @endif
             </div>
+            {{-- tab --}}
+            <ul class="nav nav-tabs mb-2" id="orderTabs">
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab == 'all' ? 'active' : '' }}" href="#" wire:click.prevent="changeTab('all')">All</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab == 'pending' ? 'active' : '' }}" href="#" wire:click.prevent="changeTab('pending')">Pending</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab == 'approved' ? 'active' : '' }}" href="#" wire:click.prevent="changeTab('approved')">Received</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab == 'stock_entered' ? 'active' : '' }}" href="#" wire:click.prevent="changeTab('stock_entered')">Stock Entered</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab == 'delivered' ? 'active' : '' }}" href="#" wire:click.prevent="changeTab('delivered')">Delivered</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ $tab == 'completed' ? 'active' : '' }}" href="#" wire:click.prevent="changeTab('completed')">Completed</a>
+                </li>
+            </ul>
+
             <div class="table-responsive p-0">
                 <table class="table table-sm table-hover">
                     <thead>
@@ -103,7 +125,7 @@
                                         <span>Name: <strong>{{ucwords($order->prefix ." ". $order->customer_name)}}</strong> </span>
                                         <br>
                                         <span>Mobile : <strong>{{$order->customer? $order->customer->country_code_phone.' '.$order->customer->phone:""}}</strong> </span> <br>
-                                        <span>WhatsApp : <strong>{{$order->customer?$order->customer->country_code_whatsapp.' '.$order->customer->whatsapp_no:""}}</strong> </span>
+                                        <!--<span>WhatsApp : <strong>{{$order->customer?$order->customer->country_code_whatsapp.' '.$order->customer->whatsapp_no:""}}</strong> </span>-->
                                     </p>
                                 </td>
                                 <td><p class="text-xs font-weight-bold mb-0">{{ $order->total_amount }}</p></td>
@@ -119,7 +141,7 @@
                                         @if($order->status!="Cancelled")
                                             <a href="{{route('admin.order.add_order_slip', $order->id)}}" class="btn btn-outline-primary select-md btn_action btn_outline">Approve Order</a>
                                             <a href="{{route('admin.order.edit', $order->id)}}" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Edit</a>
-                                            
+
                                             <button  wire:click="confirmCancelOrder({{ $order->id }})"
                                             class="btn btn-outline-danger select-md btn_outline">Cancel Order</button >
                                         @endif
@@ -127,13 +149,18 @@
                                         <!-- <a href="#" class="btn btn-outline-primary select-md btn_action">Edit Slip</a> -->
                                         {{-- <a href="#" class="btn btn-outline-success select-md btn_outline">Order Copy</a> --}}
                                         {{-- @if($order->invoice_type=="invoice") --}}
-                                            <button wire:click="downloadOrderInvoice({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Invoice</button>
+                                            <a href="{{route('admin.order.download_invoice',$order->id)}}" target="_blank" class="btn btn-outline-primary select-md btn_outline">Invoice</a>
                                         {{-- @endif --}}
                                         {{-- @if($order->invoice_type=="bill") --}}
-                                            <button wire:click="downloadOrderBill({{ $order->id }})" class="btn btn-outline-primary select-md btn_outline">Bill</button>
+                                            <a href="{{route('admin.order.download_bill',$order->id)}}" target="_blank" class="btn btn-outline-primary select-md btn_outline">Bill</a>
                                         {{-- @endif --}}
                                     @endif
-                                    <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
+                                     @if ($order->invoice_type=="invoice")
+                                       <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
+                                    @endif
+                                    @if($order->status=="production_delivered")
+                                    <a href="javascript:void(0)" onclick="markAsReceived({{ $order->id }})" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Mark As Received After Production</a>
+                                    @endif
 
                                      {{-- <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-info btn-sm custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="View product">
                                          <span class="material-icons">visibility</span>
@@ -146,7 +173,7 @@
                                     <a href="{{route('admin.order.invoice', $order->id)}}" target="_blank" class="btn btn-outline-info btn-sm custom-btn-sm mb-0">Invoice</a> --}}
                                 </td>
                             </tr>
-                        @endforeach  
+                        @endforeach
                     </tbody>
                 </table>
 
@@ -162,9 +189,10 @@
         <div class="loader"></div>
     </div>
     @endif
-    
+
 </div>
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('confirmCancel', function(event) {
@@ -183,7 +211,23 @@
             }
         });
     });
+    function markAsReceived(orderId)
+    {
+           Swal.fire({
+            title: "Are you sure?",
+            text: "The Production Team has marked this item as delivered. Please confirm that you have received it. Once confirmed, this action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, mark as received!"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                Livewire.dispatch('markReceivedConfirmed', {orderId});
 
+            }
+            })
+    }
 
     </script>
 @endpush

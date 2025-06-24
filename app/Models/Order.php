@@ -28,6 +28,7 @@ class Order extends Model
         'status',
         'business_type',
         'created_by' ,
+        'team_lead_id',
         'country_code_alt_1',
         'alternative_phone_number_1',
         'country_code_alt_2',
@@ -41,7 +42,9 @@ class Order extends Model
         'ca_amount',
         'due_date',
         'invoice_date',
-        'invoice_type'
+        'invoice_type',
+        'total_product_amount',
+        'air_mail'
     ];
     public function items()
     {
@@ -63,7 +66,7 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
-    
+
     public function packingslip()
     {
         return $this->hasOne(PackingSlip::class, 'order_id', 'id');
@@ -73,16 +76,20 @@ class Order extends Model
         return $this->belongsTo(BusinessType::class, 'business_type');
     }
 
-   
+
     protected $status_classes = [
-        "Confirmed"          => ["Received", "success"], 
-        "Pending"            => ["Pending", "warning"], 
-        "In Production"      => ["In Production", "primary"], 
-        "Ready for Delivery" => ["Ready for Delivery", "info"], 
-        "Shipped"            => ["Shipped", "secondary"], 
-        "Delivered"          => ["Delivered", "success"], 
-        "Cancelled"          => ["Cancelled", "danger"], 
-        "Returned"           => ["Returned", "dark"]
+        "Confirmed"          => ["Confirmed", "success"],
+        "Mark As Received"   => ["Mark As Received", "success"],
+        "Pending"            => ["Pending", "warning"],
+        "In Production"      => ["In Production", "primary"],
+        "Ready for Delivery" => ["Ready for Delivery", "info"],
+        "Shipped"            => ["Shipped", "secondary"],
+        "Delivered"          => ["Delivered", "success"],
+        "Cancelled"          => ["Cancelled", "danger"],
+        "Returned"           => ["Returned", "dark"],
+        "production_delivered"=> ["Production Delivered", "warning"],
+        "received_after_production_delivered"=> ["Mark As Received After Production", "info"],
+
     ];
 
     // Accessor to get status label
@@ -104,7 +111,7 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class, 'order_id', 'id');
     }
-    
 
-    
+
+
 }

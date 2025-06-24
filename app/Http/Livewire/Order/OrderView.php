@@ -40,7 +40,7 @@ class OrderView extends Component
             return [
                 'product_name' => $item->product_name ?? $product->name,
                 'collection_id' => $item->collection,
-                'collection_title' => $item->collectionType->title,
+                'collection_title' => $item->collectionType ?  $item->collectionType->title : "",
                 'fabrics' => $item->fabric,
                 'measurements' => $item->measurements,
                 'catalogue' => $item->catalogue_id?$item->catalogue:"",

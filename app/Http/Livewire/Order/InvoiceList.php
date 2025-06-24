@@ -18,7 +18,11 @@ class InvoiceList extends Component
     public $search ="";
     public $created_by;
     public $activeTab = "normal";
-
+    
+      public function updatingSearch()
+    {
+        $this->resetPage(); 
+    }
     public function setActiveTab($tab){
         $this->activeTab = $tab;
     }
