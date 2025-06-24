@@ -78,15 +78,15 @@ class Order extends Model
 
    
     protected $status_classes = [
-        "Confirmed"          => ["Confirmed", "success"], 
-        "Mark As Received"   => ["Mark As Received", "success"], 
-        "Pending"            => ["Pending", "warning"], 
-        "In Production"      => ["In Production", "primary"], 
-        "Ready for Delivery" => ["Ready for Delivery", "info"], 
-        "Shipped"            => ["Shipped", "secondary"], 
-        "Delivered"          => ["Delivered", "success"], 
-        "Cancelled"          => ["Cancelled", "danger"], 
-        "Returned"           => ["Returned", "dark"]
+        "Approved"                => ["Approved", "success"], 
+        // "Mark As Received"        => ["Mark As Received", "success"], 
+        "Approval Pending"        => ["Approval Pending", "warning"], 
+        "Received at Production"  => ["Received at Production", "primary"], 
+        "Ready for Delivery"      => ["Ready for Delivery", "info"], 
+        "Partial Delivered"       => ["Partial Delivered", "secondary"], 
+        "Fully Delivered"         => ["Fully Delivered", "success"], 
+        "Cancelled"               => ["Cancelled", "danger"], 
+        "Returned"                => ["Returned", "dark"]
     ];
 
     // Accessor to get status label
@@ -108,6 +108,8 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class, 'order_id', 'id');
     }
+
+ 
     
 
     

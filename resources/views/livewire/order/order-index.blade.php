@@ -80,7 +80,7 @@
                 @endif
             </div>
             {{-- tab --}}
-            <ul class="nav nav-tabs mb-2" id="orderTabs">
+            {{-- <ul class="nav nav-tabs mb-2" id="orderTabs">
                 <li class="nav-item">
                     <a class="nav-link {{ $tab == 'all' ? 'active' : '' }}" href="#" wire:click.prevent="changeTab('all')">All</a>
                 </li>
@@ -99,7 +99,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ $tab == 'completed' ? 'active' : '' }}" href="#" wire:click.prevent="changeTab('completed')">Completed</a>
                 </li>
-            </ul>
+            </ul> --}}
 
             <div class="table-responsive p-0">
                 <table class="table table-sm table-hover">
@@ -137,9 +137,14 @@
                                     <span class="badge bg-{{ $order->status_class }}">{{ $order->status_label }}</span>
                                 </td>
                             <td class="text-center">
+                                @php
+                                    $userDesignationId = auth()->guard('admin')->user()->designation;
+                                @endphp
                                     @if(empty($order->packingslip))
                                         @if($order->status!="Cancelled")
-                                            <a href="{{route('admin.order.add_order_slip', $order->id)}}" class="btn btn-outline-primary select-md btn_action btn_outline">Approve Order</a>
+                                        @if (in_array($userDesignationId,[1,4]))
+                                          <a href="{{route('admin.order.add_order_slip', $order->id)}}" class="btn btn-outline-primary select-md btn_action btn_outline">Approve Order</a>   
+                                        @endif
                                             <a href="{{route('admin.order.edit', $order->id)}}" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Edit</a>
                                             
                                             <button  wire:click="confirmCancelOrder({{ $order->id }})"

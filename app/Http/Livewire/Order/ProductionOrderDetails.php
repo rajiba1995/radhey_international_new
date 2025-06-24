@@ -28,6 +28,7 @@ class ProductionOrderDetails extends Component
     public $actualUsage = [];
     // public $deliveryType = 'full';
     public $showExtraStockPrompt;
+    
 
     public function mount($id){
         $this->orderId = $id;
@@ -53,7 +54,7 @@ class ProductionOrderDetails extends Component
 
   
 
-    public function updateStock($index, $inputName)
+    public function updateStock($index, $inputName,$isExtra=false)
     {
         try {
             DB::beginTransaction();
@@ -103,6 +104,14 @@ class ProductionOrderDetails extends Component
                 $availableStock = $stock->qty_in_pieces;
             }
 
+            // NEW: If extra, don't look for old entry:
+            if (!$isExtra) {
+                $stockEntry = OrderStockEntry::where('order_item_id', $orderItemId)->first();
+                $previousQuantity = $stockEntry ? $stockEntry->quantity : 0;
+            } else {
+                $stockEntry = null;
+                $previousQuantity = 0; // because extra means no previous for this piece
+            }
         
             $maxAllowed = $availableStock + $previousQuantity;
             if ($enteredQuantity > $maxAllowed) {
@@ -114,10 +123,7 @@ class ProductionOrderDetails extends Component
         
             $difference = $enteredQuantity - $previousQuantity;
 
-            if ($stockEntry) {
-                // update stock entry
-                $stockEntry->update(['quantity' => $enteredQuantity]);
-            } else {
+            if ($isExtra || !$stockEntry) {
                 // create new stock entry
                 $stockEntry = OrderStockEntry::create([
                     'order_id'     => $this->orderId,
@@ -128,6 +134,10 @@ class ProductionOrderDetails extends Component
                     'unit'         => $item['stock_entry_data']['type'],
                     'created_by'   => auth()->guard('admin')->user()->id,
                 ]);
+               
+            } else {
+                 // update stock entry
+                $stockEntry->update(['quantity' => $enteredQuantity]);
             }
 
             // Now subtract difference from stock table
@@ -320,7 +330,6 @@ class ProductionOrderDetails extends Component
                 ->sum('quantity');
              $unit = 'meters';
              $this->actualUsage[$item['id']] = null;
-             $stockProduct = StockFabric::where('fabric_id', $fabricId)->sum('qty_in_meter');
         } elseif ($item['collection_id'] == 2) {
             $productId = $item['product']->id ?? null;
             $stockProduct = StockProduct::where('product_id',$productId)->sum('qty_in_pieces');
@@ -351,8 +360,6 @@ class ProductionOrderDetails extends Component
 
    
 
-
- 
 
         public function checkActualUsage()
     {
@@ -388,50 +395,184 @@ class ProductionOrderDetails extends Component
         }
     }
 
-    public function processDelivery(){
+    // public function processDelivery(){
        
+    //     $item = $this->selectedDeliveryItem;
+    //      $itemId = $item['item_id'];
+    //    $this->validate([
+    //     'actualUsage.' . $itemId => 'required|numeric|min:1',
+    // ],
+    // [
+    //     'actualUsage.*.required' => 'Please enter the actual usage.',
+    //     'actualUsage.*.numeric'  => 'The actual usage must be a number.',
+    //     'actualUsage.*.min'      => 'The actual usage must be at least 1.',
+    // ]);
+
+    //     $actual = $this->actualUsage[$itemId];
+    //     $availableStock = $item['stock_product'] ?? 0;
+    //     $plannedUsage = $item['planned_usage'] ?? 0;
+
+    //     if ($availableStock < $plannedUsage) {
+    //         // Add error to session (shows automatically in Blade)
+    //         session()->flash('stock_error', 'Available stock ('. $availableStock .') is less than the required usage ('. $plannedUsage .'). Please add stock first.');
+    //         return;
+    //     }       
+    //  //    Create the delivery
+    //    Delivery::create([
+    //        'order_id' => $this->orderId,
+    //        'order_item_id' => $itemId,
+    //     //    'delivery_type' => $deliverType,
+    //        'product_id'    => $item['collection_id'] == 2 ? ($item['product_id'] ?? null)  : null,
+    //        'fabric_id'     => $item['collection_id'] == 1 ? ($item['fabric_id'] ?? null)   : null,
+    //        'delivered_quantity'=> $actual,
+    //        'unit'   => $item['unit'],
+    //        'delivered_by' => auth()->guard('admin')->user()->id,
+    //        'delivered_at' => now()
+    //    ]);
+
+    // //    $stco
+
+
+
+    //     unset($this->actualUsage[$itemId]);
+    //      $this->loadOrderItems();
+    //      $this->dispatch('close-delivery-modal');
+    //      return redirect()->route('production.order.details',$this->orderId);
+    // }
+
+    public function processDelivery()
+    {
         $item = $this->selectedDeliveryItem;
-         $itemId = $item['item_id'];
-       $this->validate([
-        'actualUsage.' . $itemId => 'required|numeric|min:1',
-    ],
-    [
-        'actualUsage.*.required' => 'Please enter the actual usage.',
-        'actualUsage.*.numeric'  => 'The actual usage must be a number.',
-        'actualUsage.*.min'      => 'The actual usage must be at least 1.',
-    ]);
+        $itemId = $item['item_id'];
 
-        $actual = $this->actualUsage[$itemId];
-        $availableStock = $item['stock_product'] ?? 0;
-        $plannedUsage = $item['planned_usage'] ?? 0;
+        $this->validate([
+            'actualUsage.' . $itemId => 'required|numeric|min:1',
+        ], [
+            'actualUsage.*.required' => 'Please enter the actual usage.',
+            'actualUsage.*.numeric'  => 'The actual usage must be a number.',
+            'actualUsage.*.min'      => 'The actual usage must be at least 1.',
+        ]);
 
-        if ($availableStock < $plannedUsage) {
-            // Add error to session (shows automatically in Blade)
+        $actual = floatval($this->actualUsage[$itemId]);
+        $plannedUsage = floatval($item['planned_usage'] ?? 0);
+        $availableStock = floatval($item['stock_product'] ?? 0);
+
+        if ($item['collection_id'] == 2 && $availableStock < $plannedUsage) {
             session()->flash('stock_error', 'Available stock ('. $availableStock .') is less than the required usage ('. $plannedUsage .'). Please add stock first.');
             return;
-        }       
-     //    Create the delivery
-       Delivery::create([
-           'order_id' => $this->orderId,
-           'order_item_id' => $itemId,
-        //    'delivery_type' => $deliverType,
-           'product_id'    => $item['collection_id'] == 2 ? ($item['product_id'] ?? null)  : null,
-           'fabric_id'     => $item['collection_id'] == 1 ? ($item['fabric_id'] ?? null)   : null,
-           'delivered_quantity'=> $actual,
-           'unit'   => $item['unit'],
-           'delivered_by' => auth()->guard('admin')->user()->id,
-           'delivered_at' => now()
-       ]);
+        }
 
-    //    $stco
+        DB::beginTransaction();
+        try {
+            // 1️⃣ Create the delivery record
+            Delivery::create([
+                'order_id' => $this->orderId,
+                'order_item_id' => $itemId,
+                'product_id' => $item['collection_id'] == 2 ? ($item['product_id'] ?? null) : null,
+                'fabric_id' => $item['collection_id'] == 1 ? ($item['fabric_id'] ?? null) : null,
+                'delivered_quantity' => $actual,
+                'unit' => $item['unit'],
+                'delivered_by' => auth()->guard('admin')->user()->id,
+                'delivered_at' => now(),
+            ]);
 
+            // 2️⃣ For fabric: consume multiple stock entries
+            if ($item['collection_id'] == 1) {
+                $remaining = $actual;
 
+                // Get all entries FIFO
+                $stockEntries = OrderStockEntry::where('order_item_id', $itemId)
+                    ->where('fabric_id', $item['fabric_id'])
+                    ->orderBy('created_at')
+                    ->get();
 
-        unset($this->actualUsage[$itemId]);
-         $this->loadOrderItems();
-         $this->dispatch('close-delivery-modal');
-         return redirect()->route('production.order.details',$this->orderId);
+                foreach ($stockEntries as $entry) {
+                    if ($remaining <= 0) break;
+
+                    if ($entry->quantity <= $remaining) {
+                        // Use whole entry
+                        $remaining -= $entry->quantity;
+                        $entry->delete();
+                    } else {
+                        // Partial usage
+                        $entry->update(['quantity' => $entry->quantity - $remaining]);
+                        $remaining = 0;
+                        break;
+                    }
+                }
+
+               
+                
+                 // ✅ Now handle leftover *unconsumed* stock entries:
+                $leftoverEntries = OrderStockEntry::where('order_item_id', $itemId)
+                    ->where('fabric_id', $item['fabric_id'])
+                    ->get();
+
+                $leftoverQuantity = $leftoverEntries->sum('quantity');
+
+                if ($leftoverQuantity > 0) {
+                    // Add back to main fabric stock
+                    $fabricStock = StockFabric::where('fabric_id', $item['fabric_id'])->first();
+                    if ($fabricStock) {
+                        $fabricStock->increment('qty_in_meter', $leftoverQuantity);
+                    }
+
+                    // Delete leftover rows because the stock is now back in main fabric
+                    foreach ($leftoverEntries as $entry) {
+                        $entry->delete();
+                    }
+                }
+            }
+
+            // 3️⃣ For product: just reduce main stock
+            if ($item['collection_id'] == 2) {
+                $productStock = StockProduct::where('product_id', $item['product_id'])->first();
+                if ($productStock) {
+                    $productStock->decrement('qty_in_pieces', $actual);
+                }
+            }
+
+             // 4️⃣ Insert to CHANGELOG
+            Changelog::create([
+                'done_by' => auth()->guard('admin')->user()->id,
+                'purpose' => 'delivery_proceed',
+                'data_details' => json_encode([
+                    'order_id' => $this->orderId,
+                    'order_item_id' => $itemId,
+                    'collection_id' => $item['collection_id'],
+                    'delivered_quantity' => $actual,
+                    'unit' => $item['unit'],
+                    'timestamp' => now(),
+                ]),
+            ]);
+
+            // ✅ After delivery created and stock updated:
+            $order = Order::find($this->orderId);
+
+            $totalItems = $order->items()->count();
+            $deliveredItems = $order->items()->whereHas('deliveries')->count();
+
+            if ($deliveredItems == $totalItems) {
+                $order->update(['status' => 'Fully Delivered']);
+            } elseif ($deliveredItems > 0) {
+                $order->update(['status' => 'Partial Delivered']);
+            }
+
+            DB::commit();
+
+            // Clean up & refresh
+            unset($this->actualUsage[$itemId]);
+            $this->loadOrderItems();
+            $this->dispatch('close-delivery-modal');
+
+            return redirect()->route('production.order.details', $this->orderId);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            dd($e->getMessage());
+        }
     }
+
 
 
     public function render()

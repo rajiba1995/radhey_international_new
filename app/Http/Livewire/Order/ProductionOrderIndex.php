@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Helpers\Helper;
 use App\Models\User;
 use App\Models\Invoice;
+use App\Models\OrderStockEntry;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -38,8 +39,8 @@ class ProductionOrderIndex extends Component
      public function markReceivedConfirmed($orderId)
     {
         $order = Order::find($orderId);
-        if ($order && $order->status == 'Confirmed') {
-            $order->status = 'Mark As Received';
+        if ($order && $order->status == 'Approved') {
+            $order->status = 'Received at Production';
             $order->save();
 
             // Optional: add status log or notification
@@ -116,7 +117,7 @@ class ProductionOrderIndex extends Component
        
         $this->usersWithOrders = $wonOrders;
         $orders = Order::query()
-        ->whereIn('status',['Confirmed','Mark As Received'])
+        ->whereIn('status',['Approved','Received at Production','Partial Delivered','Fully Delivered'])
         // ->where('status', '!=' , 'Cancelled') // Uncomment if needed
         ->when($this->customer_id, fn($query) => $query->where('customer_id', $this->customer_id)) // Filter by customer ID
         ->when($this->search, function ($query) {
@@ -139,10 +140,18 @@ class ProductionOrderIndex extends Component
         ->orderBy('created_at', 'desc')
         ->paginate(20);
         
+        $orderId = $orders->pluck('id');
+        $stockEntries = OrderStockEntry::whereIn('order_id', $orderId)
+                    ->select('order_id')
+                    ->distinct()
+                    ->pluck('order_id')
+                    ->toArray();
+
         return view('livewire.order.production-order-index',[
              'placed_by' => $placed_by,
             'orders' => $orders,
-            'usersWithOrders' => $this->usersWithOrders, 
+            'usersWithOrders' => $this->usersWithOrders,
+             'has_order_entry' => $stockEntries, 
         ]);
     }
 }

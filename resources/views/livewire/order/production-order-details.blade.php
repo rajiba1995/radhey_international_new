@@ -174,26 +174,29 @@
                            <td>
                                 <div>
                                     @if ($item['collection_id'] == 1)
-                                    <button class="btn btn-outline-success select-md"
-                                        wire:click="openStockModal({{$loop->index}})">
-                                        @if ($item['has_stock_entry'])
-                                        Update Stock
-                                        @else
-                                        Enter Stock  
-                                        @endif 
-                                    </button>
+                                   
                                     @endif
 
-                                    @if ($item['collection_id'] == 1 && $item['has_stock_entry'])
+                                    @if ($item['collection_id'] == 1)
                                         @if ($item['is_delivered'] ?? false)
                                             <button class="btn btn-success select-md" disabled>
                                                 Delivered
                                             </button>
                                         @else
-                                            <button class="btn btn-outline-success select-md"
+                                        <button class="btn btn-outline-success select-md"
+                                            wire:click="openStockModal({{$loop->index}},true)">
+                                            @if ($item['has_stock_entry'])
+                                            Update Stock
+                                            @else
+                                            Enter Stock  
+                                            @endif 
+                                        </button>
+                                        @if ($item['has_stock_entry'])
+                                        <button class="btn btn-outline-success select-md"
                                             wire:click="openDeliveryModal({{ $loop->index }})">
                                                 Delivery
-                                            </button>
+                                        </button>
+                                        @endif
                                         @endif
                                     @endif
 
@@ -309,7 +312,10 @@
                                     <div class="col-md-2 mt-4">
                                         
                                         <button class="btn btn-outline-success select-md"
-                                            wire:click="updateStock({{ $selectedItem['index'] }}, '{{ $selectedItem['input_name'] }}')">
+                                            wire:click="updateStock({{ $selectedItem['index'] }},
+                                                        '{{ $selectedItem['input_name'] }}',
+                                                        true
+                                                        )">
                                             Update
                                         </button>
                                         @if($selectedItem['has_stock_entry'])
@@ -352,9 +358,13 @@
                                 <!-- Row for Stock Validation -->
                                 <div class="row align-items-center mb-4">
                                     <div class="col-md-6">
-                                        <strong>Total Stock:</strong> 
-                                        {{-- 20 meters --}}
-                                        {{ $selectedDeliveryItem['stock_product'] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }}
+                                        @if (isset($selectedDeliveryItem['collection_id']) && $selectedDeliveryItem['collection_id'] == 1)
+                                            <strong>Total Usage:</strong> 
+                                            {{ $selectedDeliveryItem['planned_usage'] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }}
+                                        @else
+                                            <strong>Total Stock:</strong> 
+                                            {{ $selectedDeliveryItem['stock_product'] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }}
+                                        @endif
                                     </div>
                                     <div class="col-md-6">
                                         <label for="actualUsage" class="form-label mb-1">Actual Usage ({{ $selectedDeliveryItem['unit'] ?? '' }})</label>
@@ -370,15 +380,16 @@
 
                                     </div>
                                 </div>
-
-                               @if ($showExtraStockPrompt)
-                                <div class="bg-danger p-3 rounded mt-3 mb-2">
-                                    <i class="material-icons text-warning me-2" style="font-size: 20px;">warning</i>
-                                    Actual usage ({{ $actualUsage[$selectedDeliveryItem['item_id']] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }})
-                                    exceeds total usage ({{ $selectedDeliveryItem['planned_usage'] }} {{ $selectedDeliveryItem['unit'] ?? '' }}).
-                                    Please add extra stock entries before proceeding.
-                                </div>
-                            @endif
+                                @if (isset($selectedDeliveryItem['collection_id']) && $selectedDeliveryItem['collection_id'] == 1) 
+                                    @if ($showExtraStockPrompt)
+                                        <div class="bg-danger p-3 rounded mt-3 mb-2">
+                                            <i class="material-icons text-warning me-2" style="font-size: 20px;">warning</i>
+                                            Actual usage ({{ $actualUsage[$selectedDeliveryItem['item_id']] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }})
+                                            exceeds total usage ({{ $selectedDeliveryItem['planned_usage'] }} {{ $selectedDeliveryItem['unit'] ?? '' }}).
+                                            Please add extra stock entries before proceeding.
+                                        </div>
+                                    @endif
+                                @endif
 
                                 <!-- Row for Delivery Type -->
                                 {{-- <div class="row">
@@ -406,7 +417,7 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-sm btn-outline-dark" data-bs-dismiss="modal">Close</button>
-                        @if($showExtraStockPrompt)
+                        @if($showExtraStockPrompt && $selectedDeliveryItem['collection_id'] == 1)
                              <button type="button" 
                                     class="btn btn-sm btn-outline-primary mt-2"
                                     wire:click="addExtraStock">

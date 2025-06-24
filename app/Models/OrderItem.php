@@ -75,4 +75,8 @@ class OrderItem extends Model
         return $this->hasMany(OrderItemImage::class,'order_item_id');
     }
 
+     public function deliveries(){
+        return $this->hasMany(Delivery::class);
+    }
+
 }

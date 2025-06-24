@@ -136,26 +136,24 @@
                                     '.$order->createdBy->surname):""}}</p>
                             </td>
                             <td>
-                                @if ($order->status_label == 'Confirmed')
-                                    <span class="badge bg-warning">
-                                        Waiting for Confirmed
-                                    </span>
-                                @else
-                                   <span class="badge bg-{{ $order->status_class }}">
-                                    {{ $order->status_label }}
-                                   </span>
-                                @endif
-                               
+                                <span class="badge bg-{{ $order->status_class }}">
+                                {{ $order->status_label }}
+                                </span>
                             </td>
                             <td class="text-center">
-                                @if ($order->status == 'Confirmed')
+                                @if ($order->status == 'Approved')
                                     <button wire:click="confirmMarkAsReceived({{ $order->id }})"
                                         class="btn btn-outline-success select-md btn_outline" @click.stop>Mark As
                                         Received
                                     </button>
-                                @elseif($order->status == 'Mark As Received')
-                                    <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
+                                @elseif($order->status == 'Received at Production')
+                                    @if (in_array($order->id,$has_order_entry))
+                                     <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Delivery</a>   
+                                     @else
+                                     <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Stock Entry</a>   
+                                    @endif
                                 @endif
+                                    <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
                             </td>
                         </tr>
                         @endforeach
