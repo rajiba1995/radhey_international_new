@@ -119,12 +119,9 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class, 'order_id', 'id');
     }
-<<<<<<< HEAD
-=======
 
 
 
->>>>>>> e5c5409101aa9cb9d6f70f9f10ca29a8609f5c2c
 
 
 

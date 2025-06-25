@@ -359,126 +359,6 @@
                                     </div>
                                 </content>
                             </div>
-                            {{-- <div class="admin__content">
-                                <aside>
-
-                                </aside>
-                                <content class="p-0">
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-auto">
-                                            <div class="form-check">
-                                                <input type="checkbox" wire:change="toggleShippingAddress"
-                                                    wire:model="is_billing_shipping_same" id="isBillingShippingSame"
-                                                    class="form-check-input" @if ($is_billing_shipping_same) checked
-                                                    @endif>
-                                                <label for="isBillingShippingSame"
-                                                    class="form-check-label same_as_field"><span> Same as Billing
-                                                        Address</span></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </content>
-                            </div> --}}
-                            {{-- <div class="d-flex justify-content-between mt-4">
-                                <h6 class="badge bg-danger custom_danger_badge">Shipping Address</h6>
-                                <div class="form-check">
-                                    <input type="checkbox" wire:change="toggleShippingAddress"
-                                        wire:model="is_billing_shipping_same" id="isBillingShippingSame"
-                                        class="form-check-input" @if ($is_billing_shipping_same) checked @endif>
-                                    <label for="isBillingShippingSame" class="form-check-label"><span
-                                            class="badge bg-secondary">Shipping address same as billing</span></label>
-                                </div>
-                            </div> --}}
-
-                            {{-- Shipping Address Panel --}}
-                            {{-- <div class="admin__content">
-                                <aside>
-                                    <nav class="text-uppercase font-weight-bold">Shipping Address</nav>
-                                </aside>
-                                <content>
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-3">
-                                            <label for="shipping_address" class="form-label"> Address <span
-                                                    class="text-danger">*</span></label>
-                                        </div>
-                                        <div class="col-9">
-                                            <input wire:model="shipping_address" id="shipping_address"
-                                                class="form-control form-control-sm border border-1 p-2 {{ $errorClass['shipping_address'] ?? '' }}"
-                                                placeholder="Enter shipping address" @if ($shipping_address) disabled
-                                                @endif>
-                                            @if(isset($errorMessage['shipping_address']))
-                                            <div class="text-danger">{{ $errorMessage['shipping_address'] }}</div>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-3">
-                                            <label for="shipping_landmark" class="form-label">Landmark</label>
-                                        </div>
-                                        <div class="col-9">
-                                            <input type="text" wire:model="shipping_landmark" id="shipping_landmark"
-                                                class="form-control form-control-sm border border-1 p-2"
-                                                placeholder="Enter landmark">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-3">
-                                            <label for="shipping_city" class="form-label">City <span
-                                                    class="text-danger">*</span></label>
-                                        </div>
-                                        <div class="col-9">
-                                            <input type="text" wire:model="shipping_city" id="shipping_city"
-                                                class="form-control form-control-sm border border-1 p-2 {{ $errorClass['shipping_city'] ?? '' }}"
-                                                placeholder="Enter city" @if ($shipping_city) disabled @endif>
-                                            @if(isset($errorMessage['shipping_city']))
-                                            <div class="text-danger">{{ $errorMessage['shipping_city'] }}</div>
-                                            @endif
-                                        </div>
-                                    </div>
-
-
-
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-3">
-                                            <label for="shipping_country" class="form-label">Country <span
-                                                    class="text-danger">*</span>
-                                            </label>
-                                        </div>
-                                        <div class="col-3">
-                                            <input type="text" wire:model="shipping_country" id="shipping_country"
-                                                class="form-control form-control-sm border border-1 p-2 {{ $errorClass['shipping_country'] ?? '' }}"
-                                                placeholder="Enter country" @if ($shipping_country) disabled @endif>
-                                            @if(isset($errorMessage['shipping_country']))
-                                            <div class="text-danger">{{ $errorMessage['shipping_country'] }}</div>
-                                            @endif
-                                        </div>
-                                        <div class="col-3 text-end">
-                                            <label for="shipping_pin" class="form-label">Pincode </label>
-                                        </div>
-                                        <div class="col-3">
-                                            <input type="number" wire:model="shipping_pin" id="shipping_pin"
-                                                class="form-control form-control-sm border border-1 p-2 {{ $errorClass['shipping_pin'] ?? '' }}"
-                                                placeholder="Enter PIN" @if ($shipping_pin) disabled @endif>
-                                            @if(isset($errorMessage['shipping_pin']))
-                                            <div class="text-danger">{{ $errorMessage['shipping_pin'] }}</div>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3 col-md-4">
-                                        <label for="shipping_pin" class="form-label">Zip Code <span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" wire:model="shipping_pin" id="shipping_pin"
-                                            class="form-control form-control-sm border border-1 p-2 {{ $errorClass['shipping_pin'] ?? '' }}"
-                                            placeholder="Enter PIN" @if ($shipping_pin) disabled @endif>
-                                        @if(isset($errorMessage['shipping_pin']))
-                                        <div class="text-danger">{{ $errorMessage['shipping_pin'] }}</div>
-                                        @endif
-                                    </div>
-                                </content>
-                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -531,8 +411,32 @@
                         </div>
                         <!-- Product -->
                         @if(isset($item['selected_collection']) && $item['selected_collection'] == 1)
-                        <div class="mb-2 col-md-3">
+                        {{-- Quantity for garment --}}
+                         <div class="col-md-2 col-12 mb-3">
+                            <label class="form-label"><strong>Quantity</strong><span class="text-danger">*</span></label>
+                            <input type="number"
+                                wire:model="items.{{ $index }}.quantity"
+                                class="form-control form-control-sm border border-1 customer_input
+                                @error('items.' . $index . '.quantity') border-danger @enderror"
+                                placeholder="Enter quantity" min="1">
+                            @error('items.' . $index . '.quantity')
+                            <div class="text-danger error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-2 col-md-2">
                             @else
+                            {{-- Quantity for garment item --}}
+                            <div class="col-md-2 col-12 mb-3">
+                                <label class="form-label"><strong>Quantity</strong><span class="text-danger">*</span></label>
+                                <input type="number"
+                                    wire:model="items.{{ $index }}.quantity"
+                                    class="form-control form-control-sm border border-1 customer_input
+                                    @error('items.' . $index . '.quantity') border-danger @enderror"
+                                    placeholder="Enter quantity" min="1">
+                                @error('items.' . $index . '.quantity')
+                                <div class="text-danger error-message">{{ $message }}</div>
+                                @enderror
+                            </div>
                             <div class="mb-2 col-md-3">
                                 @endif
                                 <label class="form-label"><strong>Product</strong></label>
@@ -585,9 +489,8 @@
                                 </div>
                                 @endif
                             </div>
-                            {{-- <div class="col-12 col-md-2"></div> --}}
                             {{-- Price --}}
-                            <div class="mb-2 col-12 col-md-3">
+                            <div class="mb-2 col-12 col-md-2">
                                 <div class="d-flex align-items-end gap-2">
                                     <!-- Price Input -->
                                     <div>
@@ -961,7 +864,6 @@
 
                     </div>
             </form>
-            <!-- Tabs content -->
 
         </div>
     </div>

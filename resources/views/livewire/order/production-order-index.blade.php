@@ -143,17 +143,24 @@
                             <td class="text-center">
                                 @if ($order->status == 'Approved')
                                     <button wire:click="confirmMarkAsReceived({{ $order->id }})"
-                                        class="btn btn-outline-success select-md btn_outline" @click.stop>Mark As
+                                       class="btn btn-outline-success select-md btn_outline" @click.stop>Mark As
                                         Received
                                     </button>
-                                @elseif($order->status == 'Received at Production')
-                                    @if (in_array($order->id,$has_order_entry))
-                                     <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Delivery</a>   
-                                     @else
-                                     <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Stock Entry</a>   
+                                @elseif($order->status == 'Received at Production'  || $order->status == 'Partial Delivered' || $order->status == 'Fully Delivered')
+                                <a href="" target="_blank" class="btn btn-outline-primary select-md btn_outline">
+                                    Download Pdf
+                                </a>
+                                    @if (!in_array($order->id, $has_order_entry))
+                                       <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Stock Entry</a>   
+                                     @elseif(in_array($order->id, $has_order_entry) && $order->status != 'Fully Delivered')
+                                       <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Delivery</a>   
+                                      @elseif($order->status == 'Fully Delivered')
+                                       <button class="btn btn-outline-success select-md btn_action btn_outline" disabled>Delivered</button> 
                                     @endif
                                 @endif
+                                 @if ($order->status !== 'Approved')
                                     <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
+                                @endif
                             </td>
                         </tr>
                         @endforeach
@@ -225,20 +232,5 @@
             });
         });
 </script>
-{{-- <script>
-    // Listen for Livewire event and show Bootstrap modal
-    window.addEventListener('showStockModal', event => {
-        var myModal = new bootstrap.Modal(document.getElementById('stockEntryModal'));
-        myModal.show();
-    });
-
-    // Listen for Livewire event and hide Bootstrap modal
-    window.addEventListener('hideStockModal', event => {
-        var myModal = bootstrap.Modal.getInstance(document.getElementById('stockEntryModal'));
-        if (myModal) {
-            myModal.hide();
-        }
-    });
-</script> --}}
 
 

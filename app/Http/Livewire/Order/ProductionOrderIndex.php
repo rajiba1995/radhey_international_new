@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Helpers\Helper;
 use App\Models\User;
 use App\Models\Invoice;
+use App\Models\Delivery;
 use App\Models\OrderStockEntry;
 use Illuminate\Support\Facades\Auth;
 
@@ -146,12 +147,19 @@ class ProductionOrderIndex extends Component
                     ->distinct()
                     ->pluck('order_id')
                     ->toArray();
+        
+        $deliveredOrderIds = Delivery::whereIn('order_id', $orderId)
+                            ->select('order_id')
+                            ->distinct()
+                            ->pluck('order_id')
+                            ->toArray();
 
         return view('livewire.order.production-order-index',[
              'placed_by' => $placed_by,
-            'orders' => $orders,
-            'usersWithOrders' => $this->usersWithOrders,
+             'orders' => $orders,
+             'usersWithOrders' => $this->usersWithOrders,
              'has_order_entry' => $stockEntries, 
+             'has_delivered'  => $deliveredOrderIds
         ]);
     }
 }

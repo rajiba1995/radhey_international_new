@@ -28,7 +28,7 @@ class ProductionOrderDetails extends Component
     public $actualUsage = [];
     // public $deliveryType = 'full';
     public $showExtraStockPrompt;
-    
+    public $isExtraStockMode = false;
 
     public function mount($id){
         $this->orderId = $id;
@@ -52,7 +52,16 @@ class ProductionOrderDetails extends Component
 
     }
 
-  
+    public function prepareNormalStock($index)
+    {
+        $this->isExtraStockMode = false;
+        $this->openStockModal($index);
+    }
+
+    public function resetExtraStockMode()
+    {
+        $this->isExtraStockMode = false;
+    }
 
     public function updateStock($index, $inputName,$isExtra=false)
     {
@@ -164,6 +173,7 @@ class ProductionOrderDetails extends Component
             $this->resetPage($inputName);
             $this->loadOrderItems();
             $this->openStockModal($index);
+            $this->resetExtraStockMode(); // Reset extra mode after update
 
             return redirect()->route('production.order.details', $this->orderId);
 
@@ -386,6 +396,7 @@ class ProductionOrderDetails extends Component
         $index = $this->selectedDeliveryItem['index'] ?? null;
 
         if ($index !== null) {
+              $this->isExtraStockMode = true;
             $this->dispatch('close-delivery-modal');
              // Reset delivery state
             $this->reset(['actualUsage', 'showExtraStockPrompt']);
@@ -492,7 +503,7 @@ class ProductionOrderDetails extends Component
                     if ($entry->quantity <= $remaining) {
                         // Use whole entry
                         $remaining -= $entry->quantity;
-                        $entry->delete();
+                        // $entry->delete();
                     } else {
                         // Partial usage
                         $entry->update(['quantity' => $entry->quantity - $remaining]);
@@ -517,10 +528,6 @@ class ProductionOrderDetails extends Component
                         $fabricStock->increment('qty_in_meter', $leftoverQuantity);
                     }
 
-                    // Delete leftover rows because the stock is now back in main fabric
-                    foreach ($leftoverEntries as $entry) {
-                        $entry->delete();
-                    }
                 }
             }
 
