@@ -9,6 +9,7 @@ use App\Helpers\Helper;
 use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\OrdersExport;
+use App\Models\Delivery;
 use App\Models\Invoice;
 
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,7 @@ class OrderIndex extends Component
 
     public $tab = 'all';
     // protected $listeners = ['cancelOrder'];
-    protected $listeners = ['cancelOrder','markReceivedConfirmed'];
+    protected $listeners = ['cancelOrder','markReceivedConfirmed','deliveredToCustomer','deliveredToCustomerPartial'];
 
     protected $paginationTheme = 'bootstrap'; // Optional: For Bootstrap styling
 
@@ -202,8 +203,23 @@ class OrderIndex extends Component
         }
 
         // Perform order cancellation logic here
-         Order::where('id', $orderId)->update(['status' => 'received_after_production_delivered']);
+         Order::where('id', $orderId)->update(['status' => 'Received by Sales Team']);
 
         session()->flash('message', 'Order has been Received successfully.');
     }
+    public function deliveredToCustomer($orderId = null)
+    {
+        \Log::info("Mark As Received After Production method triggered with Order ID: " . ($orderId ?? 'NULL'));
+
+        if (!$orderId) {
+            throw new \Exception("Order ID is required but received null.");
+        }
+
+        // Perform order cancellation logic here
+         Order::where('id', $orderId)->update(['status' => 'Delivered to Customer']);
+         Delivery::where('order_id', $orderId)->update(['status' => 'Delivered to Customer']);
+
+        session()->flash('message', 'Order has been Delivered successfully.');
+    }
+
 }

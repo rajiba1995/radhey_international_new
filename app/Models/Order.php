@@ -87,9 +87,10 @@ class Order extends Model
         "Delivered"          => ["Delivered", "success"],
         "Cancelled"          => ["Cancelled", "danger"],
         "Returned"           => ["Returned", "dark"],
-        "production_delivered"=> ["Production Delivered", "warning"],
-        "received_after_production_delivered"=> ["Mark As Received After Production", "info"],
-
+        "Delivered from Production"=> ["Delivered from Production", "warning"],
+        "Received by Sales Team"=> ["Received by Sales Team", "info"],
+        "Delivered to Customer"=>["Delivered to Customer","info"],
+        "Delivered to Customer Partial"=>["Delivered to Customer Partial","info"],
         "Approved"                => ["Approved", "success"],
         // "Mark As Received"        => ["Mark As Received", "success"],
         "Approval Pending"        => ["Approval Pending", "warning"],
