@@ -89,7 +89,15 @@ class Order extends Model
         "Returned"           => ["Returned", "dark"],
         "production_delivered"=> ["Production Delivered", "warning"],
         "received_after_production_delivered"=> ["Mark As Received After Production", "info"],
-
+        "Approved"                => ["Approved", "success"],
+        // "Mark As Received"        => ["Mark As Received", "success"],
+        "Approval Pending"        => ["Approval Pending", "warning"],
+        "Received at Production"  => ["Received at Production", "primary"],
+        "Ready for Delivery"      => ["Ready for Delivery", "info"],
+        "Partial Delivered"       => ["Partial Delivered", "secondary"],
+        "Fully Delivered"         => ["Fully Delivered", "success"],
+        "Cancelled"               => ["Cancelled", "danger"],
+        "Returned"                => ["Returned", "dark"]
     ];
 
     // Accessor to get status label
@@ -111,6 +119,12 @@ class Order extends Model
     {
         return $this->hasOne(Invoice::class, 'order_id', 'id');
     }
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> e5c5409101aa9cb9d6f70f9f10ca29a8609f5c2c
 
 
 

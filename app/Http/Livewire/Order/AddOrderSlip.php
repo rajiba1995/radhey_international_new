@@ -117,7 +117,7 @@ class AddOrderSlip extends Component
 
                 DB::commit();
 
-                session()->flash('success', 'Payment receipt added successfully.');
+                session()->flash('success', 'Order Approved successfully.');
                 return redirect()->route('admin.order.index');
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -140,7 +140,7 @@ class AddOrderSlip extends Component
             $order->update([
                 'customer_id' => $this->customer_id,
                 'created_by' => $this->staff_id,
-                'status' => "Confirmed",
+                'status' => "Approved",
                 'last_payment_date' => $this->payment_date,
             ]);
         }

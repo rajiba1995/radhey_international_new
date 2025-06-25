@@ -18,4 +18,12 @@ class Delivery extends Model
         'delivered_by',
         'delivered_at'
     ];
+
+    public function order(){
+        return $this->belongsTo(Order::class,'order_id','id');
+    }
+
+    public function orderitem(){
+        return $this->belongTo(OrderItem::class,'order_item_id','id');
+    }
 }
