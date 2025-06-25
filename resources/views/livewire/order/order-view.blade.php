@@ -119,7 +119,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card shadow-sm mb-2">
         <div class="table-responsive">
             <div class="card-body">
                 <table class="table table-sm ledger">
@@ -166,13 +166,65 @@
                             <td><span>{{$item['quantity']}}</span></td>
                             <td><span>{{number_format($item['price']*$item['quantity'], 2)}}</span></td>
                         </tr>
+                        @if(!empty($item['deliveries']) and count($item['deliveries'])>0)
+                        <tr>
+                            <td colspan="5">
+                                <div class="col-12 mb-2 measurement_div" style="background: #fdfdfd !important;">
+                                    <h6 class="badge bg-danger custom_success_badge">Delivery Logs</h6>
+                                    <div class="row">
+                                        <table class="table table-sm ledger">
+                                            <thead>
+                                                <tr>
+                                                    <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">
+                                                        Sl No</th>
+                                                    <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">Delivery
+                                                        Date</th>
+                                                        <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">Delivered BY</th>
+                                                    <th class="" rowspan="1" colspan="1" style="width: 50px;" aria-label="qty">
+                                                        qty</th>
+                                                    <th class="" rowspan="1" colspan="1" style="width: 80px;" aria-label="total">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($item['deliveries'] as $index=> $delivery_data)
+                                                <tr class="odd" style="background-color: #f2f2f2;">
+                                                    <td>{{ ++$index }}</td>
+                                                    <td>{{ date('d-m-Y h:i A ',timestamp: strtotime($delivery_data['delivered_at'])) }}</td>
+                                                    <td>{{ $delivery_data['user']['name'] }}</td>
+
+                                                    <td>{{ $delivery_data['delivered_quantity'] }}</td>
+                                                    <td>
+                                                        @if($delivery_data['status']=='Pending')
+                                                        <a href="javascript:void(0)"
+
+                                                        class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip" onclick="deliveredToCustomer({{ $delivery_data['id'] }},{{ $delivery_data['order_id'] }});">Delivery to Customer
+                                                    </a>
+                                                    @endif
+                                                    @if($delivery_data['status']=='Delivered to Customer')
+                                                    <span class="btn btn-outline-success select-md btn_outline">Delivered to Customer</span>
+
+                                                @endif
+                                                    </td>
+
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+
+
+                                    </div>
+                                </div>
+                            </td>
+
+                        </tr>
+                        @endif
                         @if($item['collection_id']==1)
                             <tr>
                                 <td colspan="2">
                                     <div class="col-12 mb-2 measurement_div" style="background: #fdfdfd !important;">
                                         <h6 class="badge bg-danger custom_success_badge">Measurements</h6>
                                         <div class="row">
-                                            
+
                                             @foreach ($item['measurements'] as $index => $measurement)
                                             <div class="col-md-3">
                                                 <label>
@@ -184,7 +236,7 @@
                                                     value="{{ $measurement['measurement_value'] }}">
                                             </div>
                                             @endforeach
-                                        
+
                                         </div>
                                     </div>
                                 </td>
@@ -232,4 +284,29 @@
             </div>
         </div>
     </div>
+
 </div>
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function deliveredToCustomer(Id,orderId)
+{
+       Swal.fire({
+        title: "Confirm Customer Delivery",
+        text: "Please confirm that the item has been physically handed over to the customer. Once confirmed, the system will mark this order as delivered and this action cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delivered to customer!"
+        }).then((result) => {
+        if (result.isConfirmed) {
+            console.log("Firee")
+            Livewire.dispatch('deliveredToCustomerPartial', {Id,orderId});
+
+        }
+        })
+}
+</script>
+
+@endpush

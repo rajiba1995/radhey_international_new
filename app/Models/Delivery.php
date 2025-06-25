@@ -26,4 +26,8 @@ class Delivery extends Model
     public function orderitem(){
         return $this->belongTo(OrderItem::class,'order_item_id','id');
     }
+
+    public function user(){
+        return $this->belongsTo(related: User::class, foreignKey: 'delivered_by'); // ✅ Also correct    }
+}
 }

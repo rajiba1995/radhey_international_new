@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class OrderItem extends Model
 {
     use HasFactory;
-   
+
     protected $table = 'order_items';
 
     protected $fillable = [
@@ -35,7 +35,7 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Order::class);
     }
-   
+
     public function collection()
     {
         return $this->belongsTo(Collection::class, 'collection', 'id');
@@ -50,7 +50,8 @@ class OrderItem extends Model
     {
         return $this->hasMany(OrderMeasurement::class);
     }
-    
+
+
 
     //     public function collection()
     // {
@@ -77,6 +78,11 @@ class OrderItem extends Model
 
      public function deliveries(){
         return $this->hasMany(Delivery::class);
+    }
+    public function getDeliveredQtyAttribute()
+    {
+        return $this->deliveries_sum_delivered_quantity
+            ?? $this->deliveries()->sum('delivered_quantity');
     }
 
 }

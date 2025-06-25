@@ -143,7 +143,7 @@
                                     @if(empty($order->packingslip))
                                         @if($order->status!="Cancelled")
                                         @if (in_array($userDesignationId,[1,4]))
-                                          <a href="{{route('admin.order.add_order_slip', $order->id)}}" class="btn btn-outline-primary select-md btn_action btn_outline">Approve Order</a>   
+                                          <a href="{{route('admin.order.add_order_slip', $order->id)}}" class="btn btn-outline-primary select-md btn_action btn_outline">Approve Order</a>
                                         @endif
                                             <a href="{{route('admin.order.edit', $order->id)}}" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Edit</a>
 
@@ -163,8 +163,13 @@
                                      @if ($order->invoice_type=="invoice")
                                        <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Details</a>
                                     @endif
-                                    @if($order->status=="production_delivered")
-                                    <a href="javascript:void(0)" onclick="markAsReceived({{ $order->id }})" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Mark As Received After Production</a>
+                                    @if($order->status=="Delivered from Production")
+                                    <a href="javascript:void(0)" onclick="markAsReceived({{ $order->id }})" class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Received by Sales Team</a>
+                                    @endif
+                                    @if($order->status=="Received by Sales Team" or $order->status=="Delivered to Customer Partial")
+                                    <a href="javascript:void(0)"
+                                    onclick="deliveredToCustomer({{ $order->id }})"
+                                    class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip">Delivery to Customer</a>
                                     @endif
 
                                      {{-- <a href="{{route('admin.order.view',$order->id)}}" class="btn btn-outline-info btn-sm custom-btn-sm mb-0" data-toggle="tooltip" data-original-title="View product">
@@ -225,10 +230,27 @@
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, mark as received!"
+            confirmButtonText: "Yes, received by sales team!"
             }).then((result) => {
             if (result.isConfirmed) {
                 Livewire.dispatch('markReceivedConfirmed', {orderId});
+
+            }
+            })
+    }
+    function deliveredToCustomer(orderId)
+    {
+           Swal.fire({
+            title: "Confirm Customer Delivery",
+            text: "Please confirm that the item has been physically handed over to the customer. Once confirmed, the system will mark this order as delivered and this action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delivered to customer!"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                Livewire.dispatch('deliveredToCustomer', {orderId});
 
             }
             })
