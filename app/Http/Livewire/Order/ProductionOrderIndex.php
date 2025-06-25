@@ -96,6 +96,10 @@ class ProductionOrderIndex extends Component
         $this->created_by = $staff_id;
     }
 
+    public function downloadOrderPdf(){
+        
+    }
+
     public function render()
     {
          $placed_by = User::where('user_type', 0)->get();
