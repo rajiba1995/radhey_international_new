@@ -28,7 +28,7 @@ class ProductionOrderDetails extends Component
     public $actualUsage = [];
     // public $deliveryType = 'full';
     public $showExtraStockPrompt;
-    public $isExtraStockMode = false;
+    
 
     public function mount($id){
         $this->orderId = $id;
@@ -52,18 +52,133 @@ class ProductionOrderDetails extends Component
 
     }
 
-    public function prepareNormalStock($index)
-    {
-        $this->isExtraStockMode = false;
-        $this->openStockModal($index);
-    }
+   
+    
 
-    public function resetExtraStockMode()
-    {
-        $this->isExtraStockMode = false;
-    }
+   
+    
 
-    public function updateStock($index, $inputName,$isExtra=false)
+    // public function updateStock($index, $inputName)
+    // {
+    //     try {
+    //         DB::beginTransaction();
+
+    //         $item = $this->orderItems[$index];
+    //         $orderItemId = $item['id'];
+    //         $enteredQuantity = $this->rows[$inputName] ?? 0;
+
+    //         // Validate input
+    //         $validator = Validator::make(
+    //             [$inputName => $enteredQuantity],
+    //             [
+    //                 $inputName => [
+    //                     'required',
+    //                     'numeric',
+    //                     'min:1',
+    //                 ],
+    //             ],
+    //             [
+    //                 $inputName . '.required' => 'Quantity is required.',
+    //                 $inputName . '.numeric'  => 'Quantity must be a number.',
+    //                 $inputName . '.min'      => 'Quantity must be at least 1.',
+    //             ]
+    //         );
+
+    //         if ($validator->fails()) {
+    //             $this->rows['is_valid_' . $inputName] = false;
+    //             $this->addError($inputName, $validator->errors()->first($inputName));
+    //             DB::rollBack();
+    //             return;
+    //         }
+
+    //         $stockEntry = OrderStockEntry::where('order_item_id', $orderItemId)->first();
+
+    //         $previousQuantity = $stockEntry ? $stockEntry->quantity : 0;
+
+    //         if ($item['collection_id'] == 1) {
+    //             // fabric
+    //             $fabricId = $item['fabrics']->id;
+    //             $stock = StockFabric::where('fabric_id', $fabricId)->first();
+    //             $availableStock = $stock->qty_in_meter;
+
+    //         } elseif ($item['collection_id'] == 2) {
+    //             // product
+    //             $productId = $item['product']->id;
+    //             $stock = StockProduct::where('product_id', $productId)->first();
+    //             $availableStock = $stock->qty_in_pieces;
+    //         }
+
+    //         // NEW: If extra, don't look for old entry:
+    //         if (!$isExtra) {
+    //             $stockEntry = OrderStockEntry::where('order_item_id', $orderItemId)->first();
+    //             $previousQuantity = $stockEntry ? $stockEntry->quantity : 0;
+    //         } else {
+    //             $stockEntry = null;
+    //             $previousQuantity = 0; // because extra means no previous for this piece
+    //         }
+        
+    //         $maxAllowed = $availableStock + $previousQuantity;
+    //         if ($enteredQuantity > $maxAllowed) {
+    //             $this->addError($inputName, "Quantity must be less than or equal to {$maxAllowed}.");
+    //             DB::rollBack();
+    //             return;
+    //         }
+
+        
+    //         $difference = $enteredQuantity - $previousQuantity;
+
+    //         if ($isExtra || !$stockEntry) {
+    //             // create new stock entry
+    //             $stockEntry = OrderStockEntry::create([
+    //                 'order_id'     => $this->orderId,
+    //                 'order_item_id'=> $orderItemId,
+    //                 'fabric_id'    => $item['collection_id'] == 1 ? $item['fabrics']->id : null,
+    //                 'product_id'   => $item['collection_id'] == 2 ? $item['product']->id : null,
+    //                 'quantity'     => $enteredQuantity,
+    //                 'unit'         => $item['stock_entry_data']['type'],
+    //                 'created_by'   => auth()->guard('admin')->user()->id,
+    //             ]);
+               
+    //         } else {
+    //              // update stock entry
+    //             $stockEntry->update(['quantity' => $enteredQuantity]);
+    //         }
+
+    //         // Now subtract difference from stock table
+    //         if ($item['collection_id'] == 1) {
+    //             $stock->update([
+    //                 'qty_in_meter' => $stock->qty_in_meter - $difference
+    //             ]);
+    //         } elseif ($item['collection_id'] == 2) {
+    //             $stock->update([
+    //                 'qty_in_pieces' => $stock->qty_in_pieces - $difference
+    //             ]);
+    //         }
+
+    //         // Log
+    //         ChangeLog::create([
+    //             'done_by' => auth()->guard('admin')->user()->id,
+    //             'purpose' => 'stock_entry_update',
+    //             'data_details' => json_encode($stockEntry)
+    //         ]);
+
+    //         DB::commit();
+
+    //         $this->rows['is_done_' . $inputName] = true;
+    //         $this->resetPage($inputName);
+    //         $this->loadOrderItems();
+    //         $this->openStockModal($index);
+    //         $this->resetExtraStockMode(); // Reset extra mode after update
+
+    //         return redirect()->route('production.order.details', $this->orderId);
+
+    //     } catch (\Throwable $e) {
+    //         DB::rollBack();
+    //         dd($e->getMessage());
+    //     }
+    // }
+
+        public function updateStock($index, $inputName)
     {
         try {
             DB::beginTransaction();
@@ -72,7 +187,7 @@ class ProductionOrderDetails extends Component
             $orderItemId = $item['id'];
             $enteredQuantity = $this->rows[$inputName] ?? 0;
 
-            // Validate input
+            // ✅ Validate input
             $validator = Validator::make(
                 [$inputName => $enteredQuantity],
                 [
@@ -96,85 +211,77 @@ class ProductionOrderDetails extends Component
                 return;
             }
 
-            $stockEntry = OrderStockEntry::where('order_item_id', $orderItemId)->first();
-
-            $previousQuantity = $stockEntry ? $stockEntry->quantity : 0;
+            // ✅ Get stock
+            $stock = null;
+            $availableStock = 0;
+            $fabricId = null;
+            $productId = null;
 
             if ($item['collection_id'] == 1) {
-                // fabric
                 $fabricId = $item['fabrics']->id;
                 $stock = StockFabric::where('fabric_id', $fabricId)->first();
-                $availableStock = $stock->qty_in_meter;
+                $availableStock = $stock?->qty_in_meter ?? 0;
 
             } elseif ($item['collection_id'] == 2) {
-                // product
                 $productId = $item['product']->id;
                 $stock = StockProduct::where('product_id', $productId)->first();
-                $availableStock = $stock->qty_in_pieces;
+                $availableStock = $stock?->qty_in_pieces ?? 0;
             }
 
-            // NEW: If extra, don't look for old entry:
-            if (!$isExtra) {
-                $stockEntry = OrderStockEntry::where('order_item_id', $orderItemId)->first();
-                $previousQuantity = $stockEntry ? $stockEntry->quantity : 0;
-            } else {
-                $stockEntry = null;
-                $previousQuantity = 0; // because extra means no previous for this piece
-            }
-        
+            // ✅ Get or create existing stock entry
+            $stockEntry = OrderStockEntry::where('order_item_id', $orderItemId)->first();
+            $previousQuantity = $stockEntry?->quantity ?? 0;
+
+            // ✅ Ensure new quantity doesn't exceed total available
             $maxAllowed = $availableStock + $previousQuantity;
+
             if ($enteredQuantity > $maxAllowed) {
                 $this->addError($inputName, "Quantity must be less than or equal to {$maxAllowed}.");
                 DB::rollBack();
                 return;
             }
 
-        
+            // ✅ Adjust stock and save/update entry
             $difference = $enteredQuantity - $previousQuantity;
 
-            if ($isExtra || !$stockEntry) {
-                // create new stock entry
-                $stockEntry = OrderStockEntry::create([
-                    'order_id'     => $this->orderId,
-                    'order_item_id'=> $orderItemId,
-                    'fabric_id'    => $item['collection_id'] == 1 ? $item['fabrics']->id : null,
-                    'product_id'   => $item['collection_id'] == 2 ? $item['product']->id : null,
-                    'quantity'     => $enteredQuantity,
-                    'unit'         => $item['stock_entry_data']['type'],
-                    'created_by'   => auth()->guard('admin')->user()->id,
-                ]);
-               
-            } else {
-                 // update stock entry
-                $stockEntry->update(['quantity' => $enteredQuantity]);
+            OrderStockEntry::updateOrCreate(
+                ['order_item_id' => $orderItemId],
+                [
+                    'order_id'   => $this->orderId,
+                    'fabric_id'  => $fabricId,
+                    'product_id' => $productId,
+                    'quantity'   => $enteredQuantity,
+                    'unit'       => $item['stock_entry_data']['type'],
+                    'created_by' => auth()->guard('admin')->user()->id,
+                ]
+            );
+
+            // ✅ Update stock
+            if ($stock) {
+                if ($item['collection_id'] == 1) {
+                    $stock->decrement('qty_in_meter', $difference);
+                } elseif ($item['collection_id'] == 2) {
+                    $stock->decrement('qty_in_pieces', $difference);
+                }
             }
 
-            // Now subtract difference from stock table
-            if ($item['collection_id'] == 1) {
-                $stock->update([
-                    'qty_in_meter' => $stock->qty_in_meter - $difference
-                ]);
-            } elseif ($item['collection_id'] == 2) {
-                $stock->update([
-                    'qty_in_pieces' => $stock->qty_in_pieces - $difference
-                ]);
-            }
-
-            // Log
+            // ✅ Log changes
             ChangeLog::create([
                 'done_by' => auth()->guard('admin')->user()->id,
                 'purpose' => 'stock_entry_update',
-                'data_details' => json_encode($stockEntry)
+                'data_details' => json_encode([
+                    'order_item_id' => $orderItemId,
+                    'entered_quantity' => $enteredQuantity,
+                ]),
             ]);
 
             DB::commit();
 
+            // ✅ Frontend and state reset
             $this->rows['is_done_' . $inputName] = true;
             $this->resetPage($inputName);
             $this->loadOrderItems();
-            $this->openStockModal($index);
-            $this->resetExtraStockMode(); // Reset extra mode after update
-
+            $this->openStockModal($index); // reopen modal with updated data
             return redirect()->route('production.order.details', $this->orderId);
 
         } catch (\Throwable $e) {
@@ -182,6 +289,10 @@ class ProductionOrderDetails extends Component
             dd($e->getMessage());
         }
     }
+
+
+
+
 
 
 
@@ -346,9 +457,11 @@ class ProductionOrderDetails extends Component
             $plannedUsage = OrderStockEntry::query()
                 ->where('order_item_id', $item['id'])
                 ->when($fabricId, fn($q) => $q->where('fabric_id', $fabricId))
-                ->sum('quantity');
+                ->sum('quantity');  
              $unit = 'meters';
-             $this->actualUsage[$item['id']] = null;
+            if (!isset($this->actualUsage[$item['id']])) {
+                $this->actualUsage[$item['id']] = $plannedUsage;
+            }
         } elseif ($item['collection_id'] == 2) {
             $productId = $item['product']->id ?? null;
             $stockProduct = StockProduct::where('product_id',$productId)->sum('qty_in_pieces');
@@ -408,19 +521,106 @@ class ProductionOrderDetails extends Component
         $this->showExtraStockPrompt = $this->actualUsage > $planned;
     }
 
-    public function addExtraStock(){
-        $index = $this->selectedDeliveryItem['index'] ?? null;
+    // public function addExtraStock(){
+    //     $index = $this->selectedDeliveryItem['index'] ?? null;
 
-        if ($index !== null) {
-              $this->isExtraStockMode = true;
-            $this->dispatch('close-delivery-modal');
-             // Reset delivery state
-            $this->reset(['actualUsage', 'showExtraStockPrompt']);
-            $this->openStockModal($index);
-            // Also hide the prompt:
-            // $this->showExtraStockPrompt = false;
+    //     if ($index !== null) {
+
+    //         $this->dispatch('close-delivery-modal');
+    //          // Reset delivery state
+    //         $this->reset(['actualUsage', 'showExtraStockPrompt']);
+    //         // $this->openStockModal($index);
+    //     }
+    // }
+
+    public function addExtraStock()
+{
+    $index = $this->selectedDeliveryItem['index'] ?? null;
+
+    if ($index !== null) {
+        $item = $this->orderItems->get($index);
+
+        $itemId = $item['id'];
+        $collectionId = $item['collection_id'];
+        $fabricId = $collectionId == 1 ? ($item['fabrics']->id ?? null) : null;
+        $productId = $collectionId == 2 ? ($item['product']->id ?? null) : null;
+
+        $actualQty = $this->actualUsage[$itemId] ?? 0;
+        $currentUsage = $this->selectedDeliveryItem['planned_usage'] ?? 0;
+
+        if ($actualQty <= $currentUsage) {
+            return;
+        }
+
+        $availableStock = $item['stock_entry_data']['available_value'] ?? 0;
+        $extraQty = $actualQty - $currentUsage;
+
+        if ($extraQty > $availableStock) {
+            session()->flash('stock_error', 'Entered extra quantity exceeds available stock.');
+            return;
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // ✅ Update or create stock entry
+            $stockEntry = OrderStockEntry::where('order_item_id', $itemId)->first();
+
+            if ($stockEntry) {
+                $stockEntry->update(['quantity' => $actualQty]); // overwrite with new total usage
+            } else {
+                OrderStockEntry::create([
+                    'order_id' => $this->orderId,
+                    'order_item_id' => $itemId,
+                    'fabric_id' => $fabricId,
+                    'product_id' => $productId,
+                    'quantity' => $actualQty,
+                    'unit' => $item['stock_entry_data']['type'],
+                    'created_by' => auth()->guard('admin')->user()->id,
+                ]);
+            }
+
+            // ✅ Update physical stock
+            if ($collectionId == 1 && $fabricId) {
+                StockFabric::where('fabric_id', $fabricId)->decrement('qty_in_meter', $extraQty);
+            } elseif ($collectionId == 2 && $productId) {
+                StockProduct::where('product_id', $productId)->decrement('qty_in_pieces', $extraQty);
+            }
+
+            // ✅ Log the change (optional)
+            ChangeLog::create([
+                'done_by' => auth()->guard('admin')->user()->id,
+                'purpose' => 'extra_stock_entry',
+                'data_details' => json_encode([
+                    'order_item_id' => $itemId,
+                    'extra_quantity' => $extraQty,
+                ]),
+            ]);
+
+            DB::commit();
+
+            // ✅ Update frontend state
+            $item['stock_entry_data']['available_value'] -= $extraQty;
+            $item['stock_entry_data']['updated_label'] = $actualQty;
+            $this->orderItems->put($index, $item);
+
+            $this->selectedDeliveryItem['planned_usage'] = $actualQty;
+            $this->actualUsage[$itemId] = $actualQty;
+            $this->showExtraStockPrompt = false;
+
+            session()->forget('stock_error');
+            $this->dispatch('stock-updated'); // optional for UI refresh
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            dd($e->getMessage());
+            session()->flash('stock_error', 'Something went wrong. Please try again.');
         }
     }
+}
+
+
+
 
    
 
@@ -623,6 +823,7 @@ class ProductionOrderDetails extends Component
 
                     if ($entry->quantity <= $remaining) {
                         $remaining -= $entry->quantity;
+                        // $entry->delete();
                     } else {
                         $entry->update(['quantity' => $entry->quantity - $remaining]);
                         $remaining = 0;
@@ -630,19 +831,22 @@ class ProductionOrderDetails extends Component
                     }
                 }
 
+
+
                 // Return leftover fabric back to stock
-                $leftoverEntries = OrderStockEntry::where('order_item_id', $itemId)
-                    ->where('fabric_id', $item['fabric_id'])
-                    ->get();
+                // $leftoverEntries = OrderStockEntry::where('order_item_id', $itemId)
+                //     ->where('fabric_id', $item['fabric_id'])
+                //     ->get();
 
-                $leftoverQuantity = $leftoverEntries->sum('quantity');
+                // $leftoverQuantity = $leftoverEntries->sum('quantity');
 
-                if ($leftoverQuantity > 0) {
-                    $fabricStock = StockFabric::where('fabric_id', $item['fabric_id'])->first();
-                    if ($fabricStock) {
-                        $fabricStock->increment('qty_in_meter', $leftoverQuantity);
-                    }
-                }
+                // if ($leftoverQuantity > 0) {
+                //     $fabricStock = StockFabric::where('fabric_id', $item['fabric_id'])->first();
+                //     if ($fabricStock) {
+                //         $fabricStock->increment('qty_in_meter', $leftoverQuantity);
+                //     }
+                  
+                // }
             }
 
             // 3️⃣ For product: just reduce main stock
@@ -714,9 +918,9 @@ class ProductionOrderDetails extends Component
 
             // Final status decision
             if ($allDelivered) {
-                $order->update(['status' => 'Fully Delivered']);
+                $order->update(['status' => 'Fully Delivered By Production']);
             } elseif ($anyDelivered) {
-                $order->update(['status' => 'Partial Delivered']);
+                $order->update(['status' => 'Partial Delivered By Production']);
             }
 
 

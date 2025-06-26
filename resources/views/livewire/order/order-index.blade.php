@@ -134,17 +134,17 @@
                                 </td>
                                 {{-- <td class="{{$order->remaining_amount>0?"text-danger":""}}"><p class="text-xs font-weight-bold mb-0">{{ $order->remaining_amount }}</p></td> --}}
                                 <td>
-                                    @php
+                                    {{-- @php
                                      $status = ($order->status === 'Fully Delivered' || $order->status === 'Partial Delivered')
                                         ? 'Delivered from Production'
                                         : $order->status;
 
-                                        $labelClass = $status_classes[$status][1] ?? 'secondary';
+                                        $labelClass = $status_classes[$status][1] ?? 'success';
                                     @endphp
                                     <span class="badge bg-{{ $labelClass }}">
                                         {{ $status }}
-                                    </span>
-                                    {{-- <span class="badge bg-{{ $order->status_class }}">{{ $order->status_label }}</span> --}}
+                                    </span> --}}
+                                    <span class="badge bg-{{ $order->status_class }}">{{ $order->status_label }}</span>
                                 </td>
                             <td class="text-center">
                                 @php

@@ -125,7 +125,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if ($orderItems->isNotEmpty())
+                        @if (count($orderItems) > 0)
                         
                         @foreach ($orderItems as $item)
                         {{-- {{dd()}} --}}
@@ -274,11 +274,7 @@
                     <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="stockEntryModalLabel">
-                            @if($isExtraStockMode)
-                               Add Extra Stock - {{$order->order_number}}
-                            @else
                                Stock Entry Sheet - {{$order->order_number}}
-                            @endif
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -322,22 +318,11 @@
                                         @enderror
                                     </div>
                                     <div class="col-md-2 mt-4">
-                                        @if($isExtraStockMode)
-                                            <!-- Add button for extra stock mode -->
-                                            <button class="btn btn-outline-success select-md"
-                                                wire:click="updateStock({{ $selectedItem['index'] }}, '{{ $selectedItem['input_name'] }}', true)">
-                                                Add
-                                            </button>
-                                        @else
-                                        <!-- Normal update buttons -->
                                             <button class="btn btn-outline-success select-md"
                                                 wire:click="updateStock({{ $selectedItem['index'] }},
-                                                            '{{ $selectedItem['input_name'] }}',
-                                                            true
-                                                            )">
+                                                            '{{ $selectedItem['input_name'] }}')">
                                                 Update
                                             </button>
-                                        @endif
                                         @if($selectedItem['has_stock_entry'])
                                         <button class="btn btn-outline-danger select-md"
                                             wire:click="$dispatch('confirm-revert-back', { index: {{ $selectedItem['index'] }}, inputName: '{{ $selectedItem['input_name'] }}' })">

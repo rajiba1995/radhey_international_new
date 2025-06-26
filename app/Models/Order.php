@@ -93,10 +93,10 @@ class Order extends Model
         "Delivered to Customer Partial"=>["Delivered to Customer Partial","info"],
         "Approved"                => ["Approved", "success"],
         // "Mark As Received"        => ["Mark As Received", "success"],
-        "Approval Pending"        => ["Approval Pending", "warning"],
+        "Approval Pending"        => ["Approval Pending", "danger"],
         "Received at Production"  => ["Received at Production", "primary"],
-        "Partial Delivered"       => ["Partial Delivered", "secondary"],
-        "Fully Delivered"         => ["Fully Delivered", "success"],
+        "Partial Delivered By Production"       => ["Partial Delivered By Production", "secondary"],
+        "Fully Delivered By Production"         => ["Fully Delivered By Production", "success"],
     ];
 
     // Accessor to get status label
