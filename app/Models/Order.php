@@ -78,25 +78,17 @@ class Order extends Model
 
 
     protected $status_classes = [
-        "Confirmed"          => ["Confirmed", "success"],
-        "Mark As Received"   => ["Mark As Received", "success"],
-        "Pending"            => ["Pending", "warning"],
-        "In Production"      => ["In Production", "primary"],
-        "Ready for Delivery" => ["Ready for Delivery", "info"],
-        "Shipped"            => ["Shipped", "secondary"],
-        "Delivered"          => ["Delivered", "success"],
-        "Cancelled"          => ["Cancelled", "danger"],
-        "Returned"           => ["Returned", "dark"],
-        "Delivered from Production"=> ["Delivered from Production", "warning"],
-        "Received by Sales Team"=> ["Received by Sales Team", "info"],
-        "Delivered to Customer"=>["Delivered to Customer","info"],
-        "Delivered to Customer Partial"=>["Delivered to Customer Partial","info"],
-        "Approved"                => ["Approved", "success"],
-        // "Mark As Received"        => ["Mark As Received", "success"],
-        "Approval Pending"        => ["Approval Pending", "danger"],
-        "Received at Production"  => ["Received at Production", "primary"],
-        "Partial Delivered By Production"       => ["Partial Delivered By Production", "secondary"],
-        "Fully Delivered By Production"         => ["Fully Delivered By Production", "success"],
+        "Approved"                => ["Approved", "approved_order"],
+        "Ready for Delivery" => ["Ready for Delivery", "ready_for_delivery"],
+        "Cancelled"          => ["Cancelled", "order_cancelled"],
+        "Returned"           => ["Returned", "order_returned"],
+        "Received by Sales Team"=> ["Received by Sales Team", "received_by_sales_team"],
+        "Delivered to Customer"=>["Delivered to Customer","delivered_to_customer"],
+        "Partial Delivered to Customer"=>["Partial Delivered to Customer","partial_delivered_to_customer"],
+        "Approval Pending"        => ["Approval Pending", "approval_pending"],
+        "Received at Production"  => ["Received at Production", "received_at_production"],
+        "Partial Delivered By Production"       => ["Partial Delivered By Production", "partial_delivered_by_production"],
+        "Fully Delivered By Production"         => ["Fully Delivered By Production", "fully_delivered_by_production"],
     ];
 
     // Accessor to get status label

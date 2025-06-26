@@ -181,9 +181,12 @@
                                                         Date</th>
                                                         <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">
                                                             Status</th>
+
                                                         <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">Delivered BY (Production)</th>
                                                     <th class="" rowspan="1" colspan="1" style="width: 50px;" aria-label="qty">
                                                         qty</th>
+                                                        <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">
+                                                            Remarks</th>
                                                     <th class="" rowspan="1" colspan="1" style="width: 80px;" aria-label="total">Action</th>
                                                 </tr>
                                             </thead>
@@ -192,27 +195,46 @@
                                                 <tr class="odd" style="background-color: #f2f2f2;">
                                                     <td>{{ ++$index }}</td>
                                                     <td>{{ date('d-m-Y h:i A ',timestamp: strtotime($delivery_data['delivered_at'])) }}</td>
-                                                    <td>{{ $delivery_data['status'] }}</td>
+                                                    <td>
+
+
+                                                        @if($delivery_data['status']=='Pending')
+                                                        <span class="badge bg-primary">Pending</span>
+                                                        @endif
+                                                        @if($delivery_data['status']=='Received by Sales Team')
+                                                        <span class="badge bg-warning">Received by Sales Team</span>
+                                                        @endif
+                                                        @if($delivery_data['status']=='Rejected')
+                                                        <span class="badge bg-danger">Rejected</span>
+                                                        @endif
+                                                        @if($delivery_data['status']=='Alteration Required')
+                                                        <span class="badge bg-info">Alteration Required</span>
+                                                        @endif
+                                                        @if($delivery_data['status']=='Delivered')
+                                                        <span class="badge bg-success">Delivered</span>
+                                                        @endif
+                                                    </td>
 
                                                     <td>{{ $delivery_data['user']['name'] }}</td>
 
                                                     <td>{{ $delivery_data['delivered_quantity'] }}</td>
                                                     <td>
+                                                        <a href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $delivery_data['remarks'] }}">Reamrks</a>
+                                                    </td>
+                                                    <td>
                                                         @if($delivery_data['status']=='Pending')
                                                         <a
                                                             wire:click="$dispatch('mark-as-received', {Id: {{ $delivery_data['id'] }}})"
                                                             class="btn btn-outline-warning select-md btn_outline" data-toggle="tooltip">Receive by Sales Team</a>
-                                                            @else
+                                                        @endif
+                                                         @if($delivery_data['status']=='Received by Sales Team')
                                                             <a href="javascript:void(0)"
-                                                        wire:click="$dispatch('delivered-to-customer', {orderId: '{{ $order->id }}',Id:{{ $delivery_data['id'] }} })"
-                                                        class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip" >Delivery to Customer
-                                                    </a>
+                                                            wire:click="$dispatch('delivered-to-customer', {orderId: '{{ $order->id }}',Id:{{ $delivery_data['id'] }} })"
+                                                            class="btn btn-outline-success select-md btn_outline"  >Delivery to Customer
+                                                            </a>
                                                         @endif
 
-                                                    @if($delivery_data['status']=='Delivered')
-                                                    <span class="btn btn-outline-success select-md btn_outline">Delivered to Customer</span>
 
-                                                @endif
                                                     </td>
 
                                                 </tr>
@@ -318,8 +340,8 @@
                                     <select class="form-control @error('status') is-invalid @enderror" wire:model="status" >
                                         <option value="">Select Status</option>
                                         <option value="Delivered">Delivered</option>
-                                        <option value="Alteration Req">Alteration Req</option>
-                                        <option value="Reject">Reject</option>
+                                        <option value="Alteration Required">Alteration Required</option>
+                                        <option value="Reject">Rejected</option>
 
                                     </select>
                                     @error('status') <span class="text-danger">{{ $message }}</span> @enderror
@@ -365,7 +387,13 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-
+    // Initialize all tooltips on the page
+    document.addEventListener('DOMContentLoaded', function () {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
 window.addEventListener('delivered-to-customer', event => {
         const { Id,orderId } = event.detail;
         let myModal = new bootstrap.Modal(document.getElementById('DeliveryModal'));
@@ -387,8 +415,13 @@ window.addEventListener('delivered-to-customer', event => {
         Swal.fire({
         title: "Success",
         text: "Customer Delivery Status updated successfully",
-        icon: "warning"
-        });
+        icon: "success"
+        }).then((result) => {
+    if (result.isConfirmed) {
+        // Reload the page
+        window.location.reload();
+    }
+});;
     });
     window.addEventListener('mark-as-received', event => {
     const {Id } = event.detail;
