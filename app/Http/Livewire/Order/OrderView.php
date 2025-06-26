@@ -73,7 +73,7 @@ class OrderView extends Component
     public function deliveredToCustomerPartial()
     {
     $this->validate();
-    \Log::info("Mark As Customer Delivered Method method triggered with Order ID: " . ($this->Id ?? 'NULL'));
+    //\Log::info("Mark As Customer Delivered Method method triggered with Order ID: " . ($this->Id ?? 'NULL'));
 
         if (!$this->Id) {
             throw new \Exception("Order ID is required but received null.");
@@ -114,7 +114,7 @@ class OrderView extends Component
     }
     public function markReceivedConfirmed($Id=null)
     {
-        \Log::info("Mark As Received By Sales Team Method method triggered with Order ID: " . ($orderId ?? 'NULL'));
+        //\Log::info("Mark As Received By Sales Team Method method triggered with Order ID: " . ($orderId ?? 'NULL'));
 
         if (!$Id) {
             throw new \Exception("Order ID is required but received null.");
