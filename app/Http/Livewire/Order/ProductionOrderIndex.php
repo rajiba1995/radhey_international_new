@@ -97,7 +97,7 @@ class ProductionOrderIndex extends Component
     }
 
     public function downloadOrderPdf(){
-        
+       
     }
 
     public function render()

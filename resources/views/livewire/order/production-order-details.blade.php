@@ -201,7 +201,13 @@
                                     @endif
 
                                     @if ($item['collection_id'] == 2)
-                                        @if ($item['is_delivered'] ?? false)
+                                     @php
+                                     $orderedQty = (int) ($item['quantity'] ?? 0) ;
+                                     $deliveredQty = (int) ($item['delivered_quantity'] ?? 0);
+                                    //  dd($deliveredQty);
+                                     $remainingQty = $orderedQty - $deliveredQty;
+                                    @endphp
+                                        @if ($remainingQty <=0 )
                                             <button class="btn btn-success select-md" disabled>
                                                 Delivered
                                             </button>
@@ -337,9 +343,6 @@
                                             wire:click="$dispatch('confirm-revert-back', { index: {{ $selectedItem['index'] }}, inputName: '{{ $selectedItem['input_name'] }}' })">
                                             Revert Back
                                         </button>
-                                        {{-- <button class="btn btn-outline-success select-md">
-                                            Delivery
-                                        </button> --}}
                                         @endif
                                     </div>
                                 </div>
@@ -352,7 +355,6 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        {{-- <button type="button"  class="btn btn-primary">Save Stock</button> --}}
                     </div>
                     </div>
                 </div>
@@ -378,20 +380,21 @@
                                         @else
                                             <strong>Total Stock:</strong> 
                                             {{ $selectedDeliveryItem['stock_product'] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }}
+                                            <br>
+                                            <strong>Delivered Quantity:</strong> 
+                                            {{ $selectedDeliveryItem['delivered_quantity'] ?? 0 }} {{ $selectedDeliveryItem['unit'] ?? '' }}
                                         @endif
                                     </div>
                                     <div class="col-md-6">
                                         <label for="actualUsage" class="form-label mb-1">Actual Usage ({{ $selectedDeliveryItem['unit'] ?? '' }})</label>
                                         <input type="number" class="form-control @error('actualUsage') is-invalid @enderror" id="actualUsage" wire:model="actualUsage.{{ $selectedDeliveryItem['item_id'] ?? 'default' }}" 
-                                        wire:keyup="checkActualUsage" 
-                                        @if (isset($selectedDeliveryItem['collection_id']) && $selectedDeliveryItem['collection_id'] == 2) disabled @endif>
+                                        wire:keyup="checkActualUsage">
                                         @error('actualUsage.' . ($selectedDeliveryItem['item_id'] ?? 'default'))
                                             <p class="small text-danger">{{ $message }}</p>
                                         @enderror
                                         @if (session()->has('stock_error'))
                                             <p class="small text-danger">{{ session('stock_error') }}</p>
                                         @endif
-
                                     </div>
                                 </div>
                                 @if (isset($selectedDeliveryItem['collection_id']) && $selectedDeliveryItem['collection_id'] == 1) 
@@ -405,26 +408,6 @@
                                     @endif
                                 @endif
 
-                                <!-- Row for Delivery Type -->
-                                {{-- <div class="row">
-                                    <label class="form-label mb-2">Delivery Type</label>
-                                    <div class="col-auto">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" wire:model="deliveryType" id="fullyDelivered" value="full" checked>
-                                            <label class="form-check-label" for="fullyDelivered">
-                                                Fully Delivered
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" wire:model="deliveryType"   id="partlyDelivered" value="partial">
-                                            <label class="form-check-label" for="partlyDelivered">
-                                                Partly Delivered
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div> --}}
                             </div>
                         </div>
                     </div>

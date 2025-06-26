@@ -147,14 +147,14 @@
                                         Received
                                     </button>
                                 @elseif($order->status == 'Received at Production'  || $order->status == 'Partial Delivered' || $order->status == 'Fully Delivered')
-                                <a href="" target="_blank" class="btn btn-outline-primary select-md btn_outline">
-                                    Download Pdf
-                                </a>
+                                    {{-- <a href="{{route('production.order.download_pdf',$order->id)}}" target="_blank" class="btn btn-outline-primary select-md btn_outline">
+                                        Download Pdf
+                                    </a> --}}
                                     @if (!in_array($order->id, $has_order_entry))
                                        <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Stock Entry</a>   
-                                     @elseif(in_array($order->id, $has_order_entry) && $order->status != 'Fully Delivered')
+                                    @elseif(in_array($order->id, $has_order_entry) && $order->status != 'Fully Delivered')
                                        <a href="{{route('production.order.details',$order->id)}}" class="btn btn-outline-success select-md btn_action btn_outline">Delivery</a>   
-                                      @elseif($order->status == 'Fully Delivered')
+                                    @elseif($order->status == 'Fully Delivered')
                                        <button class="btn btn-outline-success select-md btn_action btn_outline" disabled>Delivered</button> 
                                     @endif
                                 @endif
