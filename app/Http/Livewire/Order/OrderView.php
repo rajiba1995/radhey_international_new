@@ -7,16 +7,20 @@ use App\Models\OrderItem;
 use \App\Models\Product;
 use \App\Models\Invoice;
 use App\Models\Delivery;
+use Illuminate\Support\Facades\Auth;
 
 use Livewire\Component;
 
 class OrderView extends Component
 {
-    public $oderId;
     public $latestOrders = [];
     public $order;
-    protected $listeners = ['deliveredToCustomerPartial'];
-
+    protected $listeners = ['deliveredToCustomerPartial','openDeliveryModal','markReceivedConfirmed'];
+    public $Id, $orderId, $status, $remarks;
+    protected $rules = [
+        'status' => 'required',
+        'remarks' => 'required|string|min:3',
+    ];
     public function mount($id){
         $this->orderId = $id;
         $this->order = Order::with('items')->findOrFail($this->orderId);
@@ -59,38 +63,67 @@ class OrderView extends Component
                 'product_image' => $product ? $product->product_image : null,
             ];
         });
+
         return view('livewire.order.order-view',[
             'order' => $order,
             'orderItems' => $orderItems,
             'latestOrders'=>$this->latestOrders
         ]);
     }
-    public function deliveredToCustomerPartial($Id = null,$orderId=null)
+    public function deliveredToCustomerPartial()
     {
-        \Log::info("Mark As Customer Delivered Method method triggered with Order ID: " . ($Id ?? 'NULL'));
+    $this->validate();
+    \Log::info("Mark As Customer Delivered Method method triggered with Order ID: " . ($this->Id ?? 'NULL'));
+
+        if (!$this->Id) {
+            throw new \Exception("Order ID is required but received null.");
+        }
+        $totalQuantity = OrderItem::where('order_id', $this->orderId)->sum('quantity');
+
+        // // Perform order cancellation logic here
+        Delivery::where('id', $this->Id)
+        ->update( ['status' =>$this->status,'remarks'=>$this->remarks,'customer_delivered_by'=>auth()->guard('admin')->user()->id]);
+
+        $totalDelevery= Delivery::where('order_id', $this->orderId)->where('status','Delivered to Customer')->sum('delivered_quantity');
+
+        if($totalQuantity==$totalDelevery)
+        {
+           Order::where('id', operator: $this->orderId)->update(['status' => 'Delivered to Customer']);
+        }
+        else{
+            if($this->status=='Delivered')
+            {
+                Order::where('id', operator: $this->orderId)->update(['status' => 'Delivered to Customer Partial']);
+
+            }
+
+        }
+
+    session()->flash('success', 'Order delivery updated successfully!');
+
+    // Close modal (optional)
+    $this->dispatch('close-delivery-modal');
+
+
+        //return redirect(url()->previous())->with('success', 'Order has been Delivered to Customer successfully!');
+    }
+    public function openDeliveryModal($Id=null,$orderId=null)
+    {
+        $this->Id = $Id;
+        $this->orderId = $orderId;
+    }
+    public function markReceivedConfirmed($Id=null)
+    {
+        \Log::info("Mark As Received By Sales Team Method method triggered with Order ID: " . ($orderId ?? 'NULL'));
 
         if (!$Id) {
             throw new \Exception("Order ID is required but received null.");
         }
-        $totalQuantity = OrderItem::where('order_id', $orderId)->sum('quantity');
-
-        // Perform order cancellation logic here
-         Delivery::where('id', $Id)->update( ['status' => 'Delivered to Customer']);
-
-        $totalDelevery= Delivery::where('order_id', $orderId)->where('status','Delivered to Customer')->sum('delivered_quantity');
-
-        if($totalQuantity==$totalDelevery)
-        {
-           Order::where('id', operator: $orderId)->update(['status' => 'Delivered to Customer']);
-
-        }
-        else{
-            Order::where('id', operator: $orderId)->update(['status' => 'Delivered to Customer']);
-
-        }
-
-        //session()->flash('message', 'Order has been Delivered to Customer successfully.');
-        //return redirect()->route('admin.order.index'); // or redirect()->to('/some-url');
+        Delivery::where('id', $Id)
+        ->update( ['status' =>'Received by Sales Team']);
+        session()->flash('success', 'Delivery has been receive by sales team!');
         return redirect(url()->previous())->with('success', 'Order has been Delivered to Customer successfully!');
+
+
     }
 }

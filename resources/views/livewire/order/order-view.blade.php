@@ -1,4 +1,4 @@
-<div class="container">
+<di class="container">
     <section class="admin__title">
         <h5>Order detail</h5>
     </section>
@@ -179,7 +179,9 @@
                                                         Sl No</th>
                                                     <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">Delivery
                                                         Date</th>
-                                                        <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">Delivered BY</th>
+                                                        <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">
+                                                            Status</th>
+                                                        <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">Delivered BY (Production)</th>
                                                     <th class="" rowspan="1" colspan="1" style="width: 50px;" aria-label="qty">
                                                         qty</th>
                                                     <th class="" rowspan="1" colspan="1" style="width: 80px;" aria-label="total">Action</th>
@@ -190,17 +192,24 @@
                                                 <tr class="odd" style="background-color: #f2f2f2;">
                                                     <td>{{ ++$index }}</td>
                                                     <td>{{ date('d-m-Y h:i A ',timestamp: strtotime($delivery_data['delivered_at'])) }}</td>
+                                                    <td>{{ $delivery_data['status'] }}</td>
+
                                                     <td>{{ $delivery_data['user']['name'] }}</td>
 
                                                     <td>{{ $delivery_data['delivered_quantity'] }}</td>
                                                     <td>
                                                         @if($delivery_data['status']=='Pending')
-                                                        <a href="javascript:void(0)"
-
-                                                        class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip" onclick="deliveredToCustomer({{ $delivery_data['id'] }},{{ $delivery_data['order_id'] }});">Delivery to Customer
+                                                        <a
+                                                            wire:click="$dispatch('mark-as-received', {Id: {{ $delivery_data['id'] }}})"
+                                                            class="btn btn-outline-warning select-md btn_outline" data-toggle="tooltip">Receive by Sales Team</a>
+                                                            @else
+                                                            <a href="javascript:void(0)"
+                                                        wire:click="$dispatch('delivered-to-customer', {orderId: '{{ $order->id }}',Id:{{ $delivery_data['id'] }} })"
+                                                        class="btn btn-outline-success select-md btn_outline" data-toggle="tooltip" >Delivery to Customer
                                                     </a>
-                                                    @endif
-                                                    @if($delivery_data['status']=='Delivered to Customer')
+                                                        @endif
+
+                                                    @if($delivery_data['status']=='Delivered')
                                                     <span class="btn btn-outline-success select-md btn_outline">Delivered to Customer</span>
 
                                                 @endif
@@ -284,29 +293,123 @@
             </div>
         </div>
     </div>
+{{-- Modal Content  --}}
+
+    <div wire:ignore.self class="modal fade" id="DeliveryModal" tabindex="-1" aria-labelledby="stockEntryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stockEntryModalLabel">Delivery Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+
+
+                <div class="card">
+                    <form wire:submit.prevent="deliveredToCustomerPartial">
+                        <div class="card-body">
+                            <h6>Delivery Status</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">
+                                        <strong>Status</strong> <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-control @error('status') is-invalid @enderror" wire:model="status" >
+                                        <option value="">Select Status</option>
+                                        <option value="Delivered">Delivered</option>
+                                        <option value="Alteration Req">Alteration Req</option>
+                                        <option value="Reject">Reject</option>
+
+                                    </select>
+                                    @error('status') <span class="text-danger">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">
+                                        <strong>Remarks</strong> <span class="text-danger">*</span>
+                                    </label>
+
+                                    <textarea class="form-control @error('remarks') is-invalid @enderror"" wire:model="remarks"></textarea>
+                                    @error('remarks') <span class="text-danger">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+
+
+                                <div class="col-md-2 mt-4">
+                                    <button class="btn btn-outline-success select-md">Submit</button>
+
+                                </div>
+                            </div>
+                        </div>
+                   </form>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {{-- <button type="button"  class="btn btn-primary">Save Stock</button> --}}
+            </div>
+            </div>
+        </div>
+    </div>
+
 
 </div>
+
+
+
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-function deliveredToCustomer(Id,orderId)
-{
-       Swal.fire({
-        title: "Confirm Customer Delivery",
-        text: "Please confirm that the item has been physically handed over to the customer. Once confirmed, the system will mark this order as delivered and this action cannot be undone.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delivered to customer!"
-        }).then((result) => {
-        if (result.isConfirmed) {
-            console.log("Firee")
-            Livewire.dispatch('deliveredToCustomerPartial', {Id,orderId});
 
+window.addEventListener('delivered-to-customer', event => {
+        const { Id,orderId } = event.detail;
+        let myModal = new bootstrap.Modal(document.getElementById('DeliveryModal'));
+        myModal.show();
+        Livewire.dispatch('openDeliveryModal', { Id, orderId });
+
+    });
+    window.addEventListener('close-delivery-modal', () => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('DeliveryModal'));
+        if (modal) {
+            modal.hide();
         }
-        })
-}
+
+        // ✅ Custom tracking logic here
+        console.log("Delivery modal closed via Livewire event");
+
+        // Optional: Reset modal content
+        document.querySelector('#DeliveryModal form').reset();
+        Swal.fire({
+        title: "Success",
+        text: "Customer Delivery Status updated successfully",
+        icon: "warning"
+        });
+    });
+    window.addEventListener('mark-as-received', event => {
+    const {Id } = event.detail;
+    Swal.fire({
+            title: "Are you sure?",
+            text: "The Production Team has marked this item as delivered. Please confirm that you have received it. Once confirmed, this action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, received by sales team!"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                Livewire.dispatch('markReceivedConfirmed', {Id});
+
+            }
+            })
+
+    });
 </script>
 
 @endpush
+
+
