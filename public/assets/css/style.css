@@ -1170,50 +1170,72 @@ label.form-check-label {
 
 /*--- 26-05-2025 Karunadri ---*/
 .bg-approved_order{
-    color:#383d41 !important;
-    background-color:#00CA14 !important
+    color:#d1e7dd !important;
+    background-color:#00CA14 !important;
+    font-weight: bold;
 }
 .bg-approval_pending{
-    color:#383d41 !important;
-    background-color:#D0CE55 !important
+    color:#000000 !important;
+    background-color:#D0CE55 !important;
+    font-weight: bold;
 }
 .bg-ready_for_delivery{
-    color:#383d41 !important;
-    background-color:#558ED0 !important
+    color:#d1e7dd !important;
+    background-color:#558ED0 !important;
+    font-weight: bold;
+
 }
 .bg-order_cancelled{
-    color:#383d41 !important;
-    background-color:#DE0046 !important
+    color:#d1e7dd !important;
+    background-color:#DE0046 !important;
+    font-weight: bold;
+
 }
 .bg-order_returned{
-    color:#383d41 !important;
-    background-color:#FB00B4 !important
+    color:#d1e7dd !important;
+    background-color:#FB00B4 !important;
+    font-weight: bold;
+
 }
 .bg-received_by_sales_team{
-    color:#383d41 !important;
-    background-color:#2E8B62 !important
+    color:#d1e7dd !important;
+    background-color:#2E8B62 !important;
+    font-weight: bold;
+
 }
 .bg-delivered_to_customer{
-    color:#383d41 !important;
-    background-color:#FF9500 !important
+    color:#d1e7dd !important;
+    background-color:#FF9500 !important;
+    font-weight: bold;
+
 }
 .bg-partial_delivered_to_customer{
-    color:#383d41 !important;
-    background-color:#935600 !important
+    color:#d1e7dd !important;
+    background-color:#935600 !important;
+    font-weight: bold;
+
 }
 .bg-partial_delivered_to_customer{
-    color:#383d41 !important;
-    background-color:#935600 !important
+    color:#d1e7dd !important;
+    background-color:#935600 !important;
+    font-weight: bold;
+
 }
 .bg-received_at_production{
-    color:#383d41 !important;
-    background-color:#55C4D0 !important
+    color:#d1e7dd !important;
+    background-color:#55C4D0 !important;
+    font-weight: bold;
+
 }
 .bg-partial_delivered_by_production{
-    color:#383d41 !important;
-    background-color:#7F5BEE !important
+    color:#d1e7dd !important;
+    background-color:#7F5BEE !important;
+    font-weight: bold;
+
 }
 .bg-fully_delivered_by_production{
-    color:#383d41 !important;
-    background-color:#2F00BD !important
+    color:#d1e7dd !important;
+    background-color:#2F00BD !important;
+    font-weight: bold;
+
 }

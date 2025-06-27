@@ -43,8 +43,10 @@ class OrderView extends Component
     {
          // Fetch the order and its related items
          $order = Order::with([
-            'items.deliveries' => fn($q) => $q->with('user:id,name')
+            'items.deliveries' => fn($q) => $q->with('user:id,name'),
+            'items.voice_remark','items.catlogue_image'
         ])->findOrFail($this->orderId);
+        //echo "<pre>";print_r($order->toArray());exit;
          $orderItems = $order->items->map(function ($item) use($order) {
 
             $product = Product::find($item->product_id);
@@ -60,6 +62,10 @@ class OrderView extends Component
                 'price' => $item->piece_price,
                 'deliveries' => !empty($item->deliveries)?$item->deliveries:"",
                 'quantity' => $item->quantity,
+                'remarks' => $item->remarks,
+                'catlogue_image' => $item->catlogue_image,
+                'voice_remark' => $item->voice_remark,
+
                 'product_image' => $product ? $product->product_image : null,
             ];
         });

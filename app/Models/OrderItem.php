@@ -84,5 +84,13 @@ class OrderItem extends Model
         return $this->deliveries_sum_delivered_quantity
             ?? $this->deliveries()->sum('delivered_quantity');
     }
+    public function voice_remark()
+    {
+        return $this->hasOne(OrderItemVoiceMessage::class, 'order_item_id', 'id');
+    }
+    public function catlogue_image()
+    {
+        return $this->hasOne(OrderItemCatalogueImage::class, 'order_item_id', 'id');
+    }
 
 }

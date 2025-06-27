@@ -175,26 +175,26 @@
                                         <table class="table table-sm ledger">
                                             <thead>
                                                 <tr>
-                                                    <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">
+                                                    <th   rowspan="1" colspan="1"  aria-label="products" style="width: 5%;">
                                                         Sl No</th>
-                                                    <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">Delivery
+                                                    <th  rowspan="1" colspan="1"  aria-label="products">Delivery
                                                         Date</th>
-                                                        <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">
+                                                        <th  rowspan="1" colspan="1"  aria-label="products">
                                                             Status</th>
 
-                                                        <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">Delivered BY (Production)</th>
-                                                    <th class="" rowspan="1" colspan="1" style="width: 50px;" aria-label="qty">
+                                                        <th  rowspan="1" colspan="1"  aria-label="products">Delivered BY (Production)</th>
+                                                    <th class="" rowspan="1" colspan="1"  aria-label="qty">
                                                         qty</th>
-                                                        <th class="w-50 " rowspan="1" colspan="1" style="width: 328px;" aria-label="products">
+                                                        <th  rowspan="1" colspan="1" aria-label="products">
                                                             Remarks</th>
-                                                    <th class="" rowspan="1" colspan="1" style="width: 80px;" aria-label="total">Action</th>
+                                                    <th class="" rowspan="1" colspan="1"  aria-label="total">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach ($item['deliveries'] as $index=> $delivery_data)
                                                 <tr class="odd" style="background-color: #f2f2f2;">
-                                                    <td>{{ ++$index }}</td>
-                                                    <td>{{ date('d-m-Y h:i A ',timestamp: strtotime($delivery_data['delivered_at'])) }}</td>
+                                                    <td >{{ ++$index }}</td>
+                                                    <td >{{ date('d-m-Y h:i A ',timestamp: strtotime($delivery_data['delivered_at'])) }}</td>
                                                     <td>
 
 
@@ -219,7 +219,7 @@
 
                                                     <td>{{ $delivery_data['delivered_quantity'] }}</td>
                                                     <td>
-                                                        <a href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $delivery_data['remarks'] }}">Reamrks</a>
+                                                        <button href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" class="btn btn-info" title="{{ $delivery_data['remarks'] }}">Show Remarks Click Here</button>
                                                     </td>
                                                     <td>
                                                         @if($delivery_data['status']=='Pending')
@@ -276,6 +276,34 @@
                                     <p>CATLOGUE : <strong>{{ optional(optional($item['catalogue'])->catalogueTitle)->title }}</strong> (PAGE:
                                         <strong>{{$item['cat_page_number']}}</strong>)
                                     </p>
+                                    @if(!empty($item['remarks']))
+                                    <p>Remark :
+                                        <strong>{{$item['remarks']}}</strong>
+                                    </p>
+                                    @endif
+                                    @if(!empty($item['catlogue_image']['image_path']))
+                                    <p>CATLOGUE IMAGE :
+                                        <div class="d-flex justify-content-center">
+                                            <a target="_blank" href="{{ asset('storage/'.$item['catlogue_image']['image_path']) }}">
+                                                <img src="{{ asset('storage/'.$item['catlogue_image']['image_path']) }}" style="width:150px;height:150px;" class="img-fluid rounded shadow border border-secondary" alt="Styled Image">
+
+                                            </a>
+
+                                        </div>
+                                    </p>
+                                    @endif
+                                    @if(!empty($item['voice_remark']['voices_path']))
+                                    <p>VOICE REMARKS :
+                                                <audio controls>
+                                                    <source src="{{ asset('storage/'.$item['voice_remark']['voices_path']) }}" type="audio/mpeg">
+                                                  Your browser does not support the audio element.
+                                                  </audio>
+
+
+                                    </p>
+                                    @endif
+
+
                                 </td>
                             </tr>
                         @endif

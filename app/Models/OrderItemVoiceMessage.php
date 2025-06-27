@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class OrderItemVoiceMessage extends Model
 {
     protected $table = 'order_item_voice_messages';
-    
+
     protected $fillable = [
         'order_item_id',
         'voices_path',
@@ -19,4 +19,5 @@ class OrderItemVoiceMessage extends Model
     {
         return $this->belongsTo(OrderItem::class,'order_item_id');
     }
+
 }
