@@ -824,8 +824,13 @@ class OrderNew extends Component
             
             // Calculate the total amount
             $total_product_amount = array_sum(array_column($this->items, 'price'));
+            // Correct total based on price * quantity for each item
+            $total_amount = collect($this->items)->reduce(function ($carry, $item) {
+                return $carry + ((float) $item['price'] * (int) $item['quantity']);
+            }, 0);
+
             $airMail = floatval($this->air_mail);
-            $total_amount = $total_product_amount + $airMail;
+            $total_amount += $airMail;
             // dd($total_amount);
             // if ($this->paid_amount > $total_amount) {
             //     session()->flash('error', '🚨 The paid amount cannot exceed the total billing amount.');

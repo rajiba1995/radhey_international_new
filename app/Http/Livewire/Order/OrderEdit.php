@@ -854,8 +854,11 @@ class OrderEdit extends Component
         try {
             
             $total_product_amount = array_sum(array_column($this->items, 'price'));
+            $total_amount = collect($this->items)->reduce(function ($carry, $item) {
+                return $carry + ((float) $item['price'] * (int) $item['quantity']);
+            }, 0);
             $airMail = floatval($this->air_mail);
-            $total_amount = $total_product_amount + $airMail;
+            $total_amount += $airMail;
 
             // Retrieve user details
             $user = User::find($this->customer_id);
