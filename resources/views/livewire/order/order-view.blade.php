@@ -166,7 +166,7 @@
                             <td><span>{{$item['quantity']}}</span></td>
                             <td><span>{{number_format($item['price']*$item['quantity'], 2)}}</span></td>
                         </tr>
-                        @if(!empty($item['deliveries']) and count($item['deliveries'])>0)
+                        @if(!empty($item['deliveries']) && count($item['deliveries'])>0)
                         <tr>
                             <td colspan="5">
                                 <div class="col-12 mb-2 measurement_div" style="background: #fdfdfd !important;">
@@ -217,7 +217,13 @@
 
                                                     <td>{{ $delivery_data['user']['name'] }}</td>
 
-                                                    <td>{{ $delivery_data['delivered_quantity'] }}</td>
+                                                    <td>
+                                                        @if ($delivery_data['collection_id'] == 1)
+                                                           {{ $delivery_data['fabric_quantity'] ?? '' }}
+                                                        @else
+                                                           {{ $delivery_data['delivered_quantity'] ?? '' }}
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         <button href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" class="btn btn-info" title="{{ $delivery_data['remarks'] }}">Show Remarks Click Here</button>
                                                     </td>

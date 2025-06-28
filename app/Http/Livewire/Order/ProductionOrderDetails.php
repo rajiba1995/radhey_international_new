@@ -9,6 +9,7 @@ use \App\Models\StockProduct;
 use \App\Models\OrderStockEntry;
 use \App\Models\ChangeLog;
 use \App\Models\Delivery;
+use \App\Models\OrderItem;
 use Livewire\Component;
 use App\Helpers\Helper;
 use Illuminate\Support\Facades\DB;
@@ -797,12 +798,14 @@ class ProductionOrderDetails extends Component
 
         DB::beginTransaction();
         try {
+            $orderItemModel = OrderItem::find($itemId);
             // 1️⃣ Create the delivery record
             Delivery::create([
                 'order_id' => $this->orderId,
                 'order_item_id' => $itemId,
                 'product_id' => $item['collection_id'] == 2 ? ($item['product_id'] ?? null) : null,
                 'fabric_id' => $item['collection_id'] == 1 ? ($item['fabric_id'] ?? null) : null,
+                'fabric_quantity' => $item['collection_id'] == 1 ? $orderItemModel->quantity : null,
                 'delivered_quantity' => $actual,
                 'unit' => $item['unit'],
                 'delivered_by' => auth()->guard('admin')->user()->id,

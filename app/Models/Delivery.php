@@ -13,6 +13,7 @@ class Delivery extends Model
         'delivery_type',
         'product_id',
         'fabric_id',
+        'fabric_quantity',
         'delivered_quantity',
         'unit',
         'delivered_by',

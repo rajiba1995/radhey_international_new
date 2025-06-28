@@ -60,7 +60,22 @@ class OrderView extends Component
                 'catalogue_id' => $item->catalogue_id,
                 'cat_page_number' => $item->cat_page_number,
                 'price' => $item->piece_price,
-                'deliveries' => !empty($item->deliveries)?$item->deliveries:"",
+                // 'deliveries' => !empty($item->deliveries)?
+                //     $item->deliveries:"",
+                'deliveries' => !empty($item->deliveries)
+                    ? $item->deliveries->map(function ($delivery) use ($item) {
+                        return [
+                            'id' => $delivery->id,
+                            'delivered_at' => $delivery->delivered_at,
+                            'status' => $delivery->status,
+                            'remarks' => $delivery->remarks,
+                            'fabric_quantity' => $delivery->fabric_quantity,
+                            'delivered_quantity' => $delivery->delivered_quantity,
+                            'user' => $delivery->user ? ['name' => $delivery->user->name] : ['name' => 'N/A'],
+                            'collection_id' => $item->collection, // inject here for later use
+                        ];
+                    })
+                    : [],
                 'quantity' => $item->quantity,
                 'remarks' => $item->remarks,
                 'catlogue_image' => $item->catlogue_image,
