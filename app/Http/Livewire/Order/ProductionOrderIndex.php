@@ -99,7 +99,7 @@ class ProductionOrderIndex extends Component
     }
 
     public function downloadOrderPdf($orderid){
-       $order = Order::with('items','createdBy')->findOrFail($orderid);
+       $order = Order::with('items','customer')->findOrFail($orderid);
 
         $orderItems = $order->items->map(function ($item) use($order) {
 
@@ -114,6 +114,7 @@ class ProductionOrderIndex extends Component
                 'catalogue_id' => $item->catalogue_id,
                 'cat_page_number' => $item->cat_page_number,
                 'price' => $item->piece_price,
+                'quantity' => $item->quantity,
                 'product_image' => $product ? $product->product_image : null,
             ];
         });

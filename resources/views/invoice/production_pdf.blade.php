@@ -1,258 +1,223 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Page Title</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <title>Order Invoice</title>
     <style>
         body {
-            font-family: "Roboto", sans-serif;
-            font-optical-sizing: auto;
-            font-weight: 400;
-            font-style: normal;
-            font-variation-settings: "wdth" 100;
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
 
-        table {
-            width: 100%;
-            height: auto;
-            border-collapse: collapse;
+        .container {
+            padding: 20px;
         }
 
-
-        .table-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            position: relative;
-            z-index: 3;
-            background-image: url("./assets/img/stanny_full_page.png");
-            background-position: 50% 100%;
-            background-attachment: scroll;
-            background-repeat: no-repeat;
-            background-size: 60%;
+        h3 {
+            font-size: 16px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 20px;
         }
 
-
-
-        .table-container table {
-            flex-grow: 1;
+        .table {
             width: 100%;
             border-collapse: collapse;
-
+            margin-top: 10px;
         }
 
-        /* .footer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 75px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: flex-end;
-
-        } */
-        .footer {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
-            padding: 0 20px;
-            box-sizing: border-box;
+        .table th, .table td {
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            text-align: left;
         }
 
-        .footer strong {
-            font-family: "Roboto", sans-serif;
-            font-weight: 700;
+        .table th {
+            background-color: #f0f0f0;
         }
 
-        .footer div {
-            font-family: "Roboto", sans-serif;
-            letter-spacing: 0.5px;
+        .info-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            background: #fcfcfc;
         }
 
-
-
-        html,
-        body {
-            height: 100%;
+        .section-title {
+            font-weight: bold;
+            background: #eee;
+            padding: 4px 8px;
+            margin: 10px 0 5px;
         }
 
+        .total-summary {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #aaa;
+            page-break-inside: avoid;
+        }
 
+        .highlight {
+            color: red;
+            font-weight: bold;
+        }
 
-        h4,
-        h1,
-        h5,
-        h2,
-        h3,
-        h6,
-        p {
-            margin-top: 0;
-            color: #000;
+        .no-break {
+            page-break-inside: avoid;
         }
     </style>
 </head>
-
 <body>
-    <div class="table-container">
-        <table class="table-custom">
-            <tr>
-              
-                <td style="width:40%;">
-                    <h3
-                        style="font-size: 15px; margin-bottom:5px;display:block; vertical-align:middle; line-height:15px;">
-                        <span style="line-height: 0;">
-                            <img src="{{public_path('assets/img/phone.svg')}}" alt=""
-                                style="width: 14px; height:12px; display:inline-block;">
-                        </span>
-                        <span style="display:inline-block;"> (+242) 05 554 7777 </span>
-                    </h3>
-                    <h3
-                        style="font-size: 15px; margin-bottom:9px;display:block; vertical-align:middle; line-height:15px;">
-                        <span class="line-height: 0;">
-                            <img src="{{public_path('assets/img/phone.svg')}}" alt=""
-                                style="width: 14px; height:12px; display:inline-block;">
-                        </span>
-                        <span class="display:inline-block;">
-                            (+242) 05 582 5555
-                        </span>
-                    </h3>
-                    <h3
-                        style="font-size: 15px; margin-bottom:5px;display:block; vertical-align:middle; line-height:15px;">
-                        <span style="line-height: 0;">
-                            <img src="{{public_path('assets/img/mail.svg')}}" alt=""
-                                
-                                style="width: 12px; height:12px; display:inline-block;">
-                        </span>
-                        <span style="display:inline-block;">contact@stannys.com</span>
-                    </h3>
-                    <h3
-                        style="font-size: 15px; margin-bottom:5px; display:block; vertical-align:middle; line-height:15px;">
-                        <span style="line-height: 0;">
-                            <img src="{{ public_path('assets/img/globe.svg')}}" alt=""
-                                style="width: 12px; height:12px; display:inline-block;"
-                                style="width: 14px; height:12px; display:inline-block;">
-                        </span>
-                        <span style="display:inline-block;">www.stannys.com</span>
-                    </h3>
-                    <h3 style="font-size: 15px; margin-bottom:5px;
-                    display:inline-block; vertical-align:middle; line-height:15px; position:relative;">
-                        <span style="line-height: 0; position: absolute; top:0; left:0;">
-                            <img src="{{public_path('assets/img/map-pin.svg')}}" alt=""
-                                style="width: 14px; height:14px; display:inline-block;">
-                        </span>
-                        <span style="display:block; padding-left:20px;">
-                            18, Blv. Denis Sassou N'guesso,<br>
-                            Brazzaville, République du Congo
-                        </span>
-                    </h3>
-                    <div style="border: 1px solid #000; padding: 10px 10px 0px; border-radius: 5px; margin-top: 10px;">
-                        <h3 style="font-size: 15px; margin-bottom:12px;
-                            display:block; line-height:15px;">
-                            <span style="line-height: 0;">
-                                <img src="{{ public_path('assets/img/user.svg')}}" alt=""
-                                    style="width: 14px; height:12px; display:inline-block;">
-                            </span>
-                            <span>
-                              {{$order->prefix}} {{$order->customer_name}}
-                            </span>
-                        </h3>
-                        <h3 style="font-size: 15px; margin-bottom:12px;
-                            display:block; vertical-align:middle; line-height:15px; position:relative;">
-                            <span style="line-height: 0; position: absolute; top:0; left:0;">
-                                <img src="{{ public_path('assets/img/map-pin.svg')}}" alt=""
-                                    style="width: 14px; height:12px; display:inline-block;">
-                            </span>
-                            <span style="display:block; padding-left:20px;">
-                                {{$order->billing_address}}
-                            </span>
-                        </h3>
-                        <h3 style="font-size: 15px;
-                            display:block; vertical-align:middle; line-height:15px;">
-                            <span style="line-height: 0;">
-                                <img src="{{public_path('assets/img/phone.svg')}}" alt=""
-                                    style="width: 14px; height:12px; display:inline-block;">
-                            </span>
-                            <span style="display:inline-block;">
-                                {{ optional($order->createdBy)->country_code_phone }} {{ optional($order->createdBy)->phone }}
-                            </span>
-                        </h3>
-                    </div>
+<div class="container">
 
-                </td>
-            </tr>
+    {{-- Order Info + Customer Info in One Row --}}
+    <table width="100%" cellpadding="10" cellspacing="0" style="margin-bottom: 20px;">
+        <tr valign="top">
+            {{-- Order Information --}}
+            <td width="50%" style="border-right: 1px solid #ccc;">
+                <h3 style="margin-top: 0;">Order Information</h3>
+                <table cellpadding="4">
+                    <tr><td><strong>Order Id:</strong></td><td>{{ $order->order_number }}</td></tr>
+                    <tr><td><strong>Order Amount:</strong></td><td>{{ $order->total_amount }}</td></tr>
+                    <tr><td><strong>Order Time:</strong></td><td>{{ $order->created_at->format('d M Y h:i A') }}</td></tr>
+                </table>
+            </td>
 
-            {{-- <tr>
-                <td colspan="2">
-                    <table>
-                        <thead style="text-align: left;">
-                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Decriptions</th>
-                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Quantity</th>
-                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Unit Price</th>
-                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Total Price</th>
-                        </thead>
-                        <tbody>
-                            @php
-                            $totalQuantity = 0;
-                            @endphp
-                            @if($invoice->order)
-                            @foreach($invoice->order->items as $item)
-                            @php
-                            $totalQuantity += $item->quantity;
-                            @endphp
-                            <tr>
-                                <td style="width:60%; line-height: 1.6; font-size: 13px;">{{ $item->product_name }}</td>
-                                <td style="font-size: 13px;">{{ $item->quantity }} set</td>
-                                <td style="font-size: 13px;">{{ number_format( ($item->piece_price)/($item->quantity) )
-                                    }}</td>
-                                <td style="font-size: 13px;">{{ number_format( $item->piece_price ) }} FCFA</td>
-                            </tr>
+            {{-- Customer Details --}}
+            <td width="50%" style="padding-left: 20px;">
+                <h3 style="margin-top: 0;">Customer Details</h3>
+                <table cellpadding="4">
+                    <tr><td><strong>Person Name:</strong></td><td>{{ $order->prefix . ' ' . $order->customer_name }}</td></tr>
+                    <tr><td><strong>Company Name:</strong></td><td>{{ optional($order->customer)->company_name ?? null }}</td></tr>
+                    <tr><td><strong>Rank:</strong></td><td>{{ optional($order->customer)->employee_rank ?? null }}</td></tr>
+                    <tr><td><strong>Mobile:</strong></td>
+                        <td>{{ optional($order->customer)->country_code_phone ?? '' }} {{ optional($order->customer)->phone ?? '' }}</td>
+                    </tr>
+                    <tr><td><strong>Address:</strong></td><td>{{ $order->billing_address }}</td></tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 
-                            @endforeach
-                            @if ($invoice->order->air_mail > 0)
-                            @php
-                            $airMail = $invoice->order->air_mail;
-                            @endphp
-                            <tr>
-                                <td style="width:60%; line-height: 1.6; font-size: 13px;">Air Mail</td>
-                                <td style="font-size: 13px;">1</td>
-                                <td style="font-size: 13px;">{{ number_format($airMail)}}</td>
-                                <td style="font-size: 13px;">{{ number_format( $airMail ) }} FCFA</td>
-                            </tr>
-                            @endif
-                            @endif
-                        </tbody>
-                    </table>
-                  
-                </td>
-            </tr> --}}
-           
+    {{-- Order Items --}}
+    <h3>Order Items</h3>
+    <div class="no-break">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Collection</th>
+                    <th>Order Items</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if ($orderItems->isNotEmpty())
+                @foreach ($orderItems as $item)
+                    <tr>
+                        <td>{{ $item['collection_title'] }}</td>
+                        <td>
+                            <div style="display: flex; align-items: center;">
+                                {{-- <div style="margin-right: 10px;">
+                                    @if (!empty($item['product_image']))
+                                        <img src="{{ asset('storage/' . $item['product_image']) }}" width="40" height="40" style="border-radius: 4px;" alt="Product Image">
+                                    @else
+                                        <img src="{{ asset('assets/img/cubes.png') }}" width="40" height="40" style="border-radius: 4px;" alt="Default Image">
+                                    @endif
+                                </div> --}}
+                                <div>{{ $item['product_name'] }}</div>
+                            </div>
+                        </td>
+                        <td>{{ number_format($item['price'], 2) }}</td>
+                        <td>{{ $item['quantity'] }}</td>
+                        <td>{{ number_format($item['price'] * $item['quantity'], 2) }}</td>
+                    </tr>
+
+                    @if ($item['collection_id'] == 1)
+                        <tr>
+                            <td colspan="5">
+                                <div class="info-box">
+                                    <p><strong>Fabric:</strong> {{ $item['fabrics']->title ?? 'N/A' }}</p>
+                                    <p><strong>Catalogue:</strong>
+                                        {{ optional(optional($item['catalogue'])->catalogueTitle)->title ?? 'N/A' }}
+                                        (Page: {{ $item['cat_page_number'] ?? 'N/A' }})
+                                    </p>
+
+                                    @if(!empty($item['remarks']))
+                                        <p><strong>Remark:</strong> {{ $item['remarks'] }}</p>
+                                    @endif
+
+                                    @if(!empty($item['catlogue_image']['image_path']))
+                                        <p><strong>Catalogue Image:</strong></p>
+                                        <img src="{{ asset('storage/' . $item['catlogue_image']['image_path']) }}"
+                                             style="width:150px; height:150px; border: 1px solid #ccc; border-radius: 4px;"
+                                             alt="Catalogue Image">
+                                    @endif
+
+                                    @if(!empty($item['voice_remark']['voices_path']))
+                                        <p><strong>Voice Remarks:</strong></p>
+                                        <audio controls>
+                                            <source src="{{ asset('storage/' . $item['voice_remark']['voices_path']) }}" type="audio/mpeg">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    @endif
+
+                                    {{-- Measurements --}}
+                                    <div class="section-title">Measurements</div>
+                                    @php
+                                        $measurements = collect($item['measurements'])->mapWithKeys(function($m) {
+                                            return [$m['measurement_name'] . ' [' . $m['measurement_title_prefix'] . ']' => $m['measurement_value']];
+                                        });
+                                        $chunks = array_chunk($measurements->toArray(), 5, true);
+                                    @endphp
+
+                                    <table width="100%" cellspacing="0" cellpadding="6">
+                                        @foreach($chunks as $row)
+                                            <tr>
+                                                @foreach($row as $label => $value)
+                                                    <td style="padding: 8px; vertical-align: top;">
+                                                        <div style="font-size: 11px; font-weight: bold; margin-bottom: 3px;">{{ $label }}</div>
+                                                        <div style="
+                                                            border: 1px solid #ccc;
+                                                            padding: 6px;
+                                                            background: #fff;
+                                                            font-size: 12px;
+                                                            border-radius: 4px;
+                                                            min-height: 25px;
+                                                            text-align: center;">
+                                                            {{ $value }}
+                                                        </div>
+                                                    </td>
+                                                @endforeach
+                                                @for ($i = count($row); $i < 5; $i++)
+                                                    <td></td>
+                                                @endfor
+                                            </tr>
+                                        @endforeach
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
+                @endforeach
+            @endif
+            </tbody>
         </table>
-       
-        <div class="footer">
-            <div style="border-top: 1px solid #000; text-align: center; padding-top: 2px;">
-                <div style="margin-top: -18px; font-weight: bold; text-transform: uppercase; font-size: 14px;">
-                    STE RADHEY'S SARL
-                </div>
-                <div style="font-size: 13px; margin-top: 2px;">
-                    CAPITAL: 1.000.000 FCFA<br>
-                    NIU M24000000659298E<br>
-                    RCCM: CG-BZV-01-2025-B20-00004
-                </div>
-                <div style="font-size: 12px; margin-bottom: 5px;">
-                    <span style="margin-right: 15px;"><strong>Coordonnées Bancaires :</strong></span>
-                    <span style="padding-left: 10px;">
-                        <strong> BSCA Bank : 30020 88101 10125540000 08 </strong>
-                    </span>
-                </div>
-            </div>
-        </div>
-</body>
+    </div>
 
-</html
+    {{-- Total Summary --}}
+    <div style="page-break-inside: avoid;">
+        <div class="total-summary">
+            <p><strong>Total Amount:</strong> {{ number_format($order->total_amount, 2) }}</p>
+            <p><strong>Paid Amount:</strong> {{ number_format($order->paid_amount, 2) }}</p>
+            <p><span class="highlight">Remaining Amount:</span> {{ number_format($order->total_amount - $order->paid_amount, 2) }}</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
