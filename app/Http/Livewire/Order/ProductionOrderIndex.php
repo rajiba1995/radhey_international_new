@@ -10,7 +10,9 @@ use App\Models\User;
 use App\Models\Invoice;
 use App\Models\Delivery;
 use App\Models\OrderStockEntry;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class ProductionOrderIndex extends Component
@@ -96,8 +98,30 @@ class ProductionOrderIndex extends Component
         $this->created_by = $staff_id;
     }
 
-    public function downloadOrderPdf(){
-       
+    public function downloadOrderPdf($orderid){
+       $order = Order::with('items','createdBy')->findOrFail($orderid);
+
+        $orderItems = $order->items->map(function ($item) use($order) {
+
+            $product = Product::find($item->product_id);
+            return [
+                'product_name' => $item->product_name ?? $product->name,
+                'collection_id' => $item->collection,
+                'collection_title' => $item->collectionType ?  $item->collectionType->title : "",
+                'fabrics' => $item->fabric,
+                'measurements' => $item->measurements,
+                'catalogue' => $item->catalogue_id?$item->catalogue:"",
+                'catalogue_id' => $item->catalogue_id,
+                'cat_page_number' => $item->cat_page_number,
+                'price' => $item->piece_price,
+                'product_image' => $product ? $product->product_image : null,
+            ];
+        });
+
+        $pdf = PDF::loadView('invoice.production_pdf', compact('orderItems','order'));
+         return response($pdf->output(), 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'inline; filename="bill_' . $order->order_number . '.pdf"');
     }
 
     public function render()

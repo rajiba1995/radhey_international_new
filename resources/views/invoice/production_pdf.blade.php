@@ -1,148 +1,258 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipt</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Page Title</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         body {
-            font-family: "Courier New", Courier, monospace;
-            /* Monospace for thermal printer look */
+            font-family: "Roboto", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-variation-settings: "wdth" 100;
         }
 
-        .receipt {
-            /* max-width: 320px; */
-            border: 1px dashed #000;
-            padding: 15px;
-            margin: auto;
-            background: #fff;
+        table {
+            width: 100%;
+            height: auto;
+            border-collapse: collapse;
         }
 
-        .header {
-            text-align: center;
-            font-weight: bold;
+
+        .table-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+            z-index: 3;
+            background-image: url("./assets/img/stanny_full_page.png");
+            background-position: 50% 100%;
+            background-attachment: scroll;
+            background-repeat: no-repeat;
+            background-size: 60%;
         }
 
-        .table td,
-        .table th {
-            text-align: center;
-            vertical-align: middle;
-            font-size: 30px;
-        }
-        p{
-           font-size: 40px;
-           margin-bottom:0;
-        }
-        h5 {
-            font-size: 50px;
+
+
+        .table-container table {
+            flex-grow: 1;
+            width: 100%;
+            border-collapse: collapse;
+
         }
 
-        .bold {
-            font-weight: bold;
+        /* .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 75px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+
+        } */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
 
-        .amount-box {
-            border: 1px solid #000;
-            padding: 5px;
-            font-size: 48px;
+        .footer strong {
+            font-family: "Roboto", sans-serif;
+            font-weight: 700;
         }
 
-        .amount-box td {
-            text-align: center;
-            font-size: 40px;
-            padding: 2px;
+        .footer div {
+            font-family: "Roboto", sans-serif;
+            letter-spacing: 0.5px;
         }
 
-        .dotted-line {
-            border-top: 1px dashed black;
-            margin: 10px 0 10px;
+
+
+        html,
+        body {
+            height: 100%;
         }
 
-        .text-center {
-            text-align: center;
+
+
+        h4,
+        h1,
+        h5,
+        h2,
+        h3,
+        h6,
+        p {
+            margin-top: 0;
+            color: #000;
         }
-        
     </style>
 </head>
 
 <body>
+    <div class="table-container">
+        <table class="table-custom">
+            <tr>
+              
+                <td style="width:40%;">
+                    <h3
+                        style="font-size: 15px; margin-bottom:5px;display:block; vertical-align:middle; line-height:15px;">
+                        <span style="line-height: 0;">
+                            <img src="{{public_path('assets/img/phone.svg')}}" alt=""
+                                style="width: 14px; height:12px; display:inline-block;">
+                        </span>
+                        <span style="display:inline-block;"> (+242) 05 554 7777 </span>
+                    </h3>
+                    <h3
+                        style="font-size: 15px; margin-bottom:9px;display:block; vertical-align:middle; line-height:15px;">
+                        <span class="line-height: 0;">
+                            <img src="{{public_path('assets/img/phone.svg')}}" alt=""
+                                style="width: 14px; height:12px; display:inline-block;">
+                        </span>
+                        <span class="display:inline-block;">
+                            (+242) 05 582 5555
+                        </span>
+                    </h3>
+                    <h3
+                        style="font-size: 15px; margin-bottom:5px;display:block; vertical-align:middle; line-height:15px;">
+                        <span style="line-height: 0;">
+                            <img src="{{public_path('assets/img/mail.svg')}}" alt=""
+                                
+                                style="width: 12px; height:12px; display:inline-block;">
+                        </span>
+                        <span style="display:inline-block;">contact@stannys.com</span>
+                    </h3>
+                    <h3
+                        style="font-size: 15px; margin-bottom:5px; display:block; vertical-align:middle; line-height:15px;">
+                        <span style="line-height: 0;">
+                            <img src="{{ public_path('assets/img/globe.svg')}}" alt=""
+                                style="width: 12px; height:12px; display:inline-block;"
+                                style="width: 14px; height:12px; display:inline-block;">
+                        </span>
+                        <span style="display:inline-block;">www.stannys.com</span>
+                    </h3>
+                    <h3 style="font-size: 15px; margin-bottom:5px;
+                    display:inline-block; vertical-align:middle; line-height:15px; position:relative;">
+                        <span style="line-height: 0; position: absolute; top:0; left:0;">
+                            <img src="{{public_path('assets/img/map-pin.svg')}}" alt=""
+                                style="width: 14px; height:14px; display:inline-block;">
+                        </span>
+                        <span style="display:block; padding-left:20px;">
+                            18, Blv. Denis Sassou N'guesso,<br>
+                            Brazzaville, République du Congo
+                        </span>
+                    </h3>
+                    <div style="border: 1px solid #000; padding: 10px 10px 0px; border-radius: 5px; margin-top: 10px;">
+                        <h3 style="font-size: 15px; margin-bottom:12px;
+                            display:block; line-height:15px;">
+                            <span style="line-height: 0;">
+                                <img src="{{ public_path('assets/img/user.svg')}}" alt=""
+                                    style="width: 14px; height:12px; display:inline-block;">
+                            </span>
+                            <span>
+                              {{$order->prefix}} {{$order->customer_name}}
+                            </span>
+                        </h3>
+                        <h3 style="font-size: 15px; margin-bottom:12px;
+                            display:block; vertical-align:middle; line-height:15px; position:relative;">
+                            <span style="line-height: 0; position: absolute; top:0; left:0;">
+                                <img src="{{ public_path('assets/img/map-pin.svg')}}" alt=""
+                                    style="width: 14px; height:12px; display:inline-block;">
+                            </span>
+                            <span style="display:block; padding-left:20px;">
+                                {{$order->billing_address}}
+                            </span>
+                        </h3>
+                        <h3 style="font-size: 15px;
+                            display:block; vertical-align:middle; line-height:15px;">
+                            <span style="line-height: 0;">
+                                <img src="{{public_path('assets/img/phone.svg')}}" alt=""
+                                    style="width: 14px; height:12px; display:inline-block;">
+                            </span>
+                            <span style="display:inline-block;">
+                                {{ optional($order->createdBy)->country_code_phone }} {{ optional($order->createdBy)->phone }}
+                            </span>
+                        </h3>
+                    </div>
 
-    <div class="receipt">
-        <div class="text-center">
-            <p style="line-height:1 !important; margin-bottom:0 !important;">Jai Shree Ganesh</p>
-            <p style="line-height:1 !important; margin-bottom:0 !important;">Jai Shree Krishna</p>
-            <h5 class="fw-bold" style="font-size: 60px;">STANNY'S</h5>
-            <p style="padding-bottom:25px;">LE MONDE DU LUXE</p>
-        </div>
+                </td>
+            </tr>
 
-        <div class="dotted-line"></div>
-        <div class="d-flex justify-content-between align-items-start">
-            <!-- Left Column (Personal Info) -->
-            <div class="col-12">
-                <p style="text-align: left;"><strong>Mr/Mrs:</strong> {{ optional($data->customer)->name ?? 'N/A' }}</p>
-                <p style="text-align: left;"><strong>Email:</strong> {{ optional($data->customer)->email ?? 'N/A' }}</p>
-                <p style="text-align: left;">
-                    <strong>Mobile No:</strong> 
-                    {{ optional($data->customer)->country_code_phone ?? '' }} {{ optional($data->customer)->phone ?? 'N/A' }}
-                </p>
-                <p style="text-align: left;"><strong>Company Name:</strong> {{ optional($data->customer)->company_name ?? 'N/A' }}</p>
-                <p style="text-align: left;"><strong>Address:</strong> {{ optional($data->order)->billing_address ?? $data->customer->location ?? 'N/A' }}</p>
-            </div>
+            {{-- <tr>
+                <td colspan="2">
+                    <table>
+                        <thead style="text-align: left;">
+                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Decriptions</th>
+                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Quantity</th>
+                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Unit Price</th>
+                            <th style="padding:8px 0; font-size: 14px; text-align: left;">Total Price</th>
+                        </thead>
+                        <tbody>
+                            @php
+                            $totalQuantity = 0;
+                            @endphp
+                            @if($invoice->order)
+                            @foreach($invoice->order->items as $item)
+                            @php
+                            $totalQuantity += $item->quantity;
+                            @endphp
+                            <tr>
+                                <td style="width:60%; line-height: 1.6; font-size: 13px;">{{ $item->product_name }}</td>
+                                <td style="font-size: 13px;">{{ $item->quantity }} set</td>
+                                <td style="font-size: 13px;">{{ number_format( ($item->piece_price)/($item->quantity) )
+                                    }}</td>
+                                <td style="font-size: 13px;">{{ number_format( $item->piece_price ) }} FCFA</td>
+                            </tr>
 
-        </div> 
-        
-        
-        <div class="dotted-line"></div>
-
-        <table class="table table-sm table-bordered mt-3" style="table-layout: fixed; width: 100%;">
-            <thead>
-                <tr>
-                    <th style="text-align: left !important; padding:7px;"><strong>Order</strong></th>
-                    <th style="text-align:right !important; padding:7px;"><strong>Amount</strong></th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $inv_amount = 0;
-                @endphp
-                @foreach ($invoice_payments as $key=> $payment)
-                @php
-                    $inv = App\Models\Invoice::where('id', $payment->invoice_id)->first();
-                    $inv_amount += $payment->paid_amount;
-                @endphp
-                    <tr>
-                        <td style="text-align:left; width:40%; padding:7px;">
-                            {{ optional($inv?->order)->order_number ?? 'N/A' }} 
-                         {{-- If $inv or $inv->order is null, show 'N/A' --}}
-                        </td>
-                        <td style="text-align:right; width:60%; padding:7px;">{{number_format($payment->paid_amount,2)}}</td>
-                    </tr>
-                @endforeach
-
-                @if($data->collection_amount>$inv_amount)
-                    <tr>
-                        <td style="text-align:left; width:40%; padding:7px;"><strong>Advance Amount:</strong></td>
-                        <td style="text-align:right; width:60%; padding:7px;"><strong>{{number_format($data->collection_amount-$inv_amount,2)}}</strong></td>
-                    </tr>
-                @endif
-                <tr>
-                    <td style="text-align:left; width:40%; padding:7px;"><strong>Total:</strong></td>
-                    <td style="text-align:right; width:60%; padding:7px;"><strong>{{number_format($data->collection_amount,2)}}</strong></td>
-                </tr>
-                
-            </tbody>
+                            @endforeach
+                            @if ($invoice->order->air_mail > 0)
+                            @php
+                            $airMail = $invoice->order->air_mail;
+                            @endphp
+                            <tr>
+                                <td style="width:60%; line-height: 1.6; font-size: 13px;">Air Mail</td>
+                                <td style="font-size: 13px;">1</td>
+                                <td style="font-size: 13px;">{{ number_format($airMail)}}</td>
+                                <td style="font-size: 13px;">{{ number_format( $airMail ) }} FCFA</td>
+                            </tr>
+                            @endif
+                            @endif
+                        </tbody>
+                    </table>
+                  
+                </td>
+            </tr> --}}
+           
         </table>
-        <div class="dotted-line"></div>
-        <p class="text-center">Your mobile number has been successfully registered with STANNY'S.</p>
-
-        {{-- <p class="bold">PIECES PURCHASED: {{ $totalQuantity }}</p> --}}
-
-        <div class="dotted-line"></div>
-
-        <p class="text-center">Thank you for shopping with us! </p>
-    </div>
+       
+        <div class="footer">
+            <div style="border-top: 1px solid #000; text-align: center; padding-top: 2px;">
+                <div style="margin-top: -18px; font-weight: bold; text-transform: uppercase; font-size: 14px;">
+                    STE RADHEY'S SARL
+                </div>
+                <div style="font-size: 13px; margin-top: 2px;">
+                    CAPITAL: 1.000.000 FCFA<br>
+                    NIU M24000000659298E<br>
+                    RCCM: CG-BZV-01-2025-B20-00004
+                </div>
+                <div style="font-size: 12px; margin-bottom: 5px;">
+                    <span style="margin-right: 15px;"><strong>Coordonnées Bancaires :</strong></span>
+                    <span style="padding-left: 10px;">
+                        <strong> BSCA Bank : 30020 88101 10125540000 08 </strong>
+                    </span>
+                </div>
+            </div>
+        </div>
 </body>
 
-</html>
+</html

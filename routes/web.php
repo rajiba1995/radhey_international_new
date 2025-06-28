@@ -246,7 +246,7 @@ Route::group(['prefix' => 'admin','middleware' => 'admin'], function () {
     Route::group(['prefix' => 'production'], function () {
         Route::get('/list/{user_id?}', ProductionOrderIndex::class)->name('production.order.index')->middleware('check.permission');
         Route::get('/details/{id}', ProductionOrderDetails::class)->name('production.order.details');
-        Route::get('{order}/production-acceptance-pdf', [ProductionOrderIndex::class, 'downloadOrderPdf'])->name('production.order.download_pdf');
+        Route::get('{orderid}/production-acceptance-pdf', [ProductionOrderIndex::class, 'downloadOrderPdf'])->name('production.order.download_pdf');
 
     });
 });
