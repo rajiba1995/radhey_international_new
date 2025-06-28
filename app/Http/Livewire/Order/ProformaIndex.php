@@ -17,10 +17,6 @@ class ProformaIndex extends Component
     protected $paginationTheme = 'bootstrap'; 
 
 
-    // public function mount(){
-    //     $this->invoices = ProformaInvoice::with('customer')->get();
-    // }
-
     public function downloadProformaInvoice($proformaId)
     {
         $proforma = ProformaInvoice::with('customer', 'items.product')->findOrFail($proformaId);

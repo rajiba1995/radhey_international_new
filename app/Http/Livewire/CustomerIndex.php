@@ -139,12 +139,6 @@ class CustomerIndex extends Component
                       ->orWhere('whatsapp_no', 'like', '%' . $this->search . '%')
                       ->orWhere('email', 'like', '%' . $this->search . '%');
             })
-            
-            // ->orWhereHas('orders', function ($q) {
-            //     $q->where('order_number', 'like', '%' . $this->search . '%')
-            //       ->orWhere('customer_name', 'like', '%' . $this->search . '%')
-            //       ->orWhere('customer_email', 'like', '%' . $this->search . '%');
-            // })
             ->when(!$auth->is_super_admin, fn($query) => $query->where('created_by', $auth->id)) // Restrict non-admins
             ->orderBy('created_at', 'desc') // Sort by latest
             ->paginate(10);
