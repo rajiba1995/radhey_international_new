@@ -68,10 +68,18 @@ class AddExpense extends Component
             $this->customerExpenseTitles = [];
         }
     }
+    
     public function mount(){
         $this->voucher_no = 'EXPENSE'.time();
-      
+        $this->payment_date = now()->format('Y-m-d');
+        if (auth()->guard('admin')->user()->designation == 2) {
+            $this->user_type = 'staff';
+            $this->getUser('staff');
+            $this->staff_id = auth()->guard('admin')->user()->id; // Assuming the staff is the logged-in user
+            $this->staffSearchTerm = auth()->guard('admin')->user()->name;
+        }
     }
+
     public function searchStaff()
     {
         if (!empty($this->staffSearchTerm)) {
@@ -255,7 +263,7 @@ class AddExpense extends Component
 
             // Flash success message and redirect
             Session::flash('message', "Expense added successfully for " . $this->user_type);
-            return redirect()->route('admin.accounting.add_depot_expense');
+            return redirect()->route('admin.accounting.cashbook_module');
         } catch (\Exception $e) {
             // dd($e);
             // Rollback the transaction in case of an error

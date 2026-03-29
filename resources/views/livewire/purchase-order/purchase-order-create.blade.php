@@ -8,7 +8,10 @@
             <li><a href="{{route('purchase_order.create')}}">PO</a></li>
             <li>Create Purchase Order</li>
             <li class="back-button">
-                <a href="{{ route('purchase_order.index') }}" class="btn btn-sm btn-danger select-md text-light font-weight-bold mb-0">Back to PO </a>
+                <a href="{{ route('purchase_order.index') }}" class="btn btn-sm btn-danger select-md text-light font-weight-bold mb-0">
+                    <i class="material-icons text-white" style="font-size: 15px;">chevron_left</i>
+                    Back to PO 
+                </a>
             </li>
           </ul>
     </section>
@@ -79,12 +82,14 @@
                                         @enderror
                                     </div>
                                     @if (!empty($row['fabrics']))
-                                        <div class="col-md-3">
+                                        <div class="col-md-3" wire:ignore>
                                             <label for="fabric_{{$index}}" class="form-label"><strong>Fabric</strong> <span class="text-danger">*</span></label>
-                                            <select wire:model="rows.{{$index}}.fabric" id="fabric_{{$index}}" class="form-control form-control-sm border border-1 p-2">
+                                            <select wire:model="rows.{{$index}}.fabric" id="fabric_{{$index}}" class="form-control form-control-sm border border-1 p-2 chosen-select">
                                                 <option value="" selected hidden>Select Fabric</option>
                                                 @foreach ($row['fabrics'] as $fabric)
-                                                    <option value="{{ $fabric['id'] }}">{{ $fabric['title'] }}</option>
+                                                    <option value="{{ $fabric['id'] }}">
+                                                        {{ $fabric['title'] }} ({{ $fabric['pseudo_name'] }})
+                                                    </option>
                                                 @endforeach
                                             </select>
                                             @error('rows.'.$index.'.fabric')
@@ -92,9 +97,9 @@
                                             @enderror
                                         </div>
                                     @elseif(!empty($row['products']))
-                                        <div class="col-md-3">
+                                        <div class="col-md-3" wire:ignore>
                                             <label for="product_{{$index}}" class="form-label"><strong>Product</strong> <span class="text-danger">*</span></label>
-                                            <select type="text" wire:model="rows.{{$index}}.product" id="product_{{$index}}" class="form-control form-control-sm border border-1 p-2" placeholder="Search product by name">
+                                            <select type="text" wire:model="rows.{{$index}}.product" id="product_{{$index}}" class="form-control form-control-sm border border-1 p-2 chosen-select" placeholder="Search product by name">
                                                 <option value="" selected hidden>Select Product</option>
                                                 @if (!empty($row['products']) && count($row['products'])>0)
                                                     @foreach ($row['products'] as $product_item)
@@ -122,14 +127,14 @@
                                     <div class="col-md-2">
                                      @if ($isFabricSelected[$index] ?? false)
                                         <label for="price_per_mtr_{{$index}}" class="form-label">Price/Mtr (Inc. Tax) <span class="text-danger">*</span></label>
-                                        <input type="text" wire:model="rows.{{$index}}.price_per_mtr"
+                                        <input type="number" wire:model="rows.{{$index}}.price_per_mtr"
                                             wire:keyup="updateRowAmount({{ $index }})"  id="price_per_mtr_{{$index}}" class="form-control form-control-sm border border-1 p-2" placeholder="Product Cost Price">
                                         @error('rows.'.$index.'.price_per_mtr')
                                             <div class="text-danger">{{ $message }}</div>
                                         @enderror
                                      @else
                                         <label for="price_per_qty_{{$index}}" class="form-label">Price/Qty (Inc. Tax) <span class="text-danger">*</span></label>
-                                        <input type="text" wire:model="rows.{{$index}}.price_per_qty"
+                                        <input type="number" wire:model="rows.{{$index}}.price_per_qty"
                                             wire:keyup="updateRowAmount({{ $index }})"  id="price_per_qty_{{$index}}" class="form-control form-control-sm border border-1 p-2" placeholder="Product Cost Price">
                                         @error('rows.'.$index.'.price_per_qty')
                                             <div class="text-danger">{{ $message }}</div>
@@ -144,8 +149,8 @@
                                         @if ($loop->first)
                                            <button type="button" class="btn btn-success btn-sm mb-0" wire:click="addRow"><i class="fa fa-plus"></i></button>
                                         @else  
-                                        <button type="button" class="btn btn-success btn-sm mb-0" wire:click="addRow"><i class="fa fa-plus"></i></button>
-                                           <button type="button" class="btn btn-danger btn-sm mb-0" wire:click="removeRow({{ $index }})"><i class="fa fa-times"></i></button>
+                                        <button type="button" class="btn btn-success btn-sm mb-0" wire:click="addRow" style="overflow: visible !important;"><i class="fa fa-plus"></i></button>
+                                           <button type="button" class="btn btn-danger btn-sm mb-0" wire:click="removeRow({{ $index }})" style="overflow: visible !important;"><i class="fa fa-times"></i></button>
                                         @endif
                                     </div>
                                 </div>
@@ -167,9 +172,9 @@
                     <!-- Actions -->
                     <div class="row">
                         <div class="col-md-12 text-end">
-                            {{-- <button type="reset" class="btn btn-warning" wire:click="resetForm">Reset Form</button>
-                            <button type="reset" class="btn btn-danger" wire:click="resetItems">Reset Items</button> --}}
-                            <button type="submit" class="btn btn-cta">Add</button>
+                           
+                            <button type="submit" class="btn btn-sm btn-success"><i class="material-icons text-white"
+                            style="font-size: 15px;">add</i>Add</button>
                         </div>
                     </div>
                     @endif
@@ -178,3 +183,38 @@
         </div>
     </div>
 </div>
+@push('js')
+<!-- Chosen CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css"/>
+
+<!-- jQuery + Chosen JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+
+    <script>
+    function initChosen() {
+        $('.chosen-select').chosen({
+            width: '100%',
+            no_results_text: "No result found"
+        }).off('change').on('change', function (e) {
+            let model = $(this).attr('wire:model');
+            if (model) {
+                @this.set(model, $(this).val());
+            }
+        });
+    }
+
+    document.addEventListener("livewire:navigated", () => {
+        initChosen();
+    });
+
+    Livewire.hook('morph.updated', ({ el, component }) => {
+        initChosen();
+    });
+
+    $(document).ready(function () {
+        initChosen();
+    });
+</script>
+
+@endpush

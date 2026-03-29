@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Livewire\Order;
+use App\Repositories\OrderRepository;
 
 use Livewire\Component;
 use App\Models\Order;
@@ -18,41 +19,50 @@ use App\Models\Payment;
 use App\Models\SalesmanBilling;
 use App\Models\Country;
 use App\Models\BusinessType;
+use App\Models\OrderItemCatalogueImage;
 use Illuminate\Support\Facades\DB;
 use Auth;
 use App\Models\UserWhatsapp;
+use App\Models\Page;
 use App\Models\CataloguePageItem;
+use App\Models\OrderItemVoiceMessage;
+use App\Models\Changelog;
+use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads;
+use App\Helpers\Helper;
+
+use App\Services\ChangeTracker;
+
 
 class OrderEdit extends Component
 {
+    use WithFileUploads;
+
     public $searchTerm = '';
     public $searchResults = [];
     public $errorClass = [];
-    // public $collectionsType = [];
     public $collections = [];
     public $errorMessage = [];
     public $activeTab = 1;
     public $items = [];
-   
+
     public $FetchProduct = 1;
     public $maxPages = [];
     public $salesman;
-    
+
     public $customers = null;
     public $orders;
-    public $is_wa_same, $prefix, $name, $company_name,$employee_rank, $email, $dob, $customer_id, $phone ,$alternative_phone_number_1, $alternative_phone_number_2,
-    $selectedCountryPhone, $selectedCountryWhatsapp, $selectedCountryAlt1 , $selectedCountryAlt2 ,$mobileLengthPhone, $mobileLengthWhatsapp, $mobileLengthAlt1, $mobileLengthAlt2,
-    $countries,
-     $isWhatsappPhone, $isWhatsappAlt1 , $isWhatsappAlt2
-    ;
-    
+    public $is_wa_same, $prefix, $name, $company_name,$employee_rank, $email,$customer_image, $dob, $customer_id, $phone ,$alternative_phone_number_1, $alternative_phone_number_2,
+    $phone_code, $selectedCountryWhatsapp, $alt_phone_code_1 , $alt_phone_code_2 ,$mobileLengthPhone, $mobileLengthWhatsapp, $mobileLengthAlt1, $mobileLengthAlt2,
+    $countries,$isWhatsappPhone,$isWhatsappAlt1,$isWhatsappAlt2;
+
     public $order_number, $billing_address,$billing_landmark,$billing_city,$billing_state,$billing_country,$billing_pin;
 
     public $is_billing_shipping_same;
 
     public $shipping_address,$shipping_landmark,$shipping_city,$shipping_state,$shipping_country,$shipping_pin;
 
-    //  product 
+    //  product
     public $categories,$subCategories = [], $products = [], $measurements = [];
     public $selectedCategory = null, $selectedSubCategory = null,$searchproduct, $product_id =null,$collection;
     public $paid_amount = 0;
@@ -60,7 +70,7 @@ class OrderEdit extends Component
     public $remaining_amount = 0;
     public $payment_mode = null;
     public $catalogues = [];
-
+    public $catalogue_page_item = [];
     // salesmanBill
     public $salesmanBill;
     public $mobileLength;
@@ -72,56 +82,56 @@ class OrderEdit extends Component
     public $country_code;
     public $country_id;
     public $air_mail;
-    // public $remarks;
+    public $imageUploads = [];
+    public $newUploads = [];
+    public $existingImages = [];
+    public $voiceUploads = [];
+    public $existingVideos = [];
+    public $extra_measurement = [];
 
     public function mount($id)
     {
         $this->orders = Order::with(['items.measurements'])->findOrFail($id); // Fetch the order by ID
-    //    dd($this->orders->customer->id);
+
         if ($this->orders) {
+            $this->customer_image = $this->orders->customer_image;
             $this->order_number = $this->orders->order_number;
             $this->customer_id = $this->orders->customer_id;
             $this->name = $this->orders->customer_name;
             $this->email = $this->orders->customer_email;
-            $this->dob = $this->orders->customer->dob;
+            $this->dob = optional($this->orders->customer)->dob;
             $this->billing_address = $this->orders->billing_address;
-            $this->air_mail = $this->orders->items->sum('air_mail');
-            // $this->shipping_address = $this->orders->shipping_address;
-            // $this->is_billing_shipping_same = ($this->orders->billing_address == $this->orders->shipping_address);
-            $this->phone = $this->orders->customer->phone;
-            $this->alternative_phone_number_1 = $this->orders->customer->alternative_phone_number_1;
-            $this->alternative_phone_number_2 = $this->orders->customer->alternative_phone_number_2;
+            $this->air_mail = (int)$this->orders->air_mail;
+            $this->phone = optional($this->orders->customer)->phone;
+            $this->alternative_phone_number_1 = optional($this->orders->customer)->alternative_phone_number_1;
+            $this->alternative_phone_number_2 = optional($this->orders->customer)->alternative_phone_number_2;
             $this->countries = Country::where('status',1)->get();
-            $this->selectedCountryPhone =  $this->orders->customer->country_code_phone;
-            $this->selectedCountryWhatsapp =  $this->orders->customer->country_code_whatsapp;
-            $this->selectedCountryAlt1 =  $this->orders->customer->country_code_alt_1;
-            $this->selectedCountryAlt2 =  $this->orders->customer->country_code_alt_2;
+            $this->phone_code =  optional($this->orders->customer)->country_code_phone;
+            $this->selectedCountryWhatsapp =  optional($this->orders->customer)->country_code_whatsapp;
+            $this->alt_phone_code_1 =  optional($this->orders->customer)->country_code_alt_1;
+            $this->alt_phone_code_2 =  optional($this->orders->customer)->country_code_alt_2;
 
             // Set mobile lengths based on selected countries
-            $this->mobileLengthPhone = Country::where('country_code', $this->selectedCountryPhone)->value('mobile_length') ?? '';
-            $this->mobileLengthWhatsapp = Country::where('country_code', $this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
-            $this->mobileLengthAlt1 = Country::where('country_code', $this->selectedCountryAlt1)->value('mobile_length') ?? '';
-            $this->mobileLengthAlt2 = Country::where('country_code', $this->selectedCountryAlt2)->value('mobile_length') ?? '';
-            
-            $this->isWhatsappPhone = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->phone)->exists();
-            $this->isWhatsappAlt1 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_1)->exists();
-            // dd( $this->phone);
+            if($this->orders->customer){
+                 $this->isWhatsappPhone = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->phone)->exists();
+                 $this->isWhatsappAlt1 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_1)->exists();
+                 $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
+            }else{
+                $this->isWhatsappPhone = false;
+                $this->isWhatsappAlt1 = false;
+            }
 
-            $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$this->orders->customer->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
-          
             $this->catalogues = Catalogue::with('catalogueTitle')->get()->toArray();
-            
+
             $this->items = $this->orders->items->map(function ($item) {
-               
                 $selected_titles = OrderMeasurement::where('order_item_id', $item->id)->pluck('measurement_name')->toArray();
                 $selected_values = OrderMeasurement::where('order_item_id', $item->id)->pluck('measurement_value')->toArray();
                 $fabrics = Fabric::join('product_fabrics', 'product_fabrics.fabric_id', '=', 'fabrics.id')
-                ->where('product_fabrics.product_id', $item->product_id)
-                ->select('fabrics.id', 'fabrics.title')
-                ->get();
-        
+                                    ->where('product_fabrics.product_id', $item->product_id)
+                                    ->select('fabrics.id', 'fabrics.title')
+                                    ->get();
+
                 // Get the selected fabric object if exists
-                // $selectedFabric = $fabrics->firstWhere('id', $item->fabrics);
                 $selectedFabric = collect($fabrics)->firstWhere('id', $item->fabrics);
 
                 // Map measurements with selected values
@@ -136,31 +146,31 @@ class OrderEdit extends Component
                         ];
                 });
 
+
                 $pageItems = [];
                     if (!empty($item->catalogue_id) && !empty($item->cat_page_number)) {
                         $pageItems = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
-                        ->where('catalogue_page_items.catalogue_id', $item->catalogue_id) 
+                        ->where('catalogue_page_items.catalogue_id', $item->catalogue_id)
                         ->where('pages.page_number', $item->cat_page_number)
-                        ->pluck('catalogue_page_items.catalog_item')
+                        ->pluck('catalogue_page_items.catalog_item','catalogue_page_items.id')
                         ->toArray();
                     }
-
-                 
-                //  dd($item->catalogue_id);
                 return [
-                    'order_item_id' => $item->id, 
+                    'order_item_id' => $item->id,
                     'product_id' => $item->product_id,
                     'searchproduct' => $item->product_name,
                     // 'air_mail'  => $item->air_mail,
+                    'quantity'  => $item->quantity,
                     'price' => round($item->piece_price),
                     'remarks' => $item->remarks,
+                    'item_status' => $item->status,
                     'selected_collection' => $item->collection,
                     'collection' => Collection::orderBy('title', 'ASC')->whereIn('id',[1,2])->get(),
                     'selected_category' => $item->category,
                     'categories' =>Category::orderBy('title', 'ASC')->where('collection_id', $item->collection)->get(),
                     'searchTerm' => optional($selectedFabric)->title, // Set default search value
                     'searchResults' => [],
-                    
+
                     'selected_fabric' => $item->fabrics,
                     'fabrics' => $fabrics,
                     'searchTerm' => optional($selectedFabric)->title ?? '',
@@ -174,8 +184,37 @@ class OrderEdit extends Component
                     'page_number' => $item->cat_page_number,
                     'pageItems' => $pageItems,
                     'page_item' => $item->cat_page_item,
+                    'expected_delivery_date' => $item->expected_delivery_date,
+                    'fitting' => $item->collection == 1 ? $item->fittings : '',
+                    'priority' => $item->priority_level ?? null,
+                    'status'  =>  $item->status,
+                    'tl_status' => $item->tl_status,
+                    'admin_status' => $item->admin_status,
+                    'shoulder_type' => $item->shoulder_type,
+                    'vents' => $item->vents,
+                    'vents_required' => $item->vents_required,
+                    'vents_count' => $item->vents_count,
+                    'fold_cuff_required' => $item->fold_cuff_required,
+                    'fold_cuff_size' => $item->fold_cuff_size,
+                    'pleats_required' => $item->pleats_required,
+                    'pleats_count' => $item->pleats_count,
+                    'back_pocket_required' => $item->back_pocket_required,
+                    'back_pocket_count' => $item->back_pocket_count,
+                    'adjustable_belt' => $item->adjustable_belt,
+                    'suspender_button' => $item->suspender_button,
+                    'trouser_position' => $item->trouser_position,
+                    // Shirt fields
+                    'sleeves'      => $item->sleeves,
+                    'collar'       => $item->collar,
+                    'collar_style' => $item->collar_style,
+                    'pocket'       => $item->pocket,
+                    'cuffs'        => $item->cuffs,
+                    'cuff_style'   => $item->cuff_style,
+                    'client_name_required' => $item->client_name_required,
+                    'client_name_place'   => $item->client_name_place,
                 ];
             })->toArray();
+
         }
         // Split the address and assign to the properties
         $billingAddress = explode(',', $this->orders->billing_address);
@@ -196,44 +235,20 @@ class OrderEdit extends Component
             }
         }
 
-        // Split the address and assign to the properties
-        // $shippingAddress = explode(',', $this->orders->shipping_address);
 
-        // Assuming the address is saved in the format: street, landmark, city, state, country - pin
-        // if (count($shippingAddress) >= 5) {
-        //     $this->shipping_address = trim($shippingAddress[0]); // Street Address
-        //     $this->shipping_landmark = trim($shippingAddress[1]); // Landmark
-        //     $this->shipping_city = trim($shippingAddress[2]); // City
-        //     $this->shipping_state = trim($shippingAddress[3]); // State
-        //     $this->shipping_country = trim($shippingAddress[4]); // Country and PIN code
-
-        //     // Extract pin code from the country field (assuming it's at the end)
-        //     $countryAndPin = explode('-', $this->shipping_country);
-        //     if (count($countryAndPin) > 1) {
-        //         $this->shipping_country = trim($countryAndPin[0]);
-        //         $this->shipping_pin = trim($countryAndPin[1]);
-        //     }
-        // }
         $this->Business_type = BusinessType::all();
-        $this->selectedCountryId = $this->orders->customer->country_id;
-        $this->search = Country::where('id',$this->orders->customer->country_id)->pluck('title');
-        // $country = Country::find($this->selectedCountryId);
+        $this->selectedCountryId = optional($this->orders->customer)->country_id;
+        $this->search = Country::where('id',optional($this->orders->customer)->country_id)->pluck('title');
 
-        // if($country){
-        //     $this->country_code = $country->country_code;
-        //     $this->mobileLength = $country->mobile_length;
-        // }
-       
-        $this->selectedBusinessType = $this->orders->customer->business_type;
+
+        $this->selectedBusinessType = optional($this->orders->customer)->business_type;
         $this->customer_id = $this->orders->customer_id;
         $this->prefix = $this->orders->prefix;
         $this->name = $this->orders->customer_name;
-        $this->company_name = $this->orders->customer->company_name;
-        $this->employee_rank = $this->orders->customer->employee_rank;
+        $this->company_name = optional($this->orders->customer)->company_name;
+        $this->employee_rank = optional($this->orders->customer)->employee_rank;
         $this->email = $this->orders->customer_email;
-        $this->dob = $this->orders->customer->dob;
-        // $this->phone = $this->orders->customer->phone;
-        // $this->whatsapp_no = $this->orders->customer->whatsapp_no;
+        $this->dob = optional($this->orders->customer)->dob;
 
         $this->customers = User::where('user_type', 1)->where('status', 1)->orderBy('name', 'ASC')->get();
         $this->categories = Category::where('status', 1)->orderBy('title', 'ASC')->get();
@@ -243,42 +258,77 @@ class OrderEdit extends Component
         $this->billing_amount =  $this->orders->total_amount;
         $this->remaining_amount =  $this->orders->remaining_amount;
         $this->payment_mode = $this->orders->payment_mode;
-        // $this->addItem();
-        // $this->countries = Country::all();
         $this->salesmanBill = SalesmanBilling::where('salesman_id',auth()->guard('admin')->user()->id)->first();
 
 
         foreach ($this->items as $index => $item) {
+            $this->extra_measurement[$index] = Helper::ExtraRequiredMeasurement(trim($item['searchproduct']));
+
+            if(!empty($item['page_item'])){
+                $this->catalogue_page_item[$index] = $item['page_item'];
+            }   
+
+             
+
+            $this->existingImages[$index] = OrderItemCatalogueImage::where('order_item_id', $item['order_item_id'])->pluck('image_path')->toArray();
+            $this->existingVideos[$index] = OrderItemVoiceMessage::where('order_item_id', $item['order_item_id'])->pluck('voices_path')->toArray();
+
             $this->items[$index]['copy_previous_measurements'] = false; // Ensure checkbox is not selected
+
+             // Load categories for the selected collection
+            $categories = Category::orderBy('title', 'ASC')
+                ->where('collection_id', $item['selected_collection'])
+                ->where('status', 1)
+                ->get();
+
+            $this->items[$index]['categories'] = $categories;
+
+            // Auto-select ACCESSORIES for collection 2 if no category selected yet
+            if ($item['selected_collection'] == 2 && empty($item['selected_category'])) {
+                $accessories = $categories->firstWhere('title', 'ACCESSORIES');
+                if ($accessories) {
+                    $this->items[$index]['selected_category'] = $accessories->id;
+                }
+            }
         }
     }
+
+    public function updatedItems($value, $key)
+    {
+        [$index, $field] = explode('.', $key);
+
+        if ($field === 'selected_collection' && $this->items[$index]['selected_collection'] == 1) {
+            $this->items[$index]['quantity'] = 1;
+        }
+    }
+
     public function GetCountryDetails($mobileLength, $field)
     {
         switch($field){
             case 'phone':
                 $this->mobileLengthPhone = $mobileLength;
                 break;
-    
+
             case 'whatsapp':
                 $this->mobileLengthWhatsapp = $mobileLength;
                 break;
-    
+
             case 'alt_phone_1':
                 $this->mobileLengthAlt1 = $mobileLength;
                 break;
-            
+
             case 'alt_phone_2':
                 $this->mobileLengthAlt2 = $mobileLength;
                 break;
         }
     }
-    
+
 
     public function addItem()
     {
-        $this->items = array_values($this->items); 
+        $this->items = array_values($this->items);
         $this->items[] = [
-           
+
             'selected_collection' => '',
             'selected_category' => '',
             'collection' =>  Collection::orderBy('title', 'ASC')->whereIn('id',[1,2])->get(),
@@ -298,7 +348,7 @@ class OrderEdit extends Component
             'page_item' => null,
         ];
         // Ensure catalogues and max pages are initialized
-   
+
     }
 
     public function FindCountry($term){
@@ -310,37 +360,26 @@ class OrderEdit extends Component
         }
     }
 
-    public function selectCountry($countryId){
-        $country = Country::find($countryId);
-        if($country){
-            $this->selectedCountryId = $country->id;
-            $this->search = $country->title;
-            $this->country_code = $country->country_code;
-            $this->mobileLength = $country->mobile_length;
-        }
-
-        $this->filteredCountries = [];
-    }
-
     public function searchFabrics($index)
     {
         // Ensure product_id exists for the given index
         if (!isset($this->items[$index]['product_id'])) {
             return;
         }
-    
+
         $productId = $this->items[$index]['product_id'];
-    
+
         // Ensure searchTerm exists for this index
         $searchTerm = $this->items[$index]['searchTerm'] ?? '';
-    
+
         if (!empty($searchTerm)) {
             $this->items[$index]['searchResults'] = Fabric::join('product_fabrics', 'fabrics.id', '=', 'product_fabrics.fabric_id')
+                ->leftJoin('stock_fabrics', 'fabrics.id', '=', 'stock_fabrics.fabric_id')
                 ->where('product_fabrics.product_id', $productId)
                 ->where('fabrics.status', 1)
                 ->where('fabrics.title', 'LIKE', "%{$searchTerm}%")
-                ->select('fabrics.id', 'fabrics.title')
-                ->distinct()
+                ->select('fabrics.id', 'fabrics.title', \DB::raw('COALESCE(SUM(stock_fabrics.qty_in_meter),0) as available_stock'))
+                ->groupBy('fabrics.id', 'fabrics.title')
                 ->limit(10)
                 ->get();
                 // dd($this->items[$index]['searchResults']);
@@ -359,43 +398,143 @@ class OrderEdit extends Component
         }
 
         // Set the exact selected fabric name
-        $this->items[$index]['searchTerm'] = $fabric->title; 
+        $this->items[$index]['searchTerm'] = $fabric->title;
         $this->items[$index]['selected_fabric'] = $fabric->id;
-        
+
         // Clear search results to hide the dropdown after selection
         $this->items[$index]['searchResults'] = [];
     }
-    
 
-    protected $rules = [
-        'items.*.selected_collection' => 'required',
-        'items.*.selected_category' => 'required',
-        'items.*.searchproduct' => 'required',
-        // 'items.*.product_id' => 'required|integer',
-        'items.*.price' => 'required|numeric|min:1',  // Ensuring that price is a valid number (and greater than or equal to 0).
-        // 'paid_amount' => 'required|numeric|min:1',   // Ensuring that price is a valid number (and greater than or equal to 0).
-        // 'payment_mode' => 'required|string',  // Ensuring that price is a valid number (and greater than or equal to 0).
-        'items.*.measurements.*' => 'nullable',
-        'items.*.selectedCatalogue' => 'required_if:items.*.selected_collection,1', 
-        'items.*.page_number' => 'required_if:items.*.selected_collection,1',
-        'items.*.page_item' => 'required_if:items.*.selected_collection,1'
-    ];
 
-    protected function messages(){
-        return [
-             'items.*.selected_category.required' => 'Please select a category for the item.',
-             'items.*.searchproduct.required' => 'Please select a product for the item.',
-             'items.*.selectedCatalogue.required_if' => 'Please select a catalogue for the item.',
-             'items.*.page_number.required_if' => 'Please select a page for the item.',
-             'items.*.page_item.required_if' => 'Please select a page item',
-             'items.*.price.required'  => 'Please enter a price for the item.',
-             'items.*.selected_collection.required' =>  'Please enter a collection for the item.',
+    public function rules()
+    {
+        $auth = Auth::guard('admin')->user();
+        $rules = [
+            'items.*.selected_collection' => 'required',
+            'items.*.selected_category' => 'required',
+            'items.*.searchproduct' => 'required',
+            'items.*.price' => 'required|numeric|min:1',
+            'items.*.selectedCatalogue' => 'required_if:items.*.selected_collection,1',
+            'items.*.page_number' => 'required_if:items.*.selected_collection,1',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.fitting' => 'required_if:items.*.collection,1',
+            // 'items.*.priority' => 'required',
+            'items.*.expected_delivery_date' => 'required',
+            'items.*.item_status' => 'required',
         ];
+        // ✅ Add dynamic rules based on extra measurement per index
+        foreach ($this->items as $index => $item) {
+            $extra = $this->extra_measurement[$index] ?? null;
+
+            if ($extra === 'mens_jacket_suit') {
+                $rules["items.$index.vents"] = 'required';
+                $rules["items.$index.shoulder_type"] = 'required';
+            }
+
+            if ($extra === 'ladies_jacket_suit') {
+                $rules["items.$index.shoulder_type"] = 'required';
+                $rules["items.$index.vents_required"] = 'required';
+                $rules["items.$index.vents_count"]    = 'required_if:items.'.$index.'.vents_required,Yes|nullable|integer|min:1';
+            }
+
+            if ($extra === 'trouser') {
+                $rules["items.$index.fold_cuff_required"]   = 'required';
+                $rules["items.$index.fold_cuff_size"]       = 'required_if:items.'.$index.'.fold_cuff_required,Yes|nullable|numeric|min:1';
+                $rules["items.$index.pleats_required"]      = 'required';
+                $rules["items.$index.pleats_count"]         = 'required_if:items.'.$index.'.pleats_required,Yes|nullable|integer|min:1';
+                $rules["items.$index.back_pocket_required"] = 'required';
+                $rules["items.$index.back_pocket_count"]    = 'required_if:items.'.$index.'.back_pocket_required,Yes|nullable|integer|min:1';
+                $rules["items.$index.adjustable_belt"]      = 'required';
+                $rules["items.$index.suspender_button"]     = 'required';
+                $rules["items.$index.trouser_position"]     = 'required';
+            }
+            if ($extra === 'shirt') {
+                $rules["items.$index.sleeves"] = 'required';
+                $rules["items.$index.collar"]  = 'required';
+                $rules["items.$index.pocket"]  = 'required';
+                $rules["items.$index.cuffs"]   = 'required';
+                $rules["items.$index.collar_style"] = 'required_if:items.'.$index.'.collar,Other';
+                $rules["items.$index.cuff_style"]   = 'required_if:items.'.$index.'.cuffs,Other';
+            }
+            if ($extra === 'ladies_jacket_suit' || $extra === 'shirt' || $extra === 'mens_jacket_suit') {
+                $rules["items.$index.client_name_required"] = 'required';
+                $rules["items.$index.client_name_place"] = 'required_if:items.'.$index.'.client_name_required,Yes';
+            }
+        }
+
+        if (in_array($auth->designation, [1, 4])) {
+            $rules['items.*.priority'] = 'required';
+        }
+
+         foreach ($this->items as $index => $item) {
+            if (isset($item['selectedCatalogue']) &&
+                isset($this->catalogues[$index][$item['selectedCatalogue']]) &&
+                $this->catalogues[$index][$item['selectedCatalogue']] === 'No Catalogue Images') {
+
+                // Make selectedCatalogue,page_number optional
+                $rules["items.$index.selectedCatalogue"] = 'nullable';
+                $rules["items.$index.page_number"] = 'nullable';
+            } else {
+                // Otherwise required if collection = 1
+                $rules["items.$index.selectedCatalogue"] = 'required_if:items.*.collection,1';
+                $rules["items.$index.page_number"] = 'required_if:items.*.collection,1';
+            }
+        }
+        return $rules;
     }
 
+    protected function messages()
+    {
+        return [
+            'items.*.selected_collection.required'    => 'Please select a collection for the item.',
+            'items.*.selected_category.required'      => 'Please select a category for the item.',
+            'items.*.searchproduct.required'          => 'Please select a product for the item.',
+            'items.*.price.required'                  => 'Please enter a price for the item.',
+            'items.*.selectedCatalogue.required_if'   => 'Please select a catalogue for the item.',
+            'items.*.page_number.required_if'         => 'Please select a page for the item.',
+            'items.*.quantity.required'               => 'Please select a quantity for the item.',
+            'items.*.fitting.required_if'             => 'Please select fittings for the item.',
+            'items.*.priority.required'               => 'Please select a priority for the item.',
+            'items.*.expected_delivery_date.required' => 'Please select expected delivery date for the item.',
+            'items.*.item_status.required'            => 'Please select a status for the item.',
+
+            //  Extra measurement messages
+            'items.*.shoulder_type.required'          => 'Please select shoulder type.',
+            'items.*.vents.required'                  => 'Please select vents option for mens suit/jacket.',
+            'items.*.vents_required.required'         => 'Please specify if vents are required for ladies suit/jacket.',
+            'items.*.vents_count.required_if'         => 'Please specify how many vents for ladies suit/jacket.',
+            'items.*.fold_cuff_required.required'     => 'Please specify if fold cuffs are required for the trouser.',
+            'items.*.fold_cuff_size.required_if'      => 'Please enter the cuff size if fold cuffs are required.',
+            'items.*.pleats_required.required'        => 'Please specify if pleats are required for the trouser.',
+            'items.*.pleats_count.required_if'        => 'Please specify how many pleats for the trouser.',
+            'items.*.back_pocket_required.required'   => 'Please specify if back pockets are required for the trouser.',
+            'items.*.back_pocket_count.required_if'   => 'Please specify how many back pockets for the trouser.',
+            'items.*.adjustable_belt.required'        => 'Please specify if an adjustable belt is required.',
+            'items.*.suspender_button.required'       => 'Please specify if suspender buttons are required.',
+            'items.*.trouser_position.required'       => 'Please select the trouser position.',
+
+            'items.*.sleeves.required'      => 'Please select sleeves (L/S or H/S).',
+            'items.*.collar.required'       => 'Please select a collar option.',
+            'items.*.collar_style.required_if' => 'Please specify the collar style.',
+            'items.*.pocket.required'       => 'Please select pocket option.',
+            'items.*.cuffs.required'        => 'Please select cuff option.',
+            'items.*.cuff_style.required_if'=> 'Please specify the cuff style.',
+            'items.*.client_name_required.required' => 'Please specify if client name is required on the item.',
+            'items.*.client_name_place.required_if' => 'Please specify where the client name should be placed on the item.',
+        ];
+    }
+     public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName, $this->rules());
+    }
+
+    public function validateSingle($propertyName)
+    {
+        $this->validateOnly($propertyName, $this->rules());
+    }
     public function removeItem($index)
     {
-        $itemId = $this->items[$index]['order_item_id'] ?? null; 
+        $itemId = $this->items[$index]['order_item_id'] ?? null;
         if ($itemId) {
             // Actually remove from the DB (or set a 'deleted' flag)
             $orderItem = OrderItem::find($itemId);
@@ -404,6 +543,7 @@ class OrderEdit extends Component
             }
         }
         unset($this->items[$index]);
+        unset($this->extra_measurement[$index]);
         $this->items = array_values($this->items);
         $this->updateBillingAmount();  // Update billing amount after checking price
     }
@@ -421,8 +561,7 @@ class OrderEdit extends Component
 
     public function GetRemainingAmount($paid_amount)
     {
-       // Remove leading zeros if present in the paid amount
-        
+
         // Ensure the values are numeric before performing subtraction
         $billingAmount =  floatval($this->billing_amount);
         $paidAmount = floatval($paid_amount);
@@ -435,17 +574,17 @@ class OrderEdit extends Component
             }
             $this->paid_amount = $paidAmount;
             $this->remaining_amount = $billingAmount - $this->paid_amount;
-        
+
             // Check if the remaining amount is negative
             if ($this->remaining_amount < 0) {
                 $this->remaining_amount = 0;
                 $this->paid_amount = $this->billing_amount;
-                session()->flash('errorAmount', '🚨 The paid amount exceeds the billing amount.');
+                session()->flash('errorAmount', 'ðŸš¨ The paid amount exceeds the billing amount.');
             }
         } else {
             $this->paid_amount = 0;
-           
-            session()->flash('errorAmount', '🚨 Please add item amount first.');
+
+            session()->flash('errorAmount', 'ðŸš¨ Please add item amount first.');
         }
     }
 
@@ -459,13 +598,26 @@ class OrderEdit extends Component
         $this->items[$index]['measurements'] = [];
         $this->items[$index]['fabrics'] = [];
 
-        // Fetch categories and products based on the selected collection 
+        // Fetch categories and products based on the selected collection
         $this->items[$index]['categories'] = Category::orderBy('title', 'ASC')->where('collection_id', $value)->get();
-        $this->items[$index]['products'] = Product::orderBy('name', 'ASC')->where('collection_id', $value)->get();
+        // $this->items[$index]['products'] = Product::orderBy('name', 'ASC')->where('collection_id', $value)->get();
+        $categories = $this->items[$index]['categories'];
+         // Auto-select ACCESSORIES if collection = 2
+            if ($value == 2) {
+                $accessories = $categories->firstWhere('title', 'ACCESSORIES');
+                if ($accessories) {
+                    $this->items[$index]['selected_category'] = $accessories->id;
+                } else {
+                    $this->items[$index]['selected_category'] = null;
+                }
+            } else {
+                // Reset category if collection != 2
+                $this->items[$index]['selected_category'] = null;
+            }
 
         if ($value == 1) {
             $catalogues = Catalogue::with('catalogueTitle')->get();
-            
+
             // Store catalogues inside items array
             $this->items[$index]['catalogues'] = $catalogues->map(function ($catalogue) {
                 return [
@@ -474,18 +626,18 @@ class OrderEdit extends Component
                     'page_number' => $catalogue->page_number,
                 ];
             })->toArray();
-           
-        
+
+
             // Fetch max page numbers per catalogue
             $this->maxPages[$index] = [];
             foreach ($catalogues as $catalogue) {
                 $this->maxPages[$index][$catalogue->catalogue_title_id] = $catalogue->page_number;
             }
-            
+
             if ($previousCatalogue) {
                 $selectedCatalogue = collect($this->items[$index]['catalogues'])->firstWhere('id', $previousCatalogue);
                 if ($selectedCatalogue) {
-                    $this->items[$index]['selectedCatalogue'] = $selectedCatalogue['id']; 
+                    $this->items[$index]['selectedCatalogue'] = $selectedCatalogue['id'];
                 }
             }
 
@@ -495,48 +647,62 @@ class OrderEdit extends Component
         }
     }
 
-    
+
     public function SelectedCatalogue($catalogueId, $index)
     {
         $this->items[$index]['page_number'] = null; // Reset page number
-        $this->maxPages[$index] = []; // Reset max page number
-
+        $this->items[$index]['page_item'] = null; // Reset page number
+        //  if (!isset($this->maxPages[$index])) {
+           $this->maxPages[$index] = []; // Reset max page number
+        // }
         // Fetch max page number from database
-        $maxPage = Catalogue::where('catalogue_title_id', $catalogueId)->value('page_number');
+        $maxPage = Catalogue::where('id', $catalogueId)->value('page_number');
 
         if ($maxPage) {
             $this->maxPages[$index][$catalogueId] = $maxPage;
         }
     }
 
-    public function validatePageNumber($index)
+    public function validatePageNumber($value,$index)
     {
         if (!isset($this->items[$index]['page_number']) || !isset($this->items[$index]['selectedCatalogue'])) {
             return;
         }
-    
+
         $pageNumber = (int) $this->items[$index]['page_number'];
         $selectedCatalogue = $this->items[$index]['selectedCatalogue'];
 
         // Fetch page items dynamically
          $this->items[$index]['pageItems'] = CataloguePageItem::join('pages', 'catalogue_page_items.page_id', '=', 'pages.id')
-                                                            ->where('catalogue_page_items.catalogue_id', $selectedCatalogue)
-                                                            ->where('pages.page_number', $pageNumber)
-                                                            ->pluck('catalogue_page_items.catalog_item')
-                                                            ->toArray();
-                                                            // If no items found, reset selected page item
-        
+                                        ->where('catalogue_page_items.catalogue_id', $selectedCatalogue)
+                                        ->where('pages.page_number', $pageNumber)
+                                        ->pluck('catalogue_page_items.catalog_item')
+                                        ->toArray();
+
+        if(count($this->items[$index]['pageItems']) >0 ){
+             // Keep the current selection only if it exists in new list
+            if (!in_array($this->items[$index]['page_item'] ?? null, $this->items[$index]['pageItems'])) {
+                $this->items[$index]['page_item'] = null;
+            }
+            $this->catalogue_page_item[$index]=  $value;
+        }else{
+            // Reset if no items exist
+             $this->items[$index]['pageItems'] = [];
+            $this->items[$index]['page_item'] = null;
+            $this->catalogue_page_item[$index] = "";
+        }
+
         if (empty($this->items[$index]['pageItems'])) {
             $this->items[$index]['page_item'] = null;
         }
-    
+
         // Ensure we get the correct max page for the selected catalogue
         $maxPage = $this->maxPages[$index][$selectedCatalogue] ?? null;
-    
+
         if ($maxPage === null) {
             return; // No catalogue selected, or no max page found
         }
-    
+
         if ($pageNumber < 1 || $pageNumber > $maxPage) {
             $this->addError("items.$index.page_number", "Page number must be between 1 to $maxPage.");
         } else {
@@ -545,34 +711,107 @@ class OrderEdit extends Component
     }
 
     public function selectProduct($index, $name, $id)
-    {
-        $this->items[$index]['searchproduct'] = $name;
-        $this->items[$index]['product_id'] = $id;
-        $this->items[$index]['products'] = [];
-        $this->items[$index]['measurements'] = Measurement::where('product_id', $id)
-                                                            ->where('status', 1)
-                                                            ->orderBy('position','ASC')
-                                                            ->get()
-                                                            ->toArray();
+{
+    $this->items[$index]['searchproduct'] = $name;
+    $this->items[$index]['product_id'] = $id;
+    $this->items[$index]['products'] = [];
 
-        $this->items[$index]['fabrics'] = Fabric::join('product_fabrics', 'fabrics.id', '=', 'product_fabrics.fabric_id')
-                                            ->where('product_fabrics.product_id', $id)
-                                            ->where('fabrics.status', 1)
-                                            ->get(['fabrics.*']);
+    $this->extra_measurement[$index] = Helper::ExtraRequiredMeasurement(trim($name));
 
-        $product = Product::find($id);
-        if (empty($this->items[$index]['selected_collection'])) {
-            $this->items[$index]['selected_collection'] = $product && $product->collection->isNotEmpty()
-                ? $product->collection->first()->id
-                : null;
-        }
-        
-        session()->forget('measurements_error.' . $index);
-        if (count($this->items[$index]['measurements']) == 0) {
-            session()->flash('measurements_error.' . $index, '🚨 Oops! Measurement data not added for this product.');
-            return;
-        }
+    // Load raw measurements first
+    $measurements = Measurement::where('product_id', $id)
+        ->where('status', 1)
+        ->orderBy('position','ASC')
+        ->get();
+
+    // Try to fetch customer's previous order measurement values for this product
+    $previousValues = OrderMeasurement::whereHas('orderItem', function ($q) use ($id) {
+            $q->where('product_id', $id)
+              ->whereHas('order', function ($qq) {
+                  $qq->where('customer_id', $this->customer_id); // current order's customer
+              });
+        })
+        ->pluck('measurement_value', 'measurement_name')
+        ->toArray();
+
+    // Map with values (prefill automatically)
+    $this->items[$index]['measurements'] = $measurements->map(function ($m) use ($previousValues) {
+        return [
+            'id' => $m->id,
+            'title' => $m->title,
+            'short_code' => $m->short_code,
+            'value' => $previousValues[$m->title] ?? '' // prefill if exists
+        ];
+    })->toArray();
+
+    // Load fabrics for the product
+    $this->items[$index]['fabrics'] = Fabric::join('product_fabrics', 'fabrics.id', '=', 'product_fabrics.fabric_id')
+        ->where('product_fabrics.product_id', $id)
+        ->where('fabrics.status', 1)
+        ->get(['fabrics.*']);
+
+    // Auto-select collection if not already set
+    $product = Product::find($id);
+    if (empty($this->items[$index]['selected_collection'])) {
+        $this->items[$index]['selected_collection'] = $product && $product->collection->isNotEmpty()
+            ? $product->collection->first()->id
+            : null;
     }
+    $this->items[$index]['catalogues'] = $this->items[$index]['selected_collection'] == 1 ? $this->catalogues : [];
+
+    // Error handling
+    session()->forget('measurements_error.' . $index);
+    if (empty($this->items[$index]['measurements'])) {
+        session()->flash('measurements_error.' . $index, '🚨 Oops! Measurement data not added for this product.');
+        return;
+    }
+
+    //   ✅ If copy checkbox is already ticked → apply it immediately
+        if (!empty($this->items[$index]['copy_previous_measurements'])) {
+            $this->copyMeasurements($index);
+        }
+}
+
+
+    // public function selectProduct($index, $name, $id)
+    // {
+    //     $this->items[$index]['searchproduct'] = $name;
+    //     $this->items[$index]['product_id'] = $id;
+    //     $this->items[$index]['products'] = [];
+    //     $this->extra_measurement[$index] = Helper::ExtraRequiredMeasurement(trim($name));
+    //     $this->items[$index]['measurements'] = Measurement::where('product_id', $id)
+    //                                                         ->where('status', 1)
+    //                                                         ->orderBy('position','ASC')
+    //                                                         ->get()
+    //                                                         ->toArray();
+
+       
+        
+    //     $this->items[$index]['fabrics'] = Fabric::join('product_fabrics', 'fabrics.id', '=', 'product_fabrics.fabric_id')
+    //                                         ->where('product_fabrics.product_id', $id)
+    //                                         ->where('fabrics.status', 1)
+    //                                         ->get(['fabrics.*']);
+
+    //     $product = Product::find($id);
+    //     if (empty($this->items[$index]['selected_collection'])) {
+    //         $this->items[$index]['selected_collection'] = $product && $product->collection->isNotEmpty()
+    //             ? $product->collection->first()->id
+    //             : null;
+    //     }
+    //     $this->items[$index]['catalogues'] = $this->items[$index]['selected_collection'] == 1 ? $this->catalogues : [];
+
+    //     session()->forget('measurements_error.' . $index);
+    //     if (count($this->items[$index]['measurements']) == 0) {
+    //         session()->flash('measurements_error.' . $index, 'Oops! Measurement data not added for this product.');
+    //         return;
+    //     }
+        
+
+    //      // ✅ If copy checkbox is already ticked → apply it immediately
+    //     if (!empty($this->items[$index]['copy_previous_measurements'])) {
+    //         $this->copyMeasurements($index);
+    //     }
+    // }
 
     public function CategoryWiseProduct($categoryId, $index)
     {
@@ -591,21 +830,21 @@ class OrderEdit extends Component
     public function FindProduct($term, $index)
     {
         $collection = $this->items[$index]['selected_collection'];
-        $category = $this->items[$index]['selected_category']; 
+        $category = $this->items[$index]['selected_category'];
 
         if (empty($collection)) {
-            session()->flash('errorProduct.' . $index, '🚨 Please select a collection before searching for a product.');
+            session()->flash('errorProduct.' . $index, 'Please select a collection before searching for a product.');
             return;
         }
 
         if (empty($category)) {
-            session()->flash('errorProduct.' . $index, '🚨 Please select a category before searching for a product.');
+            session()->flash('errorProduct.' . $index, 'ðŸš¨ Please select a category before searching for a product.');
             return;
         }
-    
+
         // Clear previous products in the current index
         $this->items[$index]['products'] = [];
-    
+
         if (!empty($term)) {
             // Search for products within the specified collection and matching the term
             $this->items[$index]['products'] = Product::where('collection_id', $collection)
@@ -616,32 +855,235 @@ class OrderEdit extends Component
                 })
                 ->get();
         }
-    
-    }
-    
 
-    // public function toggleShippingAddress()
-    // {
-    //     // When the checkbox is checked
-    //     if ($this->is_billing_shipping_same) {
-    //         // Copy billing address to shipping address
-    //         $this->shipping_address = $this->billing_address;
-    //         $this->shipping_landmark = $this->billing_landmark;
-    //         $this->shipping_city = $this->billing_city;
-    //         $this->shipping_state = $this->billing_state;
-    //         $this->shipping_country = $this->billing_country;
-    //         $this->shipping_pin = $this->billing_pin;
-    //     } else {
-    //         // Reset shipping address fields
-    //         $this->shipping_address = '';
-    //         $this->shipping_landmark = '';
-    //         $this->shipping_city = '';
-    //         $this->shipping_state = '';
-    //         $this->shipping_country = '';
-    //         $this->shipping_pin = '';
-    //     }
-    //     $this->TabChange($this->activeTab);
-    // }
+    }
+
+
+//        public function copyMeasurements($index)
+// {
+//     $currentProductId = $this->items[$index]['product_id'] ?? null;
+
+//     if (empty($this->items[$index]['copy_previous_measurements'])) {
+//         // Checkbox unchecked → revert to original/preloaded values
+//         if ($currentProductId) {
+//             // Reload measurements for this product
+//             $measurements = Measurement::where('product_id', $currentProductId)
+//                 ->where('status', 1)
+//                 ->orderBy('position', 'ASC')
+//                 ->get();
+
+//             // Fetch previous customer order values if exists
+//             $previousValues = OrderMeasurement::whereHas('orderItem', function ($q) use ($currentProductId) {
+//                     $q->where('product_id', $currentProductId)
+//                       ->whereHas('order', function ($qq) {
+//                           $qq->where('customer_id', $this->customer_id);
+//                       });
+//                 })
+//                 ->pluck('measurement_value', 'measurement_name')
+//                 ->toArray();
+
+//             $this->items[$index]['measurements'] = $measurements->map(function ($m) use ($previousValues) {
+//                 return [
+//                     'id' => $m->id,
+//                     'title' => $m->title,
+//                     'short_code' => $m->short_code,
+//                     'value' => $previousValues[$m->title] ?? ''
+//                 ];
+//             })->toArray();
+//         }
+//         return;
+//     }
+
+//     // Checkbox checked → copy previous measurements logic
+//     // 1️⃣ Look backward for the same product in previous items
+//     for ($i = $index - 1; $i >= 0; $i--) {
+//         if (($this->items[$i]['product_id'] ?? null) === $currentProductId) {
+//             if (!isset($this->items[$i]['measurements'])) {
+//                 $this->items[$i]['measurements'] = Measurement::where('product_id', $currentProductId)
+//                     ->where('status', 1)
+//                     ->orderBy('position', 'ASC')
+//                     ->get()
+//                     ->toArray();
+//             }
+//             $this->items[$index]['measurements'] = $this->items[$i]['measurements'];
+//             return;
+//         }
+//     }
+
+//     // 2️⃣ Forward search
+//     for ($i = $index + 1; $i < count($this->items); $i++) {
+//         if (($this->items[$i]['product_id'] ?? null) === $currentProductId) {
+//             if (!isset($this->items[$i]['measurements'])) {
+//                 $this->items[$i]['measurements'] = Measurement::where('product_id', $currentProductId)
+//                     ->where('status', 1)
+//                     ->orderBy('position', 'ASC')
+//                     ->get()
+//                     ->toArray();
+//             }
+//             $this->items[$index]['measurements'] = $this->items[$i]['measurements'];
+//             return;
+//         }
+//     }
+
+//     // 3️⃣ If no same product found, copy only matching measurements from nearest item
+//     $found = false;
+
+//     // Backward search
+//     for ($i = $index - 1; $i >= 0; $i--) {
+//         if (!empty($this->items[$i]['measurements'])) {
+//             $this->fillMatchingMeasurements($index, $i);
+//             $found = true;
+//             break;
+//         }
+//     }
+
+//     // Forward search
+//     if (!$found) {
+//         for ($i = $index + 1; $i < count($this->items); $i++) {
+//             if (!empty($this->items[$i]['measurements'])) {
+//                 $this->fillMatchingMeasurements($index, $i);
+//                 break;
+//             }
+//         }
+//     }
+// }
+
+
+//     /**
+//      * Fill only matching measurements (by title or short_code) from a source item.
+//      */
+//    protected function fillMatchingMeasurements($currentIndex, $sourceIndex)
+// {
+//     foreach ($this->items[$currentIndex]['measurements'] as $key => &$measurement) {
+//         $measurementTitle = strtolower(trim($measurement['title'] ?? ''));
+//         $measurementShortCode = strtolower(trim($measurement['short_code'] ?? ''));
+
+//         foreach ($this->items[$sourceIndex]['measurements'] as $prev) {
+//             $prevTitle = strtolower(trim($prev['title'] ?? ''));
+//             $prevShortCode = strtolower(trim($prev['short_code'] ?? ''));
+//             $prevValue = $prev['value'] ?? null;
+
+//             // Match by title OR short_code (even if product is different)
+//             if (
+//                 (!empty($measurementTitle) && $measurementTitle === $prevTitle) ||
+//                 (!empty($measurementShortCode) && $measurementShortCode === $prevShortCode)
+//             ) {
+//                 $measurement['value'] = $prevValue;
+//             }
+//         }
+//     }
+// }
+
+public function copyMeasurements($index)
+{
+    $currentProductId = $this->items[$index]['product_id'] ?? null;
+
+    if (empty($this->items[$index]['copy_previous_measurements'])) {
+        // Checkbox unchecked → reset to original/preloaded values
+        $this->resetMeasurements($index);
+        return;
+    }
+
+    // 1️⃣ Look backward for same product first (latest updated values)
+    for ($i = $index - 1; $i >= 0; $i--) {
+        if (($this->items[$i]['product_id'] ?? null) === $currentProductId) {
+            $this->items[$index]['measurements'] = $this->deepCopy($this->items[$i]['measurements']);
+            return;
+        }
+    }
+
+    // 2️⃣ Look forward for same product
+    for ($i = $index + 1; $i < count($this->items); $i++) {
+        if (($this->items[$i]['product_id'] ?? null) === $currentProductId) {
+            $this->items[$index]['measurements'] = $this->deepCopy($this->items[$i]['measurements']);
+            return;
+        }
+    }
+
+    // 3️⃣ No same product found → copy only matching measurements from nearest item
+    $found = false;
+
+    for ($i = $index - 1; $i >= 0; $i--) {
+        if (!empty($this->items[$i]['measurements'])) {
+            $this->fillMatchingMeasurements($index, $i);
+            $found = true;
+            break;
+        }
+    }
+
+    if (!$found) {
+        for ($i = $index + 1; $i < count($this->items); $i++) {
+            if (!empty($this->items[$i]['measurements'])) {
+                $this->fillMatchingMeasurements($index, $i);
+                break;
+            }
+        }
+    }
+}
+
+/**
+ * Fill only matching measurements (by title or short_code) from a source item.
+ */
+protected function fillMatchingMeasurements($currentIndex, $sourceIndex)
+{
+    foreach ($this->items[$currentIndex]['measurements'] as $key => &$measurement) {
+        $measurementTitle = strtolower(trim($measurement['title'] ?? ''));
+        $measurementShortCode = strtolower(trim($measurement['short_code'] ?? ''));
+
+        foreach ($this->items[$sourceIndex]['measurements'] as $prev) {
+            $prevTitle = strtolower(trim($prev['title'] ?? ''));
+            $prevShortCode = strtolower(trim($prev['short_code'] ?? ''));
+            $prevValue = $prev['value'] ?? null;
+
+            // Match by title OR short_code (even if product is different)
+            if (
+                (!empty($measurementTitle) && $measurementTitle === $prevTitle) ||
+                (!empty($measurementShortCode) && $measurementShortCode === $prevShortCode)
+            ) {
+                $measurement['value'] = $prevValue;
+            }
+        }
+    }
+}
+
+// Helper: deep copy array to prevent Livewire reference issues
+protected function deepCopy($array)
+{
+    return json_decode(json_encode($array), true);
+}
+
+// Reset measurements to original/preloaded values
+protected function resetMeasurements($index)
+{
+    $productId = $this->items[$index]['product_id'] ?? null;
+    if (!$productId) return;
+
+    $measurements = Measurement::where('product_id', $productId)
+        ->where('status', 1)
+        ->orderBy('position', 'ASC')
+        ->get();
+
+    $previousValues = OrderMeasurement::whereHas('orderItem', function ($q) use ($productId) {
+            $q->where('product_id', $productId)
+              ->whereHas('order', function ($qq) {
+                  $qq->where('customer_id', $this->customer_id);
+              });
+        })
+        ->pluck('measurement_value', 'measurement_name')
+        ->toArray();
+
+    $this->items[$index]['measurements'] = $measurements->map(function ($m) use ($previousValues) {
+        return [
+            'id' => $m->id,
+            'title' => $m->title,
+            'short_code' => $m->short_code,
+            'value' => $previousValues[$m->title] ?? ''
+        ];
+    })->toArray();
+}
+
+
+
 
     public function TabChange($value)
     {
@@ -652,15 +1094,6 @@ class OrderEdit extends Component
             $this->activeTab = $value;
         }
         if ($value > 1) {
-            // Validate search
-            // if (empty($this->search)) {
-            //     $this->errorClass['search'] = 'border-danger';
-            //     $this->errorMessage['search'] = 'Please search a country first';
-            // } else {
-            //     $this->errorClass['search'] = null;
-            //     $this->errorMessage['search'] = null;
-            // }
-
             // Validate name
             if (empty($this->name)) {
                 $this->errorClass['name'] = 'border-danger';
@@ -678,42 +1111,22 @@ class OrderEdit extends Component
                 $this->errorClass['selectedBusinessType'] = null;
                 $this->errorMessage['selectedBusinessType'] = null;
             }
-    
-           
-            // Validate Date of Birth
-            // if (empty($this->dob)) {
-            //     $this->errorClass['dob'] = 'border-danger';
-            //     $this->errorMessage['dob'] = 'Please enter customer date of birth';
-            // } else {
-            //     $this->errorClass['dob'] = null;
-            //     $this->errorMessage['dob'] = null;
-            // }
-    
-           
-    
+
+
          // Validate Phone Number
          if (empty($this->phone)) {
             $this->errorClass['phone'] = 'border-danger';
             $this->errorMessage['phone'] = 'Please enter customer phone number';
-        } elseif (!preg_match('/^\d{'. $this->mobileLengthPhone .'}$/', $this->phone)) {
-            $this->errorClass['phone'] = 'border-danger';
-            $this->errorMessage['phone'] = "Phone number must be exactly ".$this->mobileLengthPhone." digits";
-        } else {
+        // } elseif (!preg_match('/^\d{'. $this->mobileLengthPhone .'}$/', $this->phone)) {
+        // } elseif (!empty($this->mobileLengthPhone) && strlen($this->phone) != $this->mobileLengthPhone) {
+        //     $this->errorClass['phone'] = 'border-danger';
+        //     $this->errorMessage['phone'] = "Phone number must be exactly ".$this->mobileLengthPhone." digits";
+        // } 
+          } else {
             $this->errorClass['phone'] = null;
             $this->errorMessage['phone'] = null;
         }
 
-        // Validate WhatsApp Number
-        // if (empty($this->whatsapp_no)) {
-        //     $this->errorClass['whatsapp_no'] = 'border-danger';
-        //     $this->errorMessage['whatsapp_no'] = 'Please enter WhatsApp number';
-        // } elseif (!preg_match('/^\d{'. $this->mobileLengthWhatsapp .'}$/', $this->whatsapp_no)) {
-        //     $this->errorClass['whatsapp_no'] = 'border-danger';
-        //     $this->errorMessage['whatsapp_no'] = 'WhatsApp number must be exactly ' . $this->mobileLengthWhatsapp . ' digits';
-        // } else {
-        //     $this->errorClass['whatsapp_no'] = null;
-        //     $this->errorMessage['whatsapp_no'] = null;
-        // }
 
         // Validate Alternative Phone Number 1
         if (!empty($this->alternative_phone_number_1)) {
@@ -745,7 +1158,7 @@ class OrderEdit extends Component
                 $this->errorClass['billing_address'] = null;
                 $this->errorMessage['billing_address'] = null;
             }
-    
+
             if (empty($this->billing_city)) {
                 $this->errorClass['billing_city'] = 'border-danger';
                 $this->errorMessage['billing_city'] = 'Please enter billing city';
@@ -753,7 +1166,7 @@ class OrderEdit extends Component
                 $this->errorClass['billing_city'] = null;
                 $this->errorMessage['billing_city'] = null;
             }
-    
+
             if (empty($this->billing_country)) {
                 $this->errorClass['billing_country'] = 'border-danger';
                 $this->errorMessage['billing_country'] = 'Please enter billing country';
@@ -761,51 +1174,7 @@ class OrderEdit extends Component
                 $this->errorClass['billing_country'] = null;
                 $this->errorMessage['billing_country'] = null;
             }
-      
-            //  if (strlen($this->billing_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
-            //     $this->errorClass['billing_pin'] = 'border-danger';
-            //     $this->errorMessage['billing_pin'] = 'Billing pin must be '.env('VALIDATE_PIN', 6).' digits';
-            // } else {
-            //     $this->errorClass['billing_pin'] = null;
-            //     $this->errorMessage['billing_pin'] = null;
-            // }
-    
-            // Validate Shipping Information
-            // if (empty($this->shipping_address)) {
-            //     $this->errorClass['shipping_address'] = 'border-danger';
-            //     $this->errorMessage['shipping_address'] = 'Please enter shipping address';
-            // } else {
-            //     $this->errorClass['shipping_address'] = null;
-            //     $this->errorMessage['shipping_address'] = null;
-            // }
-    
-            // if (empty($this->shipping_city)) {
-            //     $this->errorClass['shipping_city'] = 'border-danger';
-            //     $this->errorMessage['shipping_city'] = 'Please enter shipping city';
-            // } else {
-            //     $this->errorClass['shipping_city'] = null;
-            //     $this->errorMessage['shipping_city'] = null;
-            // }
-    
-            
-    
-            // if (empty($this->shipping_country)) {
-            //     $this->errorClass['shipping_country'] = 'border-danger';
-            //     $this->errorMessage['shipping_country'] = 'Please enter shipping country';
-            // } else {
-            //     $this->errorClass['shipping_country'] = null;
-            //     $this->errorMessage['shipping_country'] = null;
-            // }
-    
-            // if (strlen($this->shipping_pin) != env('VALIDATE_PIN', 6)) {  // Assuming pin should be 6 digits
-            //     $this->errorClass['shipping_pin'] = 'border-danger';
-            //     $this->errorMessage['shipping_pin'] = 'Shipping pin must be '.env('VALIDATE_PIN', 6).' digits';
-            // } else {
-            //     $this->errorClass['shipping_pin'] = null;
-            //     $this->errorMessage['shipping_pin'] = null;
-            // }
-    
-           
+
             // Check if both errorClass and errorMessage arrays are empty
 
             $errorClassNull = empty(array_filter($this->errorClass, function($val) {
@@ -818,10 +1187,10 @@ class OrderEdit extends Component
              // Return the error classes and messages
             return [$this->errorClass, $this->errorMessage];
         }
-       
+
     }
 
-    
+
 
     public function checkproductPrice($value, $index)
     {
@@ -830,12 +1199,12 @@ class OrderEdit extends Component
             $fabricData = Fabric::find($selectedFabricId);
             if ($fabricData && floatval($value) < floatval($fabricData->threshold_price)) {
                 // Error message for threshold price violation
-                session()->flash('errorPrice.' . $index, 
-                    "🚨 The price for fabric '{$fabricData->title}' cannot be less than its threshold price of {$fabricData->threshold_price}.");
+                session()->flash('errorPrice.' . $index,
+                    "The price for fabric '{$fabricData->title}' cannot be less than its threshold price of {$fabricData->threshold_price}.");
                 return;
             }
         }
-    
+
         // Sanitize and validate input value
         $formattedValue = preg_replace('/[^0-9.]/', '', $value);
         if (is_numeric($formattedValue)) {
@@ -844,105 +1213,124 @@ class OrderEdit extends Component
             session()->forget('errorPrice.' . $index);
         } else {
             // Reset price and show error for invalid input
-            $this->items[$index]['price'] = 0;
-            session()->flash('errorPrice.' . $index, '🚨 Please enter a valid price.');
+            // $this->items[$index]['price'] = 0;
+            session()->flash('errorPrice.' . $index, 'Please enter a valid price.');
         }
-    
+
         $this->updateBillingAmount(); // Update billing after validation
     }
+
+
+
     
 
+    public function updatedNewUploads($value, $index)
+    {
+        if (!isset($this->imageUploads[$index])) {
+            $this->imageUploads[$index] = [];
+        }
 
-    // public function SameAsMobile(){
-    //     if($this->is_wa_same == 0){
-    //         $this->whatsapp_no = $this->phone;
-    //         $this->is_wa_same = 1;
-    //     }else{
-    //         $this->whatsapp_no = '';
-    //         $this->is_wa_same = 0;
-    //     }
-    // }
-    // public function copyMeasurements($index){
-    //     if ($index > 0) {
-    //         if (!empty($this->items[$index]['copy_previous_measurements'])) {
-    //             // If checkbox is checked, copy measurements from the previous item
-    //             if (!empty($this->items[$index - 1]['get_measurements'])) {
-    //                 $this->items[$index]['get_measurements'] = $this->items[$index - 1]['get_measurements'];
-    //             }
-    //         } else {
-    //             // If checkbox is unchecked, clear measurements
-    //             $this->items[$index]['get_measurements'] = [];
-    //         }
-    //     }
-    // }
+        // Merge new uploads
+        $this->imageUploads[$index] = array_merge($this->imageUploads[$index], $value);
 
-    // public function copyMeasurements($index) {
-    //     if ($index > 0) {
-    //         if (!empty($this->items[$index]['copy_previous_measurements'])) {
-    //             if (!empty($this->items[$index - 1]['measurements'])) {
-    //                 // Convert Collection to Array
-    //                 $this->items[$index]['measurements'] = $this->items[$index - 1]['measurements']->toArray();
-    //             }
-    //         } else {
-    //             $this->items[$index]['measurements'] = [];
-    //         }
-    //     }
-    // }
-    public function copyMeasurements($index) {
-        if ($index > 0) {
-            $currentProductId = $this->items[$index]['product_id'] ?? null;
-            $previousProductId = $this->items[$index - 1]['product_id'] ?? null;
-    
-            if (!empty($this->items[$index]['copy_previous_measurements'])) {
-                if ($currentProductId === $previousProductId && !empty($this->items[$index - 1]['measurements'])) {
-                    // Copy measurements if the product is the same
-                    $this->items[$index]['measurements'] = $this->items[$index - 1]['measurements']->toArray();
-                } else {
-                    // Keep structure but clear measurement values
-                    if (!empty($this->items[$index]['measurements'])) {
-                        foreach ($this->items[$index]['measurements'] as $key => $measurement) {
-                            $this->items[$index]['measurements'][$key]['value'] = ''; // Clear only values
-                        }
-                    }
-                    session()->flash('measurements_error.' . $index, 'Measurements cannot be copied as products are different.');
-                }
-            } else {
-                // Clear only values if checkbox is unchecked
-                if (!empty($this->items[$index]['measurements'])) {
-                    foreach ($this->items[$index]['measurements'] as $key => $measurement) {
-                        $this->items[$index]['measurements'][$key]['value'] = '';
-                    }
-                }
-            }
+        // Clear temporary uploads so input can be used again
+        $this->newUploads[$index] = [];
+    }
+
+
+    public function removeImage($index, $imageIndex)
+    {
+
+        $orderItemId = $this->items[$index]['order_item_id'];
+
+
+        $imagePath = OrderItemCatalogueImage::where('order_item_id', $orderItemId)
+            ->skip($imageIndex)
+            ->value('image_path');
+
+        if ($imagePath) {
+            Storage::disk('public')->delete($imagePath);
+
+
+            OrderItemCatalogueImage::where('order_item_id', $orderItemId)
+                ->where('image_path', $imagePath)
+                ->delete();
+
+            unset($this->existingImages[$index][$imageIndex]);
+            $this->existingImages[$index] = array_values($this->existingImages[$index]);
         }
     }
-    
-    
-    
 
-    
-    public function update()
+
+    public function removeUploadedImage($index, $imageIndex){
+        // Remove the image from the uploaded images array
+        unset($this->imageUploads[$index][$imageIndex]);
+        $this->imageUploads[$index] = array_values($this->imageUploads[$index]);
+    }
+
+    public function removeVideo($index, $audioIndex){
+        ChangeTracker::setOrderId($this->orders->id);
+        $orderItemId = $this->items[$index]['order_item_id'];
+        $audioPath = OrderItemVoiceMessage::where('order_item_id', $orderItemId)
+        ->skip($audioIndex)
+        ->value('voices_path');
+
+        if ($audioPath) {
+            Storage::disk('public')->delete($audioPath);
+
+
+            OrderItemVoiceMessage::where('order_item_id', $orderItemId)
+            ->where('voices_path', $audioPath)
+            ->get()
+            ->each(function ($message) {
+                $message->delete(); // ✅ This triggers the `deleted` event
+            });
+
+            unset($this->existingVideos[$index][$audioIndex]);
+            $this->existingVideos[$index] = array_values($this->existingVideos[$index]);
+        }
+    }
+
+    public function removeUploadedVoice($index, $voiceIndex){
+        // Remove the audio from the uploaded audio array
+        unset($this->voiceUploads[$index][$voiceIndex]);
+        $this->voiceUploads[$index] = array_values($this->voiceUploads[$index]);
+    }
+
+    // public function validateMeasurement($itemIndex, $measurementKey)
+    // {
+    //     $value = trim($this->items[$itemIndex]['measurements'][$measurementKey]['value'] ?? '');
+
+    //     $errorKey = "items.$itemIndex.measurements.$measurementKey.value";
+
+    //     if ($value === '') {
+    //         $this->addError($errorKey, 'Measurement value is required.');
+    //     } elseif (!is_numeric($value)) {
+    //         $this->addError($errorKey, 'Measurement must be numeric.');
+    //     } elseif (floatval($value) < 1) {
+    //         $this->addError($errorKey, 'Measurement must be a number greater than 0.');
+    //     } else {
+    //          $this->resetValidation([$errorKey]);   // clears the error when it becomes valid
+    //     }
+    // }
+
+
+    public function update(OrderRepository $orderRepo)
     {
-        // dd($this->all());
         $this->validate();
-        // dd($this->items);
         DB::beginTransaction();
         try {
-            
-            // $total_amount = array_sum(array_column($this->items, 'price'));
-            $total_amount = array_sum(array_map(function ($item) {
-                return floatval($item['price']);
-            }, $this->items));
-            
-            if (!empty($this->air_mail) && is_numeric($this->air_mail)) {
-                $total_amount += floatval($this->air_mail);
-            }
-            
-            // dd($total_amount);
+
+            $total_product_amount = array_sum(array_column($this->items, 'price'));
+            $total_amount = collect($this->items)->reduce(function ($carry, $item) {
+                return $carry + ((float) $item['price'] * (int) $item['quantity']);
+            }, 0);
+            $airMail = floatval($this->air_mail);
+            $total_amount += $airMail;
+            ChangeTracker::setOrderId($this->orders->id);
 
             // Retrieve user details
             $user = User::find($this->customer_id);
-            // dd($user);
             if (!$user) {
                 // Create new user if not found
                 $user = User::create([
@@ -953,7 +1341,6 @@ class OrderEdit extends Component
                     'email' => $this->email,
                     'dob' => $this->dob,
                     'phone' => $this->phone,
-                    // 'whatsapp_no' => $this->whatsapp_no,
                     'user_type' => 1, // Customer
                     'alternative_phone_number_1' => $this->alternative_phone_number_1,
                     'alternative_phone_number_2' => $this->alternative_phone_number_2,
@@ -970,25 +1357,17 @@ class OrderEdit extends Component
                     'employee_rank' => $this->employee_rank,
                     'email' => $this->email,
                     'dob' => $this->dob,
-                    // 'phone' => $this->phone,
-                    // 'whatsapp_no' => $this->whatsapp_no,
-                    // 'alternative_phone_number_1' => $this->alternative_phone_number_1,
-                    // 'alternative_phone_number_2' => $this->alternative_phone_number_2,
-                    'user_type' => 1, // Customer (if needed, or update as appropriate)
                     'business_type' => $this->selectedBusinessType,
                     'country_id' => $this->selectedCountryId,
                     'country_code' => $this->country_code,
 
 
                     // 'country_id' => $this->country_id,
-                    'country_code_phone' => $this->selectedCountryPhone,
+                    'country_code_phone' => $this->phone_code,
                     'phone' => $this->phone,
-                    // 'country_code_whatsapp' => $this->selectedCountryWhatsapp,
-                    // 'whatsapp_no' => $this->whatsapp_no,
-                    // 'country_code' => $this->country_code,
-                    'country_code_alt_1'  => $this->selectedCountryAlt1,
+                    'country_code_alt_1'  => $this->alt_phone_code_1,
                     'alternative_phone_number_1' => $this->alternative_phone_number_1,
-                    'country_code_alt_2'  => $this->selectedCountryAlt2,
+                    'country_code_alt_2'  => $this->alt_phone_code_2,
                     'alternative_phone_number_2' => $this->alternative_phone_number_2,
                 ]);
             }
@@ -1005,42 +1384,19 @@ class OrderEdit extends Component
                 ]
             );
 
-            // if (!$this->is_billing_shipping_same) {
-            //     $shippingAddress = $user->address()->updateOrCreate(
-            //         ['address_type' => 2], // Shipping address
-            //         [
-            //             'state' => $this->shipping_state,
-            //             'city' => $this->shipping_city,
-            //             'address' => $this->shipping_address,
-            //             'landmark' => $this->shipping_landmark,
-            //             'country' => $this->shipping_country,
-            //             'zip_code' => $this->shipping_pin,
-            //         ]
-            //     );
-            // }else{
-            //     $shippingAddress = $billingAddress;
-            // }
-            // $order = Order::find($this->orders->id);
             // Update order details
             $name = $this->name;
             $email = $this->email;
             $billingadd = $this->billing_address;
-            
+
             $billingLandmark= $this->billing_landmark;
             $billingCity= $this->billing_city;
             $billingState= $this->billing_state;
             $billingCountry= $this->billing_country;
             $billingPin= $this->billing_pin;
 
-            // $shippingadd = $this->shipping_address;
-            // $shippingLandmark= $this->shipping_landmark;
-            // $shippingCity= $this->shipping_city;
-            // $shippingState= $this->shipping_state;
-            // $shippingCountry= $this->shipping_country;
-            // $shippingPin= $this->shipping_pin;
-
-            // $total_amount = $total_amount;
             $order = Order::find($this->orders->id);
+            //die(ChangeTracker::getOrderId().'llll');
             if (!$order) {
                 session()->flash('error', 'Order not found.');
                 return redirect()->route('admin.order.index');
@@ -1050,23 +1406,40 @@ class OrderEdit extends Component
                 $order->prefix = $this->prefix;
                 $order->customer_name = $this->name;
                 $order->customer_email = $this->email;
+                if(!empty($this->customer_image) and !is_string($this->customer_image))
+                {
+                    $order->customer_image = Helper::handleFileUpload($this->customer_image, "client_image");
+                }
+
                 $order->billing_address = $billingadd . ', ' . $billingLandmark . ', ' . $billingCity . ', ' . $billingState . ', ' . $billingCountry . ' - ' . $billingPin;
-                // $order->shipping_address = $this->is_billing_shipping_same
-                //     ? $billingadd . ', ' . $billingLandmark . ', ' . $billingCity . ', ' . $billingState . ', ' . $billingCountry . ' - ' . $billingPin
-                //     : $shippingadd . ', ' . $shippingLandmark . ', ' . $shippingCity . ', ' . $shippingState . ', ' . $shippingCountry . ' - ' . $shippingPin;
+                $order->total_product_amount = $total_product_amount;
+                $order->air_mail = $airMail;
                 $order->total_amount = $total_amount;
                 $order->last_payment_date = now();
-                $order->created_by = auth()->guard('admin')->user()->id;
+                // $order->created_by = auth()->guard('admin')->user()->id;
+                $loggedInAdmin = auth()->guard('admin')->user();
+                $order->team_lead_id = $loggedInAdmin->parent_id ?? null;
                 $order->save();
             }
-           
 
+            
             foreach ($this->items as $key=>$item) {
-                // $orderItem = OrderItem::where('order_id', $order->id)->where('product_id', $item['product_id'])->first();
-                // $orderItem = OrderItem::firstOrNew([
-                //     'order_id' => $order->id,
-                //     'product_id' => $item['product_id']
-                // ]);
+                // dd($item);
+                if($item['selected_collection'] == 1 && is_null($item['page_item'])){
+                     // Only check if catalogue is not "No Catalogue Images"
+                    if ($item['selectedCatalogue'] !== 'No Catalogue Images') {
+                        $page = Page::where('page_number', $item['page_number'])
+                                    ->where('catalogue_id', $item['selectedCatalogue'])
+                                    ->first();
+                        if($page){
+                            $exists_pages = CataloguePageItem::where('page_id', $page->id)->get();
+                            if($exists_pages->isNotEmpty() && empty($item['page_item'])){
+                                $this->addError("items.$key.page_item", "Please select a page item for this page.");
+                                return false;
+                            }
+                        }
+                    }
+                }
                 if (!empty($item['order_item_id'])) {
                     // Find the existing OrderItem by its ID
                     $orderItem = OrderItem::find($item['order_item_id']);
@@ -1076,29 +1449,237 @@ class OrderEdit extends Component
                     $orderItem->order_id = $order->id;
                     $orderItem->product_id = $item['product_id'];
                 }
-                // dd($orderItem->id);
+                // dd($item);
                 if ($orderItem) {
                     $orderItem->product_id = $item['product_id'];
                     $orderItem->order_id = $order->id;
                     $orderItem->product_name = $item['searchproduct'];
-                    $orderItem->air_mail = !empty($this->air_mail) ? $this->air_mail : null;
-                    $itemPrice = floatval($item['price']);
-                    $orderItem->total_price = $this->air_mail > 0 ? ($itemPrice + $this->air_mail) : $itemPrice;
                     $orderItem->remarks = $item['remarks'] ?? null;
-                    $orderItem->quantity =1;
+                    $orderItem->status = $item['item_status'] ?? null;
+                    $orderItem->quantity = $item['quantity'] ?? null;
+                    $itemPrice = floatval($item['price']);
+                    $orderItem->total_price = $itemPrice * $orderItem->quantity;
                     $orderItem->piece_price = $item['price'];
                     $orderItem->collection = $item['selected_collection'];
                     $orderItem->category = $item['selected_category'];
                     $orderItem->fabrics = $item['selected_fabric'];
-                    $orderItem->catalogue_id = !empty($item['selectedCatalogue']) 
-                                                ? $item['selectedCatalogue'] 
+                    $orderItem->catalogue_id = !empty($item['selectedCatalogue'])
+                                                 ? $item['selectedCatalogue']
                                                 : null;
+                    $orderItem->quantity = ($item['selected_collection'] == 1) ? 1 : $item['quantity'];
+                    $orderItem->fittings  = ($item['selected_collection'] == 1) ? $item['fitting'] : null;
+                    $orderItem->expected_delivery_date  = $item['expected_delivery_date'];
                     $orderItem->cat_page_number  = $item['page_number'] ?? null;
                     $orderItem->cat_page_item  = $item['page_item'] ?? null;
-                    $orderItem->save();
+                    $loggedInAdmin = auth()->guard('admin')->user();
+                    $orderItem->priority_level  = in_array($loggedInAdmin->designation, [1, 4]) 
+                    ? ($item['priority'] ?? null) 
+                    : null;
                     
 
+                    // ------------------------------------------------------------------
+                    $previousStatus = $orderItem->getOriginal('status');   // null if new row
+                    $newStatus      = $item['item_status'] ?? null;
+                    $statusChanged  = $previousStatus !== $newStatus;
+
+                    $orderItem->status = $newStatus;
+                //    dd($orderItem);
+
+                    // New 8-10-2025
+                    if ($statusChanged) {
+
+                        if ($newStatus === 'Process') {
+
+                            // ── Case 1: Brand-new item (previousStatus == null)
+                            if (is_null($previousStatus)) {
+
+                                if (in_array($loggedInAdmin->designation, [1, 12])  && $order->created_by == 1) {
+                                    // Admin creates or updates → auto approve & assign production
+                                    $orderItem->tl_status    = 'Approved';
+                                    $orderItem->admin_status = 'Approved';
+                                    $orderItem->assigned_team = 'production';
+                                } else {
+                                    // Non-admin create → no auto approve
+                                    $orderItem->tl_status    = 'Pending';
+                                    $orderItem->admin_status = 'Pending';
+                                    $orderItem->assigned_team = null;
+                                }
+
+                            // ── Case 2: Existing item changed from Hold → Process
+                            } else {
+
+                                if (in_array($loggedInAdmin->designation, [1, 12])  && $order->created_by == 1) {
+                                    // Admin re-activates item → approve and assign production
+                                    $orderItem->tl_status    = 'Approved';
+                                    $orderItem->admin_status = 'Approved';
+                                    $orderItem->assigned_team = 'production';
+                                } else {
+                                    // Non-admin (e.g. TL/staff) just updates it → not auto approved
+                                    $orderItem->tl_status    = 'Pending';
+                                    $orderItem->admin_status = 'Pending';
+                                    $orderItem->assigned_team = null;
+                                }
+
+                                // Let system know order still needs admin review
+                                $order->status = 'Approval Pending';
+                            }
+
+                        } else {
+                            // ── Case 3: Leaving Process (e.g. Hold, Cancel, etc.)
+                            $orderItem->tl_status    = 'Pending';
+                            $orderItem->admin_status = 'Pending';
+                            $orderItem->assigned_team = null;
+                        }
+
+                        if ($loggedInAdmin && $loggedInAdmin->designation == 2 && ($previousStatus === 'Hold' || $newStatus === 'Process')) {
+                            if ($order->status === 'On Hold') {
+                                $order->status = 'Approval Pending';
+                                $order->save();
+                                
+                            }
+                        }
+                    }
+                    // dd($order);
+
+
+                    
+                       
+
+                        if (in_array($loggedInAdmin->designation, [1, 12])) {
+
+                            $totalItems = $order->items()->count();
+
+                            $allProcessItems = $order->items()
+                                ->where('status', 'Process')
+                                ->whereNotNull('assigned_team')
+                                ->count();
+
+                            $unassignedCount = $order->items()->whereNull('assigned_team')->count();
+
+                            // ✅ Check if all assigned teams are production
+                            $allProductionTeam = $order->items()
+                                ->whereNotNull('assigned_team')
+                                ->where('assigned_team', '!=', 'production')
+                                ->count() == 0;
+                            // dd($totalItems,$allProcessItems,$unassignedCount,$allProductionTeam);
+                            // ✅ Fully approved only if all items are Process + assigned + all production
+                            if (
+                                $totalItems > 0 &&
+                                $allProcessItems == $totalItems &&
+                                $unassignedCount == 0 &&
+                                $allProductionTeam
+                            ) {
+                                $order->status = 'Fully Approved By Admin';
+                            } else {
+                                $order->status = 'Partial Approved By Admin';
+                            }
+
+                            $order->save();
+                        }
+
+
+                    // ------------------------------------------------------------------
+
+                    // Extra Fields
+                    if ($item['selected_collection'] == 1) {
+                        $extra = $this->extra_measurement[$key] ?? null;
+
+                        if ($extra == 'mens_jacket_suit') {
+                            $orderItem->shoulder_type = $item['shoulder_type'] ?? null;
+                            $orderItem->vents = $item['vents'] ?? null;
+                        } elseif ($extra == 'ladies_jacket_suit') {
+                            $orderItem->shoulder_type = $item['shoulder_type'] ?? null;
+                            $orderItem->vents_required = $item['vents_required'] ?? null;
+                            if ($orderItem->vents_required) {
+                                $orderItem->vents_count = $item['vents_count'] ?? null;
+                            }
+                        } elseif ($extra == 'trouser') {
+                            $orderItem->fold_cuff_required   = $item['fold_cuff_required'] ?? null;
+                            if ($orderItem->fold_cuff_required=="Yes") {
+                                $orderItem->fold_cuff_size  = $item['fold_cuff_size'] ?? null;
+                            }else{
+                                $orderItem->fold_cuff_size  = null;
+                            }
+                            $orderItem->pleats_required      = $item['pleats_required'] ?? null;
+                            if ($orderItem->pleats_required=="Yes") {
+                                $orderItem->pleats_count = $item['pleats_count'] ?? null;
+                            }else{
+                                $orderItem->pleats_count = null;
+                            }
+                            $orderItem->back_pocket_required = $item['back_pocket_required'] ?? null;
+                            if ($orderItem->back_pocket_required=="Yes") {
+                                $orderItem->back_pocket_count = $item['back_pocket_count'] ?? null;
+                            }else{
+                                $orderItem->back_pocket_count = null;
+                            }
+                            $orderItem->adjustable_belt      = $item['adjustable_belt'] ?? null;
+                            $orderItem->suspender_button     = $item['suspender_button'] ?? null;
+                            $orderItem->trouser_position     = $item['trouser_position'] ?? null;
+                        }elseif ($extra == 'shirt') {
+                            $orderItem->sleeves       = $item['sleeves'] ?? null;          // L/S or H/S
+                            $orderItem->collar        = $item['collar'] ?? null;           // Normal or Other
+                            $orderItem->collar_style  = $item['collar_style'] ?? null;     // If "Other"
+                            $orderItem->pocket        = $item['pocket'] ?? null;           // With / Without
+                            $orderItem->cuffs         = $item['cuffs'] ?? null;            // Regular / French / Other
+                            $orderItem->cuff_style    = $item['cuff_style'] ?? null;       // If "Other"
+                        }
+                        if ($extra === 'ladies_jacket_suit' || $extra === 'shirt' || $extra === 'mens_jacket_suit') {
+                            $orderItem->client_name_required = $item['client_name_required'] ?? null;
+                            if ($orderItem->client_name_required=="Yes") {
+                                $orderItem->client_name_place = $item['client_name_place'] ?? null;
+                            }else{
+                                $orderItem->client_name_place = null;
+                            }
+                        }
+                    }
+
+                    $orderItem->save();
+                    // dd($orderItem);
+
+
+                    if ($orderItem) {
+                        if (!empty($this->imageUploads[$key])) {
+                            foreach ($this->imageUploads[$key] as $uploadedImage) {
+                                $path = $uploadedImage->store('uploads/order_item_catalogue_images', 'public');
+                                OrderItemCatalogueImage::create([
+                                    'order_item_id' => $orderItem->id,
+                                    'image_path' => $path
+                                ]);
+                            }
+                            // Clear uploaded images after saving
+                            $this->imageUploads[$key] = [];
+                        }
+                    }
+
+                    if ($orderItem) {
+                        if (!empty($this->voiceUploads[$key])) {
+                            foreach ($this->voiceUploads[$key] as $uploadedVoice) {
+                                $path = $uploadedVoice->store('uploads/order_item_voice_messages', 'public');
+                                OrderItemVoiceMessage::create([
+                                    'order_item_id' => $orderItem->id,
+                                    'voices_path' => $path
+                                ]);
+                            }
+                            // Clear uploaded audios after saving
+                            $this->voiceUploads[$key] = [];
+                        }
+                    }
+
+                   
+
                     foreach ($item['measurements'] as $measurement) {
+                        if (!isset($measurement['value']) || $measurement['value'] === '' ) {
+                            session()->flash('measurements_error.' . $key, "🚨 Oops! All measurement data should be mandatory.");
+                            return;
+                        }
+                        // elseif (!is_numeric($measurement['value'])) {
+                        //     session()->flash('measurements_error.' . $key, "🚨 Oops! Measurement must be numeric.");
+                        //     return;
+                        // } elseif (floatval($measurement['value']) < 1) {
+                        //     session()->flash('measurements_error.' . $key, "🚨 Oops! Measurement must be greater than 0.");
+                        //     return;
+                        // }
+
                         $measurementValue = $measurement['value'] ?? null;
                         $measurementName = $measurement['title'] ?? null;
                         $measurementShortCode = $measurement['short_code'] ?? null;
@@ -1106,14 +1687,8 @@ class OrderEdit extends Component
                         $orderMeasurement = OrderMeasurement::where('order_item_id', $orderItem->id)
                                                             ->where('measurement_name', $measurementName)
                                                             ->first();
-                        
-                        // if ($orderMeasurement) {
-                        //     // If the OrderMeasurement exists, update it
-                        //     $orderMeasurement->measurement_value = $measurement['value'] ?? null;
-                        //     $orderMeasurement->measurement_name = $measurement['title'];
-                        //     $orderMeasurement->save();
-                        // } 
-                        if ($orderMeasurement) {    
+                    
+                        if ($orderMeasurement) {
                             $orderMeasurement->update([
                                 'measurement_value' => $measurementValue,
                             ]);
@@ -1128,64 +1703,126 @@ class OrderEdit extends Component
                                     'measurement_value' =>  $measurementValue,
                                 ]);
                             }
-                           
+
                         }
                     }
-                    
+
                     $orderItem = OrderItem::where('order_id', $order->id)->where('product_id', $item['product_id'])->first();
+                    if($orderItem){
                         $orderItem->update([
                             'selected_fabric' => $item['selected_fabric'], // Save selected fabric ID
                         ]);
+                    }
+
                 }
             }
+
+                //   $items = collect($this->items)
+                    $items = $order->items()->get();
+                
+                    // Count Process items with TL approved
+                    $processApprovedCount = $items->where('status', 'Process')
+                                                ->where('tl_status', 'Approved')
+                                                ->count();
+
+                    // Count total Process items
+                    $totalProcessCount = $items->where('status', 'Process')->count();
+
+                    // Count Hold items
+                    $holdCount = $items->where('status', 'Hold')->count();
+                    // dd($processApprovedCount,$totalProcessCount,$holdCount);
+                    // Determine order status based on TL designation
+                    $loggedInAdmin = auth()->guard('admin')->user();
+                    if ($loggedInAdmin->designation == 4) { // TL
+                        if ($holdCount > 0 && $processApprovedCount > 0) {
+                            $order->status = 'Partial Approved By TL';
+                        } elseif ($processApprovedCount == $totalProcessCount && $totalProcessCount > 0) {
+                            $order->status = 'Fully Approved By TL';
+                        } elseif ($holdCount == $totalProcessCount) {
+                            $order->status = 'Approval Pending';
+                        }
+                    }
+
+                    // if ($loggedInAdmin->designation == 2) {
+
+                    //     // If any item was changed Hold → Process
+                    //     $itemChangedToProcess = $order->items->contains(function ($item) {
+                    //         return $item->original['status'] === 'Hold' && $item->status === 'Process';
+                    //     });
+
+                    //     if ($itemChangedToProcess) {
+
+                    //         if ($order->status === 'On Hold') {
+
+                    //             $order->status = 'Approval Pending';
+                    //             $order->save();
+
+                              
+                    //         }
+                    //     }
+                    // }
+
+                    // Save the updated order status
+                    $order->save();
+                    // dd($order);
+                    $customerId = $user->id ?? $order->customer_id;
+
             // Store or update WhatsApp details if the flags are set
-            $existingNumbers = UserWhatsapp::where('user_id', $this->orders->customer->id)->pluck('whatsapp_number')->toArray();
+            $existingNumbers = UserWhatsapp::where('user_id', $customerId)->pluck('whatsapp_number')->toArray();
 
             $updatedNumbers = [];
-            
+
             if ($this->isWhatsappPhone) {
                 UserWhatsapp::updateOrCreate(
-                    ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->phone], // Search criteria
-                    ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
+                    ['user_id' => $customerId, 'whatsapp_number' => $this->phone], // Search criteria
+                    ['country_code' => $this->phone_code, 'updated_at' => now()]
                 );
                 $updatedNumbers[] = $this->phone;
             }
-            
+
             if ($this->isWhatsappAlt1) {
                 UserWhatsapp::updateOrCreate(
-                    ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->alternative_phone_number_1], // Search criteria
-                    ['country_code' => $this->selectedCountryAlt1, 'updated_at' => now()]
+                    ['user_id' => $customerId, 'whatsapp_number' => $this->alternative_phone_number_1], // Search criteria
+                    ['country_code' => $this->alt_phone_code_1, 'updated_at' => now()]
                 );
                 $updatedNumbers[] = $this->alternative_phone_number_1;
             }
-            
+
             if ($this->isWhatsappAlt2) {
                 UserWhatsapp::updateOrCreate(
-                    ['user_id' => $this->orders->customer->id, 'whatsapp_number' => $this->alternative_phone_number_2], // Search criteria
-                    ['country_code' => $this->selectedCountryAlt2, 'updated_at' => now()]
+                    ['user_id' => $customerId, 'whatsapp_number' => $this->alternative_phone_number_2], // Search criteria
+                    ['country_code' => $this->alt_phone_code_2, 'updated_at' => now()]
                 );
                 $updatedNumbers[] = $this->alternative_phone_number_2;
             }
-            
+
             // Delete records that were not updated
-            UserWhatsapp::where('user_id', $this->orders->customer->id)
+            UserWhatsapp::where('user_id', $customerId)
                 ->whereNotIn('whatsapp_number', $updatedNumbers)
                 ->delete();
-            
+
+            // Maintain Log
+            $loggedInUserId = auth()->guard('admin')->user()->id ?? null;
+             // Auto Approve for Admin And Store Person
+                 $staff = User::find($loggedInUserId);
+                if ($staff && (in_array($staff->designation,[1,12]) && $order->created_by == 1)) {
+                    $orderRepo->approveOrder($order->id, $staff->id);
+                }
 
             DB::commit();
             session()->flash('success', 'Order has been updated successfully.');
+            //ChangeTracker::clear(); // to prevent accidental leakage into other requests
             return redirect()->route('admin.order.index');
         } catch (\Exception $e) {
+            dd($e->getMessage());
             DB::rollBack();
             \Log::error('Error updating order: ' . $e->getMessage());
             session()->flash('error', $e->getMessage());
-            dd($e->getMessage());
-            session()->flash('error', '🚨 Something went wrong. The operation has been rolled back.');
+            session()->flash('error', 'Something went wrong. The operation has been rolled back.');
         }
     }
 
-    
+
 
         /**
          * Helper function to calculate total amount
@@ -1223,9 +1860,35 @@ class OrderEdit extends Component
             'email',
             'dob',
             'phone',
-            // 'whatsapp_no',
-           
+
         ]);
+    }
+    public function updateMobileLengths()
+    {
+        $this->mobileLengthPhone = Country::where('country_code', $this->phone_code)->value('mobile_length') ?? '';
+        $this->mobileLengthAlt1 = Country::where('country_code', $this->alt_phone_code_1)->value('mobile_length') ?? '';
+        $this->mobileLengthAlt2 = Country::where('country_code', $this->alt_phone_code_2)->value('mobile_length') ?? '';
+    }
+    public function CountryCodeSet($selector, $Code, $number = null)
+    {
+        $mobile_length = Country::where('country_code', $Code)->value('mobile_length') ?? '';
+        // Determine which field to update based on selector
+        if (strpos($selector, 'mobile') !== false || strpos($selector, '#mobile') !== false) {
+            $this->mobileLengthPhone = $mobile_length;
+        } elseif (strpos($selector, 'alt_phone_1') !== false) {
+            $this->mobileLengthAlt1 = $mobile_length;
+        } elseif (strpos($selector, 'alt_phone_2') !== false) {
+            $this->mobileLengthAlt2 = $mobile_length;
+        }
+    
+        // Dispatch for maxlength
+        $this->dispatch('update_input_max_length', [
+            'id' => $selector,
+            'mobile_length' => $mobile_length
+        ]);
+        
+
+        
     }
 
     public function render()

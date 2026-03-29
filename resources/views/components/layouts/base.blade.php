@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets') }}/img/apple-icon.png">
     <link rel="icon" type="image/png" href="{{ asset('assets') }}/img/stanny.png">
     <title>
-        STANNY'S | ADMIN PANEL
+        STANNY'S PORTAL
     </title>
 
     <!-- Metas -->
@@ -26,6 +26,7 @@
     <!-- CSS Files -->
     <link id="pagestyle" href="{{ asset('assets') }}/css/material-dashboard.css?v=3.0.0" rel="stylesheet" />
     <link id="pagestyle" href="{{ asset('assets') }}/css/style.css?v=3.0.0" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/12.1.6/css/intlTelInput.css">
     @livewireStyles
 </head>
 
@@ -35,13 +36,13 @@
     {{ $slot }}
 
     <script src="{{ asset('assets') }}/js/core/popper.min.js"></script>
-    <script src="{{ asset('assets') }}/js/custom.js"></script>
-    <script src="{{ asset('assets') }}/js/script.js"></script>
+    {{-- <script src="{{ asset('assets') }}/js/custom.js"></script> --}}
+    {{-- <script src="{{ asset('assets') }}/js/script.js"></script> --}}
     <script src="{{ asset('assets') }}/js/core/bootstrap.min.js"></script>
     <script src="{{ asset('assets') }}/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="{{ asset('assets') }}/js/plugins/smooth-scrollbar.min.js"></script>
     @livewireScripts
-    @stack('js')
+  
     <script>
         var win = navigator.platform.indexOf('Win') > -1;
         if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -54,9 +55,9 @@
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="{{ asset('assets') }}/js/material-dashboard.min.js?v=3.0.0"></script>
+    <script src="{{ asset('assets') }}/js/material-dashboard.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-   
+    @stack('js')
 </body>
 
 </html>

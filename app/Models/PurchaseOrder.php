@@ -25,6 +25,7 @@ class PurchaseOrder extends Model
         'is_good_in', 
         'goods_in_type', 
         'status',
+        'is_approved'
     ];
 
      // Relationship with Supplier
@@ -51,6 +52,10 @@ class PurchaseOrder extends Model
     public function stocks()
     {
         return $this->hasMany(Stock::class);
+    }
+
+    public function createdBy(){
+        return $this->belongsTo(User::class,'created_by','id');
     }
 
 }

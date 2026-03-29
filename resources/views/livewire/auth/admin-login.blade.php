@@ -9,7 +9,7 @@
                             <!-- Logo Section -->
                             <img src="{{ asset('assets') }}/img/logo.webp" alt="Logo" style="width: 100px; height: auto;" class="me-2">
                 
-                            <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Admin Login</h4>
+                            {{-- <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Admin Login</h4> --}}
                         </div>
                        
                     </div>
@@ -26,7 +26,7 @@
                             </button>
                         </div>
                         @endif
-                        <div class="input-group input-group-outline mt-3 @if(strlen($email ?? '') > 0) is-filled @endif">
+                        <div class="input-group input-group-outline mt-3 is-filled">
                             <label class="form-label">Email</label>
                             <input wire:model.live='email' type="email" class="form-control">
                         </div>
@@ -34,7 +34,7 @@
                         <p class='text-danger inputerror'>{{ $message }} </p>
                         @enderror
 
-                        <div class="input-group input-group-outline mt-3 @if(strlen($password ?? '') > 0) is-filled @endif">
+                        <div class="input-group input-group-outline mt-3 is-filled">
                             <label class="form-label">Password</label>
                             <input wire:model.live="password" type="password" class="form-control"
                                  >
@@ -61,7 +61,7 @@
             </div>
         </div>
     </div>
-    <div class="loader-container" wire:loading>
+    {{-- <div class="loader-container" wire:target>
         <div class="loader"></div>
-    </div>
+    </div> --}}
 </div>

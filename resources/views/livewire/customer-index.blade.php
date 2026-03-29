@@ -10,25 +10,15 @@
 
     <section>
         <div class="search__filter">
-            <!-- <div class="row align-items-center justify-content-end">
-                        <div class="col-auto">
-                            <div class="row g-3 align-items-center">
-                                <div class="col-md-auto mt-3">
-                                   {{-- <a href="{{ route('admin.user-address-form') }}" class="btn btn-outline-success select-md">Add Customer</a> --}}
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
+          
             <div class="row align-items-center justify-content-end">
-                <!-- <div class="col-auto">
-                            <p class="text-sm font-weight-bold">Items</p>
-                        </div> -->
+                
                 <div class="col-auto">
                     <div class="row g-3 align-items-center">
                         <div class="col-auto mt-0">
-                            <input type="text" wire:model="search" class="form-control select-md bg-white" id="customer"
+                            <input type="text" wire:model.live="search" class="form-control select-md bg-white" id="customer"
                                 placeholder="Search Customers" value="" style="width: 350px;"
-                                wire:keyup="FindCustomer($event.target.value)">
+                                >
                         </div>
 
                         <div class="col-auto mt-3">
@@ -69,17 +59,26 @@
                                         <div class="alert alert-danger error-container">
                                             <h6 class="text-danger"><i class="fas fa-times-circle"></i> Import Error:
                                             </h6>
-                                            <div class="error-content">
-                                                <ul class="mb-0">
-                                                    <li>
-                                                        <strong>Row Data:</strong> {{ json_encode($firstError['row']) }}
-                                                        <ul>
-                                                            <!-- Display only the first error message for the first row -->
-                                                            <li class="text-danger">{{ $firstError['errors'][0] }}</li>
-                                                        </ul>
-                                                    </li>
+                                           <div class="error-content">
+                                                <ul>
+                                                    @if(is_array($firstError['errors']))
+                                                        @foreach($firstError['errors'] as $fieldErrors)
+                                                            @if(is_array($fieldErrors))
+                                                                @foreach($fieldErrors as $errorMessage)
+                                                                    <li class="text-danger">{{ $errorMessage }}</li>
+                                                                @endforeach
+                                                            @else
+                                                                <li class="text-danger">{{ $fieldErrors }}</li>
+                                                            @endif
+                                                        @endforeach
+                                                    @else
+                                                        <li class="text-danger">{{ $firstError['errors'] }}</li>
+                                                    @endif
                                                 </ul>
                                             </div>
+
+
+
                                         </div>
                                         {{ session()->forget('import_errors') }} {{-- Clear errors after displaying --}}
                                         @endif
@@ -171,10 +170,10 @@
                                 <tr>
                                     <td>
                                         @if ($user->profile_image)
-                                        <img src="{{asset($user->profile_image)}}" alt="profile-image" width="85px">
+                                        <img src="{{asset($user->profile_image)}}" alt="profile-image" width="62px">
                                         @else
                                         <img src="{{asset("assets/img/profile_image.png")}}" alt="profile-image"
-                                            width="85px">
+                                            width="62px">
                                         @endif
                                     </td>
                                     <td>
@@ -225,7 +224,7 @@
                                             title="Purchase History">
                                             Order History
                                         </a>
-                                        <a href="{{route('admin.accounting.add_payment_receipt')}}"
+                                        <a href="{{route('admin.accounting.add_payment_receipt',['customer_id'=>$user->id])}}"
                                             class="btn btn-outline-primary select-md btn_action btn_outline"
                                             data-toggle="tooltip" data-original-title="Add Payment"
                                             title="Add Payment">

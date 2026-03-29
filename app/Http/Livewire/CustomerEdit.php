@@ -8,20 +8,20 @@ use App\Models\Country;
 use App\Models\UserAddress;
 use App\Models\UserWhatsapp;
 use Livewire\WithFileUploads;
+use Illuminate\Validation\Rule;
 
 class CustomerEdit extends Component
 {
     use WithFileUploads;
 
     public $id, $name,$dob, $company_name, $employee_rank,$email, $phone, $whatsapp_no, $gst_number, $credit_limit, $credit_days, $gst_certificate_image, $image, $verified_video ,$alternative_phone_number_1, $alternative_phone_number_2,
-    $selectedCountryPhone, $selectedCountryWhatsapp, $selectedCountryAlt1 , $selectedCountryAlt2 ,$mobileLengthPhone, $mobileLengthWhatsapp, $mobileLengthAlt1, $mobileLengthAlt2,
+    $phone_code, $alt_phone_code_1 , $alt_phone_code_2 ,$mobileLengthPhone, $mobileLengthAlt1, $mobileLengthAlt2,
     $countries,
      $isWhatsappPhone, $isWhatsappAlt1 , $isWhatsappAlt2;
     public $billing_address, $billing_landmark, $billing_city, $billing_state, $billing_country, $billing_pin;
     public $shipping_address, $shipping_landmark, $shipping_city, $shipping_state, $shipping_country, $shipping_pin;
     public $is_billing_shipping_same;
     public $tempImageUrl;
-    // public $filteredCountries = [];
     public $mobileLength;
     public $country_id;
     public $searchTerm;
@@ -32,6 +32,7 @@ class CustomerEdit extends Component
     public function mount($id)
     {
         if ($id) {
+            $this->id = $id;
             $user = User::find($id);
 
             $this->fillUserData($user);
@@ -46,24 +47,31 @@ class CustomerEdit extends Component
             $this->phone = $user->phone;
             $this->badge_type = $user->customer_badge;
             $this->countries = Country::where('status',1)->get();
-            $this->selectedCountryPhone = $user->country_code_phone;
-            // $this->selectedCountryWhatsapp = $user->country_code_whatsapp;
-            $this->selectedCountryAlt1 = $user->country_code_alt_1;
-            $this->selectedCountryAlt2 = $user->country_code_alt_2;
+            $this->phone_code = $user->country_code_phone;
+            $this->alt_phone_code_1 = $user->country_code_alt_1;
+            $this->alt_phone_code_2 = $user->country_code_alt_2;
 
             // Set mobile lengths based on selected countries
-            $this->mobileLengthPhone = Country::where('country_code', $this->selectedCountryPhone)->value('mobile_length') ?? '';
-            $this->mobileLengthWhatsapp = Country::where('country_code', $this->selectedCountryWhatsapp)->value('mobile_length') ?? '';
-            $this->mobileLengthAlt1 = Country::where('country_code', $this->selectedCountryAlt1)->value('mobile_length') ?? '';
-            $this->mobileLengthAlt2 = Country::where('country_code', $this->selectedCountryAlt2)->value('mobile_length') ?? '';
+            $this->mobileLengthPhone = Country::where('country_code', $this->phone_code)->value('mobile_length') ?? '8';
+            $this->mobileLengthAlt1 = Country::where('country_code', $this->alt_phone_code_1)->value('mobile_length') ?? '8';
+            $this->mobileLengthAlt2 = Country::where('country_code', $this->alt_phone_code_2)->value('mobile_length') ?? '8';
             
             $this->isWhatsappPhone = UserWhatsapp::where('user_id',$user->id)->where('whatsapp_number',$this->phone)->exists();
 
             $this->isWhatsappAlt1 = UserWhatsapp::where('user_id',$user->id)->where('whatsapp_number',$this->alternative_phone_number_1)->exists();
 
             $this->isWhatsappAlt2 = UserWhatsapp::where('user_id',$user->id)->where('whatsapp_number',$this->alternative_phone_number_2)->exists();
-
         }
+    }
+     public function CountryCodeSet($selector, $Code, $number = null)
+    {
+        $mobile_length = Country::where('country_code', $Code)->value('mobile_length') ?? '8';
+
+        // Dispatch for maxlength
+        $this->dispatch('update_input_max_length', [
+            'id' => $selector,
+            'mobile_length' => $mobile_length
+        ]);
     }
 
     public function GetCountryDetails($mobileLength, $field){
@@ -71,10 +79,6 @@ class CustomerEdit extends Component
             case 'phone':
                 $this->mobileLengthPhone  = $mobileLength;
                 break;
-
-            // case 'whatsapp':
-            //     $this->mobileLengthWhatsapp = $mobileLength;
-            //     break;
 
             case 'alt_phone_1':
                 $this->mobileLengthAlt1 = $mobileLength;
@@ -87,56 +91,8 @@ class CustomerEdit extends Component
                 
         }
     }
-    // public function FindCountry($term){
-    //     $this->searchTerm = $term;
-    //     if(!empty($this->searchTerm)){
-    //         $this->filteredCountries = Country::where('title' , 'LIKE' , '%' . $this->searchTerm . '%')->get();
-    //     }else{
-    //         $this->filteredCountries = [];
-    //     }
-    // }
-
-    // public function selectCountry($countryId){
-    //     $country = Country::find($countryId);
-    //     if($country){
-    //         $this->country_id = $country->id;
-    //         $this->country_code = $country->country_code;
-    //         $this->searchTerm = $country->title;
-    //         $this->mobileLength = $country->mobile_length;
-    //         $this->filteredCountries = [];  
-    //     }
-    // }
-
-    // public function toggleShippingAddress()
-    // {
-    //     if (!$this->is_billing_shipping_same) {
-    //          // Reset shipping fields if the checkbox is unchecked
-    //          $this->resetShippingFields();
-    //     } else {
-    //          // Populate shipping fields with billing address data when checked
-    //         $this->shipping_address = $this->billing_address;
-    //         $this->shipping_landmark = $this->billing_landmark;
-    //         $this->shipping_city = $this->billing_city;
-    //         $this->shipping_state = $this->billing_state;
-    //         $this->shipping_country = $this->billing_country;
-    //         $this->shipping_pin = $this->billing_pin;
-    //     }
-    // }
-
-    // private function resetShippingFields()
-    // {
-    //      // Reset shipping address fields to make them empty and editable when checkbox is unchecked
-    //     $this->shipping_address = '';
-    //     $this->shipping_landmark = '';
-    //     $this->shipping_city = '';
-    //     $this->shipping_state = '';
-    //     $this->shipping_country = '';
-    //     $this->shipping_pin = '';
-    // }
-
-
+   
     
-
     private function fillUserData($user)
     {
         $this->prefix = $user->prefix ?? "";
@@ -145,13 +101,10 @@ class CustomerEdit extends Component
         $this->employee_rank = $user->employee_rank ?? "";
         $this->email = $user->email ?? "";
         $this->dob   = $user->dob ?? null;  
-        // $this->phone = $user->phone ?? "";
-        // $this->whatsapp_no = $user->whatsapp_no ?? "";
         $this->gst_number = $user->gst_number ?? "";
         $this->credit_limit = $user->credit_limit ?? "";
         $this->credit_days = $user->credit_days ?? "";
         $this->image = $user->profile_image ? asset( $user->profile_image) : "";
-        // $this->verified_video = $user->verified_video ? asset( $user->verified_video) : "";
         $this->gst_certificate_image = $user->gst_certificate_image ? asset( $user->gst_certificate_image) : "";
 
     }
@@ -167,37 +120,39 @@ class CustomerEdit extends Component
             $this->billing_pin = $billingAddress->zip_code;
         }
 
-        // if ($shippingAddress) {
-        //     $this->shipping_address = $shippingAddress->address;
-        //     $this->shipping_landmark = $shippingAddress->landmark;
-        //     $this->shipping_city = $shippingAddress->city;
-        //     $this->shipping_state = $shippingAddress->state;
-        //     $this->shipping_country = $shippingAddress->country;
-        //     $this->shipping_pin = $shippingAddress->zip_code;
-        // }
-
-        // $this->is_billing_shipping_same = $billingAddress && $shippingAddress && ($billingAddress->address == $shippingAddress->address);
     }
     
 
     public function rules()
     {
+        $id = $this->id ?? null; // assuming you set current user id in component/controller
+
         $rules = [
             'name' => 'required|string|max:255',
             'employee_rank'=>'nullable|string',
-            'image' => $this->image instanceof \Illuminate\Http\UploadedFile ? 'nullable|mimes:jpg,jpeg,png,gif' : 'nullable',
-            // 'verified_video' => $this->verified_video instanceof \Illuminate\Http\UploadedFile ? 'nullable|mimes:mp4,mov,avi,wmv' : 'nullable',
+            'image' => $this->image instanceof \Illuminate\Http\UploadedFile 
+                ? 'nullable|mimes:jpg,jpeg,png,gif' 
+                : 'nullable',
             'company_name' => 'nullable|string|max:255',
-            'email' => 'nullable',
+
+            'email' => [
+                'nullable',
+                'email',
+                Rule::unique('users', 'email')
+                    ->ignore($id) // ignore current record
+                    ->whereNull('deleted_at'),
+            ],
+
             'dob'=> 'nullable|date',
+
             'phone' => [
                 'required',
                 'regex:/^\d{'. $this->mobileLengthPhone .'}$/',
+                Rule::unique('users', 'phone')
+                    ->ignore($id) // ignore current record
+                    ->whereNull('deleted_at'),
             ],
-            // 'whatsapp_no' => [
-            //     'required',
-            //     'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
-            // ],
+
             'alternative_phone_number_1' => [
                 'nullable',
                 'regex:/^\d{'. $this->mobileLengthAlt1 .'}$/',
@@ -206,9 +161,11 @@ class CustomerEdit extends Component
                 'nullable',
                 'regex:/^\d{'. $this->mobileLengthAlt2 .'}$/',
             ],
+
             'gst_number' => 'nullable|string|max:15',
             'credit_limit' => 'nullable|numeric|min:0',
             'credit_days' => 'nullable|integer|min:0',
+
             'billing_address' => 'required|string',
             'billing_landmark' => 'nullable|string',
             'billing_city' => 'required|string',
@@ -216,19 +173,6 @@ class CustomerEdit extends Component
             'billing_country' => 'required|string',
             'billing_pin' => 'nullable|string',
         ];
-
-        
-
-        // if (!$this->is_billing_shipping_same) {
-        //     $rules = array_merge($rules, [
-        //         'shipping_address' => 'required|string',
-        //         'shipping_landmark' => 'nullable|string',
-        //         'shipping_city' => 'required|string',
-        //         'shipping_state' => 'nullable|string',
-        //         'shipping_country' => 'required|string',
-        //         'shipping_pin' => 'nullable|string',
-        //     ]);
-        // }
 
         return $rules;
     }
@@ -265,7 +209,7 @@ class CustomerEdit extends Component
         if(!$existingRecord){
                 UserWhatsapp::updateOrCreate(
                     ['user_id' => $user->id, 'whatsapp_number' => $this->phone],
-                    ['country_code' => $this->selectedCountryPhone, 'updated_at' => now()]
+                    ['country_code' => $this->phone_code, 'updated_at' => now()]
                 ); 
             }
         }else {
@@ -282,7 +226,7 @@ class CustomerEdit extends Component
         if(!$existingRecord){
             UserWhatsapp::updateOrCreate(
                 ['user_id' => $user->id, 'whatsapp_number' => $this->alternative_phone_number_1],
-                ['country_code' => $this->selectedCountryAlt1, 'updated_at' => now()]
+                ['country_code' => $this->alt_phone_code_1, 'updated_at' => now()]
             );
         }
         }else {
@@ -299,7 +243,7 @@ class CustomerEdit extends Component
         if(!$existingRecord){
             UserWhatsapp::updateOrCreate(
                 ['user_id' => $user->id, 'whatsapp_number' => $this->alternative_phone_number_2],
-                ['country_code' => $this->selectedCountryAlt2, 'updated_at' => now()]
+                ['country_code' => $this->alt_phone_code_2, 'updated_at' => now()]
             );
         }
         }else {
@@ -329,16 +273,7 @@ class CustomerEdit extends Component
 
         $this->storeAddress($user->id, 1, $this->billing_address, $this->billing_landmark, $this->billing_city, $this->billing_state, $this->billing_country, $this->billing_pin);
 
-        // $this->storeAddress(
-        //     $user->id,
-        //     2,
-        //     $this->is_billing_shipping_same ? $this->billing_address : $this->shipping_address,
-        //     $this->is_billing_shipping_same ? $this->billing_landmark : $this->shipping_landmark,
-        //     $this->is_billing_shipping_same ? $this->billing_city : $this->shipping_city,
-        //     $this->is_billing_shipping_same ? $this->billing_state : $this->shipping_state,
-        //     $this->is_billing_shipping_same ? $this->billing_country : $this->shipping_country,
-        //     $this->is_billing_shipping_same ? $this->billing_pin : $this->shipping_pin
-        // );
+       
 
         session()->flash('success', 'Customer information updated successfully!');
         return redirect()->route('customers.index');
@@ -354,18 +289,18 @@ class CustomerEdit extends Component
             'employee_rank' => $this->employee_rank,
             'email' => $this->email,
             'dob'=>$this->dob,
-            'country_code_phone' => $this->selectedCountryPhone,
+            'country_code_phone' => $this->phone_code,
             'phone' => $this->phone,
-            'country_code_whatsapp' => $this->selectedCountryWhatsapp,
+            'country_code_whatsapp' => $this->phone_code,
             // 'whatsapp_no' => $this->whatsapp_no,
             'gst_number' => $this->gst_number,
             'credit_limit' => $this->credit_limit === '' ? 0 : $this->credit_limit,
             'credit_days' => $this->credit_days === '' ? 0 : $this->credit_days,
             'country_id' => $this->country_id,
             'country_code' => $this->country_code,
-            'country_code_alt_1'  => $this->selectedCountryAlt1,
+            'country_code_alt_1'  => $this->alt_phone_code_1,
             'alternative_phone_number_1' => $this->alternative_phone_number_1,
-            'country_code_alt_2'  => $this->selectedCountryAlt2,
+            'country_code_alt_2'  => $this->alt_phone_code_2,
             'alternative_phone_number_2' => $this->alternative_phone_number_2
         ];
     }
@@ -383,10 +318,7 @@ class CustomerEdit extends Component
         return $this->handleFileUpload($this->image, 'profile_image');
     }
 
-    // private function uploadVideo()
-    // {
-    //     return $this->handleFileUpload($this->verified_video, 'verified_video');
-    // }
+   
 
     private function uploadGSTCertificate()
     {

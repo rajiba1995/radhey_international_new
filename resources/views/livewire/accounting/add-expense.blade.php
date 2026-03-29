@@ -7,7 +7,7 @@
             <li><a href="{{ url('admin/accounting/list/depot-expense') }}">Expense</a></li>
             <li>Create Expense</li>
             <li class="back-button">
-                <a class="btn btn-dark btn-sm text-decoration-none text-light font-weight-bold mb-0" href="{{ url('admin/accounting/list/depot-expense') }}" role="button">
+                <a class="btn btn-sm btn-danger select-md text-light font-weight-bold mb-0" href="{{ url('admin/accounting/list/depot-expense') }}" role="button">
                     <i class="material-icons text-white" style="font-size: 15px;">chevron_left</i>
                     <span class="ms-1">Back</span>
                 </a>
@@ -25,7 +25,7 @@
                         <!-- User Type Selection -->
                         <div class="mb-3 col-md-6">
                             <label class="form-label"><strong>Expense At <span class="text-danger">*</span></strong></label>
-                            <select wire:model="user_type" wire:change="getUser($event.target.value)"  class="form-control form-control bg-white">
+                            <select wire:model="user_type" wire:change="getUser($event.target.value)"  class="form-control form-control bg-white" @if(auth()->guard('admin')->user()->designation == 2) disabled @endif>
                                 <option value="" hidden>Select Expense At</option>
                                 <option value="staff">Staff</option>
                                 <option value="customer">Customer</option>
@@ -37,8 +37,7 @@
                         <div class="mb-3 col-md-6">
                             @if($user_type === 'staff')
                                 <label class="form-label"><strong>Staff Name <span class="text-danger">*</span></strong></label>
-                                <input type="text" wire:model.defer="staffSearchTerm" wire:keyup="searchStaff" class="form-control form-control bg-white" placeholder="Search by staff name">
-                                <!-- <input type="hidden" wire:model="stuff_id"> -->
+                                <input type="text" wire:model.defer="staffSearchTerm" wire:keyup="searchStaff" class="form-control form-control bg-white" placeholder="Search by staff name" @if(auth()->guard('admin')->user()->designation == 2) disabled @endif>
                                 <input type="hidden" wire:model="staff_id">
                                 @error('staff_id') <div class="text-danger text-sm">{{ $message }}</div> @enderror
 
@@ -123,20 +122,20 @@
                         <!-- Date -->
                         <div class="mb-3 col-md-4">
                             <label class="form-label"><strong>Date <span class="text-danger">*</span></strong></label>
-                            <input type="date" wire:model="payment_date" class="form-control bg-white" placeholder="Select Date">
+                            <input type="date" wire:model="payment_date" class="form-control bg-white form-control-sm" placeholder="Select Date" disabled>
                             @error('payment_date') <div class="text-danger">{{ $message }}</div> @enderror
                         </div>
 
                         <!-- Voucher No -->
                         <div class="mb-3 col-md-4">
                             <label class="form-label"><strong>Voucher No</strong></label>
-                            <input type="text" wire:model="voucher_no" class="form-control bg-white" readonly>
+                            <input type="text" wire:model="voucher_no" class="form-control bg-white form-control-sm" readonly>
                         </div>
 
                         <!-- Amount -->
                         <div class="mb-3 col-md-4">
                             <label class="form-label"><strong>Amount <span class="text-danger">*</span></strong></label>
-                            <input type="text" wire:model="amount" class="form-control bg-white" placeholder="Enter Amount">
+                            <input type="text" wire:model="amount" class="form-control bg-white form-control-sm" placeholder="Enter Amount">
                             @error('amount') <div class="text-danger">{{ $message }}</div> @enderror
                         </div>
 

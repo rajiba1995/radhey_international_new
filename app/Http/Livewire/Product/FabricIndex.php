@@ -7,6 +7,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Validation\Rule;
 use App\Models\Fabric;
+use App\Models\FabricCategory;
 use Illuminate\Http\Request;
 use App\Helpers\Helper;
 use Livewire\WithFileUploads;
@@ -21,35 +22,43 @@ class FabricIndex extends Component
 {
     use WithFileUploads;
     use WithPagination;
-    public  $image, $title, $status = 1, $fabricId,$threshold_price;
+    public  $image, $title,$category,$pseudo_name, $status = 1, $fabricId,$threshold_price;
     public $search = '';
     public $file;
     public $processedFileHash = null; // Store the hash of the last processed file
     protected $paginationTheme = 'bootstrap'; 
+    public $fabricCategories = [];
+    public $fabric_category;
+    public $latestTitle;
+    public $latestPseudoName;
     
+    public function mount(){
+        $this->fabricCategories = FabricCategory::where('status',1)->get();
+    }
+
+    public function loadLatestCategoryData(){
+        if($this->category){
+            $latestFabricDetails = Fabric::where('fabric_category_id',$this->category)
+                                    ->orderByRaw("CAST(SUBSTRING_INDEX(title, ' ', -1) AS UNSIGNED) DESC")
+                                    ->first();
+            if($latestFabricDetails){
+                $this->latestTitle = $latestFabricDetails->title;
+                $this->latestPseudoName = $latestFabricDetails->pseudo_name;
+            }else{
+                $this->latestTitle = null;
+                $this->latestPseudoName = null;
+            }
+        }
+    }
+
+    public function FabricCategoryFilter(){
+         $this->resetPage(); 
+    }
+
     public function confirmDelete($id){
         $this->dispatch('showDeleteConfirm',['itemId' => $id]);
     }
-    // public function import()
-    // {
-    //     $this->validate([
-    //         'file' => 'required|mimes:xlsx,csv|max:2048',
-    //     ]);
     
-    //     try {
-    //         \Maatwebsite\Excel\Facades\Excel::import(new FabricsImport, $this->file);
-    
-    //         if (session()->has('duplicate_fabrics')) {
-    //             session()->flash('error', 'These fabrics already exist: ' . session('duplicate_fabrics'));
-    //         } else {
-    //             session()->flash('success', 'File imported successfully.');
-    //         }
-    //     } catch (\Exception $e) {
-    //         session()->flash('error', 'Error importing file: ' . $e->getMessage());
-    //     }
-    
-    //     $this->reset('file');
-    // }
     public function import()
     {
         $this->validate([
@@ -59,16 +68,26 @@ class FabricIndex extends Component
         try {
             $import = new FabricsImport();
             \Maatwebsite\Excel\Facades\Excel::import($import, $this->file);
+             $messages = [];
+
+           // 1. Check duplicate error
+            if ($duplicateError = $import->getDuplicateError()) {
+                $messages[] = $duplicateError;
+            }
+
+             // 2. Check category errors
+            $categoryErrors = $import->getCategoryErrors();
+            if (!empty($categoryErrors)) {
+                $messages = array_merge($messages, $categoryErrors);
+            }
     
-            // Get the error message from the import process
-            $error = $import->getDuplicateError();
-    
-            if ($error) {
-                session()->flash('error', $error);
+            if (!empty($messages)) {
+                session()->flash('error', implode('<br>', $messages));
             } else {
                 session()->flash('success', 'File imported successfully.');
             }
         } catch (\Exception $e) {
+            dd($e->getMessage());
             session()->flash('error', 'Error importing file: ' . $e->getMessage());
         }
     
@@ -82,18 +101,24 @@ class FabricIndex extends Component
         return Excel::download(new FabricsExport(), 'fabrics.csv');
     }
 
-    public function sampleExport()
-    {
-        return Excel::download(new SampleFabricExport(), 'sample_fabrics.csv');
-    }
+    
     public function store()
     {
+        // dd($this->all());
         $this->validate([
+             'category' =>[
+                 'required',
+            ],
             'title' => [
                 'required',
                 'string',
                 'max:255',
                 'unique:fabrics,title', 
+            ],
+            'pseudo_name' => [
+                'required',
+                'unique:fabrics,pseudo_name',
+                'max:255'
             ],
             'image' => [
                 'nullable',
@@ -116,7 +141,9 @@ class FabricIndex extends Component
 
         Fabric::create([
             'collection_id' => 1,
+            'fabric_category_id' => $this->category, 
             'title' => $this->title,
+            'pseudo_name' => $this->pseudo_name,
             'threshold_price' => $this->threshold_price,
             'image' =>  $absolutePath,
             'status' => $this->status,
@@ -136,6 +163,8 @@ class FabricIndex extends Component
         $fabric = Fabric::findOrFail($id);
         $this->fabricId = $fabric->id;
         $this->title = $fabric->title;
+        $this->category = $fabric->fabric_category_id;
+        $this->pseudo_name = $fabric->pseudo_name;
         $this->threshold_price = $fabric->threshold_price;
         
         $this->image = $fabric->image;
@@ -145,16 +174,27 @@ class FabricIndex extends Component
     public function update()
     {
         $this->validate([
+            'category' =>[
+                 'required',
+            ],
             'title' => [
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('fabrics', 'title')->ignore($this->fabricId), 
             ],
-            'image' => [
-                'nullable',
-                'mimes:jpg,png,jpeg,gif',
+            'pseudo_name' => [
+                'required',
+                'max:255',
+                Rule::unique('fabrics', 'pseudo_name')->ignore($this->fabricId),
             ],
+            // 'image' => [
+            //     'nullable',
+            //     'mimes:jpg,png,jpeg,gif',
+            // ],
+             'image' => $this->image instanceof \Livewire\TemporaryUploadedFile 
+                ? 'nullable|mimes:jpg,png,jpeg,gif' 
+                : 'nullable',
             'threshold_price' => [
                 'required',
                 'numeric',
@@ -165,13 +205,15 @@ class FabricIndex extends Component
         
         $fabric = Fabric::findOrFail($this->fabricId);
         $imagePath = $fabric->image;
-        if ($this->image) {
+        if ($this->image instanceof \Illuminate\Http\UploadedFile) {
             // Store new image
             $newImagePath = $this->image->store("fabrics", 'public');
             $imagePath = "storage/" . $newImagePath;
         }
         $fabric->update([
             'title' => $this->title,
+            'fabric_category_id' => $this->category, 
+            'pseudo_name' => $this->pseudo_name,
             'threshold_price' => $this->threshold_price,
             'image' => $imagePath,
             'status' => $this->status,
@@ -180,9 +222,11 @@ class FabricIndex extends Component
         $this->title = null;
         $this->image = null;
         $this->threshold_price = null;
-        
+        $this->category = null;
+        $this->pseudo_name = null;
+
         session()->flash('message', 'Fabric updated successfully!');
-       
+       $this->resetFields();
     }
 
     // Delete Fabric
@@ -211,12 +255,26 @@ class FabricIndex extends Component
             session()->flash('error', 'File not found.');
         }
     }
+
+    public function resetFields(){
+        $this->reset(['fabricId','title','image','threshold_price','category','pseudo_name']);
+    }
+
+    public function resetForm(){
+        $this->reset(['fabric_category']);
+    }
+
     // Render Method with Search and Pagination
     public function render()
     {
-        $fabrics = Fabric::where('title', 'like', "%{$this->search}%")
-            ->orderBy('id', 'desc')
-            ->paginate(10);
+        $query = Fabric::where('title', 'like', "%{$this->search}%");
+        if ($this->fabric_category) {
+           $query->where('fabric_category_id', $this->fabric_category);
+        }
+
+        $fabrics =  $query->orderBy('fabric_category_id', 'asc')
+                          ->orderByRaw("CAST(SUBSTRING_INDEX(title, ' ', -1) AS UNSIGNED) ASC")
+                          ->paginate(10);
 
         return view('livewire.product.fabric-index', [
             'fabrics' => $fabrics,

@@ -15,7 +15,7 @@ class FabricsIndex extends Component
 {
     use WithPagination;
 
-    public $fabrics;
+    public $fabrics,$product;
     public  $title,$product_id, $status = 1, $fabricId,$image;
     public $search = '';
     protected $paginationTheme = 'bootstrap'; 
@@ -30,11 +30,11 @@ class FabricsIndex extends Component
     // Render Method with Search and Pagination
     public function render()
     {
-        $subCat = Product::select('name')->find($this->product_id);
-        $productFabrics = Fabric::where('title', 'like', "%{$this->search}%")
-            // ->orWhere('short_code', 'like', "%{$this->search}%")
-            ->orderBy('id', 'desc')
-            ->paginate(10);
+        $productFabrics = $this->product
+                            ->fabrics()
+                            ->where('title', 'like', "%{$this->search}%")
+                            ->orderBy('id', 'desc')
+                            ->paginate(10);
         return view('livewire.fabric.fabrics-index', compact('productFabrics'));
         
     }

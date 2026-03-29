@@ -10,6 +10,7 @@ use App\Models\UserWhatsapp;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UserAddressForm extends Component
 {
@@ -35,61 +36,27 @@ class UserAddressForm extends Component
     public $tempImageUrl;
     public $country_code;
     public $country_id;
-    // public $filteredCountries = [];
-    public $countries = [];
-    public $selectedCountryPhone,$selectedCountryWhatsapp,$selectedCountryAlt1,$selectedCountryAlt2;
+    public $phone_code,$selectedCountryWhatsapp,$alt_phone_code_1,$alt_phone_code_2;
     public $mobileLengthPhone,$mobileLengthWhatsapp,$mobileLengthAlt1,$mobileLengthAlt2;
-    public $badge_type;
+    public $badge_type = 'general';
 
 
     public function mount(){
-        $this->countries = Country::where('status',1)->get();
+    }
+    public function CountryCodeSet($selector, $Code, $number = null)
+    {
+        $mobile_length = Country::where('country_code', $Code)->value('mobile_length') ?? '';
+
+        // Dispatch for maxlength
+        $this->dispatch('update_input_max_length', [
+            'id' => $selector,
+            'mobile_length' => $mobile_length
+        ]);
+
+        $this->mobileLengthPhone = $mobile_length;
     }
 
-    public function GetCountryDetails($mobileLength, $field){
-        switch($field){
-            case 'phone':
-                $this->mobileLengthPhone  = $mobileLength;
-                break;
-
-            // case 'whatsapp':
-            //     $this->mobileLengthWhatsapp = $mobileLength;
-            //     break;
-
-            case 'alt_phone_1':
-                $this->mobileLengthAlt1 = $mobileLength;
-                break;
-            
-            case 'alt_phone_2':
-                $this->mobileLengthAlt2 = $mobileLength;
-                break;
-        }
-    }
-
-    // Function to watch for changes in is_billing_shipping_same
-    // public function toggleShippingAddress()
-    // {
-    //     // When the checkbox is checked
-    //     if ($this->is_billing_shipping_same) {
-    //         // Copy billing address to shipping address
-    //         $this->shipping_address = $this->billing_address;
-    //         $this->shipping_landmark = $this->billing_landmark;
-    //         $this->shipping_city = $this->billing_city;
-    //         $this->shipping_state = $this->billing_state;
-    //         $this->shipping_country = $this->billing_country;
-    //         $this->shipping_pin = $this->billing_pin;
-    //     } else {
-    //         // Reset shipping address fields
-    //         $this->shipping_address = '';
-    //         $this->shipping_landmark = '';
-    //         $this->shipping_city = '';
-    //         $this->shipping_state = '';
-    //         $this->shipping_country = '';
-    //         $this->shipping_pin = '';
-    //     }
-    // }
-
-    
+  
     public function rules()
     {
         // Base rules
@@ -98,19 +65,20 @@ class UserAddressForm extends Component
             'name' => 'required|string|max:255',
             'employee_rank' => 'nullable|string',
             'image' => 'nullable|mimes:jpeg,png,jpg,gif',
-            // 'verified_video' => 'nullable|mimes:mp4,mov,avi,wmv',
             'company_name'=>'nullable|string|max:255',
-            'email' => 'nullable|email',
+            'email' => [
+                'nullable',
+                'email',
+                Rule::unique('users', 'email')->whereNull('deleted_at'),
+            ],
             'badge_type' => 'required|in:general,premium',
             'dob'=> 'nullable|date',
-             'phone' => [
+            'phone' => [
                 'required',
                 'regex:/^\d{'. $this->mobileLengthPhone .'}$/',
+                Rule::unique('users', 'phone')->whereNull('deleted_at'),
             ],
-            // 'whatsapp_no' => [
-            //     'required',
-            //     'regex:/^\d{'. $this->mobileLengthWhatsapp .'}$/',
-            // ],
+           
             'gst_number' => 'nullable|string|max:15',
             'credit_limit' => 'nullable|numeric',
             'credit_days' => 'nullable|integer',
@@ -131,55 +99,34 @@ class UserAddressForm extends Component
             ],  
         ];
     
-        // Conditional shipping address rules based on the checkbox
-        // if (!$this->is_billing_shipping_same) {
-        //     $rules['shipping_address'] = 'required|string';
-        //     $rules['shipping_landmark'] = 'nullable|string';
-        //     $rules['shipping_city'] = 'required|string';
-        //     $rules['shipping_state'] = 'nullable|string';
-        //     $rules['shipping_country'] = 'required|string';
-        //     $rules['shipping_pin'] = 'nullable|string';
-        // } else {
-        //     // If the shipping address is the same as the billing address, make the fields optional
-        //     $rules['shipping_address'] = 'nullable|string';
-        //     $rules['shipping_landmark'] = 'nullable|string';
-        //     $rules['shipping_city'] = 'nullable|string';
-        //     $rules['shipping_state'] = 'nullable|string';
-        //     $rules['shipping_country'] = 'nullable|string';
-        //     $rules['shipping_pin'] = 'nullable|string';
-        // }
+       
     
         return $rules;
     }
     public function messages()
-{
-    return [
-        'prefix.required' => 'The prefix field is required.',
-        'name.required' => 'Please enter your full name.',
-        'name.max' => 'The name cannot exceed 255 characters.',
-        'employee_rank.string' => 'Employee rank must be a valid text.',
-        'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif.',
-        'company_name.string' => 'Company name must be a valid text.',
-        'company_name.max' => 'Company name cannot exceed 255 characters.',
-        'email.email' => 'Please enter a valid email address.',
-        'email.unique' => 'This email is already in use.',
-        'phone.required' => 'Phone number is required.',
-        'phone.regex' => 'Phone number must be exactly ' . $this->mobileLengthPhone . ' digits.',
-        // 'whatsapp_no.required' => 'WhatsApp number is required.',
-        // 'whatsapp_no.regex' => 'WhatsApp number must be exactly ' . $this->mobileLengthWhatsapp . ' digits.',
-        'gst_number.max' => 'GST number cannot exceed 15 characters.',
-        'credit_limit.numeric' => 'Credit limit must be a valid number.',
-        'credit_days.integer' => 'Credit days must be a valid integer.',
-        'billing_address.required' => 'Address is required.',
-        'billing_city.required' => 'City is required.',
-        'billing_country.required' => 'Country is required.',
-        'alternative_phone_number_1.regex' => 'Alternative phone number 1 must be exactly ' . $this->mobileLengthAlt1 . ' digits.',
-        'alternative_phone_number_2.regex' => 'Alternative phone number 2 must be exactly ' . $this->mobileLengthAlt2 . ' digits.',
-        // 'shipping_address.required' => 'Shipping address is required when billing and shipping addresses are different.',
-        // 'shipping_city.required' => 'Shipping city is required when billing and shipping addresses are different.',
-        // 'shipping_country.required' => 'Shipping country is required when billing and shipping addresses are different.',
-    ];
-}
+    {
+        return [
+            'prefix.required' => 'The prefix field is required.',
+            'name.required' => 'Please enter your full name.',
+            'name.max' => 'The name cannot exceed 255 characters.',
+            'employee_rank.string' => 'Employee rank must be a valid text.',
+            'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif.',
+            'company_name.string' => 'Company name must be a valid text.',
+            'company_name.max' => 'Company name cannot exceed 255 characters.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email is already in use.',
+            'phone.required' => 'Phone number is required.',
+            'phone.regex' => 'Phone number must be exactly ' . $this->mobileLengthPhone . ' digits.',
+            'gst_number.max' => 'GST number cannot exceed 15 characters.',
+            'credit_limit.numeric' => 'Credit limit must be a valid number.',
+            'credit_days.integer' => 'Credit days must be a valid integer.',
+            'billing_address.required' => 'Address is required.',
+            'billing_city.required' => 'City is required.',
+            'billing_country.required' => 'Country is required.',
+            'alternative_phone_number_1.regex' => 'Alternative phone number 1 must be exactly ' . $this->mobileLengthAlt1 . ' digits.',
+            'alternative_phone_number_2.regex' => 'Alternative phone number 2 must be exactly ' . $this->mobileLengthAlt2 . ' digits.',
+        ];
+    }
 
     
     private function uploadImage()
@@ -195,20 +142,7 @@ class UserAddressForm extends Component
     }
     
 
-    // private function uploadVideo()
-    // {
-    //     if ($this->verified_video) {
-    //         $timestamp = now()->timestamp;
-    //         $extension = $this->verified_video->getClientOriginalExtension();
-    //         $videoName = $timestamp . '.' . $extension;
-
-    //         // Store the video and return the path
-    //         $storedVideoPath =  $this->verified_video->storeAs('verified_video', $videoName, 'public');
-    //         return 'storage/'.$storedVideoPath;
-    //     }
-    //     return null;
-    // }
-
+ 
     public function updatedImage(){
         if($this->image){
             $this->tempImageUrl = $this->image->temporaryUrl();
@@ -254,24 +188,21 @@ class UserAddressForm extends Component
                 'name' => $this->name,
                 'customer_badge' => $this->badge_type,
                 'profile_image' => $imagePath,
-                // 'verified_video' =>  $videoPath,
                 'company_name' => $this->company_name,
                 'employee_rank' => $this->employee_rank,
                 'email' => $this->email,
                 'dob'=>$this->dob,
-                'country_code_phone' => $this->selectedCountryPhone,
+                'country_code_phone' => $this->phone_code,
                 'phone' => $this->phone,
                 'country_code_whatsapp' => $this->selectedCountryWhatsapp,
-                // 'whatsapp_no' => $this->whatsapp_no,
                 'gst_number' => $this->gst_number,
                 'credit_limit' => $this->credit_limit === '' ? 0 : $this->credit_limit,
                 'credit_days' => $this->credit_days === '' ? 0 : $this->credit_days,
                 'gst_certificate_image' => $this->gst_certificate_image ? $this->uploadGSTCertificate() : null,
                 'country_id' => $this->country_id,// Handle file upload
-                // 'country_code' => $this->country_code,
-                'country_code_alt_1'  => $this->selectedCountryAlt1,
+                'country_code_alt_1'  => $this->alt_phone_code_1,
                 'alternative_phone_number_1'=> $this->alternative_phone_number_1,
-                'country_code_alt_2'  => $this->selectedCountryAlt2,
+                'country_code_alt_2'  => $this->alt_phone_code_2,
                 'alternative_phone_number_2' => $this->alternative_phone_number_2,
                 'created_by' => $auth->id
             ];
@@ -288,7 +219,7 @@ class UserAddressForm extends Component
                         ['user_id' => $user->id,
                         'whatsapp_number' => $this->phone,
                         ],
-                        ['country_code' => $this->selectedCountryPhone,
+                        ['country_code' => $this->phone_code,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
@@ -305,7 +236,7 @@ class UserAddressForm extends Component
                     'user_id' => $user->id,
                     'whatsapp_number' => $this->alternative_phone_number_1
                     ],
-                    ['country_code' => $this->selectedCountryAlt1,
+                    ['country_code' => $this->alt_phone_code_1,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -321,7 +252,7 @@ class UserAddressForm extends Component
                     'user_id' => $user->id,
                     'whatsapp_number' => $this->alternative_phone_number_2,
                     ],
-                    ['country_code' => $this->selectedCountryAlt2,
+                    ['country_code' => $this->alt_phone_code_2,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -331,14 +262,7 @@ class UserAddressForm extends Component
             // Store billing address
             $this->storeAddress($user->id, 1, $this->billing_address, $this->billing_landmark, $this->billing_city, $this->billing_state, $this->billing_country, $this->billing_pin);
 
-            // Check if shipping address is the same as billing address
-            // if(!$this->is_billing_shipping_same){
-            //     // Store shipping address separately
-            //     $this->storeAddress($user->id, 2, $this->shipping_address, $this->shipping_landmark, $this->shipping_city, $this->shipping_state, $this->shipping_country, $this->shipping_pin);
-            // }else{
-            //     // Store shipping address as the same as billing
-            //     $this->storeAddress($user->id, 2, $this->billing_address, $this->billing_landmark, $this->billing_city, $this->billing_state, $this->billing_country, $this->billing_pin);
-            // }
+          
 
             // Commit the transaction
             DB::commit();

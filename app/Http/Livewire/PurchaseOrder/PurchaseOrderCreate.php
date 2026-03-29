@@ -97,7 +97,7 @@ class PurchaseOrderCreate extends Component
             // Begin database transaction
             DB::beginTransaction();
             $supplier = Supplier::find($this->selectedSupplier);
-            
+            $designationId = auth()->guard('admin')->user()->id;
             // Insert the purchase order
             $purchaseOrder = new PurchaseOrder();
             $purchaseOrder->supplier_id = $this->selectedSupplier;
@@ -112,6 +112,8 @@ class PurchaseOrderCreate extends Component
             $purchaseOrder->total_price = array_sum(array_column($this->rows, 'total_amount'));
             $productIds = [];
             $fabricIds = [];
+            $purchaseOrder->is_approved = ($designationId == 1) ? 1 : 0;
+            $purchaseOrder->created_by = $designationId ?? null;
             $purchaseOrder->save();
 
             // Insert related purchase order products
@@ -228,6 +230,13 @@ class PurchaseOrderCreate extends Component
     }
 
     public function removeRow($index){
+        if (!is_array($this->rows)) {
+             $this->rows = [];
+        }
+        if (!is_array($this->isFabricSelected)) {
+            $this->isFabricSelected = [];
+        }
+
         unset($this->rows[$index]);
         unset($this->isFabricSelected[$index]);
         $this->rows = array_values($this->rows);
